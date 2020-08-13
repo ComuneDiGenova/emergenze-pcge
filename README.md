@@ -103,6 +103,8 @@ La gestione dell'autenticazione è garantita dal sistema SIRAC SSO che è defini
 
 Noto il CF dell'utente il sistema verifica in una tabella del DB PostgreSQL l'appartenenza dell'utente tra quelli di sistema.
 
+Il CF viene passato nel request header e viene controllato dal file *pages/check_evento.php* (https://github.com/ComuneDiGenova/emergenze-pcge/blob/dbdb9f4911d9032b4c3b60712d98018f2e13a64e/pages/check_evento.php#L212)
+
 
 ## I file con le credenziali
 Come si può vedere dal file .gitignore ci sono alcuni file con dati sensibili che non sono parte del presente repository e vanno ricreati manualmente per far funzionare  il sistema: 
