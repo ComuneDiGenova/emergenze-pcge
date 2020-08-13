@@ -70,7 +70,7 @@ require('./tables/filtri_segnalazioni.php');
             <div class="row">
 
 		 <a class="btn btn-primary" data-toggle="collapse" href="#collapsedata" role="button" aria-expanded="false" aria-controls="collapseExample">
-            <i class="fas fa-hourglass"></i>  Filtra per data
+            <i class="fas fa-hourglass"></i>  Filtra per data di chiusura
          </a>
          <?php if($resp!=''){?>
 			<a class="btn btn-primary" href="./<?php echo $pagina?>?u=<?php echo $uo?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>">
@@ -94,14 +94,14 @@ require('./tables/filtri_segnalazioni.php');
 				<div class="form-check col-md-6">
 				<label for="startdate">Da (AAAA/MM/GG HH:MM):</label>
 				<input type="text" class="form-control" id="startdate" name="startdate" value="<?php echo str_replace("'", "", $filtro_from)?>">
-				<small id="sdateHelp" class="form-text text-muted"> Inserire la data e l'ora (opzionale)</small>
+				<small id="sdateHelp" class="form-text text-muted"> Inserire la data e l'ora (opzionale) di chiusura</small>
 				</div>
 				
 				
 				<div class="form-check col-md-6">
 				<label for="todate">A (AAAA/MM/GG HH:MM):</label>
 				<input type="text" class="form-control" id="todate" name="todate" value="<?php echo str_replace("'", "", $filtro_to)?>">
-				<small id="tdateHelp" class="form-text text-muted"> Inserire la data e l'ora (opzionale)</small>
+				<small id="tdateHelp" class="form-text text-muted"> Inserire la data e l'ora (opzionale) di chiusura</small>
 				</div>
 			
 			

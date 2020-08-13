@@ -25,7 +25,7 @@ if (strlen($filtro_from)>=12 || strlen($filtro_to)>=12){
 	}
 	
 	if (strlen($filtro_from)>=12 ) {
-		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') > ".$filtro_from." ";
+		$filter = $filter . " TO_TIMESTAMP(time_stop, 'DD/MM/YYYY HH24:MI:SS') > ".$filtro_from." ";
 	}
 	
 	if (strlen($filtro_from)>=12 && strlen($filtro_to)>=12) {
@@ -33,7 +33,7 @@ if (strlen($filtro_from)>=12 || strlen($filtro_to)>=12){
 	}
 	
 	if (strlen($filtro_to)>=12) {
-		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') < ".$filtro_to." ";
+		$filter = $filter . " TO_TIMESTAMP(time_stop, 'DD/MM/YYYY HH24:MI:SS') < ".$filtro_to." ";
 	}
 	
 	if ($check2==1){

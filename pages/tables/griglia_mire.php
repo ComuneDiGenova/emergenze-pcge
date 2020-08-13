@@ -52,7 +52,7 @@ if(!$conn) {
     //echo $query;
 	$result = pg_query($conn, $query);
 	#echo $query;
-	#exit;
+	//exit;
 	$rows = array();
 	while($r = pg_fetch_assoc($result)) {
     		$rows[] = $r;
