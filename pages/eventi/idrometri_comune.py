@@ -38,9 +38,11 @@ def main():
         # 4
         print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
     #query1 = "SELECT TOP 100 m.IDtime, m.value, m.quality, s.IDStation,s.station FROM DATA m JOIN TAGS t ON m.IDtag=t.IDtag JOIN STATIONS s ON s.IDstation = t.IDstation where t.IDMea=9 ORDER BY m.IDtime desc;"
-    query1 = "SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name FROM stations s JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9 GROUP BY s.IDStation,s.station, t.input_name;"
+    query1 = "SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name FROM stations s JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9  and s.station not like '% ID%' GROUP BY s.IDStation,s.station, t.input_name;"
     #query1 = "SELECT * FROM TAGS;"
-    #query1="SELECT COLUMN_NAME,* FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'STATIONS'"
+    #query1="SELECT COLUMN_NAME,* FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'REALTIME'"
+    #query1= "SELECT * FROM STATIONS";
+    #query1="SELECT * FROM ";
     print('#####################################################################################')
     print(query1)
     print('#####################################################################################')
@@ -61,9 +63,9 @@ def main():
         # 2
         #print('{}, {}'.format(row[0],row[1]))
         # 4
-        #print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
+        print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
         # 5 
-        print('{}, {}, {}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4]))
+        #print('{}, {}, {}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4]))
         # 13
         #print('{}, {}, {}, {}, {},{}, {}, {}, {}, {},{}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4],row[5],row[6],row[7],row[8], row[9],row[10],row[11],row[12]))
         
