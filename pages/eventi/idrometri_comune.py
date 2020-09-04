@@ -37,12 +37,12 @@ def main():
         print(len(row))
         # 4
         print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
-    #query1 = "SELECT TOP 100 m.IDtime, m.value, m.quality, s.IDStation,s.station FROM DATA m JOIN TAGS t ON m.IDtag=t.IDtag JOIN STATIONS s ON s.IDstation = t.IDstation where t.IDMea=9 ORDER BY m.IDtime desc;"
-    query1 = "SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name FROM stations s JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9  and s.station not like '% ID%' GROUP BY s.IDStation,s.station, t.input_name;"
+    query1 = "SELECT TOP 15  m.IDtime, AVG(m.value) as value, m.quality, s.IDStation,s.station FROM DATA m JOIN TAGS t ON m.IDtag=t.IDtag JOIN STATIONS s ON s.IDstation = t.IDstation where t.IDMea=9 and m.quality=0 GROUP BY m.quality, s.IDStation,s.station, m.IDtime ORDER BY m.IDtime desc;"
+    #query1 = "SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name FROM stations s JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9  and s.station not like '% ID%' GROUP BY s.IDStation,s.station, t.input_name;"
     #query1 = "SELECT * FROM TAGS;"
-    #query1="SELECT COLUMN_NAME,* FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'REALTIME'"
+    #query1="SELECT COLUMN_NAME,* FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'DATA'"
     #query1= "SELECT * FROM STATIONS";
-    #query1="SELECT * FROM ";
+    #query1="SELECT TOP 15 d.IDtime, d.value, t.Idstation, d.iDtag, t.rec_time FROM DATA d JOIN TAGS t ON d.IDtag=t.IDtag where t.IDMea=9 ORDER BY IDtime DESC";
     print('#####################################################################################')
     print(query1)
     print('#####################################################################################')
@@ -63,43 +63,23 @@ def main():
         # 2
         #print('{}, {}'.format(row[0],row[1]))
         # 4
-        print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
+        #print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
         # 5 
-        #print('{}, {}, {}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4]))
+        print('{}, {}, {}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4]))
+        query2="INSERT INTO geodb.lettura_idrometri_comune (id_station, data_ora, lettura) VALUES ('{0}',TO_TIMESTAMP('{1}', 'YYYYMMDDHH24MISS'), {2});".format(row[3],row[0],row[1])
+        print(query2)
+        try:
+            cur.execute(query2);
+        except:
+            print('Dato delle {0} non inserito'.format(row[0]))
         # 13
         #print('{}, {}, {}, {}, {},{}, {}, {}, {}, {},{}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4],row[5],row[6],row[7],row[8], row[9],row[10],row[11],row[12]))
         
-    exit()
+    #exit()
     # print("id_asta={}".format(id_asta))
-
-    query = "SELECT ID_Manufatto, codvia FROM VManufatti where id_oggetto_riferimento = {};".format(id_asta)
-    cursor.execute(query)
-    row = cursor.fetchone()
-    while row:
-        # print(str(row[0]) + " " + str(row[1]) + " " + str(row[2]))
-        # print('id manufatto:{}'.format(row[0]))
-        # print('codvia:{}'.format(row[1]))
-        id_manufatto = row[0]
-        # print('civico:{}'.format(row[2]))
-        # print('id_asta:{}'.format(row[3]))
-        row = cursor.fetchone()
 
     conn.close()
     con.close()
-
-    token = t.token
-    IdSegnalante = t.IdSegnalante
-    risposta=[]
-    risposta=get_response_from_provider(token, id_pc,  descrizione, id_manufatto, codvia, ncivico, colore, lettera)
-    response = risposta[0]
-    id_segnalazione = risposta [1]
-    print(response.status_code)
-    print(id_segnalazione)
-    # print(response)
-    if response.status_code == 200:
-        # print('OK')
-        return 200
-    # ORA SI RICHIAMA IL WS
 
 
 if __name__ == "__main__":

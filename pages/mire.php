@@ -89,6 +89,9 @@ require('./check_evento.php');
         <th class="noprint" data-field="state" data-checkbox="true"></th>    
 		<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
 		<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
+		<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+		<th data-field="arancio" data-sortable="true" data-visible="false" data-filter-control="select">Liv arancione</th>
+		<th data-field="rosso" data-sortable="true" data-visible="false" data-filter-control="select">Liv rosso</th>
 		<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">6-5 h</th>
 		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">5-4 h</th>            
@@ -105,21 +108,49 @@ require('./check_evento.php');
 
 <script>
 function nameFormatterInsert(value, row) {
-	return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#new_lettura'+value+'">\
-	<i class="fas fa-search-plus" title="Aggiungi lettura per '+row.nome+'"></i></button> - \
-	<a class="btn btn-info" href="mira.php?id='+value+'"> <i class="fas fa-chart-line" title=Visualizza ed edita dati storici></i></a>';
+	if(row.tipo != 'IDROMETRO COMUNE' && row.tipo != 'IDROMETRO ARPA'){
+		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#new_lettura'+value+'">\
+		<i class="fas fa-search-plus" title="Aggiungi lettura per '+row.nome+'"></i></button> - \
+		<a class="btn btn-info" href="mira.php?id='+value+'"> <i class="fas fa-chart-line" title=Visualizza ed edita dati storici></i></a>';
+	} else if (row.tipo=='IDROMETRO ARPA') {
+		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_a'+value+'">\
+		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
+	 }
 }
 
 
-function nameFormatterLettura(value) {
-	if(value==1){
-		return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
-	} else if (value==2) {
-		return '<i class="fas fa-circle" style="color:#ffff00;"></i></button>';
-	} else if (value==3) {
-		return '<i class="fas fa-circle" style="color:#cb3234;"></i></button>';
+function nameFormatterLettura(value,row) {
+	if(row.tipo=='IDROMETRO ARPA'){
+		<?php
+		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
+		$result_soglie = pg_query($conn, $query_soglie);
+		while($r_soglie = pg_fetch_assoc($result_soglie)) {
+			$arancio=$r_soglie['liv_arancione'];
+			$rosso=$r_soglie['liv_rosso'];
+		}
+		?>
+		if(value < row.arancio ){
+			return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
+		} else if (value > row.arancio && value < row.rosso) {
+			return '<i class="fas fa-circle" style="color:#ffff00;"></i></button>';
+		} else if (value > row.rosso) {
+			return '<i class="fas fa-circle" style="color:#cb3234;"></i></button>';
+		} else {
+			return '-';
+		}
+		
+	} else if(row.tipo=='IDROMETRO COMUNE'){
+		return Math.round(value*1000)/1000;
 	} else {
-		return '-';
+		if(value==1){
+			return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
+		} else if (value==2) {
+			return '<i class="fas fa-circle" style="color:#ffff00;"></i></button>';
+		} else if (value==3) {
+			return '<i class="fas fa-circle" style="color:#cb3234;"></i></button>';
+		} else {
+			return '-';
+		}
 	}		
 }
 
@@ -231,6 +262,34 @@ while($r = pg_fetch_assoc($result)) {
 
 <?php } ?>
 
+
+
+
+<?php
+$query0="SELECT name, shortcode FROM geodb.tipo_idrometri_arpa;";
+$result0 = pg_query($conn, $query0);
+while($r0 = pg_fetch_assoc($result0)) {
+?>
+	<div id="grafico_i_a<?php echo $r0['shortcode']; ?>" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Grafico <?php echo $r0['name']; ?></h4>
+		  </div>
+		  <div class="modal-body">
+				<?php 
+				$idrometro=$r0["shortcode"];
+				require('./grafici_idrometri.php'); 
+				?>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+<?php } ?>
 
 
 
