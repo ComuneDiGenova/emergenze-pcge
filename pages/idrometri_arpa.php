@@ -1,6 +1,6 @@
 <?php 
 
-$subtitle="Monitoraggio corsi d'acqua"
+$subtitle="Monitoraggio corsi d'acqua";
 $idrometro='';
 $idrometro=$_GET[i];
 ?>
