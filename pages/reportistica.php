@@ -512,32 +512,33 @@ while($r = pg_fetch_assoc($result)) {
 	if ($r['descrizione_chiusura']!=''){
 		echo "<b>Note chiusura:</b>".$r['descrizione_chiusura']."<br>";
 	}
-	if ($r['incarichi']=='t'){
-		echo '<i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i> Lavorazione in corso - ';
-	} else if ($r['incarichi']=='f') {
-		echo '<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i> Nessuna lavorazione in corso - ';
-	} 
-	if ($r['conteggio_incarichi']>0){
-		echo ' '.$r['conteggio_incarichi'].' incarichi assegnati - ';
-	} else {
-		echo 'Nessun incarico assegnato - ';
+	if ($r['descrizione_chiusura']=='') {
+		if ($r['incarichi']=='t'){
+			echo '<i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i> Lavorazione in corso - ';
+		} else if ($r['incarichi']=='f') {
+			echo '<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i> Nessuna lavorazione in corso - ';
+		} 
+		if ($r['conteggio_incarichi']>0){
+			echo ' '.$r['conteggio_incarichi'].' incarichi assegnati - ';
+		} else {
+			echo 'Nessun incarico assegnato - ';
+		}
+		if ($r['conteggio_incarichi_interni']>0){
+			echo ' '.$r['conteggio_incarichi_interni'].' incarichi interni assegnati - ';
+		} else {
+			echo 'Nessun incarico interno assegnato - ';
+		}
+		if ($r['conteggio_sopralluoghi']>0){
+			echo ' '.$r['conteggio_incarichi'].' presidi assegnati - ';
+		} else {
+			echo 'Nessun presidio assegnato - ';
+		}
+		if ($r['conteggio_pc']>0){
+			echo ' '.$r['conteggio_pc'].' provvedimenti cautelari assegnati - ';
+		} else {
+			echo 'Nessun provvedidimento cautelare assegnato - ';
+		}
 	}
-	if ($r['conteggio_incarichi_interni']>0){
-		echo ' '.$r['conteggio_incarichi_interni'].' incarichi interni assegnati - ';
-	} else {
-		echo 'Nessun incarico interno assegnato - ';
-	}
-	if ($r['conteggio_sopralluoghi']>0){
-		echo ' '.$r['conteggio_incarichi'].' presidi assegnati - ';
-	} else {
-		echo 'Nessun presidio assegnato - ';
-	}
-	if ($r['conteggio_pc']>0){
-		echo ' '.$r['conteggio_pc'].' provvedimenti cautelari assegnati - ';
-	} else {
-		echo 'Nessun provvedidimento cautelare assegnato - ';
-	}
-	
 	
 		if ($r['conteggio_incarichi']>0){
 			echo '<br>--<br><b>Incarichi:</b> ';

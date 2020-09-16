@@ -519,10 +519,12 @@ while($r = pg_fetch_assoc($result)) {
 	if ($r['descrizione_chiusura']!=''){
 		echo "<b>Note chiusura:</b>".$r['descrizione_chiusura']."<br>";
 	}
-	if ($r['incarichi']=='t'){
-		echo '<i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i> Lavorazione in corso ';
-	} else if ($r['incarichi']=='f') {
-		echo '<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i> Nessuna lavorazione in corso ';
+	if ($r['descrizione_chiusura']=='') {
+		if ($r['incarichi']=='t'){
+			echo '<i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i> Lavorazione in corso ';
+		} else if ($r['incarichi']=='f') {
+			echo '<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i> Nessuna lavorazione in corso ';
+		}
 	}
 	echo "<br>";
 	
