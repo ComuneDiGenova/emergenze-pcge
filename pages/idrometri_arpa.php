@@ -45,7 +45,7 @@ require('./check_evento.php');
                 </div>
 
 				<?php 
-				require('./grafici_idrometri.php');
+				require('./grafici_idrometri_arpa.php');
 				?>
 
             </div>
@@ -54,6 +54,13 @@ require('./check_evento.php');
             
             <br><br>
             <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">Elenco idrometri Comune</h1>
+                </div>
+
+				<?php 
+				require('./grafici_idrometri_comune.php');
+				?>
 
             </div>
             <!-- /.row -->

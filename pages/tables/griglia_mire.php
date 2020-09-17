@@ -111,8 +111,9 @@ if(!$conn) {
     ( SELECT max(lettura_idrometri_comune.lettura) AS max
            FROM geodb.lettura_idrometri_comune
           WHERE p.id::text = lettura_idrometri_comune.id_station::text AND lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '00:10:00'::interval) AND lettura_idrometri_comune.data_ora < timezone('utc'::text, now())) AS \"0\"
-   FROM geodb.tipo_idrometri_comune p
+   FROM geodb.tipo_idrometri_comune p 
      LEFT JOIN geodb.lettura_idrometri_comune l ON l.id_station::text = p.id::text
+     WHERE p.usato = 't'
   GROUP BY p.nome, l.id_station, p.id
    order by nome;";
    //echo $query;

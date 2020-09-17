@@ -115,6 +115,9 @@ function nameFormatterInsert(value, row) {
 	} else if (row.tipo=='IDROMETRO ARPA') {
 		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_a'+value+'">\
 		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
+	 } else if (row.tipo=='IDROMETRO COMUNE') {
+		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_c'+value+'">\
+		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
 	 }
 }
 
@@ -280,7 +283,32 @@ while($r0 = pg_fetch_assoc($result0)) {
 		  <div class="modal-body">
 				<?php 
 				$idrometro=$r0["shortcode"];
-				require('./grafici_idrometri.php'); 
+				require('./grafici_idrometri_arpa.php'); 
+				?>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+<?php } 
+
+$query0="SELECT nome, id FROM geodb.tipo_idrometri_comune WHERE usato='t';";
+$result0 = pg_query($conn, $query0);
+while($r0 = pg_fetch_assoc($result0)) {
+?>
+	<div id="grafico_i_c<?php echo $r0['id']; ?>" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Grafico <?php echo $r0['nome']; ?></h4>
+		  </div>
+		  <div class="modal-body">
+				<?php 
+				$idrometro=$r0["id"];
+				require('./grafici_idrometri_comune.php'); 
 				?>
 		  </div>
 		  <div class="modal-footer">
@@ -290,7 +318,6 @@ while($r0 = pg_fetch_assoc($result0)) {
 	  </div>
 	</div>
 <?php } ?>
-
 
 
 				

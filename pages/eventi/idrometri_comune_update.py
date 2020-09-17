@@ -10,6 +10,9 @@ import os, sys, re  # ,shutil,glob
 
 import getopt  # per gestire gli input
 
+#import datetime
+from datetime import date, timedelta, datetime
+
 import pymssql
 import conn_mssql as c
 
@@ -63,10 +66,19 @@ def main():
         #print(row[2])
         start=standardize_date(row[2])
         stop=standardize_date(row[3])
-        if len(check) ==0:
-            query2="INSERT INTO geodb.tipo_idrometri_comune(id, nome, first_rec, last_rec, usato) VALUES ('{0}','{1}',TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'),TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), 't');".format(row[0],row[1],start, stop)
+        #print(stop)
+        stop_date=datetime.strptime(stop, '%Y%m%d%H%M%S')
+        #print(stop_date)
+        yesterday = datetime.today() - timedelta(days=1)
+        if stop_date < yesterday:
+            us='f'
         else:
-            query2="UPDATE geodb.tipo_idrometri_comune SET id='{0}', nome='{1}', first_rec=TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'), last_rec=TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS') WHERE id='{0}';".format(row[0],row[1],start, stop)
+            us='t'
+        print(us)
+        if len(check) ==0:
+            query2="INSERT INTO geodb.tipo_idrometri_comune(id, nome, first_rec, last_rec, usato) VALUES ('{0}','{1}',TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'),TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), {4});".format(row[0],row[1],start, stop, us)
+        else:
+            query2="UPDATE geodb.tipo_idrometri_comune SET id='{0}', nome='{1}', first_rec=TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'), last_rec=TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), usato='{4}' WHERE id='{0}';".format(row[0],row[1],start, stop, us)
         print(query2)
         cur.execute(query2);
         

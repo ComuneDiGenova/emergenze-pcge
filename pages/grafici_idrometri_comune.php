@@ -18,6 +18,8 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				$query="SELECT nome, id FROM geodb.tipo_idrometri_comune";
 				if ($idrometro!=''){
 					$query=$query ." WHERE id='".$idrometro."' ";
+				} else {
+					$query=$query ." WHERE usato='t' ";
 				}
 				$query=$query .";";
 				//echo $query;
@@ -34,9 +36,9 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				?>
 					<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 					<script type="text/javascript">
-					Highcharts.getJSON('../vendor/omirl_data_ingestion/<?php echo $r["shortcode"];?>_Idro.json', function (data) {
+					Highcharts.getJSON('./eventi/json_idrometro.php?id=<?php echo $r["id"];?>', function (data) {
 					// Create the chart
-					Highcharts.stockChart('grafico_<?php echo $r["shortcode"];?>', {
+					Highcharts.stockChart('grafico_<?php echo $r["id"];?>', {
 
 
 						rangeSelector: {
@@ -74,13 +76,13 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 						},*/
 
 						title: {
-							text: '<?php echo $r["name"];?>'
+							text: '<?php echo $r["nome"];?>'
 						},
 						yAxis: {
 							title: {
 								text: 'Livello idrometrico[m]'
 							},
-							max:<?php echo $liv_max;?>,
+							/*max:<?php echo $liv_max;?>,
 							plotLines: [{
 								value: <?php echo $arancio;?>,
 								color: '#FFC020',
@@ -98,10 +100,12 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 									text: 'Soglia rossa'
 								},
 								value: <?php echo $rosso;?>
-							}]
+							}
+							]*/
+							max:5
 						},
 						series: [{
-							name: '<?php echo $r["name"];?>',
+							name: '<?php echo $r["nome"];?>',
 							data: data,
 							tooltip: {
 								valueDecimals: 2
@@ -116,7 +120,7 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				
 		
 					<!-- 3. Add the container -->
-					<div id="grafico_<?php echo $r["shortcode"];?>" style="width: 100%; height: 400px; margin: 0 auto"></div>
+					<div id="grafico_<?php echo $r["id"];?>" style="width: 100%; height: 400px; margin: 0 auto"></div>
 					<hr>		
 							
 				<?php
