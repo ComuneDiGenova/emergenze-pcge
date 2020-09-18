@@ -1,6 +1,6 @@
 <?php 
 
-$subtitle="Monitoraggio corsi d'acqua"
+$subtitle="Monitoraggio corsi d'acqua "
 
 ?>
 <!DOCTYPE html>
@@ -99,7 +99,7 @@ require('./check_evento.php');
 		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">3-2 h</th>  
 		<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">2-1 h</th>
 		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">1h -10'</th>
-		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><10'</th>
+		<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><10'</th>
 		<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
     </tr>
 </thead>
@@ -133,11 +133,11 @@ function nameFormatterLettura(value,row) {
 		}
 		?>
 		if(value < row.arancio ){
-			return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
+			return '<font style="color:#00bb2d;">'+value+'</font>';
 		} else if (value > row.arancio && value < row.rosso) {
-			return '<i class="fas fa-circle" style="color:#ffff00;"></i></button>';
+			return '<font style="color:#FFC020;">'+value+'</font>';
 		} else if (value > row.rosso) {
-			return '<i class="fas fa-circle" style="color:#cb3234;"></i></button>';
+			return '<font style="color:#cb3234;">'+value+'</font>';
 		} else {
 			return '-';
 		}
@@ -172,7 +172,7 @@ WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo';";
 $result = pg_query($conn, $query);
 while($r = pg_fetch_assoc($result)) {
 ?>
-	<!-- Modal allerta-->
+	<!-- Modal nuova lettura-->
 	<div id="new_lettura<?php echo $r['id']; ?>" class="modal fade" role="dialog">
 	  <div class="modal-dialog">
 		<!-- Modal content-->
@@ -197,11 +197,11 @@ while($r = pg_fetch_assoc($result)) {
 				 <?php } ?>
 				 </select>            
 				 </div>
+				<!--div class="form-group">
+					<label for="data_inizio" >Data lettura (AAAA-MM-GG) </label> <font color="red">*</font>                 
+					<input type="text" class="form-control" name="data_inizio" id="js-date<?php echo $r["id"]; ?>" required>
+				</div> 
 				<div class="form-group">
-							<label for="data_inizio" >Data lettura (AAAA-MM-GG) </label> <font color="red">*</font>                 
-							<input type="text" class="form-control" name="data_inizio" id="js-date<?php echo $r["id"]; ?>" required>
-						</div> 
-						<div class="form-group"-->
 					<label for="ora_inizio"> Ora lettura:</label> <font color="red">*</font>
 				  <div class="form-row">
 						<div class="form-group col-md-6">
@@ -238,7 +238,7 @@ while($r = pg_fetch_assoc($result)) {
 					  </select>
 					  </div>
 					</div>  
-					</div>
+					</div-->
 					
 			<button  id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
 				</form>

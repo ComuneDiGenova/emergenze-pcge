@@ -54,11 +54,98 @@ while($r = pg_fetch_assoc($result)) {
 		
              <div class="row">
                 <div class="col-lg-12">
-                    <h3 class="page-header">Dati mira sul <?php echo $name_sensore ?> (n. <?php echo $id?>) 
+                    <h3 class="page-header">Dati mira sul <?php echo $name_sensore ?> (n. <?php echo $id?>) </h3>
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button> - 
-					<a class="btn btn-info" href="mire.php"> Visualizza tutti i punti </a> </h3>
+					
+					<button type="button" class="btn btn-info noprint" data-toggle="modal" 
+					data-target="#new_lettura<?php echo $id; ?>">
+					<i class="fas fa-search-plus" title="Aggiungi lettura per '+row.nome+'"></i>
+					Aggiungi lettura </button> - 
+					<a class="btn btn-info" href="mire.php"> Visualizza tutti i punti </a>
+		 
                 </div>
+
+
+<!-- Modal nuova lettura-->
+	<div id="new_lettura<?php echo $id; ?>" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Inserire lettura <?php echo $name_sensore; ?></h4>
+		  </div>
+		  <div class="modal-body">
+		  <form autocomplete="off" action="./eventi/nuova_lettura.php?id='<?php echo $id; ?>'" method="POST">
+			   <div class="form-group">
+				  <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
+								<select class="form-control" name="tipo" id="tipo" required="">
+								<option name="tipo" value="" > ... </option>
+				<?php            
+				$query2="SELECT id,descrizione,rgb_hex From \"geodb\".\"tipo_lettura_mire\" WHERE valido='t';";
+				$result2 = pg_query($conn, $query2);
+				//echo $query1;    
+				while($r2 = pg_fetch_assoc($result2)) { 
+				?>    
+						<option name="tipo" value="<?php echo $r2['id'];?>"><?php echo $r2['descrizione'];?></option>
+				 <?php } ?>
+				 </select>            
+				 </div>
+				<div class="form-group">
+					<label for="data_inizio" >Data lettura (AAAA-MM-GG) </label> <font color="red">*</font>                 
+					<input type="text" class="form-control" name="data_inizio" id="js-date<?php echo $id; ?>" required>
+				</div> 
+				<div class="form-group">
+					<label for="ora_inizio"> Ora lettura:</label> <font color="red">*</font>
+				  <div class="form-row">
+						<div class="form-group col-md-6">
+					  <select class="form-control"  name="hh_start" required>
+					  <option name="hh_start" value="" > Ora </option>
+						<?php 
+						  $start_date = 0;
+						  $end_date   = 24;
+						  for( $j=$start_date; $j<=$end_date; $j++ ) {
+							if($j<10) {
+								echo '<option value="0'.$j.'">0'.$j.'</option>';
+							} else {
+								echo '<option value="'.$j.'">'.$j.'</option>';
+							}
+						  }
+						?>
+					  </select>
+					  </div>	
+						<div class="form-group col-md-6">
+					  <select class="form-control"  name="mm_start" required>
+					  <option name="mm_start" value="00" > 00 </option>
+						<?php 
+						  $start_date = 5;
+						  $end_date   = 59;
+						  $incremento = 5; 
+						  for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
+							if($j<10) {
+								echo '<option value="0'.$j.'">0'.$j.'</option>';
+							} else {
+								echo '<option value="'.$j.'">'.$j.'</option>';
+							}
+						  }
+						?>
+					  </select>
+					  </div>
+					</div>  
+					</div>
+					
+			<button  id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
+				</form>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+		  </div>
+		</div>
+
+	  </div>
+	</div>
+
 				
 				<?php
 				//echo strtotime("now");
@@ -176,6 +263,16 @@ require('./req_bottom.php');
 
 ?>
 
+<script type="text/javascript" >
+	$(document).ready(function() {
+		$('#js-date<?php echo $id; ?>').datepicker({
+			format: "yyyy-mm-dd",
+			clearBtn: true,
+			autoclose: true,
+			todayHighlight: true
+		});
+	});
+	</script>
 
     
 

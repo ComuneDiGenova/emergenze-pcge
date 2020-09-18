@@ -7,17 +7,21 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $id=$_GET["id"];
 $id=str_replace("'", "", $id);
 
-$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-//$d1 = new DateTime($data_inizio);
-//$d2 = new DateTime($data_fine);
-$d1 =  strtotime($data_inizio);
-
+if ($_POST["data_inizio"]==''){
+	date_default_timezone_set('Europe/Rome');
+	$data_inizio = date('Y-m-d H:i');
+} else{
+	$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
+	//$d1 = new DateTime($data_inizio);
+	//$d2 = new DateTime($data_fine);
+	//$d1 =  strtotime($data_inizio);
+}
 
 echo $data_inizio;
 echo "<br>";
 
-echo $d1;
-echo "<br>";
+//echo $d1;
+//echo "<br>";
 
 
 

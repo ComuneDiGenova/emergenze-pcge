@@ -87,7 +87,7 @@ require('./check_evento.php');
 			if ($profilo_sistema>0 and $profilo_sistema<=3){
 			?>
 			<button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
-			<i class="fa fa-print" aria-hidden="true"></i> Stampa pagina report (demo)</button>
+			<i class="fa fa-print" aria-hidden="true"></i>Stampa pagina report</button>
 			<?php } ?>
 			</h3>
 			</div>
@@ -274,12 +274,24 @@ require('./check_evento.php');
 						  </div>
 						</div>
 			
-			
+			<div class="row">
+				<?php require('./allerte_embed.php'); ?>
+			</div>
+			<hr>
+			<div class="row">
+			 <?php require('./monitoraggio_meteo_embed.php'); ?>
+			</div>
+
+			<!--hr-->
+
+			<div class="row">
+			<?php require('./comunicazioni_embed.php'); ?>
+			</div>
+
+			<!--hr-->
 			
 			<div class="row">
-			
             <?php require('./attivita_sala_emergenze_embed.php'); ?>
-			
 			</div>
 			
 			<hr>
@@ -768,8 +780,14 @@ while($r = pg_fetch_assoc($result)) {
 	} else {
 		echo '<h4> Nessun provvedidimento cautelare assegnato </h4> ';
 	}
+	/*$query_com="SELECT data_ora_stato, mittente, destinatario, testo 
+	FROM segnalazioni.v_segnalazioni 
+	WHERE id_lavorazione=".$r['id_segnalazione_in_lavorazione'].";";
+	$result_com = pg_query($conn, $query_com);
+	while($r_com = pg_fetch_assoc($result_com)) {
 	
-	
+	}
+	*/
 	/*	if ($r['conteggio_incarichi']>0){
 			echo '<br>--<br><b>Incarichi:</b> ';
 			$query_i = 'SELECT 

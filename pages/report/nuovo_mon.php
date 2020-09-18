@@ -157,7 +157,7 @@ require('../send_message_telegram.php');
 $query_telegram="SELECT telegram_id from users.utenti_sistema where id_profilo <= 3 and matricola_cf='MRZRRT84B01D969U' and telegram_id !='' and telegram_attivo='t';";
 echo $query_telegram;
 echo "<br>";
-$messaggio= "\xE2\x9A\xA0". $aggiornamento;
+$messaggio= "\xE2\x9A\xA0 - MONITORAGGIO METEO \xE2\x9A\xA0". $aggiornamento;
 $messaggio= $messaggio. "\n\nPer maggiori info consultre il programma ".$link." ";
 $messaggio= $messaggio ." (\xE2\x84\xB9 ricevi questo messaggio in quanto operatore di Protezione Civile \xE2\x84\xB9)";
 echo $messaggio;
@@ -169,18 +169,23 @@ while($r_telegram = pg_fetch_assoc($result_telegram)) {
 	$allegati=explode(";",$allegato_array);
 	// Count total files
 	$countfiles2 = count($allegati);
-	echo $countfiles;
+	echo $countfiles2;
+	echo "<br>";
 	// Looping all files
 	if($countfiles2 > 0) {
 		for($i=0;$i<$countfiles2;$i++){
 			$n_a=$i+1;
-			echo $allegati[$i];
-			sendPhoto($r_telegram['telegram_id'], "../../../".$allegati[$i] , $token);
+			echo "../../../".$allegati[$i];
+			//echo "<br>";
+			echo $hh=$_SERVER['HTTP_X_FORWARDED_HOST'];
+			echo "<br>";
+			sendPhoto($r_telegram['telegram_id'], 'https://'.$hh."/".$allegati[$i] , $token);
 		}
 	}
 }
 	
 }
+//exit;
 
 
 
@@ -194,7 +199,7 @@ while($r_telegram = pg_fetch_assoc($result_telegram)) {
 echo "<br>";
 //echo $query_log;
 
-$query="SELECT mail FROM users.t_mail_meteo;";
+$query="SELECT mail FROM users.t_mail_meteo WHERE valido = 't' ;";
 $result=pg_query($conn, $query);
 $mails=array();
 while($r = pg_fetch_assoc($result)) {
@@ -237,14 +242,15 @@ require '../incarichi/credenziali_mail.php';
 
 
 //Set who the message is to be sent from
-$mail->setFrom('salaemergenzepc@comune.genova.it', 'Sala Emergenze PC Genova');
+$mail->setFrom('monitoraggiometeo@comune.genova.it', 'Monitoraggio meteo- Protezione Civile Comune di Genova');
 //Set an alternative reply-to address
 $mail->addReplyTo('no-reply@comune.genova.it', 'No Reply');
 //Set who the message is to be sent to
 
 //$mails=array('vobbo@libero.it','roberto.marzocchi@gter.it');
 while (list ($key, $val) = each ($mails)) {
-  $mail->AddAddress($val);
+  //$mail->AddAddress($val);
+  $mail->AddBCC($val);
 }
 //Set the subject line
 $mail->Subject = 'Nuovo aggiornamento meteo ' .$data_mail;
@@ -252,15 +258,15 @@ $mail->Subject = 'Nuovo aggiornamento meteo ' .$data_mail;
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
 $body =  $aggiornamento . ' <br> <br> Protezione Civile del Comune di Genova. 
-<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema (invio monitoraggio meteo). 
- Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
+<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail &egrave registrato a sistema (invio monitoraggio meteo). 
+ Per modificare queste impostazioni &egrave possibile inviare una mail a adminemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
 
  
 require('../informativa_privacy_mail.php');
 
 $mail-> Body=$body ;
 
-$mail->addCC("vobbo@libero.it", "Copia per conoscenza");
+$mail->addBCC("assistenzagis@gter.it", "Copia per conoscenza");
 
 if ($allegato!=''){
 	$allegati=explode(";",$allegato_array);

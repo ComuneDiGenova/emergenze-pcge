@@ -180,8 +180,18 @@ if($_GET["s"] != '' and $_GET["t"] != ''){
 				if ($r['data_type']!='boolean' and $r['column_name']!=$column_id){
 			?>
 				<div class="form-group col-lg-12">
-                <label for="<?php echo $r['column_name']?>"> <?php echo $r['column_name']?></label> *
-                <input type="text" value='<?php echo $r0[$r['column_name']]?>' name="<?php echo $r['column_name']?>" class="form-control" required>
+                <label for="<?php echo $r['column_name']?>"> <?php echo $r['column_name']?></label> <?php
+                if($r['is_nullable']=='NO'){
+                	echo '*';
+                }
+                ?>
+                <input type="text" value='<?php echo $r0[$r['column_name']]?>' name="<?php echo $r['column_name']?>" class="form-control" 
+                <?php
+                if($r['is_nullable']=='NO'){
+                	echo 'required';
+                }
+                ?>
+                >
 				</div>
 				<?php } else if ($r['column_name'] == $column_id) { ?>
 				<div class="form-group col-lg-12">
@@ -372,7 +382,7 @@ if($_GET["s"] != '' and $_GET["t"] != ''){
 					<?php
 					
 					$query2="select * from information_schema.tables where table_name ilike 'tipo%' OR 
-					table_name ilike 'uo_1_livello' OR table_name ilike 'uo_2_livello' 
+					table_name ilike 'uo_1_livello' OR table_name ilike 'uo_2_livello' OR table_name ilike 'soglie%' 
 					order by table_schema,table_name ";
 					$result2 = pg_query($conn, $query2);
 					 

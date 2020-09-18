@@ -149,124 +149,17 @@ require('./check_evento.php');
 			?>
 			<hr>
 			<div class="row">
-			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			
-			<?php
-			$query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$id.";";
-			$result = pg_query($conn, $query);
-			while($r = pg_fetch_assoc($result)) {	
-
-				$timestamp = strtotime($r["data_ora_inizio_allerta"]);
-				setlocale(LC_TIME, 'it_IT.UTF8');
-				$data_start = strftime('%A %e %B %G', $timestamp);
-				$ora_start = date('H:i', $timestamp);
-				$timestamp = strtotime($r["data_ora_fine_allerta"]);
-				$data_end = strftime('%A %e %B %G', $timestamp);
-				$ora_end = date('H:i', $timestamp);								
-				$color=str_replace("'","",$r["rgb_hex"]);
-				//echo $color;
-				//echo '<span class="dot" style="background-color:'.$color.'"></span>';
-				//echo "<style> .fas { color: ".$color."; -webkit-print-color-adjust: exact;}</style>";
-				echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b>Allerta ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
-			}
-			?>
-			
- 
-			</div>	
-			
-			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<?php
-			$query="SELECT * FROM eventi.v_foc WHERE id_evento=".$id.";";
-			$result = pg_query($conn, $query);
-			while($r = pg_fetch_assoc($result)) {
-				$timestamp = strtotime($r["data_ora_inizio_foc"]);
-				setlocale(LC_TIME, 'it_IT.UTF8');
-				$data_start = strftime('%A %e %B %G', $timestamp);
-				$ora_start = date('H:i', $timestamp);
-				$timestamp = strtotime($r["data_ora_fine_foc"]);
-				$data_end = strftime('%A %e %B %G', $timestamp);
-				$ora_end = date('H:i', $timestamp);
-				$color=str_replace("'","",$r["rgb_hex"]);								
-				echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b> Fase di ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
-			}
-			?>
-			</div>
+				<?php require('./allerte_embed.php'); ?>
 			<hr>
 			</div>
 			
 			<div class="row">
-			 
 			 <?php require('./monitoraggio_meteo_embed.php'); ?>
-            
 			</div>
 			
 			<hr>
 			<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <h3>Comunicazioni generiche</h3>
-				<button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#comunicazione">
-					   <i class="fas fa-plus"></i> Aggiungi comunicazione</button>
-					   <ul>
-	   					<?php
-						$query='SELECT id, to_char(data_aggiornamento, \'DD/MM/YY HH24:MI\'::text) AS data_aggiornamento, testo, allegato FROM report.t_comunicazione 
-						WHERE id_evento = '.$id.';';
-						//echo $query;
-						$result = pg_query($conn, $query);
-						$c=0;
-						while($r = pg_fetch_assoc($result)) {
-							if ($c==0){
-								echo "<h3>Elenco comunicazioni generiche</h3>";
-							}
-							$c=$c+1;
-							//echo '<button type="button" class="btn btn-info noprint"  data-toggle="modal" 
-							//data-target="#update_mon_'.$r['id'].'">
-							//<i class="fas fa-edit"></i> Edit </button>';
-							echo " <li><b>Comunicazione del ".$r['data_aggiornamento']."</b>: ";
-							echo $r['testo'];
-							if ($r['allegato']!=''){
-								echo " (<a href=\"../../".$r['allegato']."\">Allegato</a>)";
-							}
-							echo "</li>";
-						}
-						echo "</ul><hr>";
-						?>
-						<!-- Modal comunicazione da UO-->
-						<div id="comunicazione" class="modal fade" role="dialog">
-						  <div class="modal-dialog">
-
-							<!-- Modal content-->
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Comunicazioni sull'evento / Verbale COC</h4>
-							  </div>
-							  <div class="modal-body">
-							  
-
-								<form autocomplete="off"  enctype="multipart/form-data"  action="eventi/comunicazione.php?id=<?php echo $id; ?>" method="POST">
-										 <div class="form-group">
-										<label for="note">Testo comunicazione <?php echo $id_evento;?></label>  <font color="red">*</font>
-										<textarea required="" class="form-control" id="note"  name="note" rows="3"></textarea>
-									  </div>
-									
-									<!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
-									<div class="form-group">
-									   <label for="note">Eventuale allegato (es. verbale COC)</label>
-										<input type="file" class="form-control-file" name="userfile" id="userfile">
-									</div>
-
-								<button  id="conferma" type="submit" class="btn btn-primary">Invia comunicazione</button>
-									</form>
-
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-							  </div>
-							</div>
-
-						  </div>
-						</div>
-			</div>
+			<?php require('./comunicazioni_embed.php'); ?>
 			</div>
 			
 			<div class="row">

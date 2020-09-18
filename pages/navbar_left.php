@@ -99,10 +99,25 @@
                             <ul class="nav nav-second-level">
 								<li>					                                  
   									<a href="mire.php"><i class="fas fa-search"></i> Mire su corsi d'acqua</a>
-                                </li>
+                        </li>
 								<li>					                                  
-  									<a href="idrometri_arpa.php"><i class="fas fa-chart-line"></i> Idrometri ARPA (Omirl) </a>
-                                </li>
+  									<a href="idrometri_arpa.php"><i class="fas fa-chart-line"></i> Grafici idrometri </a>
+                        </li>
+                        <?php
+               			if ($check_evento==1){
+									$len=count($eventi_attivi);	               
+	               			for ($i=0;$i<$len;$i++){
+	               			?><li>					                                  
+  									<a href="monitoraggio_meteo.php?id=<?php echo $eventi_attivi[$i];?>">
+  									<i class="fas fa-chart-line"></i> Monitoraggio meteo <br>
+  									<small>
+  									(Tipo <?php echo $tipo_eventi_attivi[$i][1];?> - Id=<?php echo $eventi_attivi[$i];?>)</small>
+  									</a>
+                        	</li>
+                        	<?php
+	               			}
+	               	}
+	               	?>
 						    </ul>
                             <!-- /.nav-second-level -->
                         </li>

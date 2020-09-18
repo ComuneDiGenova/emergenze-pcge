@@ -146,10 +146,11 @@
 							echo '<br> <button type="button" class="btn btn-info noprint"  data-toggle="modal" 
 							data-target="#update_mon_'.$r['id'].'">
 							<i class="fas fa-edit"></i> Edit </button>';
-							echo ' - <a class="btn btn-info noprint" href="../../'.$allegati[$i].'"> Scarica allegato '.$n_a.'</a><br><br><hr>';
+							echo ' - <a class="btn btn-info noprint" href="../../'.$allegati[$i].'"> Scarica allegato '.$n_a.'</a>';
 						}
 					}
 				}
+				echo "<br><hr>";
 				?>
 				
 				<!-- Modal edit-->
