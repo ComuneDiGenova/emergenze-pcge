@@ -123,7 +123,7 @@ function nameFormatterInsert(value, row) {
 
 
 function nameFormatterLettura(value,row) {
-	if(row.tipo=='IDROMETRO ARPA'){
+	if(row.tipo=='IDROMETRO ARPA' ){
 		<?php
 		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
 		$result_soglie = pg_query($conn, $query_soglie);
@@ -133,17 +133,33 @@ function nameFormatterLettura(value,row) {
 		}
 		?>
 		if(value < row.arancio ){
-			return '<font style="color:#00bb2d;">'+value+'</font>';
+			return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
 		} else if (value > row.arancio && value < row.rosso) {
-			return '<font style="color:#FFC020;">'+value+'</font>';
+			return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
 		} else if (value > row.rosso) {
-			return '<font style="color:#cb3234;">'+value+'</font>';
+			return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
 		} else {
 			return '-';
 		}
-		
 	} else if(row.tipo=='IDROMETRO COMUNE'){
-		return Math.round(value*1000)/1000;
+	//	return Math.round(value*1000)/1000;
+		<?php
+		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
+		$result_soglie = pg_query($conn, $query_soglie);
+		while($r_soglie = pg_fetch_assoc($result_soglie)) {
+			$arancio=$r_soglie['liv_arancione'];
+			$rosso=$r_soglie['liv_rosso'];
+		}
+		?>
+		if(value < row.arancio ){
+			return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
+		} else if (value > row.arancio && value < row.rosso) {
+			return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
+		} else if (value > row.rosso) {
+			return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+		} else {
+			return '-';
+		}
 	} else {
 		if(value==1){
 			return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
