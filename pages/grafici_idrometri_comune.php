@@ -82,9 +82,9 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 							title: {
 								text: 'Livello idrometrico[m]'
 							},
-							max:<?php echo max($liv_max,2);?>,
+							max:<?php echo $liv_max;?>,
 							plotLines: [{
-								value: <?php echo max($arancio,0.5);?>,
+								value: <?php echo $arancio;?>,
 								color: '#FFC020',
 								dashStyle: 'shortdash',
 								width: 2,
@@ -99,7 +99,7 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 								label: {
 									text: 'Soglia rossa'
 								},
-								value: <?php echo max($rosso,1);?>
+								value: <?php echo $rosso;?>
 							}
 							]
 							//max:5
