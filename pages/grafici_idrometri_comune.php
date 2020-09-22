@@ -25,14 +25,14 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				//echo $query;
 				$result = pg_query($conn, $query);
 				while($r = pg_fetch_assoc($result)) {
-					/*$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='".$r["shortcode"]."';";
+					$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='".$r["id"]."';";
 					$result_soglie = pg_query($conn, $query_soglie);
 					while($r_soglie = pg_fetch_assoc($result_soglie)) {
-						$arancio=$r_soglie['liv_arancione'];
-						$rosso=$r_soglie['liv_rosso'];
-						$liv_max=$rosso+1;
+						$arancio=max($r_soglie['liv_arancione'],0);
+						$rosso=max($r_soglie['liv_rosso'],0);
+						$liv_max=max($rosso,0)+1;
 					}
-					*/
+					
 				?>
 					<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 					<script type="text/javascript">
@@ -82,9 +82,9 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 							title: {
 								text: 'Livello idrometrico[m]'
 							},
-							/*max:<?php echo $liv_max;?>,
+							max:<?php echo max($liv_max,2);?>,
 							plotLines: [{
-								value: <?php echo $arancio;?>,
+								value: <?php echo max($arancio,0.5);?>,
 								color: '#FFC020',
 								dashStyle: 'shortdash',
 								width: 2,
@@ -99,10 +99,10 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 								label: {
 									text: 'Soglia rossa'
 								},
-								value: <?php echo $rosso;?>
+								value: <?php echo max($rosso,1);?>
 							}
-							]*/
-							max:5
+							]
+							//max:5
 						},
 						series: [{
 							name: '<?php echo $r["nome"];?>',

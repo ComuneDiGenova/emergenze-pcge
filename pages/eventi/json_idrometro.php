@@ -24,9 +24,9 @@ if(!$conn) {
 	while($r = pg_fetch_assoc($result)) {
     		//$rows[] = $r;
 			if ($check==0){
-				$json= $json . '['.$r['data_ora'].'000,'.$r['lettura'].']';
+				$json= $json . '['.$r['data_ora'].'000,'.max(0,$r['lettura']).']';
     		} else {
-				$json= $json . ',['.$r['data_ora'].'000,'.$r['lettura'].']';
+				$json= $json . ',['.$r['data_ora'].'000,'.max(0,$r['lettura']).']';
 			}
 			$check=1;
 	}

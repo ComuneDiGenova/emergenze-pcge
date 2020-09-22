@@ -37,11 +37,19 @@ echo "<br>";
 $query = "UPDATE ".$schema.".".$table." SET";
 
 foreach ($_POST as $param_name => $param_val) {
+	echo is_numeric($param_val)."<br>";	
 	if ($param_name !='id') {
-		if ($i > 1){
-			$query = $query.",";
-		}
-   	$query = $query." " .$param_name. " = '" .$param_val. "'";
+		if ($param_val != '' and is_numeric($param_val)==0 ){
+   		if ($i > 1){
+				$query = $query.",";
+			}
+   		$query = $query." " .$param_name. " = '" .$param_val. "'";
+   	} else if(is_numeric($param_val)==1) {
+   		if ($i > 1){
+				$query = $query.",";
+			}
+   		$query = $query." " .$param_name. " = " .$param_val. " ";
+   	}
    	$i=$i+1;
    }
 }
