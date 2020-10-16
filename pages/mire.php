@@ -68,7 +68,7 @@ require('./check_evento.php');
 					cache:false,
 					success: function (html) 
 					{
-					   alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
+					   //alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
 					   $('#msg').html(html);
 					   $('#mira').val('');
 					   $('#tipo').val('');
