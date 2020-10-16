@@ -22,7 +22,11 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
 ?>
-    
+<style>    
+	iframe{
+  display: none;
+}
+</style>
 </head>
 
 <body>
@@ -49,12 +53,37 @@ require('./check_evento.php');
                <div class="row">
            
               
-	            
-	            
-            <form autocomplete="off" action="./eventi/nuova_lettura2.php" method="POST">
+	        <script type="text/javascript">
+			function clickButton(){
+			var mira=document.getElementById('mira').value;
+			var tipo=document.getElementById('tipo').value;
+			$.ajax({
+					type:"post",
+					url:"eventi/nuova_lettura2.php",
+					data: 
+					{  
+					   'mira' :mira,
+					   'tipo' :tipo
+					},
+					cache:false,
+					success: function (html) 
+					{
+					   alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
+					   $('#msg').html(html);
+					   $('#mira').val('');
+					   $('#tipo').val('');
+					   $('#t_mire').bootstrapTable('refresh', {silent: true});
+					}
+					});
+					return false;
+			 }
+			</script>
+			<form >    
+	        <!--form name="form1" target="content" autocomplete="off" action="eventi/nuova_lettura2.php" method="POST" id="submit_form"-->
+    
 			   <div class="form-group col-lg-4">
 			   <label for="tipo">Mira o rivo:</label> <font color="red">*</font>
-								<select class="form-control" name="mira" id="mira" required="">
+								<select class="selectpicker show-tick form-control" data-live-search="true" name="mira" id="mira" required="">
 								<option name="tipo" value="" > ... </option>
 			   
 			   <?php
@@ -89,14 +118,59 @@ require('./check_evento.php');
 				 </div>
 				 </div>
              <div class="row">
-             <button  id="conferma" type="submit" class="btn btn-primary" disabled=''>Inserisci lettura</button>
+             <button  name="conferma2" id="conferma2" type="submit" onclick="return clickButton();" class="btn btn-primary" >Inserisci lettura</button>
              </div>
              </form>
+			 <?php
+             if(isset($_POST["conferma2"])){ 
+				$id=$_POST["mira"];
+				$id=str_replace("'", "", $id);
+
+				if ($_POST["data_inizio"]==''){
+					date_default_timezone_set('Europe/Rome');
+					$data_inizio = date('Y-m-d H:i');
+				} else{
+					$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
+					//$d1 = new DateTime($data_inizio);
+					//$d2 = new DateTime($data_fine);
+					//$d1 =  strtotime($data_inizio);
+				}
+
+				//echo $data_inizio;
+				//echo "<br>";
+
+				//echo $d1;
+				//echo "<br>";
+
+
+
+				$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
+				//echo $query;
+				//exit;
+				$result = pg_query($conn, $query);
+				//echo "<br>";
+
+
+
+
+
+				//exit;
+
+
+
+				$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
+				$result = pg_query($conn, $query_log);
+
+
+
+				//$idfascicolo=str_replace('A','',$idfascicolo);
+				//$idfascicolo=str_replace('B','',$idfascicolo);
+				//echo "<br>";
+				//echo $query_log;
+
               
-              
-              
-              
-               
+			 }
+             ?>  
                <hr>
 				<div class="row">
 				<?php

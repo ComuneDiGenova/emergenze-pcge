@@ -1180,7 +1180,7 @@
 		
 		<?php
 					
-			$query2="SELECT cf, cognome, nome, livello1 FROM users.v_utenti_esterni v WHERE id1=1
+			$query2="SELECT cf, cognome, nome, livello1 FROM users.v_utenti_esterni v WHERE (id1=1 or id1=8)
 			UNION SELECT matricola as cf, cognome, nome, settore || ' - '|| ufficio as livello1 FROM varie.v_dipendenti
 			ORDER BY cognome";
 			//echo $query2;
@@ -1192,9 +1192,9 @@
 		
 			 <div class="form-group  ">
 				  <label for="cf">Seleziona operatore tra i volontari (Gruppo Genova):</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona volontario </option>
-								<option value="NO_TURNO"><font color="red">TURNO VUOTO</font></option>
+				<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
+				<option value="">Seleziona volontario </option>
+				<option value="NO_TURNO"><font color="red">TURNO VUOTO</font></option>
 				<?php
 				foreach ($arr2 as $result2){
 					echo '<option value="'.$result2["cf"].'">'.$result2["cognome"].' '.$result2["nome"].'('.$result2["livello1"].')</option>';
