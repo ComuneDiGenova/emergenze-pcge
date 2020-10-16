@@ -23,3 +23,4 @@ pages/eventi/*.pyc
 pages/eventi/*.log
 pages/eventi/crash.log
 conn.php
+pages/eventi/bot.pid
