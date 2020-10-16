@@ -41,7 +41,11 @@ def main():
 
     conn = pymssql.connect(server=c.server, user=c.user, password=c.password, database=c.database)
     cursor = conn.cursor()
-    query1 = "SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name FROM stations s JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9 GROUP BY s.IDStation,s.station, t.input_name;"
+    query1 = """
+    SELECT s.IDStation,s.station, max(t.first_rec), max(t.last_rec), t.input_name 
+    FROM stations s 
+    JOIN TAGS t ON s.IDstation = t.IDstation where t.IDMea=9 
+    GROUP BY s.IDStation,s.station, t.input_name;"""
     print('#####################################################################################')
     print(query1)
     print('#####################################################################################')
@@ -76,9 +80,14 @@ def main():
             us='t'
         print(us)
         if len(check) ==0:
-            query2="INSERT INTO geodb.tipo_idrometri_comune(id, nome, first_rec, last_rec, usato) VALUES ('{0}','{1}',TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'),TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), {4});".format(row[0],row[1],start, stop, us)
+            query2="""INSERT INTO geodb.tipo_idrometri_comune(id, nome, first_rec, last_rec, usato) 
+            VALUES ('{0}','{1}',TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'),TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), '{4}');
+            """.format(row[0],row[1],start, stop, us)
         else:
-            query2="UPDATE geodb.tipo_idrometri_comune SET id='{0}', nome='{1}', first_rec=TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'), last_rec=TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), usato='{4}' WHERE id='{0}';".format(row[0],row[1],start, stop, us)
+            query2="""UPDATE geodb.tipo_idrometri_comune SET id='{0}', nome='{1}', 
+            first_rec=TO_TIMESTAMP('{2}', 'YYYYMMDDHH24MISS'), 
+            last_rec=TO_TIMESTAMP('{3}', 'YYYYMMDDHH24MISS'), usato='{4}' 
+            WHERE id='{0}';""".format(row[0],row[1],start, stop, us)
         print(query2)
         cur.execute(query2);
         

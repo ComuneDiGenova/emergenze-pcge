@@ -16,6 +16,8 @@ x = datetime.datetime.now()
 path=os.path.realpath(__file__).replace('forever.py','')
 #print(path)
 logfile="{0}crash.log".format(path)
+pidfilename ="{0}bot.pid".format(path)
+
 f = open(logfile, "a")
 #print(logfile)
 
@@ -28,9 +30,12 @@ while True:
     # ricalcolo le ore
     x = datetime.datetime.now()
     f = open(logfile, "a")
+    pidfile = open(pidfilename, 'w')
     f.write("\n{} - Ripartito lo script {}".format(x,filename))
     f.close
     print("\nStarting " + filename)
     p = Popen("python3 " + filename, shell=True)
+    pidfile.write(str(p.pid))
+    pidfile.close()
     p.wait()
 

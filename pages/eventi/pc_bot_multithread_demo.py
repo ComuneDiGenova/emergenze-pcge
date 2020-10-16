@@ -8,6 +8,7 @@ import os.path
 from os import path
 import asyncio
 
+import sys, time
 # da togliere
 import random
 
@@ -30,6 +31,21 @@ import time
 import datetime
 import json
 
+import logging
+import tempfile
+
+tmpfolder=tempfile.gettempdir() # get the current temporary directory
+logfile='{}/bot_telegram.log'.format(tmpfolder)
+if os.path.exists(logfile):
+    os.remove(logfile)
+
+logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',
+    filename=logfile,
+    level=logging.INFO)
+
+
+
+
 try:
     # Fall back to Python 2's urllib2
     from urllib2 import urlopen
@@ -38,6 +54,8 @@ except:
     from urllib.request import urlopen
 import config
 
+import psycopg2
+import conn as p
 
 # Il token è contenuto nel file config.py e non è aggiornato su GitHub per evitare utilizzi impropri
 TOKEN=config.TOKEN
@@ -45,7 +63,10 @@ link=config.link
 
 check=0
 testo_segnalazione=''
+testo_segnalazione20=''
 alllegato=''
+chat_id=''
+id_mira=''
 
 # questa classe usa il ChatHandler telepot.aio.helper.ChatHandler (ossia è in ascolto della chat del BOT)
 class MessageCounter(telepot.aio.helper.ChatHandler):
@@ -59,23 +80,26 @@ class MessageCounter(telepot.aio.helper.ChatHandler):
         self._count += 1
         global check
         global testo_segnalazione
+        global testo_segnalazione20
         global allegato
+        global chat_id
+        global id_mira
         self._check1 = check
-        print(self._check1)
+        logging.info(self._check1)
         content_type, chat_type, chat_id = telepot.glance(msg)
         #content_type, chat_type, chat_id = telepot.glance(msg) #get dei parametri della conversazione e del tipo di messaggio
         try:
             command = msg['text'] #get del comando inviato
         except:
-            print("Non è arrivato nessun messaggio")
+            logging.info("Non è arrivato nessun messaggio")
         try:
             if content_type == 'photo':
                 await self.bot.download_file(msg['photo'][-1]['file_id'], 'C:\\Users\\assis\\Downloads\\file_bot.png')
                 allegato = 'C:\\Users\\assis\\Downloads\\file_bot.png'
-                print("Immagine recuperata")
+                logging.info("Immagine recuperata")
                 command="foto"
         except:
-            print("Non è arrivato nessuna immagine")
+            logging.info("Non è arrivato nessuna immagine")
 
         try:
             nome = msg["from"]["first_name"]
@@ -87,28 +111,67 @@ class MessageCounter(telepot.aio.helper.ChatHandler):
             cognome= ""
         is_bot = msg["from"]["is_bot"]
         if is_bot=='True':
-            #bot.sendMessage(chat_id, "ERROR: questo Bot non risponde ad altri bot!")
             await self.sender.sendMessage("ERROR: questo Bot non risponde ad altri bot!")
         elif command == '/telegram_id':
             message = "Gentile {1} {2} il tuo codice (telegram id) da inserire nell'applicazione è {3}".format(self._count,nome, cognome, chat_id)
-            #bot.sendMessage(chat_id,message)
             await self.sender.sendMessage(message)
         elif command == '/sito':
             message = "Gentile {1} {2} il sito del Sistema di Gestione Emergenze è {3} ".format(self._count,nome, cognome, link)
-            #bot.sendMessage(chat_id,message)
             await self.sender.sendMessage(message)
-            #bot.sendMessage(chat_id,"https://www.gter.it")
+        elif command == '/mire_rivi':
+            query_v='select count(telegram_id) from users.utenti_input_telegram where telegram_id like %s;'
+            cod=(str(chat_id),)
+            con = psycopg2.connect(host=p.ip, dbname=p.db, user=p.user, password=p.pwd, port=p.port)
+            cur = con.cursor()
+            con.autocommit = True
+            cur.execute(query_v,cod)
+            x = cur.fetchone()[0]
+            if x == 1: 
+                query_mire="""SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
+                FROM geodb.punti_monitoraggio_ok p
+	            WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' 
+	            order by nome;"""
+                cur.execute(query_mire)
+                mire = cur.fetchall()
+                message= 'Elenco delle {} mire e rivi '.format(len(mire))
+                inline_array = []
+                for league in mire:
+                    inline_array.append(InlineKeyboardButton(text=league[1], callback_data=mire(str(league[0]))))
+
+                keyboard_elements = [[element] for element in inline_array]
+
+                keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_elements )
+                # vidlist = ""
+                # for row in mire:
+                #         vidlist = vidlist+"[InlineKeyboardButton(text='"+str(row[1])+"', callback_data='"+str(row[0])+"')],"
+                # vidlist = vidlist+"]"
+                # print(vidlist)
+                #keyboard = InlineKeyboardMarkup(inline_keyboard=[vidlist])
+                await self.sender.sendMessage(message, reply_markup=keyboard)
+                con.close
+            #elif x > 1: 
+            #    
+            else:
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                             [InlineKeyboardButton(text='Inserisci il CF', callback_data='codfisc')],
+                             [InlineKeyboardButton(text='Recupera il tuo Telegram ID', callback_data='chat_id')],
+                         ])
+                message = """
+                 Gentile {1} {2} il tuo telefono non è abilitato all'invio dei dati sulle mire.
+                Verifica che di essere registrato sul Sistema di Gestione Emergenze e registra il tuo codice fiscale {3} 
+                """.format(self._count,nome, cognome, link)
+                await self.sender.sendMessage(message, reply_markup=keyboard)
         elif self._check1 == 1:
             try:
                 check +=1
-                print("ok1")
+                logging.info("ok1")
                 testo_segnalazione = command
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                              [InlineKeyboardButton(text='Sì', callback_data='Confermi')],
                              [InlineKeyboardButton(text='No', callback_data='Riscrivi')]
                          ])
-                print("ok2")
-                print(command)
+                logging.info("ok2")
+                logging.info(command)
                 message = "Messaggio {0} - Gentile {1} {2} ho recuperato il seguente messaggio:\n\n {3}".format(self._count,nome, cognome, command)
                 await self.sender.sendMessage(message, reply_markup=keyboard)
             except:
@@ -116,13 +179,13 @@ class MessageCounter(telepot.aio.helper.ChatHandler):
                 await self.sender.sendMessage(message)
         elif self._check1 == 10:
             if path.isfile(allegato)==True:
-                print("ok foto recuperata")
+                logging.info("ok foto recuperata")
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text='Conferma', callback_data='OK')],
                     [InlineKeyboardButton(text='Annulla', callback_data='annulla_com')]
                 ])
-                print("ok2")
-                print(command)
+                logging.info("ok2")
+                logging.info(command)
                 message = "Messaggio {0} - Gentile {1} {2} ho recuperato il seguente messaggio:\n\n {3} \n\n\n e la" \
                           "foto salvata sul server ".format(self._count, nome, cognome, command, allegato)
                 await self.sender.sendMessage(message, reply_markup=keyboard)
@@ -131,6 +194,30 @@ class MessageCounter(telepot.aio.helper.ChatHandler):
             else:
                 message = "Messaggio {0} - Gentile {1} {2} immagine non recuperata, riprova".format(self._count,nome, cognome)
                 await self.sender.sendMessage(message)
+        elif self._check1 == 20:
+            try:
+                check +=1
+                logging.info("ok20")
+                testo_segnalazione20 = command
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                             [InlineKeyboardButton(text='Sì', callback_data='ConfermiCF')],
+                             [InlineKeyboardButton(text='No', callback_data='RiscriviCF')]
+                         ])
+                logging.info("ok20_2")
+                logging.info(command)
+                if len(command)==16:
+                    message = "Messaggio {0} - Gentile {1} {2} ho recuperato il seguente CF:\n\n {3}".format(self._count,nome, cognome, command)
+                    await self.sender.sendMessage(message, reply_markup=keyboard)
+                else: 
+                    check=20
+                    message = "Messaggio {0} - Gentile {1} {2} il codice fiscale deve essere composto da 16 cifre, prova a riscrivere".format(self._count,nome, cognome)
+                    await self.sender.sendMessage(message)  
+            except:
+                message = "Messaggio {0} - Gentile {1} {2} la sintassi del messaggio non era comprensibile, prova a riscrivere".format(self._count,nome, cognome)
+                await self.sender.sendMessage(message)
+        
+        
+        
         elif self._check1 > 1:
             try:
                 message = "Gentile {1} {2} stai scrivendo una comunicazione e il messaggio appena " \
@@ -145,6 +232,7 @@ class MessageCounter(telepot.aio.helper.ChatHandler):
                              #[InlineKeyboardButton(text='IP del server', callback_data='ip')],
                              #[InlineKeyboardButton(text='START', callback_data='start')],
                              #[InlineKeyboardButton(text='Demo comunicazione', callback_data='proposta')],
+                             [InlineKeyboardButton(text='Inserisci il CF', callback_data='codfisc')],
                              #[InlineKeyboardButton(text='Sito Gter', callback_data='info')],
                              #[InlineKeyboardButton(text='Demo Comunicazione', callback_data='demo_com')],
                              [InlineKeyboardButton(text='Recupera il tuo Telegram ID', callback_data='chat_id')],
@@ -166,7 +254,7 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
         self._messaggio = ''
         self.step = 1
         global check
-        print("sono dentro quizzer e check vale{}".format(check))
+        logging.info("sono dentro quizzer e check vale{}".format(check))
 
     async def _show_next_question(self):
         x = random.randint(1,50)
@@ -191,8 +279,8 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
 
     async  def _chatid(self):
         sent = "Gentile {1} {2} il tuo codice (telegram id) da inserire nell'applicazione {0}".format(self.chat_id,self.nome, self.cognome)
-        print(sent)
-        print(check)
+        logging.info(sent)
+        logging.info(check)
         await self.editor.editMessageText(sent)
 
     async  def _propose(self):
@@ -200,19 +288,35 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
         global check
         check += 1
         sent = "Scrivi il testo della tua comunicazione"
-        print(sent)
-        print(check)
+        logging.info(sent)
+        logging.info(check)
         await self.editor.editMessageText(sent)
         #sent = await self.sender.sendMessage('%d. Would you marry me?' % self.step, reply_markup=self.keyboard)
         #self._editor = telepot.aio.helper.Editor(self.bot, sent)
         #self._edit_msg_ident = telepot.message_identifier(sent)
         #return self._check
 
+
+    async  def _cf(self):
+        self.step += 1
+        global check
+        global chat_id
+        check = 20
+        sent = "Scrivi il tuo codice fiscale"
+        logging.info(sent)
+        logging.info(check)
+        await self.editor.editMessageText(sent)
+        #sent = await self.sender.sendMessage('%d. Would you marry me?' % self.step, reply_markup=self.keyboard)
+        #self._editor = telepot.aio.helper.Editor(self.bot, sent)
+        #self._edit_msg_ident = telepot.message_identifier(sent)
+        #return self._check
+        
+        
     async  def _image_ask(self):
         global check
         check += 1
         question = "Vuoi inviare una foto?"
-        print(check)
+        logging.info(check)
         await self.editor.editMessageText(question,
             reply_markup= InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text='Sì', callback_data='yes_pic')],
@@ -224,18 +328,70 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
         global check
         check = 10
         question = "Invia la tua foto?"
-        print(check)
+        logging.info(check)
         await self.editor.editMessageText(question,
             reply_markup= InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text='Ci ho ripensato, nessuna foto', callback_data='no_pic')]
             ])
         )
 
+    
+    async  def _verifica_cf(self, codice, chat_id):
+        #verifica del CF
+        global check
+        logging.info(chat_id)
+        check += 1 # ora vale 21
+        con = psycopg2.connect(host=p.ip, dbname=p.db, user=p.user, password=p.pwd, port=p.port)
+        cur = con.cursor()
+        con.autocommit = True
+        query_v='select count(cf) from users.utenti_esterni where cf ilike %s;'
+        cod=(codice,)
+        cur.execute(query_v,cod)
+        x = cur.fetchone()[0]
+        query_v='select count(codice_fiscale) from varie.dipendenti where codice_fiscale=%s;'
+        cod=(codice,)
+        cur.execute(query_v,cod)
+        y = cur.fetchone()[0]
+        if x==1 or y==1:
+            try:
+                query2="""
+                INSERT INTO users.utenti_input_telegram(
+	            matricola_cf, telegram_id) 
+	            VALUES (%s, %s);
+                """
+                data2=(codice,chat_id,)
+                cur.execute(query2,data2)
+            except:
+                query2="""
+                UPDATE users.utenti_input_telegram
+	            SET matricola_cf=%s, telegram_id=%s
+	            WHERE %s;
+                """
+                data2=(codice,chat_id,codice,)
+                cur.execute(query2,data2)
+            check=0
+            question = "Trovati {} cf e inserito a sistema. Ora sei abilitato per l'inserimento dei dati sulle mire".format(x)
+            #controllo='sono arrivato qua'
+            
+            await self.editor.editMessageText(question)
+        else:
+            check=0
+            message = """
+            Gentile {1} {2} il codice fiscale non è registrato a sistema. 
+            Verifica di averlo inserito correttamente e in caso contrario contatta gli amministratori d sistema
+            """.format(nome, cognome)
+            await self.sender.sendMessage(message)
+        logging.info(check)
+        con.close()
+        
 
+        
+        
+        
     async  def _end(self):
         global testo_segnalazione
         global allegato
-        print(testo_segnalazione)
+        logging.info(testo_segnalazione)
         global check
         check = 0
         question = "Questa è solo una demo, ma ecco il testo della tua comunicazione, " \
@@ -245,7 +401,7 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
                 question = "{0}. \n\n insieme all'allegato {1}".format(question,allegato)
         except:
             question = "{0}. \n\n senza nessun allegato".format(question)
-        print(check)
+        logging.info(check)
         await self.editor.editMessageText(question)
 
 
@@ -258,18 +414,20 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
         check = 0
         question = "Operazione annullata. Digita qualcosa per ripartire"
 
-        print(check)
+        logging.info(check)
         await self.editor.editMessageText(question)
 
 
     async def on_callback_query(self, msg):
         global testo_segnalazione
+        global testo_segnalazione20
         global check
+        global id_mira
         query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
         #content_type, chat_type, chat_id = telepot.glance(msg)
         self.chat_id=from_id
         #parte copiata
-        print('Callback Query:', query_id, query_data)
+        logging.info('Callback Query:', query_id, query_data)
         try:
             command = msg['text'] #get del comando inviato
         except:
@@ -286,39 +444,55 @@ class Quizzer(telepot.aio.helper.CallbackQueryOriginHandler):
         if query_data=='ip':
             my_ip = urlopen('http://ip.42.pl/raw').read()
             message = "Gentile {} {}, l'indirizzo IP del server che ti sta rispondendo è {}".format(nome, cognome,my_ip)
-            print(message)
+            logging.info(message)
             #bot.sendMessage(chat_id, message)
             #await self.sender.sendMessage(message)
         elif query_data == 'start':
-            print('ho effettivamente schiacciato il bottone start')
+            logging.info('ho effettivamente schiacciato il bottone start')
             self._answer = await self._show_next_question()
         elif query_data == 'chat_id':
             #message = "Gentile {1} {2} il tuo codice (telegram id) da inserire nell'applicazione è {3}".format(self._count,nome, cognome, chat_id)
             #bot.sendMessage(chat_id,message)
             #await self.sender.sendMessage(message)
-            print('Definire la chat_id')
-            print(self.chat_id)
+            logging.info('Definire la chat_id')
+            logging.info(self.chat_id)
             self._answer = await self._chatid()
         elif query_data == 'proposta':
-            print('ho effettivamente schiacciato il bottone proposta')
+            logging.info('ho effettivamente schiacciato il bottone proposta')
             self._answer = await self._propose()
+        elif query_data == 'codfisc':
+            logging.info('ho effettivamente schiacciato il bottone codice fiscale')
+            self._answer = await self._cf()
+        elif query_data == 'mire':
+            id_mira
+            logging.info('ho effettivamente schiacciato il bottone codice fiscale')
+            self._answer = await self._cf() 
+               
         elif query_data == 'Confermi':
-            print(testo_segnalazione)
+            logging.info(testo_segnalazione)
             self._answer = await self._image_ask()
+        elif query_data == 'ConfermiCF':
+            logging.info(testo_segnalazione20)
+            self._answer = await self._verifica_cf(testo_segnalazione20,from_id)
         elif query_data == 'Riscrivi':
-            print(testo_segnalazione)
+            logging.info(testo_segnalazione)
             check=0
             self._answer = await self._propose()
+        elif query_data == 'RiscriviCF':
+            logging.info(testo_segnalazione20)
+            check=0
+            self._answer = await self.cf()
         elif query_data == 'yes_pic':
-            print(testo_segnalazione)
+            logging.info(testo_segnalazione)
             self._answer = await self._image_ask2()
         elif query_data == 'no_pic' or query_data == 'OK':
-            print(testo_segnalazione)
+            logging.info(testo_segnalazione)
             self._answer = await self._end()
         elif query_data == 'annulla_com':
             self._answer = await self._azzera()
+        #qua va messo il 
         elif query_data != 'start':
-            print('ora ho capito cosa succede qua')
+            logging.info('ora ho capito cosa succede qua')
             self._score[self._answer == int(query_data)] += 1
             self.step +=1
             self._answer = await self._show_next_question()
@@ -358,7 +532,7 @@ bot = telepot.aio.DelegatorBot(TOKEN, [
 
 loop = asyncio.get_event_loop()
 loop.create_task(MessageLoop(bot).run_forever())
-print('Listening ...')
+logging.info('Listening ...')
 
 loop.run_forever()
 
@@ -370,7 +544,7 @@ loop.run_forever()
 #MessageLoop(bot, {'chat': on_chat_message,
 #                  'callback_query': on_callback_query}).run_as_thread() 
 #stampa su server
-#print('Listening ...')
+#logging.info('Listening ...')
  
  
 #while 1:

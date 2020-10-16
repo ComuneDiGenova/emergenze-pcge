@@ -722,6 +722,87 @@ while($r_e = pg_fetch_assoc($result_e)) {
 									   <label for="note">Eventuale allegato</label>
 										<input type="file" class="form-control-file" name="userfile[]" id="userfile" multiple>
 									</div>
+									<!--style type="text/css">
+				#fileList > div > label > span:last-child {
+					color: red;
+					display: inline-block;
+					margin-left: 7px;
+					cursor: pointer;
+				}
+				#fileList input[type=file] {
+					display: none;
+				}
+				#fileList > div:last-child > label {
+					display: inline-block;
+					width: 23px;
+					height: 23px;
+					font: 16px/22px Tahoma;
+					color: orange;
+					text-align: center;
+					border: 2px solid orange;
+					border-radius: 50%;
+				}
+				</style>
+
+			<div class="form-group file">
+			   <label for="note">Eventuali allegati</label>
+			   <div id="fileList">
+					<div>
+						<input id="fileInput_0" type="file" name="userfile[]" />
+						<label for="fileInput_0">+</label>      
+					</div>
+				</div>
+			</div>
+
+				<script type="text/javascript" >
+				var fileInput = document.getElementById('fileInput_0');
+				var filesList =  document.getElementById('fileList');  
+				var idBase = "fileInput_";
+				var idCount = 0;
+				
+				var inputFileOnChange = function() {
+				
+					var existingLabel = this.parentNode.getElementsByTagName("LABEL")[0];
+					var isLastInput = existingLabel.childNodes.length<=1;
+				
+					if(!this.files[0]) {
+						if(!isLastInput) {
+							this.parentNode.parentNode.removeChild(this.parentNode);
+						}
+						return;
+					}
+				
+					var filename = this.files[0].name;
+				
+					var deleteButton = document.createElement('span');
+					deleteButton.innerHTML = '&times;';
+					deleteButton.onclick = function(e) {
+						this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+					}
+					var filenameCont = document.createElement('span');
+					filenameCont.innerHTML = filename;
+					existingLabel.innerHTML = "";
+					existingLabel.appendChild(filenameCont);
+					existingLabel.appendChild(deleteButton);
+					
+					if(isLastInput) {	
+						var newFileInput=document.createElement('input');
+						newFileInput.type="file";
+						newFileInput.name="userfile[]";
+						newFileInput.id=idBase + (++idCount);
+						newFileInput.onchange=inputFileOnChange;
+						var newLabel=document.createElement('label');
+						newLabel.htmlFor = newFileInput.id;
+						newLabel.innerHTML = '+';
+						var newDiv=document.createElement('div');
+						newDiv.appendChild(newFileInput);
+						newDiv.appendChild(newLabel);
+						filesList.appendChild(newDiv);
+					} 
+				}
+				
+				fileInput.onchange=inputFileOnChange;
+				</script>
 						
 						        <button  id="conferma" type="submit" class="btn btn-primary">Invia comunicazione</button>
 						            </form>
@@ -733,7 +814,7 @@ while($r_e = pg_fetch_assoc($result_e)) {
 						    </div>
 						
 						  </div>
-						</div>
+						</div-->
 					
 					
 					<!-- Modal comunicazione a UO-->

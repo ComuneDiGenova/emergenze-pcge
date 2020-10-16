@@ -88,6 +88,28 @@ Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5). Una copia del DB vu
 
 
 
+## Il bot telegram 
+La configurazione principale del bot telegram avviene nella cartella pages/eventi laddove deve essere incluso il file config.py che ha il seguente contenuto:
+
+```
+TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" #da sostituire
+
+#per ora solo un test su Roberto
+chat_id= "XXXXX"
+
+website= "https://emergenze.comune.genova.it/emergenze"
+link= "https://emergenze.comune.genova.it/emergenze" #da sostituire con li
+```
+
+Il file che regola il bot si chiama **pc_bot_multithread_demo.py** e viene lanciato all'avvio del sistema dal file avvio_bot.sh che a sua volta usa lo script python **forever.py**
+
+In fase di installazione occorre eseguire i seguenti passaggi da root:
+- fare un link dello script sh  /etc/init.d/ --> `ln -s /home/......./pages/eventi/avvio_bot.sh /etc/init.d/`
+- `chmod +x /etc/init.d/avvio_bot.sh`
+- `update-rc.d avvio_bot.sh defaults`
+
+I bot si possono creare e gestire tramite BotFather
+
 ## API del Comune di Genova utilizzate
 In questo momento il sistema usa le API del comune di Genova usate per interazione con altri servizi. In questo momento per interagire con il *SW Manutenzioni*. 
 Le API del Comune di Genova sono richiamate dal codice python *pages/segnalazioni/emergenze2manutenzioni.py* che è a sua volta richiamato dalla pagina php *pages/segnalazioni/chiudi_segnalazione.php* utilizzata appunto alla chiusura di una segnalazione. 

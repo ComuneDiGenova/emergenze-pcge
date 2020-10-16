@@ -45,7 +45,60 @@ require('./check_evento.php');
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
 					</h1>
                 </div>
-				
+                </div>
+               <div class="row">
+           
+              
+	            
+	            
+            <form autocomplete="off" action="./eventi/nuova_lettura2.php" method="POST">
+			   <div class="form-group col-lg-4">
+			   <label for="tipo">Mira o rivo:</label> <font color="red">*</font>
+								<select class="form-control" name="mira" id="mira" required="">
+								<option name="tipo" value="" > ... </option>
+			   
+			   <?php
+              $query_mire= "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
+                FROM geodb.punti_monitoraggio_ok p
+	            WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' 
+	            order by nome;";
+
+			   $result_mire = pg_query($conn, $query_mire);
+				//echo $query1;    
+				while($r_mire = pg_fetch_assoc($result_mire)) { 
+				?>    
+						<option name="tipo" value="<?php echo $r_mire['id'];?>"><?php echo $r_mire['nome'];?></option>
+				 <?php } ?>
+				 </select>            
+				 </div>
+			   
+			   
+			   <div class="form-group col-lg-4">
+				  <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
+								<select class="form-control" name="tipo" id="tipo" required="">
+								<option name="tipo" value="" > ... </option>
+				<?php            
+				$query2="SELECT id,descrizione,rgb_hex From \"geodb\".\"tipo_lettura_mire\" WHERE valido='t';";
+				$result2 = pg_query($conn, $query2);
+				//echo $query1;    
+				while($r2 = pg_fetch_assoc($result2)) { 
+				?>    
+						<option name="tipo" value="<?php echo $r2['id'];?>"><?php echo $r2['descrizione'];?></option>
+				 <?php } ?>
+				 </select>            
+				 </div>
+				 </div>
+             <div class="row">
+             <button  id="conferma" type="submit" class="btn btn-primary" disabled=''>Inserisci lettura</button>
+             </div>
+             </form>
+              
+              
+              
+              
+               
+               <hr>
+				<div class="row">
 				<?php
 				//echo strtotime("now");
 				//echo "<br><br>";
