@@ -13,7 +13,6 @@ import urllib.request as request
 from contextlib import closing
 
 
-
 # Connect to an existing database
 import psycopg2
 #sys.path.append(os.path.abspath("../../"))

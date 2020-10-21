@@ -15,6 +15,17 @@ import time
 import datetime
 import telepot
 
+import logging
+import tempfile
+
+tmpdir=tempfile.gettempdir()
+
+
+logging.basicConfig(
+    format='%(asctime)s\t%(levelname)s\t%(message)s',
+    filename='{}/omirl_run.log'.format(tmpdir),
+    filemode='a',  
+    level=logging.INFO)
 
 
 import config
@@ -89,8 +100,11 @@ def main():
     # print("Print each row and it's columns values")
     for row in lista_idrometri:
         print("Leggo idrometro ",row[0])
-        os.system('/usr/bin/python3 {}/vendor/omirl_data_ingestion/xml2json.py Idro {}'.format(path, row[0]))
-        
+        try:
+            os.system('/usr/bin/python3 {}/vendor/omirl_data_ingestion/xml2json.py Idro {}'.format(path, row[0]))
+            logging.info('Download dati per Idrometro {} avvenuto correttamente'.format(row[0]))
+        except Exception as e:
+            logging.error('TIMEOUT? PROBLEM', e)
         
         
 if __name__ == "__main__":
