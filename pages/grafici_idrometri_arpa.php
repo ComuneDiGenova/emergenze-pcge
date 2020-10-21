@@ -7,8 +7,9 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				//echo "<br><br>";
 				//echo date('Y-m-d H:i:s')-3600;
 				//echo "<br><br>";
-				$now = new DateTime();
-				$date = $now->modify('-1 hour')->format('Y-m-d H:i:s');
+				$now = new DateTime("now", new DateTimeZone('Europe/Rome'));
+				//$date = $now->modify('-1 hour')->format('Y-m-d H:i:s');
+				$date = $now->format('Y-m-d H:i:s');
 				//$station='Montoggio';
 				//echo $date;
 				
@@ -33,6 +34,12 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 				?>
 					<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 					<script type="text/javascript">
+					// con questa riga faccio i grafici nel timezone CEST
+					Highcharts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
 					Highcharts.getJSON('../vendor/omirl_data_ingestion/<?php echo $r["shortcode"];?>_Idro.json', function (data) {
 					// Create the chart
 					Highcharts.stockChart('grafico_<?php echo $r["shortcode"];?>', {

@@ -9,7 +9,7 @@ if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
-	$query="SELECT extract(epoch from l.data_ora) as data_ora, l.lettura
+	$query="SELECT extract(epoch from l.data_ora AT TIME ZONE 'UTC' AT TIME ZONE 'CEST') as data_ora, l.lettura
 	 FROM geodb.lettura_idrometri_comune l
 	 WHERE id_station = '".$id."' AND data_ora >  (now()- interval '14 days')
 	 ORDER BY data_ora asc;";
