@@ -49,7 +49,7 @@ if(!$conn) {
 	) as \"0\"
 	FROM geodb.punti_monitoraggio_ok p
 	LEFT JOIN geodb.lettura_mire l ON l.num_id_mira = p.id 
-	WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' 
+	WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' and p.id is not null 
 	group by p.nome, p.id, p.note, p.tipo
    UNION
  SELECT p.name AS nome,

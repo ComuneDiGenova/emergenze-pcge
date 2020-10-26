@@ -89,7 +89,7 @@ require('./check_evento.php');
 			   <?php
               $query_mire= "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
                 FROM geodb.punti_monitoraggio_ok p
-	            WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' 
+	            WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' and p.id is not null 
 	            order by nome;";
 
 			   $result_mire = pg_query($conn, $query_mire);
