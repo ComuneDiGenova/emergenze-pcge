@@ -8,7 +8,10 @@ if($id_civico !='') {
 	}
 } else {
 	$queryc= "SELECT desvia, testo, cap, st_distance(st_transform(geom,4326),'".$geom."') as distance  
-	FROM geodb.civici ORDER BY distance LIMIT 1;";
+	FROM geodb.civici 
+	where codvia= (SELECT codvia 
+FROM geodb.v_vie_unite 
+ORDER BY st_distance(st_transform(geom,4326),'".$geom."') LIMIT 1)ORDER BY distance LIMIT 1;";
 	//echo $queryc;
 	$resultc=pg_query($conn, $queryc);
 	while($rc = pg_fetch_assoc($resultc)) {
