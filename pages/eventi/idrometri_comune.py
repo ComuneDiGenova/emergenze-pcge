@@ -66,7 +66,7 @@ def main():
         #print('{}, {}, {}, {}'.format(row[0],row[1],row[2],row[3]))
         # 5 
         print('{}, {}, {}, {}, {}'.format(row[0],row[1],row[2],row[3], row[4]))
-        query2="INSERT INTO geodb.lettura_idrometri_comune (id_station, data_ora, lettura) VALUES ('{0}',TO_TIMESTAMP('{1}', 'YYYYMMDDHH24MISS'), {2});".format(row[3],row[0],row[1])
+        query2="INSERT INTO geodb.lettura_idrometri_comune (id_station, data_ora, lettura) VALUES ('{0}',TO_TIMESTAMP('{1}', 'YYYYMMDDHH24MISS'), {2});".format(row[3],row[0],round(row[1],2))
         print(query2)
         try:
             cur.execute(query2);

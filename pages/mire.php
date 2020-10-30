@@ -16,6 +16,23 @@ $subtitle="Monitoraggio corsi d'acqua "
 
     <title>Gestione emergenze</title>
 <?php 
+
+/*function roundToQuarterHour($timestring) {
+    $minutes = date('i', strtotime($timestring));
+    return $minutes - ($minutes % 15);
+}*/
+
+
+function roundToQuarterHour($now){
+	$minutes = $now['minutes'] - $now['minutes']%15;
+	if ($minutes < 10) {
+		$minutes = '0'.$minutes;
+	}
+
+	$rounded = $now['hours'].":".$minutes;
+	return $rounded;
+}
+
 require('./req.php');
 
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
@@ -174,15 +191,29 @@ require('./check_evento.php');
                <hr>
 				<div class="row">
 				<?php
-				//echo strtotime("now");
-				//echo "<br><br>";
-				//echo date('Y-m-d H:i:s');
-				//echo "<br><br>";
-				//echo date('Y-m-d H:i:s')-3600;
-				//echo "<br><br>";
-				$now = new DateTime();
-				$date = $now->modify('-1 hour')->format('Y-m-d H:i:s');
-				//echo $date;
+				
+
+				$now = getdate();
+				$ora0 = roundToQuarterHour($now);
+				echo "<br><br>";
+				$data = getdate(strtotime('- 30 minutes'));
+				$ora1 = roundToQuarterHour($data);
+				
+				$data = getdate(strtotime('- 90 minutes'));
+				$ora2 = roundToQuarterHour($data);
+				
+				$data = getdate(strtotime('- 150 minutes'));
+				$ora3 = roundToQuarterHour($data);
+				
+				$data = getdate(strtotime('- 210 minutes'));
+				$ora4 = roundToQuarterHour($data);
+				
+				$data = getdate(strtotime('- 270 minutes'));
+				$ora5 = roundToQuarterHour($data);
+				
+				$data = getdate(strtotime('- 330 minutes'));
+				$ora6 = roundToQuarterHour($data);
+				
 				?>
 				
 				</div>
@@ -220,13 +251,13 @@ require('./check_evento.php');
 		<th data-field="arancio" data-sortable="true" data-visible="false" data-filter-control="select">Liv arancione</th>
 		<th data-field="rosso" data-sortable="true" data-visible="false" data-filter-control="select">Liv rosso</th>
 		<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">6-5 h</th>
-		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">5-4 h</th>            
-		<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">4-3 h</th>
-		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">3-2 h</th>  
-		<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">2-1 h</th>
-		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true">1h -10'</th>
-		<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><10'</th>
+		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+		<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+		<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+		<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
 		<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
     </tr>
 </thead>

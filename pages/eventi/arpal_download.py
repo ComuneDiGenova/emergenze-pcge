@@ -94,9 +94,9 @@ for d in data:
                     check_u=1
                 if d=='Idro':
                     if check_u==1:
-                        query3= "UPDATE geodb.lettura_idrometri_arpa SET lettura={} WHERE id_station='{}' AND \"data_ora\"='{}';".format(valore,stazname,data_utc)
+                        query3= "UPDATE geodb.lettura_idrometri_arpa SET lettura={} WHERE id_station='{}' AND \"data_ora\"='{}';".format(round(valore,2),stazname,data_utc)
                     else:
-                        query3= "INSERT INTO geodb.lettura_idrometri_arpa (id_station, data_ora, lettura) VALUES ('{}', '{}', {});".format(stazname,data_utc,valore)
+                        query3= "INSERT INTO geodb.lettura_idrometri_arpa (id_station, data_ora, lettura) VALUES ('{}', '{}', {});".format(stazname,data_utc,round(valore,2))
                 # elif d=='Press':
                 #     valore_mare=valore-(1013.25* (-1 +(1 + 0.0000226*ele)**(-5.25593)))
                 # elif d=='Termo':

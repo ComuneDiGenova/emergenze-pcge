@@ -78,7 +78,7 @@ if(!$conn) {
           WHERE p.shortcode::text = lettura_idrometri_arpa.id_station::text AND lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '01:00:00'::interval) AND lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '00:10:00'::interval)) AS \"1\",
     ( SELECT greatest(max(lettura_idrometri_arpa.lettura),0) AS max
            FROM geodb.lettura_idrometri_arpa
-          WHERE p.shortcode::text = lettura_idrometri_arpa.id_station::text AND lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '00:10:00'::interval) AND lettura_idrometri_arpa.data_ora < timezone('utc'::text, now())) AS \"0\"
+          WHERE p.shortcode::text = lettura_idrometri_arpa.id_station::text AND lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '00:25:00'::interval) AND lettura_idrometri_arpa.data_ora < timezone('utc'::text, now())) AS \"0\"
    FROM geodb.tipo_idrometri_arpa p
      LEFT JOIN geodb.lettura_idrometri_arpa l ON l.id_station::text = p.shortcode::text
      LEFT JOIN geodb.soglie_idrometri_arpa s ON p.shortcode::text = s.cod::text
@@ -110,7 +110,7 @@ if(!$conn) {
           WHERE p.id::text = lettura_idrometri_comune.id_station::text AND lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '01:00:00'::interval) AND lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '00:10:00'::interval)) AS \"1\",
     ( SELECT greatest(max(lettura_idrometri_comune.lettura),0) AS max
            FROM geodb.lettura_idrometri_comune
-          WHERE p.id::text = lettura_idrometri_comune.id_station::text AND lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '00:10:00'::interval) AND lettura_idrometri_comune.data_ora < timezone('utc'::text, now())) AS \"0\"
+          WHERE p.id::text = lettura_idrometri_comune.id_station::text AND lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '00:25:00'::interval) AND lettura_idrometri_comune.data_ora < timezone('utc'::text, now())) AS \"0\"
    FROM geodb.tipo_idrometri_comune p 
      LEFT JOIN geodb.lettura_idrometri_comune l ON l.id_station::text = p.id::text
      LEFT JOIN geodb.soglie_idrometri_comune s ON p.id::text = s.id::text
