@@ -29,7 +29,7 @@ function roundToQuarterHour($now){
 		$minutes = '0'.$minutes;
 	}
 
-	$rounded = $now['hours'].":".$minutes;
+	$rounded = $now["mday"]."/".$now["mon"]."/".substr($now["year"],-2)."<br>".$now['hours'].":".$minutes;
 	return $rounded;
 }
 
@@ -254,7 +254,7 @@ require('./check_evento.php');
 		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
 		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
 		<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
 		<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
 		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
 		<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
