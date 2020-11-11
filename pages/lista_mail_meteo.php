@@ -172,7 +172,6 @@ if (($profilo_sistema > 0 AND $profilo_sistema <= 1) OR $profilo_sistema==11){
 
 function nameFormatterBoolean(value, row) {
         //return '<i class="fas fa-'+ value +'"></i>' ;
-        
         if (value=='t'){
         		return '<i class="fas fa-check faa-ring animated" title="Invio a questa mail attivo" style="color:#5cb85c"></i> - \
 				<a href="./report/pausa_mail_meteo.php?id='+ row.id + '" class="btn btn-sm btn-danger" title="Mail attiva. Clicca per disattivare invio a questa mail" role="button">\
