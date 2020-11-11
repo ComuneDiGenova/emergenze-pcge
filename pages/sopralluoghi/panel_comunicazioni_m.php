@@ -44,6 +44,7 @@ while($r_comunicazioni = pg_fetch_assoc($result_comunicazioni)) {
 					echo "<i class=\"fa fa-comment\"></i> ". $r_comunicazioni['data_ora_stato'];
 					echo " - Da " .$r_comunicazioni['mittente']. " a ". $r_comunicazioni['destinatario'];
 					echo " : " .$r_comunicazioni['testo'];
+					$testo='';
 					if ($r_comunicazioni['allegato']!=''){
 						$allegati=explode(";",$r_comunicazioni['allegato']);
 						// Count total files
@@ -51,12 +52,25 @@ while($r_comunicazioni = pg_fetch_assoc($result_comunicazioni)) {
 						//echo $countfiles;
 						// Looping all files
 						if($countfiles > 0) {
-							for($i=0;$i<$countfiles;$i++){
+							/*for($i=0;$i<$countfiles;$i++){
 								$n_a=$i+1;
 								echo ' -  <a href="../../'.$allegati[$i].'"> Allegato '.$n_a.'</a>';
+							}*/
+							for($i=0;$i<$countfiles;$i++){
+								$n_a=$i+1;
+								//$testo= $testo. ' - <a href="../../'.$allegati[$i].'"> Allegato '.$n_a.'</a>';
+								if(@is_array(getimagesize('../../'.$allegati[$i]))){
+									//$image = true;
+									$testo= $testo. '<br><img src="../../'.$allegati[$i].'" alt="'.$allegati[$i].'" width="30%"> 
+									<a target="_new" title="Visualizza immagine in nuova scheda" href="../../'.$allegati[$i].'"> Apri immagine'.$n_a.'</a>';
+								} else {
+									//$image = false;
+									$testo= $testo. '<br><a target="_new" href="../../'.$allegati[$i].'"> Apri allegato '.$n_a.' in nuova scheda</a>';
+								}
 							}
 						}
 					}
+					echo $testo;
 					/*if ($r_comunicazioni['allegato']!=''){
 						echo '<a href="../../'.$r_comunicazioni['allegato'].'"> Allegato </a>';
 					}*/

@@ -31,13 +31,13 @@ echo "<br>";
 
 
 // Count total files
- $countfiles = count(array_filter($_FILES['userfile']['name']));
+ $countfiles = count(array_filter($_FILES['userfile_i']['name']));
 
 
 
  // Looping all files
  for($i=0;$i<$countfiles;$i++){
-   $filename = $_FILES['userfile']['name'][$i];
+   $filename = $_FILES['userfile_i']['name'][$i];
    
 	//percorso della cartella dove mettere i file caricati dagli utenti
 	$uploaddir0="../../../emergenze_uploads/";
@@ -65,11 +65,11 @@ echo "<br>";
 	}
 
 	//Recupero il percorso temporaneo del file
-	$userfile_tmp = $_FILES['userfile']['tmp_name'][$i];
+	$userfile_tmp = $_FILES['userfile_i']['tmp_name'][$i];
 
 	//recupero il nome originale del file caricato e tolgo gli spazi
-	//$userfile_name = $_FILES['userfile']['name'];
-	$userfile_name = preg_replace("/[^a-z0-9\_\-\.]/i", '', basename($_FILES['userfile']["name"][$i]));
+	//$userfile_name = $_FILES['userfile_i']['name'];
+	$userfile_name = preg_replace("/[^a-z0-9\_\-\.]/i", '', basename($_FILES['userfile_i']["name"][$i]));
 
 
 	$datafile=date("YmdHis");

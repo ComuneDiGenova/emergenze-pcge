@@ -6,30 +6,41 @@ if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
-	$query = "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Coordinamento sala emergenze' as tipo, ";
+	$query = "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Coordinamento sala emergenze' as tipo, ";
 	$query = $query. "'t_coordinamento' as table FROM report.t_coordinamento r ";
 	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
-	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Monitoraggio meteo' as tipo, ";
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Monitoraggio meteo' as tipo, ";
 	$query = $query. "'t_monitoraggio_meteo' as table FROM report.t_monitoraggio_meteo r ";
 	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
-	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Tecnico protezione civile' as tipo, ";
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Tecnico protezione civile' as tipo, ";
 	$query = $query. "'t_tecnico_pc' as table FROM report.t_tecnico_pc r ";
 	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
-	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Operatore presidi territoriali meteo' as tipo, ";
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore presidi territoriali' as tipo, ";
 	$query = $query. "'t_presidio_territoriale' as table FROM report.t_presidio_territoriale r ";
 	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
-	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Operatore n verde' as tipo, ";
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore n verde' as tipo, ";
 	$query = $query. "'t_operatore_nverde' as table FROM report.t_operatore_nverde r ";
 	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
-	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, 'Operatore gestione volontari' as tipo, ";
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore gestione volontari' as tipo, ";
 	$query = $query. "'t_operatore_volontari' as table FROM report.t_operatore_volontari r ";
-	$query = $query. "JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf";
+	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
 	
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore gestione volontari' as tipo, ";
+	$query = $query. "'t_operatore_volontari' as table FROM report.t_operatore_volontari r ";
+	$query = $query. "JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf UNION ";
+	
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore presidio sanitario' as tipo, ";
+	$query = $query. "'t_operatore_anpas' as table FROM report.t_operatore_anpas r ";
+	$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola UNION ";
+	
+	$query = $query. "SELECT r.id, r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, r.modificato, 'Operatore presidio sanitario' as tipo, ";
+	$query = $query. "'t_operatore_anpas' as table FROM report.t_operatore_anpas r ";
+	$query = $query. "JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf";
 	
 	
 	$query = $query. " order by data_start desc, cognome;";

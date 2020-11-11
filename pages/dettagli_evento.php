@@ -252,9 +252,32 @@ require('./check_evento.php');
 							//<i class="fas fa-edit"></i> Edit </button>';
 							echo " <li><b>Comunicazione del ".$r['data_aggiornamento']."</b>: ";
 							echo $r['testo'];
-							if ($r['allegato']!=''){
+							/*if ($r['allegato']!=''){
 								echo " (<a href=\"../../".$r['allegato']."\">Allegato</a>)";
+							}*/
+							if ($r['allegato']!=''){
+								$allegati=explode(";",$r['allegato']);
+								// Count total files
+								$countfiles = count($allegati); 
+								//echo $countfiles;
+								$testo='';
+								// Looping all files
+								if($countfiles > 0) {
+									for($j=0;$j<$countfiles;$j++){
+										$n_a=$j+1;
+										//$testo= $testo. ' - <a href="../../'.$allegati[$i].'"> Allegato '.$n_a.'</a>';
+										if(@is_array(getimagesize('../../'.$allegati[$j]))){
+											//$image = true;
+											$testo= $testo. '<br><img src="../../'.$allegati[$j].'" alt="'.$allegati[$j].'" width="30%"> 
+											<a target="_new" title="Visualizza immagine in nuova scheda" href="../../'.$allegati[$j].'"> Apri immagine'.$n_a.'</a>';
+										} else {
+											//$image = false;
+											$testo= $testo. '<br><a target="_new" href="../../'.$allegati[$j].'"> Apri allegato '.$n_a.' in nuova scheda</a>';
+										}
+									}
+								}
 							}
+							echo $testo;
 							echo "</li>";
 						}
 						echo "</ul><hr>";
@@ -282,10 +305,93 @@ require('./check_evento.php');
 									  </div>
 									
 									<!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
-									<div class="form-group">
+									<!--div class="form-group">
 									   <label for="note">Eventuale allegato (es. verbale COC)</label>
 										<input type="file" class="form-control-file" name="userfile" id="userfile">
+									</div-->
+									
+									<style type="text/css">
+									#fileList > div > label > span:last-child {
+										color: red;
+										display: inline-block;
+										margin-left: 7px;
+										cursor: pointer;
+									}
+									#fileList input[type=file] {
+										display: none;
+									}
+									#fileList > div:last-child > label {
+										display: inline-block;
+										width: 23px;
+										height: 23px;
+										font: 16px/22px Tahoma;
+										color: orange;
+										text-align: center;
+										border: 2px solid orange;
+										border-radius: 50%;
+									}
+									</style>
+
+								<div class="form-group file">
+								   <label for="note">Eventuali allegati</label>
+								   <div id="fileList">
+										<div>
+											<input id="fileInput_0" type="file" name="userfile[]" />
+											<label for="fileInput_0">+</label>      
+										</div>
 									</div>
+								</div>
+
+									<script type="text/javascript" >
+									var fileInput = document.getElementById('fileInput_0');
+									var filesList =  document.getElementById('fileList');  
+									var idBase = "fileInput_";
+									var idCount = 0;
+									
+									var inputFileOnChange = function() {
+									
+										var existingLabel = this.parentNode.getElementsByTagName("LABEL")[0];
+										var isLastInput = existingLabel.childNodes.length<=1;
+									
+										if(!this.files[0]) {
+											if(!isLastInput) {
+												this.parentNode.parentNode.removeChild(this.parentNode);
+											}
+											return;
+										}
+									
+										var filename = this.files[0].name;
+									
+										var deleteButton = document.createElement('span');
+										deleteButton.innerHTML = '&times;';
+										deleteButton.onclick = function(e) {
+											this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+										}
+										var filenameCont = document.createElement('span');
+										filenameCont.innerHTML = filename;
+										existingLabel.innerHTML = "";
+										existingLabel.appendChild(filenameCont);
+										existingLabel.appendChild(deleteButton);
+										
+										if(isLastInput) {	
+											var newFileInput=document.createElement('input');
+											newFileInput.type="file";
+											newFileInput.name="userfile[]";
+											newFileInput.id=idBase + (++idCount);
+											newFileInput.onchange=inputFileOnChange;
+											var newLabel=document.createElement('label');
+											newLabel.htmlFor = newFileInput.id;
+											newLabel.innerHTML = '+';
+											var newDiv=document.createElement('div');
+											newDiv.appendChild(newFileInput);
+											newDiv.appendChild(newLabel);
+											filesList.appendChild(newDiv);
+										} 
+									}
+									
+									fileInput.onchange=inputFileOnChange;
+									</script>
+									
 
 								<button  id="conferma" type="submit" class="btn btn-primary">Invia comunicazione</button>
 									</form>
@@ -921,7 +1027,7 @@ require('./check_evento.php');
                             <select class="form-control" name="tipo" id="tipo" required="">
                             <option name="tipo" value="" > ... </option>
             <?php            
-            $query2="SELECT * From \"eventi\".\"tipo_allerta\" WHERE valido='t';";
+            $query2="SELECT * From \"eventi\".\"tipo_allerta\" WHERE valido='t' order by id;";
 	        $result2 = pg_query($conn, $query2);
             //echo $query1;    
             while($r2 = pg_fetch_assoc($result2)) { 
@@ -1081,7 +1187,7 @@ require('./check_evento.php');
                             <select class="form-control" name="tipo" id="tipo" required="">
                             <option name="tipo" value="" > ... </option>
             <?php            
-            $query2="SELECT * From \"eventi\".\"tipo_foc\" WHERE valido='t';";
+            $query2="SELECT * From \"eventi\".\"tipo_foc\" WHERE valido='t' order by id;";
 	        $result2 = pg_query($conn, $query2);
             //echo $query1;    
             while($r2 = pg_fetch_assoc($result2)) { 

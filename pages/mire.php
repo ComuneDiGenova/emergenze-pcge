@@ -98,23 +98,110 @@ require('./check_evento.php');
 			<form >    
 	        <!--form name="form1" target="content" autocomplete="off" action="eventi/nuova_lettura2.php" method="POST" id="submit_form"-->
     
-			   <div class="form-group col-lg-4">
-			   <label for="tipo">Mira o rivo:</label> <font color="red">*</font>
-								<select class="selectpicker show-tick form-control" data-live-search="true" name="mira" id="mira" required="">
-								<option name="tipo" value="" > ... </option>
+			<?php
+			if ($descrizione_allerta=='Nessuna allerta'){
+				$perc='';
+			}else if ($descrizione_allerta=='Gialla'){
+				$perc='perc_al_g';
+			} else if ($descrizione_allerta=='Arancione'){
+				$perc='perc_al_a';
+			} else if($descrizione_allerta=='Rossa') { 
+				$perc='perc_al_r';
+			}
+			?>
+	
+				<script>
+				function getMira(val) {
+					$.ajax({
+					type: "POST",
+					url: "get_mira.php",
+					data:'cod='+val+'&f=<?php echo $perc?>',
+					success: function(data){
+						$("#mira-list").html(data);
+					}
+					});
+				}
+
+				</script>
+	
+				<div class="form-group col-lg-4">
+				<label for="tipo">Percorso
+				<?php
+				if ($perc==''){
+					echo ' (possibilità di filtrare per percorso attiva solo in allerta):</label>';
+				} else {
+					echo '(Allerta '.$descrizione_allerta.'):</label><font color="red">*</font>';
+				}
+				?>
+				
+				
+				<select class="selectpicker show-tick form-control" data-live-search="true" 
+				onChange="getMira(this.value);" name="percorso" id="percorso" required=""
+				<?php 
+				if ($perc==''){
+					echo ' disabled=""';
+				}
+				?>
+				>
+				<option name="tipo" value="" > ... </option>
 			   
 			   <?php
-              $query_mire= "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
-                FROM geodb.punti_monitoraggio_ok p
-	            WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' and p.id is not null 
-	            order by nome;";
+	
+				$query_percorso="SELECT ".$perc." 
+				FROM geodb.punti_monitoraggio_ok 
+				GROUP BY ".$perc." 
+				ORDER BY ".$perc.";";
 
-			   $result_mire = pg_query($conn, $query_mire);
+			   $result_percorso = pg_query($conn, $query_percorso);
 				//echo $query1;    
-				while($r_mire = pg_fetch_assoc($result_mire)) { 
-				?>    
-						<option name="tipo" value="<?php echo $r_mire['id'];?>"><?php echo $r_mire['nome'];?></option>
-				 <?php } ?>
+				while($r_p = pg_fetch_assoc($result_percorso)) { 
+					if ($r_p["$perc"] ==''){
+					?>
+						<option name="percorso" value="<?php echo $r_p["$perc"];?>">Punti fuori da percorsi prestabiliti</option>
+					<?php
+					} else {
+					?>
+						<option name="percorso" value="<?php echo $r_p["$perc"];?>"><?php echo $r_p["$perc"];?></option>
+					<?php
+					}
+				} 
+				?>
+				 </select>            
+				 </div>
+	
+				<?php 
+				if ($perc!=''){
+				?>
+					<div class="form-group col-lg-4">
+					<label for="mira">Mira o rivo:</label> <font color="red">*</font>
+					<select class="form-control" name="mira" id="mira-list" class="demoInputBox" required="">
+					<option value="" > Seleziona la mira </option>
+				<?php
+				} else {
+				?>
+					<div class="form-group col-lg-4">
+					<label for="tipo">Mira o rivo:</label> <font color="red">*</font>
+					<select class="selectpicker show-tick form-control" data-live-search="true" name="mira" id="mira" required="">
+					<option value="" > ... </option>
+				   
+				   <?php
+					$query_mire= "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
+					FROM geodb.punti_monitoraggio_ok p
+					WHERE p.id is not null 
+					order by nome;";
+
+				   $result_mire = pg_query($conn, $query_mire);
+					//echo $query1;    
+					while($r_mire = pg_fetch_assoc($result_mire)) { 
+					?>    
+							<option name="mira" value="<?php echo $r_mire['id'];?>"><?php echo $r_mire['nome'];?></option>
+					<?php 
+					} 
+				}
+				 ?>
+					
+				 
+				 
 				 </select>            
 				 </div>
 			   

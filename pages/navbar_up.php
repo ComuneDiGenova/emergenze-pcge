@@ -145,8 +145,8 @@ if (isset($subtitle)) {
 								}
 							?>
 							
-                    		<i class="fas fa-circle fa-1x" style="color:<?php echo $color_allerta; ?>"></i> 
-                    		<i class="fas fa-circle fa-1x" style="color:<?php echo $color_foc; ?>"></i>
+                    		<i class="fas fa-circle fa-1x" title="<?php echo $descrizione_allerta; ?>" style="color:<?php echo $color_allerta; ?>"></i> 
+                    		<i class="fas fa-circle fa-1x" title="<?php echo $descrizione_foc; ?>" style="color:<?php echo $color_foc; ?>"></i>
                     		<i class="fas fa-phone-square fa-1x" style="color:<?php echo $color_nverde; ?>"></i>
                     </a>
                      

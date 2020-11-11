@@ -69,17 +69,20 @@ if ($profilo_sistema > 6){
         <table  id="t_cse" class="table-hover" style="word-break:break-all; word-wrap:break-word; " data-toggle="table" 
 		data-url="./tables/griglia_se.php"  data-show-export="true" data-search="true" data-click-to-select="true" 
 		data-pagination="true" data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" 
-		data-show-columns="true" data-toolbar="#toolbar">
+		data-show-columns="true" data-toolbar="#toolbar" data-filter-control="true" 
+  data-show-search-clear-button="true" >
 <thead>
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <th data-field="matricola_cf" data-sortable="false"  data-visible="true">Matr/CF</th>
-			<th data-field="tipo" data-sortable="false"  data-visible="true">Tipologia</th>
-            <th style="word-break:break-all; word-wrap:break-word; " data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
-            <th style="word-break:break-all; word-wrap:break-word; " data-field="nome" data-sortable="true"  data-visible="true">Nome</th>
-			<th data-field="data_start" data-sortable="true"  data-visible="true" >Inizio</th>
-	        <th data-field="data_end" data-sortable="true"  data-visible="true" >Fine</th>
+            <th data-field="matricola_cf" data-sortable="false" data-filter-control="input" data-visible="true">Matr/CF</th>
+			<th data-field="tipo" data-sortable="false"  data-filter-control="select" data-visible="true">Tipologia</th>
+            <th style="word-break:break-all; word-wrap:break-word;" data-filter-control="input" data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
+            <th style="word-break:break-all; word-wrap:break-word; " data-field="nome" data-sortable="true" data-filter-control="input" data-visible="true">Nome</th>
+			<th data-field="data_start" data-sortable="true" data-filter-control="input" data-visible="true" >Inizio</th>
+	        <th data-field="data_end" data-sortable="true" data-filter-control="input" data-visible="true" >Fine</th>
+			<th data-field="modificato" data-sortable="true" data-formatter="nameFormatterMod" data-visible="true" > </th>
+			<th data-field="table" data-sortable="true" data-formatter="nameFormatterEdit" data-visible="true" >Modifica</th>
     </tr>
 </thead>
 </table>
@@ -93,10 +96,26 @@ if ($profilo_sistema > 6){
             });
         });
     })
+
+function nameFormatterEdit(value,row) {
+	return '<a class="btn btn-warning" title="Visualizza dettagli e edita" href="./correggi_turni.php?t='+value+'&m='+row.matricola_cf+'&s='+row.data_start+'&e='+row.data_end+'"> <i class="fas fa-edit"></i> </a>';
+}
+
+
+function nameFormatterMod(value) {
+	if (value=='t'){
+		return '<i title="Record precedentemente modificato" class="fas fa-exclamation"></i>';
+	} else {
+		return '-';
+	}
+}
 </script>
             </div> <!-- /.row -->
 			
-			
+		
+
+
+		
 			
 			
     </div>

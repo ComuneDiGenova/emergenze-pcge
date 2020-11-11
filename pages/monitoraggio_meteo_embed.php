@@ -101,11 +101,92 @@
 
 
                <!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
-					<div class="form-group">
+					<!--div class="form-group">
 					   <label for="note">Eventuali immagini allegate </label>
 						<input type="file" class="form-control-file" accept="image/*" onchange="preview_images();"name="userfile[]" id="userfile" multiple>
 					<br><div class="row" id="image_preview"></div>
-					</div>
+					</div-->
+					<style type="text/css">
+									#fileList_i > div > label > span:last-child {
+										color: red;
+										display: inline-block;
+										margin-left: 7px;
+										cursor: pointer;
+									}
+									#fileList_i input[type=file] {
+										display: none;
+									}
+									#fileList_i > div:last-child > label {
+										display: inline-block;
+										width: 23px;
+										height: 23px;
+										font: 16px/22px Tahoma;
+										color: orange;
+										text-align: center;
+										border: 2px solid orange;
+										border-radius: 50%;
+									}
+									</style>
+
+								<div class="form-group file">
+								   <label for="note2">Eventuali allegati</label>
+								   <div id="fileList_i">
+										<div>
+											<input id="fileInput_i_0" type="file" class="form-control-file" accept="image/*" name="userfile_i[]" />
+											<label for="fileInput_i_0">+</label>      
+										</div>
+									</div>
+								</div>
+
+									<script type="text/javascript" >
+									var fileInput2 = document.getElementById('fileInput_i_0');
+									var filesList2 =  document.getElementById('fileList_i');  
+									var idBase2 = "fileInput_i_";
+									var idCount2 = 0;
+									
+									var inputFileOnChange2 = function() {
+									
+										var existingLabel2 = this.parentNode.getElementsByTagName("LABEL")[0];
+										var isLastInput2 = existingLabel2.childNodes.length<=1;
+									
+										if(!this.files[0]) {
+											if(!isLastInput2) {
+												this.parentNode.parentNode.removeChild(this.parentNode);
+											}
+											return;
+										}
+									
+										var filename2 = this.files[0].name;
+									
+										var deleteButton2 = document.createElement('span');
+										deleteButton2.innerHTML = '&times;';
+										deleteButton2.onclick = function(e) {
+											this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+										}
+										var filenameCont2 = document.createElement('span');
+										filenameCont2.innerHTML = filename2;
+										existingLabel2.innerHTML = "";
+										existingLabel2.appendChild(filenameCont2);
+										existingLabel2.appendChild(deleteButton2);
+										
+										if(isLastInput2) {	
+											var newFileInput2=document.createElement('input');
+											newFileInput2.type="file";
+											newFileInput2.name="userfile_i[]";
+											newFileInput2.id=idBase2 + (++idCount2);
+											newFileInput2.onchange=inputFileOnChange2;
+											var newLabel2=document.createElement('label');
+											newLabel2.htmlFor = newFileInput2.id;
+											newLabel2.innerHTML = '+';
+											var newDiv2=document.createElement('div');
+											newDiv2.appendChild(newFileInput2);
+											newDiv2.appendChild(newLabel2);
+											filesList2.appendChild(newDiv2);
+										} 
+									}
+									
+									fileInput2.onchange=inputFileOnChange2;
+									</script>
 
 
 

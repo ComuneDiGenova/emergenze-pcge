@@ -184,7 +184,7 @@
 				
 				
 				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. "from report.t_coordinamento r ";
 			$query = $query. " LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -217,6 +217,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -230,7 +233,7 @@
 			
 			echo "---.---.---<br>";
 			if ($id==''){
-				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 				$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				$query = $query. " from report.t_coordinamento r ";
 				$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -238,7 +241,7 @@
 				//$query = $query. " and id1=".$r0["id1"]."";
 				$query = $query. " order by data_start, cognome;";
 				
-				//echo $query;
+				echo $query;
 				
 				$check_reperibile=0;
 				$result = pg_query($conn, $query);
@@ -258,7 +261,10 @@
 				
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
-				} 
+				}
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -501,6 +507,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -518,7 +527,7 @@
 			echo "---.---.---<br>";
 			//echo "</ul>";
 			if ($id==''){
-				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 				$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				$query = $query. " from report.t_monitoraggio_meteo r ";
 				$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -547,6 +556,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -757,7 +769,7 @@
 				
 				
 				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_presidio_territoriale r ";
 			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -791,6 +803,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -808,7 +823,7 @@
 			echo "---.---.---<br>";
 			
 			if ($id==''){
-				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_presidio_territoriale r ";
 				$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -837,6 +852,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1049,7 +1067,7 @@
 				
 				
 				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_tecnico_pc r ";
 			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -1083,6 +1101,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1098,7 +1119,7 @@
 
 			echo "---.---.---<br>";
 			if ($id==''){
-				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_tecnico_pc r ";
 				$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
@@ -1127,6 +1148,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1345,7 +1369,7 @@
 			$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
 			$query = $query. "case when u.nome is not null then u.nome ";
 			$query = $query. "when d.nome is not null then d.nome end  as nome, ";
-			$query = $query. "r.data_start, r.data_end, warning_turno, ";
+			$query = $query. "r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_operatore_volontari r ";
 			$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1380,6 +1404,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1395,7 +1422,7 @@
 
 			echo "---.---.---<br>";
 			if ($id==''){
-				//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 				//$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				//$query = $query. " from report.t_operatore_volontari r ";
 				//$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1404,7 +1431,7 @@
 				$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
 				$query = $query. "case when u.nome is not null then u.nome ";
 				$query = $query. "when d.nome is not null then d.nome end  as nome, ";
-				$query = $query. "r.data_start, r.data_end, warning_turno, ";
+				$query = $query. "r.data_start, r.data_end, warning_turno, modificato, ";
 				$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				$query = $query. " from report.t_operatore_volontari r ";
 				$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1434,6 +1461,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1642,7 +1672,7 @@
 				
 				
 				
-			//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+			//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 			//$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			//$query = $query. " from report.t_operatore_anpas r ";
 			//$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1651,7 +1681,7 @@
 			$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
 			$query = $query. "case when u.nome is not null then u.nome ";
 			$query = $query. "when d.nome is not null then d.nome end  as nome, ";
-			$query = $query. "r.data_start, r.data_end, warning_turno, ";
+			$query = $query. "r.data_start, r.data_end, warning_turno, modificato, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_operatore_anpas r ";
 			$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1686,6 +1716,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}
@@ -1701,7 +1734,7 @@
 
 			echo "---.---.---<br>";
 			if ($id==''){
-				//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+				//$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
 				//$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				//$query = $query. " from report.t_operatore_anpas r ";
 				//$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1710,7 +1743,7 @@
 				$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
 				$query = $query. "case when u.nome is not null then u.nome ";
 				$query = $query. "when d.nome is not null then d.nome end  as nome, ";
-				$query = $query. "r.data_start, r.data_end, warning_turno, ";
+				$query = $query. "r.data_start, r.data_end, warning_turno, modificato, ";
 				$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				$query = $query. " from report.t_operatore_anpas r ";
 				$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
@@ -1740,6 +1773,9 @@
 				if ($r['warning_turno']=='t'){
 					echo '- <i class="fas fa-exclamation-triangle" style="color: orange;" title="Sovrapposizione con altri turni"></i>';
 				} 
+				if ($r['modificato']=='t'){
+					echo '- <i class="fas fa-pencil-alt" style="color: red;" title="Turno modificato. Visualizzare i dettagli dallo storico turni"></i>';
+				}
 				if ($r['warning_time']=='t'){
 					echo '- <i class="fas fa-exclamation-circle" style="color: orange;" title="Il turno di questa persona dura più di 10 h"></i>';
 				}

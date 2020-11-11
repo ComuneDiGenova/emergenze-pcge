@@ -31,20 +31,20 @@ $id_evento=$_POST["id_evento"];
 
 
 // Count total files
-$countfiles = count(array_filter($_FILES['userfile']['name']));
+$countfiles = count(array_filter($_FILES['userfile_i']['name']));
 //echo $countfiles;
 //exit;
  
  // Looping all files
  for($i=0;$i<$countfiles;$i++){
-   $filename = $_FILES['userfile']['name'][$i];
+   $filename = $_FILES['userfile_i']['name'][$i];
    
    // Upload file (example from internet)
    //move_uploaded_file($_FILES['file']['tmp_name'][$i],'upload/'.$filename);
 
 
 // per prima cosa verifico che il file sia stato effettivamente caricato
-/*if (!isset($_FILES['userfile']) || !is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+/*if (!isset($_FILES['userfile_i']) || !is_uploaded_file($_FILES['userfile_i']['tmp_name'])) {
   echo 'Non hai inviato nessun file...';    
 } else {*/
 
@@ -76,11 +76,11 @@ $countfiles = count(array_filter($_FILES['userfile']['name']));
 	}
 
 	//Recupero il percorso temporaneo del file
-	$userfile_tmp = $_FILES['userfile']['tmp_name'][$i];
+	$userfile_tmp = $_FILES['userfile_i']['tmp_name'][$i];
 
 	//recupero il nome originale del file caricato e tolgo gli spazi
-	//$userfile_name = $_FILES['userfile']['name'];
-	$userfile_name = preg_replace("/[^a-z0-9\_\-\.]/i", '', basename($_FILES['userfile']["name"][$i]));
+	//$userfile_name = $_FILES['userfile_i']['name'];
+	$userfile_name = preg_replace("/[^a-z0-9\_\-\.]/i", '', basename($_FILES['userfile_i']["name"][$i]));
 
 
 	$datafile=date("YmdHis");
@@ -229,12 +229,12 @@ $mail->AltBody = 'This is a plain-text message body';
 if (!$mail->send()) {
     //echo "<h3>Problema nell'invio della mail: " . $mail->ErrorInfo;
 	?>
-	<script> alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script>
+	<!--script> alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script-->
 	<?php
 	echo '<div style="text-align: center;"><img src="../../img/no_mail_com.png" width="75%" alt=""></div>';
 	echo '<br><h1>Entro 10" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
 	//echo '<br>La comunicazione è stata correttamente inserita a sistema, ma si è riscontrato un problema nell\'invio della mail.';
-	echo '<a href="../dettagli_incarico.php?id='.$id.'">link</a> per saltare l\'attesa.</h1>' ;
+	echo '<a href="../dettagli_incarico_interno.php?id='.$id.'">link</a> per saltare l\'attesa.</h1>' ;
 	//sleep(30);
     header("refresh:10;url=../dettagli_incarico_interno.php?id=".$id);
 } else {
