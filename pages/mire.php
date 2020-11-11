@@ -407,11 +407,11 @@ function nameFormatterLettura(value,row) {
 		}
 	} else {
 		if(value==1){
-			return '<i class="fas fa-circle" style="color:#00bb2d;"></i></button>';
+			return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
 		} else if (value==2) {
-			return '<i class="fas fa-circle" style="color:#ffff00;"></i></button>';
+			return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
 		} else if (value==3) {
-			return '<i class="fas fa-circle" style="color:#cb3234;"></i></button>';
+			return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
 		} else {
 			return '-';
 		}
