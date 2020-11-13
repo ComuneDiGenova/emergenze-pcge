@@ -71,16 +71,20 @@ if ($profilo_sistema <= 4.){
             </select>
         </div>
         
-        <table  id="t_mail" class="table-hover" style="word-break:break-all; word-wrap:break-word; " data-toggle="table" data-url="./tables/griglia_mail.php" data-height="900"  data-show-export="true" data-search="true" data-click-to-select="true" data-pagination="true" data-sidePagination="false" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" data-toolbar="#toolbar">
+        <table  id="t_mail" class="table-hover" style="word-break:break-all; word-wrap:break-word; " data-toggle="table" 
+		data-url="./tables/griglia_mail.php" data-height="900"  data-show-export="true" data-search="true" data-click-to-select="true" 
+		data-pagination="true" data-sidePagination="false" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+		data-page-size=75 data-page-list=[10,25,50,75,100,200,500] 
+		data-filter-control="true" data-toolbar="#toolbar">
         
         
 <thead>
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <th style="word-break:break-all; word-wrap:break-word; " data-field="tipo" data-sortable="true"  data-visible="true">Tipo</th>
-            <th style="word-break:break-all; word-wrap:break-word; " data-field="descrizione" data-sortable="true"  data-visible="true">Descrizione<br>U.O.</th>
-	          <th data-field="mails" data-sortable="true"  data-visible="true" >Mail</th>
+            <th style="word-break:break-all; word-wrap:break-word; " data-field="tipo" data-sortable="true" data-filter-control="select" data-visible="true">Tipo</th>
+            <th style="word-break:break-all; word-wrap:break-word; " data-field="descrizione" data-sortable="true" data-filter-control="input" data-visible="true">Descrizione<br>U.O.</th>
+	          <th data-field="mails" data-sortable="true"  data-visible="true" data-filter-control="input" >Mail</th>
             <?php
 				if ($check_operatore == 1){
 				?>

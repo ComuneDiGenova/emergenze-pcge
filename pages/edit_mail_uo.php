@@ -180,7 +180,7 @@ require('./check_evento.php');
             <div class="col-md-12"> 
                 <div class="form-group">
 			            <label for="mail-input">Mail:</label> <font color="red">*</font>
-			                <input class="form-control" type="mail" name="mail" id="mail-input"  required="">
+			                <input class="form-control" type="email" name="mail" id="mail-input"  required="">
 			                
 			             </div>
             </div>
