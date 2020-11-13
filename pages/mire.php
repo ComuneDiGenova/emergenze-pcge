@@ -375,9 +375,9 @@ require('./check_evento.php');
 		<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
 		<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
 		<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-		<th data-field="perc_al_g" data-sortable="true" <?php if $perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-		<th data-field="perc_al_a" data-sortable="true" <?php if $perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="percoso allerta arancione" style="color:#e00000;"></i></th>
-		<th data-field="perc_al_r" data-sortable="true"  <?php if $perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#ff8c00;"></i></th>
+		<th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+		<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#e00000;"></i></th>
+		<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#ff8c00;"></i></th>
 		<th data-field="arancio" data-sortable="true" data-visible="false" Liv arancione</th>
 		<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
 		<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
