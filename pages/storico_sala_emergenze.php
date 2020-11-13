@@ -82,8 +82,14 @@ if ($profilo_sistema > 6){
 			<th data-field="data_start" data-sortable="true" data-filter-control="input" data-visible="true" >Inizio</th>
 	        <th data-field="data_end" data-sortable="true" data-filter-control="input" data-visible="true" >Fine</th>
 			<th data-field="modificato" data-sortable="true" data-formatter="nameFormatterMod" data-visible="true" > </th>
+			<?php 
+			if ($profilo_sistema==1){
+			?>
 			<th data-field="table" data-sortable="true" data-formatter="nameFormatterEdit" data-visible="true" >Modifica</th>
-    </tr>
+			<?php 
+			}
+			?>
+   </tr>
 </thead>
 </table>
 <script>

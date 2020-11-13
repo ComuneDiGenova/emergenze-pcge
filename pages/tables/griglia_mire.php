@@ -10,6 +10,9 @@ if(!$conn) {
 	p.tipo,
 	p.id::character varying, 
 	max(l.data_ora) as last_update,
+	p.perc_al_g as perc_al_g,
+	p.perc_al_a as perc_al_a,
+	p.perc_al_r as perc_al_r,
 	NULL as arancio, 
 	NULL as rosso,
 	(select max(id_lettura) 
@@ -50,13 +53,16 @@ if(!$conn) {
 	FROM geodb.punti_monitoraggio_ok p
 	LEFT JOIN geodb.lettura_mire l ON l.num_id_mira = p.id 
 	WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo' and p.id is not null 
-	group by p.nome, p.id, p.note, p.tipo
+	group by p.nome, p.id, p.note, p.tipo, p.perc_al_g, p.perc_al_a, p.perc_al_r
    UNION
  SELECT p.name AS nome,
     'IDROMETRO ARPA'::character varying AS tipo,
     l.id_station::text AS id,
     max(l.data_ora) AT TIME ZONE 'UTC' AT TIME ZONE 'CEST' AS last_update,
-    s.liv_arancione as arancio,
+    NULL as perc_al_g,
+	NULL as perc_al_a,
+	NULL as perc_al_r,
+	s.liv_arancione as arancio,
     s.liv_rosso as rosso,
     ( SELECT greatest(max(lettura_idrometri_arpa.lettura),0) AS max
            FROM geodb.lettura_idrometri_arpa
@@ -88,7 +94,10 @@ if(!$conn) {
     'IDROMETRO COMUNE'::character varying AS tipo,
     l.id_station::text AS id,
     max(l.data_ora) AT TIME ZONE 'UTC' AT TIME ZONE 'CEST' AS last_update,
-    s.liv_arancione as arancio,
+    NULL as perc_al_g,
+	NULL as perc_al_a,
+	NULL as perc_al_r,
+	s.liv_arancione as arancio,
     s.liv_rosso as rosso,
     ( SELECT greatest(max(lettura_idrometri_comune.lettura),0) AS max
            FROM geodb.lettura_idrometri_comune
@@ -119,7 +128,7 @@ if(!$conn) {
    order by nome;";
    //echo $query;
 	$result = pg_query($conn, $query);
-	#echo $query;
+	//echo $query;
 	//exit;
 	$rows = array();
 	while($r = pg_fetch_assoc($result)) {

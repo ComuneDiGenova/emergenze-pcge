@@ -128,7 +128,7 @@ require('./check_evento.php');
 			<br><br>
 			
 			<?php
-			if ($profilo_sistema==1 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema==1){
 			?>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_ana"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -171,11 +171,11 @@ require('./check_evento.php');
                 <input type="text" pattern=".{16,16}" maxlenght="16" value='<?php echo $r['matricola_cf']?>' name="cf" class="form-control" readonly required>
               </div>           
               <div class="form-group">
-                <label for="data_start">Data start</label>
+                <label for="data_start">Data inizio turno</label>
                 <input type="text" name="data_start" value='<?php echo $r['data_start']?>' class="form-control" required>
               </div>            
               <div class="form-group">
-                <label for="data_end">Nazione di nascita</label>
+                <label for="data_end">Data fine turno</label>
                 <input type="text" name="data_end" value='<?php echo $r['data_end']?>' class="form-control" required>
               </div>    
               

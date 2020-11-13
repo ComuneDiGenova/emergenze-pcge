@@ -69,9 +69,48 @@ require('./check_evento.php');
                 </div>
                <div class="row">
            
-              
-	        <script type="text/javascript">
-			function clickButton(){
+            <script type="text/javascript">  
+			function clickButton2() {
+				var mira=document.getElementById('mira').value;
+				var tipo=document.getElementById('tipo').value;
+				//alert(mira);
+				//alert(mira.value);
+				var url ="eventi/nuova_lettura3.php?mira="+encodeURIComponent(mira)+"&tipo="+encodeURIComponent(tipo)+"";
+				// get the URL
+				http = new XMLHttpRequest(); 
+				http.open("GET", url, true);
+				http.send(null);
+
+				//alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
+				//$('#msg').html(html);
+				$('#percorso').val('NO');
+				$('#mira').val('');
+				$('#tipo').val('');
+				$('#t_mire').bootstrapTable('refresh', {silent: true});
+
+				// prevent form from submitting
+				return false;
+			}
+			</script>
+			
+			<!--form-->    
+	        <!--form name="form1" target="content" autocomplete="off" action="eventi/nuova_lettura2.php" method="POST" id="submit_form"-->
+			<form action="" onsubmit="return clickButton2();">
+			<?php
+			if ($descrizione_foc=='-'){
+				$perc='';
+			}else if ($descrizione_foc=='Attenzione'){
+				$perc='perc_al_g';
+			} else if ($descrizione_foc=='Pre-allarme'){
+				$perc='perc_al_a';
+			} else if($descrizione_foc=='Allarme') { 
+				$perc='perc_al_r';
+			}
+			?>
+			
+			
+			<script type="text/javascript">
+			function clickButton() {
 			var mira=document.getElementById('mira').value;
 			var tipo=document.getElementById('tipo').value;
 			$.ajax({
@@ -94,48 +133,38 @@ require('./check_evento.php');
 					});
 					return false;
 			 }
-			</script>
-			<form >    
-	        <!--form name="form1" target="content" autocomplete="off" action="eventi/nuova_lettura2.php" method="POST" id="submit_form"-->
-    
-			<?php
-			if ($descrizione_allerta=='Nessuna allerta'){
-				$perc='';
-			}else if ($descrizione_allerta=='Gialla'){
-				$perc='perc_al_g';
-			} else if ($descrizione_allerta=='Arancione'){
-				$perc='perc_al_a';
-			} else if($descrizione_allerta=='Rossa') { 
-				$perc='perc_al_r';
-			}
-			?>
-	
-				<script>
+
+
+
 				function getMira(val) {
 					$.ajax({
 					type: "POST",
 					url: "get_mira.php",
 					data:'cod='+val+'&f=<?php echo $perc?>',
 					success: function(data){
-						$("#mira-list").html(data);
+						$("#mira").html(data);
 					}
 					});
+					return false;
 				}
 
-				</script>
-	
+			</script>
+			
+			
+			
 				<div class="form-group col-lg-4">
 				<label for="tipo">Percorso
 				<?php
 				if ($perc==''){
-					echo ' (possibilità di filtrare per percorso attiva solo in allerta):</label>';
+					echo '</label>';
 				} else {
-					echo '(Allerta '.$descrizione_allerta.'):</label><font color="red">*</font>';
+					echo '</label><font color="red">*</font>';
 				}
 				?>
 				
 				
-				<select class="selectpicker show-tick form-control" data-live-search="true" 
+				<!--select class="selectpicker show-tick form-control" data-live-search="true" -->
+				<select class="form-control"
 				onChange="getMira(this.value);" name="percorso" id="percorso" required=""
 				<?php 
 				if ($perc==''){
@@ -143,7 +172,7 @@ require('./check_evento.php');
 				}
 				?>
 				>
-				<option name="tipo" value="" > ... </option>
+				<option name="percorso" value="NO" > ... </option>
 			   
 			   <?php
 	
@@ -167,14 +196,21 @@ require('./check_evento.php');
 				} 
 				?>
 				 </select>            
-				 </div>
+				 <?php
+				if ($perc==''){
+					echo '<small>Filtro percorsi solo se Fase Operativa Comunale in atto</small>';
+				} else {
+					echo '<small>Fase operativa comunale '.$descrizione_foc.'):</small>';
+				}
+				?>
+				</div>
 	
 				<?php 
 				if ($perc!=''){
 				?>
 					<div class="form-group col-lg-4">
 					<label for="mira">Mira o rivo:</label> <font color="red">*</font>
-					<select class="form-control" name="mira" id="mira-list" class="demoInputBox" required="">
+					<select class="form-control" name="mira" id="mira" class="demoInputBox" required="">
 					<option value="" > Seleziona la mira </option>
 				<?php
 				} else {
@@ -222,7 +258,11 @@ require('./check_evento.php');
 				 </div>
 				 </div>
              <div class="row">
-             <button  name="conferma2" id="conferma2" type="submit" onclick="return clickButton();" class="btn btn-primary" >Inserisci lettura</button>
+			 <!-- molto  importante il return per non ricaricare la pagina!! -->
+             <!--button  name="conferma2" id="conferma2" type="submit" onclick="return clickButton();" class="btn btn-primary">
+			 Inserisci lettura</button-->
+			 <input  name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci lettura">
+			 
              </div>
              </form>
 			 <?php
@@ -335,8 +375,11 @@ require('./check_evento.php');
 		<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
 		<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
 		<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-		<th data-field="arancio" data-sortable="true" data-visible="false" data-filter-control="select">Liv arancione</th>
-		<th data-field="rosso" data-sortable="true" data-visible="false" data-filter-control="select">Liv rosso</th>
+		<th data-field="perc_al_g" data-sortable="true" <?php if $perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+		<th data-field="perc_al_a" data-sortable="true" <?php if $perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="percoso allerta arancione" style="color:#e00000;"></i></th>
+		<th data-field="perc_al_r" data-sortable="true"  <?php if $perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#ff8c00;"></i></th>
+		<th data-field="arancio" data-sortable="true" data-visible="false" Liv arancione</th>
+		<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
 		<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
 		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            

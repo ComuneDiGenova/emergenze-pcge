@@ -123,7 +123,7 @@ while($r = pg_fetch_assoc($result)) {
         <?php 
           $start_date = 0;
           $end_date   = 59;
-          $incremento = 15;
+          $incremento = 59;
           for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
           	if($j<10) {
             	echo '<option value="0'.$j.'">0'.$j.'</option>';
