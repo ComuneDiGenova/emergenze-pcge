@@ -1,5 +1,7 @@
 <?php
 session_start();
+//require('../validate_input.php');;
+//require('../validate_input.php');;
 
 //echo "cod=" .$_POST["cod"];
 

@@ -45,6 +45,9 @@ function integerToRoman($integer)
 
 <meta http-equiv="Cache-control" content="public">
 
+
+
+
 <link rel="icon" href="favicon.ico" type="image/x-icon"/>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
 
@@ -209,7 +212,7 @@ function integerToRoman($integer)
 	<script src="../vendor/highcharts/code/modules/exporting.js"></script>
 	<script src="../vendor/highcharts/code/modules/export-data.js"></script>
 
-	
+
 
 <?php
 ?>

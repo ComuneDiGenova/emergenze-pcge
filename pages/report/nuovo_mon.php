@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 require('../check_evento.php');
@@ -253,13 +254,13 @@ while (list ($key, $val) = each ($mails)) {
   $mail->AddBCC($val);
 }
 //Set the subject line
-$mail->Subject = 'Nuovo aggiornamento meteo ' .$data_mail;
+$mail->Subject = 'Nuovo aggiornamento meteo ' .$data_mail.' '.$note_ambiente_mail.'';
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
 $body =  $aggiornamento . ' <br> <br> Protezione Civile del Comune di Genova. 
-<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail &egrave registrato a sistema (invio monitoraggio meteo). 
- Per modificare queste impostazioni &egrave possibile inviare una mail a adminemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
+<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema (invio monitoraggio meteo). 
+ Per modificare queste impostazioni è possibile inviare una mail a adminemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
 
  
 require('../informativa_privacy_mail.php');

@@ -1,9 +1,13 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-require('../check_evento.php');
+//require('../check_evento.php');
+
+
+
 
 
 //$id=$_GET["id"];
@@ -203,7 +207,7 @@ if ($note_geo!=''){
 $query=$query.") VALUES ("; 
 
 //valori obbligatori
-$query=$query." ".$id_segnalazione.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["crit"].",".$_POST["evento"].",".$geom.",'".$operatore."',".$municipio."";
+$query=$query." ".$id_segnalazione.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["crit"].",".$_POST["evento"].",".$geom.",'".$_SESSION["operatore"]."',".$municipio."";
 
 if ($_POST["rischio"]!=''){
 	$query=$query. ",'". $_POST["rischio"]."'";
@@ -239,20 +243,20 @@ if ($id_oggetto!=''){
 }
 
 if ($_POST["riservate"]!=''){
-	$query_operatore="SELECT nome, cognome, descrizione FROM users.v_utenti_sistema WHERE matricola_cf='".$operatore."'";
+	$query_operatore="SELECT nome, cognome, descrizione FROM users.v_utenti_sistema WHERE matricola_cf='".$_SESSION["operatore"]."'";
 	$result_operatore = pg_query($conn, $query_operatore);
 	while($r_op = pg_fetch_assoc($result_operatore)) {
       	$nome_operatore=$r_op['cognome'] .' '.$r_op['nome']. ' ('. $r_op['descrizione'].')';
     }
 	$query_riservate = "INSERT INTO segnalazioni.t_comunicazioni_segnalazioni_riservate(
 	id_segnalazione, mittente, testo)
-	VALUES (".$id_segnalazione.", '".$nome_operatore."', '".$_POST["riservate"]."');";
+	VALUES (".$id_segnalazione.", '".$nome_operatore."', '".pg_escape_string($_POST["riservate"])."');";
 	$result_riservate = pg_query($conn, $query_riservate);
 }
 
 
 //exit;
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$operatore ."', 'Creazione segnalazione ".$id_segnalazione."');";
+$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$_SESSION["operatore"] ."', 'Creazione segnalazione ".$id_segnalazione."');";
 $result = pg_query($conn, $query_log);
 
 

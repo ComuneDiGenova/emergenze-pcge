@@ -1,5 +1,7 @@
 <?php 
 session_start();
+//require('../validate_input.php');;
+//require('../validate_input.php');;
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $id=$_GET["id"];
 $query= "SELECT nome, id_evento FROM users.t_squadre where id=".$id.";";

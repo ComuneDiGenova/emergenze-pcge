@@ -1,12 +1,14 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 //echo $_SESSION['user'];
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 require('../check_evento.php');
+require ('../note_ambiente.php');
 
 
 
@@ -418,7 +420,7 @@ $query=$query.");";
 $result=pg_query($conn, $query);
 
 
-$query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('provvedimenti_cautelari','".$operatore ."', 'Inviato provvedimento cautelare ".$id_provvedimento."');";
+$query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('provvedimenti_cautelari','".$_SESSION["operatore"] ."', 'Inviato provvedimento cautelare ".$id_provvedimento."');";
 $result = pg_query($conn, $query_log);
 
 
@@ -516,13 +518,12 @@ while (list ($key, $val) = each ($mails)) {
   $mail->AddAddress($val);
 }
 //Set the subject line
-$mail->Subject = 'Urgente - Nuovo provvedimento cautelare assegnato tramite il Sistema di Gestione Emergenze del Comune di Genova';
+$mail->Subject = 'Urgente - Nuovo provvedimento cautelare assegnato tramite il Sistema di Gestione Emergenze del Comune di Genova '.$note_ambiente_mail.'';
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo provvedimento cautelare alla squadra di tua appartenenza 
- '.$uo_descrizione.'. <br> Ti preghiamo di non rispondere a questa mail, ma di visualizzare i dettagli del provvedimento cautelare accedendo 
- con le tue credenziali alla <a href="http://192.168.153.110/emergenze/pages/dettagli_provvedimento_cautelare.php?id='.$id_provvedimento.'" >pagina</a> del Sistem a di Gestione delle Emergenze del Comune di Genova.
+$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo provvedimento cautelare <br>. Ti preghiamo di non rispondere a questa mail automatica, bensì di visualizzare i dettagli del provvedimento cautelare accedendo 
+ con le tue credenziali alla pagina <a href="'.$link.'/pages/dettagli_provvedimento_cautelare.php?id='.$id_provvedimento.'" >'.$link.'</a> (il Sistem a di Gestione delle Emergenze del Comune di Genova).
  <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema. 
  Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it ';
 

@@ -48,6 +48,7 @@ require('./check_evento.php');
 <?php
 
 session_start();
+//require('../validate_input.php');;
 
 
 $id_evento=$_GET["e"];

@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 

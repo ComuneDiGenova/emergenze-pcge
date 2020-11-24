@@ -29,7 +29,7 @@ if ($profilo_sistema == 9 or  $profilo_sistema > 10){
 }
 ?>
 
-   <link rel="stylesheet" href="../vendor//leaflet-search/src/leaflet-search.css">
+   <link rel="stylesheet" href="../vendor/leaflet-search/src/leaflet-search.css">
    
 </head>
 
@@ -212,7 +212,7 @@ if ($profilo_sistema == 9 or  $profilo_sistema > 10){
                             <select class="form-control" name="crit" id="crit" required="">
                             <option name="crit" value="" > ... </option>
             <?php            
-            $query2="SELECT * FROM segnalazioni.tipo_criticita WHERE valido='t' ORDER BY descrizione;";
+            $query2="SELECT id, descrizione FROM segnalazioni.tipo_criticita WHERE valido='t' ORDER BY descrizione;";
             echo $query2;
 	        $result2 = pg_query($conn, $query2);
             //echo $query1;    
@@ -295,7 +295,7 @@ if ($profilo_sistema == 9 or  $profilo_sistema > 10){
                             <select disabled="" id="via-list" class="selectpicker show-tick form-control" data-live-search="true" onChange="getCivico(this.value);" required="">
                             <option value="">Seleziona la via</option>
             <?php            
-            $query2="SELECT * From \"geodb\".\"m_vie_unite\";";
+            $query2="SELECT * From geodb.m_vie_unite;";
 	        $result2 = pg_query($conn, $query2);
             //echo $query1;    
             while($r2 = pg_fetch_assoc($result2)) { 
@@ -354,7 +354,7 @@ if ($profilo_sistema == 9 or  $profilo_sistema > 10){
                             <select class="form-control" name="tipo_oggetto" id="tipo_oggetto" required="">
                             <option name="tipo_oggetto" value="" > Specifica oggetto </option>
             <?php            
-            $query2="SELECT * FROM segnalazioni.tipo_oggetti_rischio WHERE valido='t' and elenco_elementi_segnalazione='t' ORDER BY descrizione;";
+            $query2="SELECT id, descrizione FROM segnalazioni.tipo_oggetti_rischio WHERE valido='t' and elenco_elementi_segnalazione='t' ORDER BY descrizione;";
             echo $query2;
 	         $result2 = pg_query($conn, $query2);
             //echo $query1;    
@@ -445,14 +445,14 @@ $('#collapse1').on('shown.bs.collapse', function (e) {
                             <select class="form-control" name="crit" id="crit" required="">
                             <option name="crit" value="" > ... </option>
             <?php            
-            $query2="SELECT * FROM segnalazioni.tipo_criticita WHERE valido='t' ORDER BY descrizione;";
-            echo $query2;
-	        $result2 = pg_query($conn, $query2);
+            //$query2="SELECT id, descrizione FROM segnalazioni.tipo_criticita WHERE valido='t' ORDER BY descrizione;";
+            //echo $query2;
+	        //$result2 = pg_query($conn, $query2);
             //echo $query1;    
-            while($r2 = pg_fetch_assoc($result2)) { 
+            //while($r2 = pg_fetch_assoc($result2)) { 
             ?>    
                     <option name="crit" value="<?php echo $r2['id'];?>" ><?php echo $r2['descrizione'];?></option>
-             <?php } ?>
+             <?php //} ?>
 
              </select>            
              </div-->

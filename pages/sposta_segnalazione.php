@@ -1,5 +1,6 @@
 <?php 
 session_start();
+//require('../validate_input.php');;
 
 
 $id=$_GET["id"];

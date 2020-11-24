@@ -1,9 +1,10 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-require('../check_evento.php');
+//require('../check_evento.php');
 
 
 //$id=$_GET["id"];
@@ -94,7 +95,7 @@ echo "<br>";
 
 $query="INSERT INTO segnalazioni.t_richieste_nverde(id, uo_ins, id_segnalante, descrizione, id_evento, id_operatore ";
 $query=$query.") VALUES ("; 
-$query=$query." ".$id_richiesta.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["evento"].",'".$operatore."' ";
+$query=$query." ".$id_richiesta.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["evento"].",'".$_SESSION["operatore"]."' ";
 $query=$query.");";
 
 echo $query;
@@ -108,7 +109,7 @@ echo "<br>";
 
 
 
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$operatore ."', 'Inserita richiesta nverde ".$id_richiesta."');";
+$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$_SESSION["operatore"] ."', 'Inserita richiesta nverde ".$id_richiesta."');";
 $result = pg_query($conn, $query_log);
 
 

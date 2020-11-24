@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+require('../validate_input.php');
 
 //echo $_SESSION['user'];
 

@@ -196,12 +196,12 @@
 	      while($r_g = pg_fetch_assoc($result_g)) {
 				if ($i==0){ 
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -226,12 +226,12 @@
 	      while($r_g = pg_fetch_assoc($result_g)) {
 				if ($i==0){ 
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'","localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'","localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "localizzazione": "'.str_replace('"',' ',$r_g["localizzazione"]).'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -255,12 +255,12 @@
 	      while($r_g = pg_fetch_assoc($result_g)) {
 				if ($i==0){ 
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "rischio": "';
-					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["rischio"].'", "criticita": "'.$r_g["criticita"].'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -285,12 +285,12 @@
 	      while($r_g = pg_fetch_assoc($result_g)) {
 				if ($i==0){ 
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
-					echo $r_g["descrizione_uo"].'",  "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["descrizione_uo"].'",  "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
-					echo $r_g["descrizione_uo"].'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["descrizione_uo"].'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -315,12 +315,12 @@
 	      while($r_g = pg_fetch_assoc($result_g)) {
 				if ($i==0){ 
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
-					echo $r_g["descrizione_uo"].'",  "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["descrizione_uo"].'",  "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
-					echo $r_g["descrizione_uo"].'", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo $r_g["descrizione_uo"].'", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -346,14 +346,14 @@
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
 					echo $r_g["descrizione_uo"].'",  "descrizione_stato": " '.str_replace('"',' ',$r_g["descrizione_stato"]);
 					echo '",  "tipo_provvedimento": "'.str_replace('"',' ',$r_g["tipo_provvedimento"]);
-					echo '", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo '", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
 					echo $r_g["descrizione_uo"].'",  "descrizione_stato": " '.str_replace('"',' ',$r_g["descrizione_stato"]);
 					echo '",  "tipo_provvedimento": "'.str_replace('"',' ',$r_g["tipo_provvedimento"]);
-					echo '", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo '", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}
@@ -379,14 +379,14 @@
 					echo '{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
 					echo $r_g["descrizione_uo"].'",  "descrizione_stato": " '.str_replace('"',' ',$r_g["descrizione_stato"]);
 					echo '",  "tipo_provvedimento": "'.str_replace('"',' ',$r_g["tipo_provvedimento"]);
-					echo '", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo '", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 				} else {
 					//echo ",". $r_g["geo"];
 					echo ',{"type": "Feature","properties": {"id":'.$r_g["id"].', "descrizione_uo": "';
 					echo $r_g["descrizione_uo"].'",  "descrizione_stato": " '.str_replace('"',' ',$r_g["descrizione_stato"]);
 					echo '",  "tipo_provvedimento": "'.str_replace('"',' ',$r_g["tipo_provvedimento"]);
-					echo '", "descrizione": "'.str_replace('"',' ',$r_g["descrizione"]).'"},"geometry":';
+					echo '", "descrizione": "'.stripslashes(str_replace('"',' ',$r_g["descrizione"])).'"},"geometry":';
 					echo $r_g["geo"].'}';
 					
 				}

@@ -12,6 +12,7 @@ if (gethostname()=='vm-lxprotcivemet'){
 	$note_debug = $note_debug .'<a href="mailto:roberto.marzocchi@gter.it?subject=Nuovo%20Sistema%20PC%20GE%20bug">Gter srl</a></h4></i>';
 } else {
 	$note_ambiente ="";
+	$note_ambiente_mail = "";
 	$note_debug="";
 	$check_test=0;
 }
