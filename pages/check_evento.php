@@ -438,10 +438,12 @@ while($r = pg_fetch_assoc($result)) {
 		$query="SELECT s.id 
 					FROM segnalazioni.t_segnalazioni s
 					JOIN segnalazioni.join_segnalazioni_in_lavorazione l ON s.id=l.id_segnalazione
+					JOIN segnalazioni.t_segnalazioni_in_lavorazione ll ON ll.id=l.id_segnalazione_in_lavorazione
 					JOIN eventi.t_eventi e ON e.id = s.id_evento
-					WHERE sospeso='t' AND fine_sospensione < '".$now_time."';";
+					WHERE ll.in_lavorazione = 't' AND sospeso='t' AND fine_sospensione < $1;";
 		//echo $query ."<br>";
-		$result = pg_query($conn, $query);
+
+		$result = pg_query_params($conn, $query, array($now_time));
 		while($r = pg_fetch_assoc($result)) {
 			$id_segn_limbo_municipi[] = $r['id'];
 		}

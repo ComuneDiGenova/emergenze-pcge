@@ -1,9 +1,9 @@
 <?php
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-$profilo=$_GET['p'];
-$livello=$_GET['l'];
+$profilo=(int)pg_escape_string($_GET['p']);
+$livello=pg_escape_string($_GET['l']);
 if ($profilo==3){
 	$filter = ' ';
 } else if($profilo==8){

@@ -9,7 +9,7 @@ require('../check_evento.php');
 //$id=$_GET["id"];
 //$id=str_replace("'", "", $id);
 
-$cf=$_POST["cf"];
+$cf=pg_escape_string($_POST["cf"]);
 $data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
 $data_fine=$_POST["data_fine"].' '.$_POST["hh_end"].':'.$_POST["mm_end"];
 //$d1 = new DateTime($data_inizio);

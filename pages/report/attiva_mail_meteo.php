@@ -3,12 +3,12 @@
 session_start();
 require('../validate_input.php');
 
-echo $_SESSION['user']. "<br>";
+//echo $_SESSION['user']. "<br>";
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 
-$id=$_GET['id'];
+$id=pg_escape_string($_GET['id']);
 
 
 

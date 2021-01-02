@@ -1,8 +1,8 @@
 <?php
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-$profilo=$_GET['p'];
+$profilo=pg_escape_string($_GET['p']);
 
 
 //cerco il codice afferenza perchè le query successive sono molto più rapide
@@ -13,7 +13,7 @@ while($r = pg_fetch_assoc($result)) {
 }
 
 
-$tipo=$_GET['t'];
+$tipo=(int)pg_escape_string($_GET['t']);
 
 if ($tipo==1){
 	//squadre attive
