@@ -40,7 +40,7 @@ if ($d1 > $d2) {
 	echo "Errore: la data di inizio (".$data_inizio.") deve essere antecedente la fine (".$data_fine.")";
 	exit;
 }
-
+//exit;
 
 $query="INSERT INTO report.t_coordinamento (matricola_cf,data_start,data_end, warning_turno) VALUES";
 $query= $query." ('".$cf."','".$data_inizio."','".$data_fine."','".$wt."');";

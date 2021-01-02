@@ -2,7 +2,7 @@
 
 $subtitle="Grafici idrometri";
 $idrometro='';
-$idrometro=$_GET[i];
+$idrometro=pg_escape_string($_GET['i']);
 ?>
 <!DOCTYPE html>
 <html lang="en">

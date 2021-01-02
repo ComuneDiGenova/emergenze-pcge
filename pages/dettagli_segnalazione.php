@@ -5,7 +5,7 @@ session_start();
 //require('../validate_input.php');;
 
 
-$id=$_GET["id"];
+$id=pg_escape_string($_GET["id"]);
 $subtitle="Dettagli segnalazione ricevuta n. ".$id;
 
 $check_segnalazione=1; // specifica che si tratta di una segnalazione (e.g per il panel_comunicazioni.php) 
