@@ -68,7 +68,7 @@ require('./token_telegram.php')
 					}
 					echo "<br><hr>";
 					if ($check_esterno ==1){
-						echo "<br><a class=\"btn btn-primary btn-sm\" href=\"update_volontario.php?id='".$CF."'\" > <i class=\"fa fa-pencil-alt\"></i> Aggiorna dati anagrafici</a>";
+						echo "<br><a class=\"btn btn-primary btn-sm\" href=\"update_volontario.php?id=".$CF."\" > <i class=\"fa fa-pencil-alt\"></i> Aggiorna dati anagrafici</a>";
 					}
 					
 					?>

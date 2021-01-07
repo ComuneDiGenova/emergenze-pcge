@@ -316,10 +316,17 @@
 		
 		<?php
 					
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
+			/*$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v UNION 
+			SELECT cf as matricola, cognome, nome, livello1 FROM users.v_utenti_esterni v WHERE id1=9
+			ORDER BY cognome";*/
 			//echo $query2;
 			//$result2 = pg_query($conn, $query2);
+			$query2="SELECT cf as matricola, cognome, nome, livello1 FROM users.v_utenti_esterni v WHERE id1=9
+			UNION SELECT matricola, cognome, nome, settore || ' - '|| ufficio as livello1 FROM varie.v_dipendenti
+			ORDER BY cognome";
+			//echo $query2;
+			$result2 = pg_query($conn, $query2);
+			$arr2 = pg_fetch_all($result2);
 		?>
 		
 			 <div class="form-group  ">
@@ -328,8 +335,8 @@
 								<option value="">Seleziona personale</option>
 								<option value="NO_TURNO"><font color="red">TURNO VUOTO</font></option>
 				<?php
-			foreach ($arr as $result){
-				echo '<option value="'.$result['matricola'].'">'.$result['cognome'].' '.$result['nome'].' ('.$result['settore'].' - '.$result['ufficio'].')</option>';
+			foreach ($arr2 as $result2){
+				echo '<option value="'.$result2['matricola'].'">'.$result2['cognome'].' '.$result2['nome'].' ('.$result2['livello1'].')</option>';
 			}
 			?>
 				 </select>            
@@ -472,10 +479,15 @@
 				
 				
 				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, ";
+			$query = "SELECT r.matricola_cf, r.data_start, r.data_end, warning_turno, ";
+			$query = $query. "case when u.cognome is not null then u.cognome ";
+			$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
+			$query = $query. "case when u.nome is not null then u.nome ";
+			$query = $query. "when d.nome is not null then d.nome end  as nome, ";
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_monitoraggio_meteo r ";
-			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
+			$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
+			$query = $query. "LEFT JOIN varie.v_dipendenti d ON r.matricola_cf=d.matricola ";
 		    if ($id != '') {
 				//$query = $query. "where data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
 				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
@@ -527,10 +539,15 @@
 			echo "---.---.---<br>";
 			//echo "</ul>";
 			if ($id==''){
-				$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end, warning_turno, modificato, ";
+				$query = "SELECT r.matricola_cf, r.data_start, r.data_end, warning_turno, modificato, ";
+				$query = $query. "case when u.cognome is not null then u.cognome ";
+				$query = $query. "when d.cognome is not null then d.cognome end as cognome, ";
+				$query = $query. "case when u.nome is not null then u.nome ";
+				$query = $query. "when d.nome is not null then d.nome end  as nome, ";
 				$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 				$query = $query. " from report.t_monitoraggio_meteo r ";
-				$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
+				$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
+				$query = $query. "LEFT JOIN varie.v_dipendenti d ON r.matricola_cf=d.matricola ";
 				$query = $query. "where data_start > now() ORDER by data_start;";
 				//$query = $query. " and id1=".$r0["id1"]."";
 				//$query = $query. " order by cognome;";

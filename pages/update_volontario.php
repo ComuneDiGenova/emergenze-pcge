@@ -20,7 +20,9 @@ require('./req.php');
 
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
-$cf=$_GET["id"];
+$cf=pg_escape_string($_GET["id"]);
+//$cf=$_GET["id"];
+
 $id=$cf;
 
 require('./check_evento.php');
@@ -48,7 +50,7 @@ require('./check_evento.php');
                     
                     <?php
                     $check_profilo=0;
-                        $query="SELECT * From \"users\".\"v_utenti_esterni\" where \"cf\"=$cf;"; 
+                    $query="SELECT * From \"users\".\"v_utenti_esterni\" where \"cf\"='$cf';"; 
                     
                     $result = pg_query($conn, $query);
 	                //$rows = array();
@@ -441,7 +443,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form action="update_v/I_livello.php?id='<?php echo $r['cf']?>'" method="POST">
+        <form action="update_v/I_livello.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
               <label for="I_livello">Unità operativa I livello (demo):</label> <font color="red">*</font>
