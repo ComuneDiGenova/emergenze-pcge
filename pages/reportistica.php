@@ -2,7 +2,7 @@
 
 $subtitle="Report 8h (riepilogo segnalazioni in corso di evento)";
 
-$id=$_GET['id'];
+$id=pg_escape_string($_GET['id']);
 
 
 ?>
@@ -864,7 +864,18 @@ $(document).ready(function() {
         autoclose: true,
         todayHighlight: true
     });
-    
+    $('#js-date14').datepicker({
+        format: "yyyy-mm-dd",
+        clearBtn: true,
+        autoclose: true,
+        todayHighlight: true
+    });
+	$('#js-date15').datepicker({
+        format: "yyyy-mm-dd",
+        clearBtn: true,
+        autoclose: true,
+        todayHighlight: true
+    });
     
     $('#js-date100').datepicker({
         format: "yyyy-mm-dd",

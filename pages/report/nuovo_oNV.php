@@ -10,6 +10,7 @@ require('../check_evento.php');
 //$id=str_replace("'", "", $id);
 
 $cf=pg_escape_string($_POST["cf"]);
+echo $cf."<br>";
 $data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
 $data_fine=$_POST["data_fine"].' '.$_POST["hh_end"].':'.$_POST["mm_end"];
 //$d1 = new DateTime($data_inizio);
@@ -40,13 +41,17 @@ if ($d1 > $d2) {
 	echo "Errore: la data di inizio (".$data_inizio.") deve essere antecedente la fine (".$data_fine.")";
 	exit;
 }
-
+//exit;
 
 $query="INSERT INTO report.t_operatore_nverde (matricola_cf,data_start,data_end, warning_turno) VALUES";
-$query= $query." ('".$cf."','".$data_inizio."','".$data_fine."','".$wt."');";
+//$query= $query." ('".$cf."','".$data_inizio."','".$data_fine."','".$wt."');";
+$query= $query." ($1, $2, $3, $4);";
+
 echo $query;
 //exit;
-$result = pg_query($conn, $query);
+$result = pg_prepare($conn, myquery, $query);
+$result = pg_execute($conn, myquery, array($cf,$data_inizio,$data_fine,$wt));
+//$result = pg_query($conn, $query);
 echo "<br>";
 
 

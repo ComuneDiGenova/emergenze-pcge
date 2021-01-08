@@ -116,9 +116,9 @@ function nameFormatter0(value) {
 
   function nameFormatter1(value) {
 
-        return '<a href="./reportistica.php?id=\''+ value + '\'" class="btn btn-info" title=Report 8 h (riepilogo segnalazioni in corso di evento)" role="button">\
+        return '<a href="./reportistica.php?id='+ value + '" class="btn btn-info" title=Report 8 h (riepilogo segnalazioni in corso di evento)" role="button">\
 		<i class="fa fa-file-invoice" aria-hidden="true"></i> 8h </a>\
-		<a href="./reportistica_personale.php?id=\''+ value + '\'" class="btn btn-info" title=Report esteso (dettagli squadre e personale impiegato)" role="button">\
+		<a href="./reportistica_personale.php?id='+ value + '" class="btn btn-info" title=Report esteso (dettagli squadre e personale impiegato)" role="button">\
 		<i class="fa fa-file-invoice" aria-hidden="true"></i> Esteso </a>';
     }
 

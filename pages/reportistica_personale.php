@@ -2,7 +2,7 @@
 
 $subtitle="Report esteso (dettagli squadre e personale impiegato)";
 
-$id=$_GET['id'];
+$id=pg_escape_string($_GET['id']);
 
 
 ?>

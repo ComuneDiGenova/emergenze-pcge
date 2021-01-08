@@ -6,10 +6,10 @@
 $subtitle="Funzionalità amministratore - Editing tabelle decodifiche";
 
 
-$getfiltri=$_GET["f"];
-$filtro_evento_attivo=$_GET["a"];
-$schema= $_GET["s"];
-$tabella= $_GET["t"];
+$getfiltri=pg_escape_string($_GET["f"]);
+$filtro_evento_attivo=pg_escape_string($_GET["a"]);
+$schema=pg_escape_string($_GET["s"]);
+$tabella=pg_escape_string($_GET["t"]);
 
 
 
@@ -168,7 +168,7 @@ if($_GET["s"] != '' and $_GET["t"] != ''){
       <div class="modal-body">
       
 		<div class="row">
-        <form action="amministratore/update_tabella.php?s=<?php echo $schema;?>&t=<?php echo $tabella;?>&id='<?php echo $r0[$column_id]?>'" method="POST">
+        <form action="amministratore/update_tabella.php?s=<?php echo $schema;?>&t=<?php echo $tabella;?>&id=<?php echo $r0[$column_id]?>" method="POST">
 
 
 			<?php 

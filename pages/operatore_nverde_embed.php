@@ -186,7 +186,9 @@
 			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_operatore_nverde r ";
 			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
 			if ($id != '') {
-				$query = $query. "where data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				//$query = $query. "where data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}

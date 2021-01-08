@@ -8,10 +8,10 @@ require('../check_evento.php');
 
 
 
-$table= $_GET["t"];
-$schema= $_GET["s"];
+$table=pg_escape_string($_GET["t"]);
+$schema=pg_escape_string($_GET["s"]);
 
-$id= $_GET["id"];
+$id=pg_escape_string($_GET["id"]);
 
 $query="select * from information_schema.columns WHERE table_schema='".$schema."' and table_name ilike'".$table."' and 
 ordinal_position= ( SELECT min(ordinal_position) 
