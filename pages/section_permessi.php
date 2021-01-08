@@ -11,13 +11,14 @@
 		            	echo '<br><b>Profilo</b>: '. $r['descrizione'];
 		            }
 		            
-		            $query="SELECT * From users.utenti_sistema where matricola_cf=".$id.";";
+		            $query="SELECT * From users.utenti_sistema where matricola_cf='".$id."';";
 	            	//echo $query; 
 	               $result = pg_query($conn, $query);
 		            while($r = pg_fetch_assoc($result)) {
 		            	$valido = $r['valido'];
-		            	//echo $valido;
-						//echo ' - ' .$r["id_profilo"].'_'.$r["cod_municipio"];
+						//echo $valido;
+						$profilo_m=$r["id_profilo"].'_'.$r["cod_municipio"];
+						echo ' - ' .$r["id_profilo"].'_'.$r["cod_municipio"];
 		            } 
 		            
 		            if ($valido=='t' and $profilo_sistema==1){
@@ -62,7 +63,7 @@
             	$query="SELECT * From users.v_profili_utilizzatore order by id;";
                $result = pg_query($conn, $query);
 	            while($r = pg_fetch_assoc($result)) {
-	            	if($profilo==$r['id']){
+	            	if($profilo==$r['id'] or $profilo_m==$r['id']){
 	            		echo '<label class="radio"><input type="radio" name="profilo" checked="" value="'.$r['id'].'"> 
 '.$r['id'].' - '.$r['descrizione'].'</label>';
 						} else {

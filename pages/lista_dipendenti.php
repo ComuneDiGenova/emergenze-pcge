@@ -139,7 +139,7 @@ function nameFormatter0(value) {
 
   function nameFormatter1(value) {
 
-        return '<a href="./permessi.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
+        return '<a href="./permessi.php?id='+ value + '" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
     }
 
 

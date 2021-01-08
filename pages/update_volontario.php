@@ -108,7 +108,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form action="update_v/anagrafica.php?id='<?php echo $r['cf']?>'" method="POST">
+        <form action="update_v/anagrafica.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
                 <label for="cognome"> Cognome</label> *
@@ -179,7 +179,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form action="update_v/indirizzo.php?id='<?php echo $r['cf']?>'" method="POST">
+        <form action="update_v/indirizzo.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
                 <label for="indirizzo"> Indirizzo</label>
@@ -195,7 +195,7 @@ require('./check_evento.php');
             </form>
 
 
-            <form action="update_v/comune.php?id='<?php echo $r['cf']?>'" method="POST">            
+            <form action="update_v/comune.php?id=<?php echo $r['cf']?>" method="POST">            
             <br><br>
             <b>Comune:</b> <?php echo $r['comune']." (" .$r['provincia']. ")" ?>
 
@@ -337,15 +337,15 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form action="update_v/contatti.php?id='<?php echo $r['cf']?>'" method="POST">
+        <form action="update_v/contatti.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
-                <label for="telefono1"> Telefono principale</label>
-                <input type="text" value='<?php echo $r['telefono1']?>' name="telefono1" class="form-control" >
+                <label for="telefono1"> Telefono principale*</label>
+                <input type="text" value='<?php echo $r['telefono1']?>' name="telefono1" class="form-control" required>
               </div>
               <div class="form-group">
-                <label for="mail"> Mail</label>
-                <input type="email" value='<?php echo $r['mail']?>' name="mail" class="form-control" >
+                <label for="mail"> Mail*</label>
+                <input type="email" value='<?php echo $r['mail']?>' name="mail" class="form-control" required>
               </div>
               <div class="form-group">
                 <label for="telefono2"> Telefono secondario</label>
@@ -492,7 +492,7 @@ require('./check_evento.php');
       </div>
       <div class="modal-body">
 
-<form action="update_v/II_livello.php?id='<?php echo $r['cf']?>'" method="POST">
+<form action="update_v/II_livello.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
               <label for="II_livello">Unità operativa II livello (demo):</label> <font color="red"></font>
@@ -539,7 +539,7 @@ require('./check_evento.php');
       </div>
       <div class="modal-body">
 
-<form action="update_v/III_livello.php?id='<?php echo $r['cf']?>'" method="POST">
+<form action="update_v/III_livello.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
               <label for="II_livello">Unità operativa III livello (demo):</label> <font color="red">*</font>
@@ -587,7 +587,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form action="update_v/gg.php?id='<?php echo $r['cf']?>'" method="POST">
+        <form action="update_v/gg.php?id=<?php echo $r['cf']?>" method="POST">
 
               <div class="form-group">
                 <label for="numero_gg"> N° gruppo Genova</label>

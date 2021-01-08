@@ -87,9 +87,11 @@ if ($profilo=='no' and $check_update==1 ){
 echo "<br>";
 echo $query_log;
 
-//exit;
+echo "<br>Matr=".$matr;
+exit;
 if ($matr==''){
-	header("location: ../lista_volontari.php");
+	//header("location: ../lista_volontari.php");
+	header("location: ../update_volontario.php?id=".$cf);
 } else {
 	header("location: ../lista_dipendenti.php");
 }

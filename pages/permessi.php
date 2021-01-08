@@ -3,7 +3,7 @@
 $check_cf=0;
 $check_matr=0;
 
-$id=$_GET["id"];
+$id=pg_escape_string($_GET["id"]);
 
 if(strlen($id)==16) {
 	$check_cf=1;
@@ -69,7 +69,7 @@ require('./check_evento.php');
 			
 			
             	$check_profilo=0;
-            	$query="SELECT * From varie.v_dipendenti where matricola=".$id.";"; 
+            	$query="SELECT * From varie.v_dipendenti where matricola='".$id."';"; 
                $result = pg_query($conn, $query);
 	            while($r = pg_fetch_assoc($result)) {
 	            	echo '<div class="col-6 col-sm-6">';

@@ -127,7 +127,7 @@ if ($profilo_sistema > 8){
 function nameFormatter(value,row) {
 
     //return '<a href="./update_volontario.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica dati" role="button"><i class="fa fa-user-edit" aria-hidden="true"></i> </a> <a href="./elimina_volontario.php?id=\''+ value + '\'" class="btn btn-danger" role="button" title="Elimina persona" ><i class="fa fa-times" aria-hidden="true"></i> </a>';
-    return' <a href="./update_volontario.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica dati" role="button"><i class="fa fa-user-edit" aria-hidden="true"></i> </a>\
+    return' <a href="./update_volontario.php?id='+ value + '" class="btn btn-warning" title="Modifica dati" role="button"><i class="fa fa-user-edit" aria-hidden="true"></i> </a>\
 	<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#conferma_elimina'+value+'"><i class="fas fa-times"></i></button> \
     <div class="modal fade" id="conferma_elimina'+value+'" role="dialog"> \
     <div class="modal-dialog"> \

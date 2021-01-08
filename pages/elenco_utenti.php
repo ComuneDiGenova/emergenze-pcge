@@ -79,7 +79,7 @@ if ($profilo_ok==3){
 				if ($profilo_ok==3){
 					echo '<i class="fas fa-users  faa-ring animated"></i> '. $r['count']. ' utenti registrati a sistema';
 				} else {
-					echo '<i class="fas fa-users faa-ring animated"></i> '. $r['count']. ' utenti della tua unità operativa abilitati';
+					echo '<i class="fas fa-users faa-ring animated"></i> '. $r['count']. ' utenti della tua unitï¿½ operativa abilitati';
 				}
 				
 			}	
@@ -153,9 +153,9 @@ if ($profilo_ok==3){
 
  function nameFormatterEdit(value) {
     if (value.length==16){
-		return '<a class="btn btn-warning" href="./update_volontario.php?id=\''+value+'\'"> <i class="fas fa-edit"></i> </a>';
+		return '<a class="btn btn-warning" href="./update_volontario.php?id='+value+'"> <i class="fas fa-edit"></i> </a>';
 	} else {
-		return '<a class="btn btn-warning" href="./permessi.php?id=\''+value+'\'"> <i class="fas fa-edit"></i> </a>';
+		return '<a class="btn btn-warning" href="./permessi.php?id='+value+'"> <i class="fas fa-edit"></i> </a>';
     }
  }
 
