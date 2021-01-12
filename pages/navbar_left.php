@@ -396,10 +396,14 @@
                             <a href="#"><i class="fa fa-user-shield"></i> Funzionalità amministratore sistema<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                             		<li>
-                                    <a href="elenco_amm.php">Modifica tabelle decodifica</a>
+                                    <a href="elenco_amm.php"><i class="fas fa-edit"></i> Modifica tabelle decodifica</a>
                                 </li>
                                 <li>
-                                    <a href="log_update.php">Log update GeoDataBase</a>
+                                    <a href="conteggi.php"><i class="fas fa-chart-pie"></i> 
+                                    Contatori</a>
+                                </li>
+                                <li>
+                                    <a href="log_update.php"><i class="fas fa-clipboard-list"></i> Log update GeoDataBase</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
