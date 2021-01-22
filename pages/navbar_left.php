@@ -47,12 +47,52 @@
                                     <a href="nuovo_evento.php"><i class="fas fa-plus"></i> Crea nuovo evento</a>
                                 <?php } ?>
                                 </li>
+                                
+                                
                                 <li>
-                                    <a href="dettagli_evento.php"><i class="fas fa-info"></i> Dettagli eventi in corso</a>
+                                    <a href="#"><i class="fas fa-info"></i> Dettagli eventi in corso</a>
                                 </li>
-                                 <li>
-                                    <a href="dettagli_evento_c.php"><i class="fas fa-hourglass-end faa-ring animated"></i> Dettagli eventi in fase di chiusura</a>
+                                <ul class="nav nav-third-level">
+                                
+
+                                <?php
+                                if ($check_evento==1){
+                                            $len=count($eventi_attivi);	               
+                                    for ($i=0;$i<$len;$i++){
+                                    ?><li>					                                  
+                                            <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
+                                            <i class="fas fa-chart-line"></i> Dettagli evento 
+                                            - Id=<?php echo $eventi_attivi[$i];?>
+                                            </a>
+                                    </li>
+                                    <?php
+                                    }
+                                }
+                                ?>
+
+                                </ul>
+                                <li>
+                                    <a href="#"><i class="fas fa-info"></i> Dettagli eventi in chiusura</a>
                                 </li>
+                                <ul class="nav nav-third-level">
+                                
+
+                                <?php
+                                if ($check_evento==1){
+                                            $len=count($eventi_attivi_c);	               
+                                    for ($i=0;$i<$len;$i++){
+                                    ?><li>					                                  
+                                            <a href="dettagli_evento.php?e=<?php echo $eventi_attivi_c[$i];?>">
+                                            <i class="fas fa-chart-line"></i> Dettagli evento 
+                                            - Id=<?php echo $eventi_attivi_c[$i];?>
+                                            </a>
+                                    </li>
+                                    <?php
+                                    }
+                                }
+                                ?>
+
+                                </ul>
                                 <?php if ($profilo_sistema<=6){ ?>
                                  <li>
                                     <a href="lista_eventi.php"><i class="fas fa-list"></i> Lista eventi / reportistica </a>

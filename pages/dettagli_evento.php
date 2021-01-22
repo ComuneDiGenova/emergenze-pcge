@@ -22,7 +22,7 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
 
-
+$evento_attivo=pg_escape_string($_GET['e']);
 
 ?>
     
@@ -47,15 +47,22 @@ require('./check_evento.php');
                <?php
                if ($check_evento==1){
 					$len=count($eventi_attivi);	               
-	               for ($i=0;$i<$len;$i++){
+				   
+				   for ($k=0;$k<$len;$k++){
+					   //echo $eventi_attivi[$k]."<br>";
+						if ($eventi_attivi[$k]==$evento_attivo){
+							$i=$k;
+						}
+				   }
+				   // for ($i=0;$i<$len;$i++){
 	               	echo '<div class="row">';
-	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> Evento in corso  <small>(id='.$eventi_attivi[$i].')</small>';
-	               	echo ' - <a href="reportistica.php?id='.$eventi_attivi[$i].'" class="btn btn-info"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report 8h';
+	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> Evento in corso  <small>(id='.$evento_attivo.')</small>';
+	               	echo ' - <a href="reportistica.php?id='.$evento_attivo.'" class="btn btn-info"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report 8h';
 					if($profilo_sistema<=2){
 						echo ' (stampa)';
 					}
 					echo '</a>';
-					echo ' - <a href="reportistica_personale.php?id='.$eventi_attivi[$i].'" class="btn btn-info"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report esteso';
+					echo ' - <a href="reportistica_personale.php?id='.$evento_attivo.'" class="btn btn-info"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report esteso';
 					if($profilo_sistema<=2){
 						echo ' (stampa)';
 					}
@@ -99,7 +106,7 @@ require('./check_evento.php');
 							}, 1000);
 							</script>	   					
 	   					<?php
-						$query_v="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine > now();";
+						$query_v="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$evento_attivo." and data_ora_fine > now();";
 	   					//echo $query;
 							//exit;
 							$check_nverde=0;
@@ -112,7 +119,7 @@ require('./check_evento.php');
 							
 						
 						
-	   					$query_a="SELECT * FROM eventi.v_allerte WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine_allerta > now();";
+	   					$query_a="SELECT * FROM eventi.v_allerte WHERE id_evento=".$evento_attivo." and data_ora_fine_allerta > now();";
 	   					//echo $query;
 							//exit;
 							$check_allerte=0;
@@ -122,7 +129,7 @@ require('./check_evento.php');
 								$check_allerte=1;
 							}
 							
-							$query_f="SELECT * FROM eventi.v_foc WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine_foc > now();";
+							$query_f="SELECT * FROM eventi.v_foc WHERE id_evento=".$evento_attivo." and data_ora_fine_foc > now();";
 	   					//echo $query;
 							//exit;
 							$check_foc=0;
@@ -133,7 +140,7 @@ require('./check_evento.php');
 							
 							
 	   					
-	   					echo '<div class="col-lg-3" id="sospensione'.$eventi_attivi[$i].'"><br>';
+	   					echo '<div class="col-lg-3" id="sospensione'.$evento_attivo.'"><br>';
 						if ($profilo_sistema <= 2){
 							//sospensione
 							//echo $sospensione[$i];
@@ -151,22 +158,22 @@ require('./check_evento.php');
 							//echo " - " ;
 							if ($sospensione[$i]=='' or $dataScadenza < $oggi){
 								echo '<button type="button" class="btn btn-warning" title="Sospendi evento per 8 ore. Le segnalazioni legate all\'evento sospeso non saranno visibili in mappa e nell\'elenco della prima pagina"';	
-								echo 'onclick="return sospendi'.$eventi_attivi[$i].'()"><i class="fas fa-pause"></i> 8h</button> - ';
+								echo 'onclick="return sospendi'.$evento_attivo.'()"><i class="fas fa-pause"></i> 8h</button> - ';
 							} else {
 								echo '<i class="fas fa-pause" title="Evento sospeso per 8 ore fino al '.$sospensione_c[$i].'"></i> ';
 								echo '<button type="button" class="btn btn-success" title="Anticipa la riapertura dell\'evento sospeso fino al '.$sospensione[$i].'" ';	
-								echo 'onclick="return riprendi'.$eventi_attivi[$i].'()"><i class="fas fa-play"></i></button> - ';
+								echo 'onclick="return riprendi'.$evento_attivo.'()"><i class="fas fa-play"></i></button> - ';
 							}
 							?>
 							<p id="msg"></p>
 							<script type="text/javascript" >
-							function sospendi<?php echo $eventi_attivi[$i];?>() {
+							function sospendi<?php echo $evento_attivo;?>() {
 								//alert('Test1');
 								//var tel=document.getElementById('telsq<?php echo $m;?>').value;
 								//var dataString='tel='+tel;
 								$.ajax({
 									type:"post",
-									url:"./eventi/sospendi.php?id=<?php echo $eventi_attivi[$i];?>",
+									url:"./eventi/sospendi.php?id=<?php echo $evento_attivo;?>",
 									//data:dataString,
 									cache:false,
 									success: function (html) {
@@ -177,17 +184,17 @@ require('./check_evento.php');
 									}
 								});
 								//$('#navbar_emergenze').load('navbar_up.php?r=true&s=<?php echo $subtitle2;?>');
-								//$('#sospensione<?php echo $eventi_attivi[$i];?>').load(document.URL +  ' #sospensione<?php echo $eventi_attivi[$i];?>');
+								//$('#sospensione<?php echo $evento_attivo;?>').load(document.URL +  ' #sospensione<?php echo $evento_attivo;?>');
 								return false;
 								
 							};
-							function riprendi<?php echo $eventi_attivi[$i];?>() {
+							function riprendi<?php echo $evento_attivo;?>() {
 								//alert('Test1');
 								//var tel=document.getElementById('telsq<?php echo $m;?>').value;
 								//var dataString='tel='+tel;
 								$.ajax({
 									type:"post",
-									url:"./eventi/riprendi.php?id=<?php echo $eventi_attivi[$i];?>",
+									url:"./eventi/riprendi.php?id=<?php echo $evento_attivo;?>",
 									//data:dataString,
 									cache:false,
 									success: function (html) {
@@ -198,7 +205,7 @@ require('./check_evento.php');
 									}
 								});
 								//$('#navbar_emergenze').load('navbar_up.php?r=true&s=<?php echo $subtitle2;?>');
-								//$('#sospensione<?php echo $eventi_attivi[$i];?>').load(document.URL +  ' #sospensione<?php echo $eventi_attivi[$i];?>');
+								//$('#sospensione<?php echo $evento_attivo;?>').load(document.URL +  ' #sospensione<?php echo $evento_attivo;?>');
 								return false;
 							};
 							</script>
@@ -208,7 +215,7 @@ require('./check_evento.php');
 							if($check_allerte==1 OR $check_foc==1){
 								echo 'disabled=""';
 							}
-							echo 'data-target="#chiudi'.$eventi_attivi[$i].'"><i class="fas fa-times"></i> Inizia fase chiusura</button>';
+							echo 'data-target="#chiudi'.$evento_attivo.'"><i class="fas fa-times"></i> Inizia fase chiusura</button>';
 						}
 	   					echo '</div></div>';
 	   					echo '<div class="row">';
@@ -220,7 +227,7 @@ require('./check_evento.php');
 	               	$k=0;
 	               	for ($j=0;$j<$len2;$j++){
 	               		
-	               		if ($municipi[$j][0]==$eventi_attivi[$i]){
+	               		if ($municipi[$j][0]==$evento_attivo){
 	               			if ($k==0) {echo $municipi[$j][1];} else {echo ', '.$municipi[$j][1];};
 	               			$k=$k+1;
 	               		}
@@ -228,17 +235,17 @@ require('./check_evento.php');
 	   					//echo '</h3>Qua ci vuole la mappa dei municipi interessati';
 	   					echo '</div></div><hr>';
 	   					
-	   				   echo '<a href="monitoraggio_meteo.php?id='.$eventi_attivi[$i].'" class="btn btn-info">
+	   				   echo '<a href="monitoraggio_meteo.php?id='.$evento_attivo.'" class="btn btn-info">
 	   				   <i class="fas fa-thermometer-half"></i> Monitoraggio meteo</a>';
 					   
 					   ?>
 					   
-					   <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#comunicazione_<?php echo $eventi_attivi[$i]; ?>">
+					   <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#comunicazione_<?php echo $evento_attivo; ?>">
 					   <i class="fas fa-plus"></i> Aggiungi comunicazione</button>
 					   <ul>
 	   					<?php
 						$query='SELECT id, to_char(data_aggiornamento, \'DD/MM/YY HH24:MI\'::text) AS data_aggiornamento, testo, allegato FROM report.t_comunicazione 
-						WHERE id_evento = '.$eventi_attivi[$i].';';
+						WHERE id_evento = '.$evento_attivo.';';
 						//echo $query;
 						$result = pg_query($conn, $query);
 						$c=0;
@@ -283,19 +290,19 @@ require('./check_evento.php');
 						echo "</ul><hr>";
 						?>
 						<!-- Modal comunicazione da UO-->
-						<div id="comunicazione_<?php echo $eventi_attivi[$i]; ?>" class="modal fade" role="dialog">
+						<div id="comunicazione_<?php echo $evento_attivo; ?>" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
 
 							<!-- Modal content-->
 							<div class="modal-content">
 							  <div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Comunicazioni sull'evento <?php echo $eventi_attivi[$i]; ?> / Verbale COC dell'evento <?php echo $eventi_attivi[$i]; ?></h4>
+								<h4 class="modal-title">Comunicazioni sull'evento <?php echo $evento_attivo; ?> / Verbale COC dell'evento <?php echo $evento_attivo; ?></h4>
 							  </div>
 							  <div class="modal-body">
 							  
 
-								<form autocomplete="off"  enctype="multipart/form-data"  action="eventi/comunicazione.php?id=<?php echo $eventi_attivi[$i]; ?>" method="POST">
+								<form autocomplete="off"  enctype="multipart/form-data"  action="eventi/comunicazione.php?id=<?php echo $evento_attivo; ?>" method="POST">
 									<input type="hidden" name="mittente" value="<?php echo $cognome." " .$nome. " (".$descrizione_profilo.")";?>" />
 									<input type="hidden" name="id_lavorazione" value="<?php echo $r['id_lavorazione'];?>" />
 									<input type="hidden" name="id_evento" value="<?php echo $id_evento;?>" />
@@ -446,7 +453,7 @@ require('./check_evento.php');
 							
 							<?php
 
-							$query="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine <= now();";
+							$query="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$evento_attivo." and data_ora_fine <= now();";
 	   					//echo $query;
 							//exit;
 								$result = pg_query($conn, $query);
@@ -462,10 +469,10 @@ require('./check_evento.php');
   								<div class="panel panel-success">
 								    <div class="panel-heading">
 								      <h4 class="panel-title">
-								        <a data-toggle="collapse" href="#collapse_nverde<?php echo $eventi_attivi[$i];?>">Attivazioni passate numero verde</a>
+								        <a data-toggle="collapse" href="#collapse_nverde<?php echo $evento_attivo;?>">Attivazioni passate numero verde</a>
 								      </h4>
 								    </div>
-								    <div id="collapse_nverde<?php echo $eventi_attivi[$i];?>" class="panel-collapse collapse">
+								    <div id="collapse_nverde<?php echo $evento_attivo;?>" class="panel-collapse collapse">
 								      <div class="panel-body"><ul>
 								<?php
 							}
@@ -631,7 +638,7 @@ require('./check_evento.php');
 							<div class="col-lg-6">
 							<?php
 
-							$query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine_allerta <= now();";
+							$query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$evento_attivo." and data_ora_fine_allerta <= now();";
 	   					//echo $query;
 							//exit;
 								$result = pg_query($conn, $query);
@@ -647,10 +654,10 @@ require('./check_evento.php');
   								<div class="panel panel-primary">
 								    <div class="panel-heading">
 								      <h4 class="panel-title">
-								        <a data-toggle="collapse" href="#collapse_allerte<?php echo $eventi_attivi[$i];?>">Allerte passate</a>
+								        <a data-toggle="collapse" href="#collapse_allerte<?php echo $evento_attivo;?>">Allerte passate</a>
 								      </h4>
 								    </div>
-								    <div id="collapse_allerte<?php echo $eventi_attivi[$i];?>" class="panel-collapse collapse">
+								    <div id="collapse_allerte<?php echo $evento_attivo;?>" class="panel-collapse collapse">
 								      <div class="panel-body"><ul>
 								<?php
 							}
@@ -691,7 +698,7 @@ require('./check_evento.php');
 
 
 
-	   					$query="SELECT * FROM eventi.v_foc WHERE id_evento=".$eventi_attivi[$i]." and data_ora_fine_foc <= now();";
+	   					$query="SELECT * FROM eventi.v_foc WHERE id_evento=".$evento_attivo." and data_ora_fine_foc <= now();";
 	   					//echo $query;
 							//exit;
 							$result = pg_query($conn, $query);
@@ -705,10 +712,10 @@ require('./check_evento.php');
   								<div class="panel panel-primary">
 								    <div class="panel-heading">
 								      <h4 class="panel-title">
-								        <a data-toggle="collapse" href="#collapse_foc<?php echo $eventi_attivi[$i];?>">Fasi Operative Comunali passate</a>
+								        <a data-toggle="collapse" href="#collapse_foc<?php echo $evento_attivo;?>">Fasi Operative Comunali passate</a>
 								      </h4>
 								    </div>
-								    <div id="collapse_foc<?php echo $eventi_attivi[$i];?>" class="panel-collapse collapse">
+								    <div id="collapse_foc<?php echo $evento_attivo;?>" class="panel-collapse collapse">
 								      <div class="panel-body">
 								<?php
 								}
@@ -749,7 +756,7 @@ require('./check_evento.php');
 
 
 <!-- Modal chiusura-->
-<div id="chiudi<?php echo $eventi_attivi[$i]; ?>" class="modal fade" role="dialog">
+<div id="chiudi<?php echo $evento_attivo; ?>" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
@@ -761,7 +768,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form autocomplete="off" action="eventi/chiudi_evento_0.php?id='<?php echo $eventi_attivi[$i]?>'" method="POST">
+        <form autocomplete="off" action="eventi/chiudi_evento_0.php?id='<?php echo $evento_attivo?>'" method="POST">
 		
 		<?php if($check_allerte!=1 ) { ?>
 		Se intendi proseguire l'evento verrà posto in fase di chiusura, non sarà più possibile definire nuove allerte, Fasi Operative Comunali
@@ -856,7 +863,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form autocomplete="off" action="eventi/nuovo_nverde.php?id='<?php echo $eventi_attivi[$i]?>'" method="POST">
+        <form autocomplete="off" action="eventi/nuovo_nverde.php?id='<?php echo $evento_attivo?>'" method="POST">
 		
 		
 			
@@ -1003,7 +1010,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form autocomplete="off" action="eventi/nuova_allerta.php?id='<?php echo $eventi_attivi[$i]?>'" method="POST">
+        <form autocomplete="off" action="eventi/nuova_allerta.php?id='<?php echo $evento_attivo?>'" method="POST">
 		
 		
 			<div class="form-group">
@@ -1179,7 +1186,7 @@ require('./check_evento.php');
       <div class="modal-body">
       
 
-        <form autocomplete="off" action="eventi/nuova_foc.php?id='<?php echo $eventi_attivi[$i]?>'" method="POST">
+        <form autocomplete="off" action="eventi/nuova_foc.php?id='<?php echo $evento_attivo?>'" method="POST">
 		
 		
 		   <div class="form-group">
@@ -1348,7 +1355,10 @@ echo '<hr style="border:2px solid #000;">';
 <?php
 
 
-		   				}
+						   //}
+						   
+
+
 	   			} else {
 						echo "<h1> Nessun evento al momento attivo. </h1>";	   				
 	   				

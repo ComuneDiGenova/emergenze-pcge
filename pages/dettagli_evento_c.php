@@ -22,6 +22,7 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
 
+$evento_attivo=pg_escape_string($_GET['e']);
 
 
 ?>
@@ -47,7 +48,14 @@ require('./check_evento.php');
                <?php
                if ($check_evento_c==1){
 					$len=count($eventi_attivi_c);	               
-	               for ($i=0;$i<$len;$i++){
+				    
+					for ($k=0;$k<$len;$k++){
+						//echo $eventi_attivi[$k]."<br>";
+						 if ($eventi_attivi_c[$k]==$evento_attivo){
+							 $i=$k;
+						 }
+					}
+					// for ($i=0;$i<$len;$i++){
 	               	echo '<div class="row">';
 	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> Evento in chiusura <small>(id='.$eventi_attivi_c[$i].')</small> ';
 	               	echo ' - <a href="reportistica.php?id='.$eventi_attivi_c[$i].'" class="btn btn-info">Riepilogo';
@@ -440,7 +448,7 @@ echo '<hr style="border:2px solid #000;">';
 <?php
 
 
-		   				}
+		   				//}
 	   			} else {
 						echo "<h1> Nessun evento in fase di chiusura. </h1>";	   				
 	   				
