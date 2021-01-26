@@ -41,6 +41,7 @@ while($r1 = pg_fetch_assoc($result1)) {
 		$tipo_eventi_attivi[]=array($r1["id"],$r2["descrizione"]);
 		//echo $r1["id"];
 	}
+	#echo "<br>tipo attivo:".$tipo_eventi_attivi[82][1];
 	$query2="select e.id, n.nota from eventi.t_eventi e LEFT JOIN eventi.t_note_eventi n ON e.id=n.id_evento WHERE n.id_evento=".$r1["id"]." ;";
 	//echo $query2;
 	$check_nota=0;
@@ -162,8 +163,11 @@ if($contatore_nverde==0) {
 $query1="SELECT * From \"eventi\".\"t_eventi\" WHERE valido IS NULL ORDER BY id;";
 $result1 = pg_query($conn, $query1);
 $contatore_eventi_c=0;
+#echo $query1;
 while($r1 = pg_fetch_assoc($result1)) {
 	$check_evento_c=1; // controllo se evento in corso inizializzato a 1
+	
+	//echo "<br>". $check_evento_c;
 	$contatore_eventi_c=$contatore_eventi_c+1;
 	$eventi_attivi_c[]=$r1["id"];
 	$start_c[]=$r1["data_ora_inizio_evento"];
@@ -182,11 +186,14 @@ while($r1 = pg_fetch_assoc($result1)) {
 	
 	
 	$query2="SELECT  b.descrizione From eventi.join_tipo_evento a,eventi.tipo_evento b  WHERE a.id_evento=".$r1["id"]." and a.id_tipo_evento=b.id;";
-	//echo "<br>".$query2;
+	#echo "<br>".$query2;
 	$result2 = pg_query($conn, $query2);
 	while($r2 = pg_fetch_assoc($result2)) {
 		$tipo_eventi_c[]=array($r1["id"],$r2["descrizione"]);
+		#echo "<br>".$r1['id'];
+		#secho "<br>".$r2['descrizione'];
 	}
+	#echo "<br>tipo:".$tipo_eventi_c[84][1];
 	$query2="SELECT nota From eventi.t_note_eventi WHERE id_evento=".$r1["id"]." ;";
 	//echo $query2;
 	$check_notac=0;

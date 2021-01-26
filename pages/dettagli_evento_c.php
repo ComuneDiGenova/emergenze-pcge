@@ -46,13 +46,15 @@ $evento_attivo=pg_escape_string($_GET['e']);
             <br>
                 
                <?php
+			   #echo "<h1>TEst: ".$check_evento_c."</h1>";
                if ($check_evento_c==1){
 					$len=count($eventi_attivi_c);	               
-				    
+				    #echo $len;
 					for ($k=0;$k<$len;$k++){
-						//echo $eventi_attivi[$k]."<br>";
+						#echo $eventi_attivi_c[$k]."<br>";
 						 if ($eventi_attivi_c[$k]==$evento_attivo){
 							 $i=$k;
+							 #echo $i;
 						 }
 					}
 					// for ($i=0;$i<$len;$i++){
@@ -191,7 +193,7 @@ $evento_attivo=pg_escape_string($_GET['e']);
 	   					}
 	   					echo '</div></div>';
 	   					echo '<div class="row">';
-	   					echo '<div class="col-lg-6"><h3>Tipologia: '. $tipo_eventi_c[$i][1].'</h3>';
+	   					echo '<div class="col-lg-6"><h3>Tipologia: '.$i.' '. $tipo_eventi_c[$i][1].'</h3>';
 							echo '<h3>Note: '. $nota_eventi_c[$i][1].'</h3>';
 	   					echo '</div><div class="col-lg-6"><h3>Municipi interessati: ';
 	   					$len2=count($municipi_c);

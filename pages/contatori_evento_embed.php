@@ -20,13 +20,28 @@
                     </div>
                 </div>
             </div>
-            <a href="./dettagli_evento.php">
+            <!--a href="./dettagli_evento.php"-->
                 <div class="panel-footer">
-                    <span class="pull-left">Vai ai dettagli</span>
+                    <!--span class="pull-left">
+                    Clicca su "gestione eventi" per visualizzare i dettagli</span-->
+                    <?php
+                                if ($check_evento==1){
+                                            $len=count($eventi_attivi);	               
+                                    for ($i=0;$i<$len;$i++){
+                                    ?><li>					                                  
+                                            <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
+                                            Dettagli evento 
+                                            - Id=<?php echo $eventi_attivi[$i];?>
+                                            </a>
+                                    </li>
+                                    <?php
+                                    }
+                                }
+                                ?>
                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                     <div class="clearfix"></div>
                 </div>
-            </a>
+            <!--/a-->
         </div>
     </div>
 

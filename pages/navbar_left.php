@@ -82,7 +82,7 @@
                                             $len=count($eventi_attivi_c);	               
                                     for ($i=0;$i<$len;$i++){
                                     ?><li>					                                  
-                                            <a href="dettagli_evento.php?e=<?php echo $eventi_attivi_c[$i];?>">
+                                            <a href="dettagli_evento_c.php?e=<?php echo $eventi_attivi_c[$i];?>">
                                             <i class="fas fa-chart-line"></i> Dettagli evento 
                                             - Id=<?php echo $eventi_attivi_c[$i];?>
                                             </a>
