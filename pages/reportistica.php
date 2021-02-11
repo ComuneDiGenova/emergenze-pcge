@@ -133,6 +133,7 @@ require('./check_evento.php');
 			}
 			
 			echo '<br><b>Data e ora inizio</b>: '.$inizio_evento;
+			$check_chiusura=0;
 			if ($chiusura_evento!=''){
 				echo '<br><b>Data e ora inizio fase di chiusura</b>: '.$chiusura_evento;
 			}
@@ -143,9 +144,28 @@ require('./check_evento.php');
 				echo ' - <i class="fas fa-hourglass-end"></i> Evento in chiusura';
 			}
 			if ($chiusura_evento!='' && $fine_evento!='' ){
+				$check_chiusura=1;
 				echo ' - <i class="fas fa-stop"></i> Evento chiuso';
 			}
 			echo '</div></div>';
+
+			// check sulle viste da usare
+			if ($check_chiusura==0){
+				$v_incarichi_last_update='v_incarichi_last_update';
+				$v_incarichi_interni_last_update='v_incarichi_interni_last_update';
+				$v_sopralluoghi_last_update='v_sopralluoghi_last_update';
+				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_last_update';
+				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_last_update';
+			} else if ($check_chiusura==1) {
+				$v_incarichi_last_update='v_incarichi_eventi_chiusi_last_update';
+				$v_incarichi_interni_last_update='v_incarichi_interni_eventi_chiusi_last_update';
+				$v_sopralluoghi_last_update='v_sopralluoghi_eventi_chiusi_last_update';
+				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_eventi_chiusi_last_update';
+				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_eventi_chiusi_last_update';
+			}
+			
+
+
 			?>
 			<hr>
 			<div class="row">
@@ -340,13 +360,13 @@ $query= " SELECT
     l.id_profilo,
         CASE
             WHEN (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_incarichi_last_update i
+               FROM segnalazioni.".$v_incarichi_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_incarichi_interni_last_update i
+               FROM segnalazioni.".$v_incarichi_interni_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_provvedimenti_cautelari_last_update i
+               FROM segnalazioni.".$v_provvedimenti_cautelari_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_provvedimenti_cautelari < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_sopralluoghi_last_update i
+               FROM segnalazioni.".$v_sopralluoghi_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_sopralluogo < 3)) > 0 THEN 't'::text
             ELSE 'f'::text
         END AS incarichi,
@@ -439,7 +459,7 @@ while($r = pg_fetch_assoc($result)) {
 			data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_incarichi_last_update s 
+			FROM segnalazioni.'.$v_incarichi_last_update.' s 
 			WHERE s.id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato ORDER BY data_ora_invio asc;';
@@ -458,12 +478,12 @@ while($r = pg_fetch_assoc($result)) {
 			data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_incarichi_interni_last_update s 
+			FROM segnalazioni.'.$v_incarichi_interni_last_update.' s 
 			WHERE s.id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato  
 			ORDER BY data_ora_invio asc;';
-			//echo $query_i;
+			echo $query_i;
 			$result_i = pg_query($conn, $query_i);
 			while($r_i = pg_fetch_assoc($result_i)) {
 				echo '<br>' .$r_i['data_ora_invio'];
@@ -480,7 +500,7 @@ while($r = pg_fetch_assoc($result)) {
 			data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_sopralluoghi_last_update s 
+			FROM segnalazioni.'.$v_sopralluoghi_last_update.' s 
 			WHERE id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
 			descrizione, 
 			descrizione_uo, descrizione_stato ORDER BY data_ora_invio asc;';

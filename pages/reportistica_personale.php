@@ -131,7 +131,7 @@ require('./check_evento.php');
 				$k=$k+1;
 				//$municipir[]=array($id,$r3["nome_munic"]);
 			}
-			
+			$check_chiusura=0;
 			echo '<br><b>Data e ora inizio</b>: '.$inizio_evento;
 			if ($chiusura_evento!=''){
 				echo '<br><b>Data e ora inizio fase di chiusura</b>: '.$chiusura_evento;
@@ -143,11 +143,31 @@ require('./check_evento.php');
 				echo ' - <i class="fas fa-hourglass-end"></i> Evento in chiusura';
 			}
 			if ($chiusura_evento!='' && $fine_evento!='' ){
+				$check_chiusura=1;
 				echo ' - <i class="fas fa-stop"></i> Evento chiuso';
 			}
 			echo '</div></div>';
+
+
+			// check sulle viste da usare
+			if ($check_chiusura==0){
+				$v_incarichi_last_update='v_incarichi_last_update';
+				$v_incarichi_interni_last_update='v_incarichi_interni_last_update';
+				$v_sopralluoghi_last_update='v_sopralluoghi_last_update';
+				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_last_update';
+				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_last_update';
+			} else if ($check_chiusura==1) {
+				$v_incarichi_last_update='v_incarichi_eventi_chiusi_last_update';
+				$v_incarichi_interni_last_update='v_incarichi_interni_eventi_chiusi_last_update';
+				$v_sopralluoghi_last_update='v_sopralluoghi_eventi_chiusi_last_update';
+				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_eventi_chiusi_last_update';
+				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_eventi_chiusi_last_update';
+			}
+			
 			?>
 			
+
+
 			
 			
 			<!--hr>
@@ -466,13 +486,13 @@ $query= " SELECT
     l.id_profilo,
         CASE
             WHEN (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_incarichi_last_update i
+			FROM segnalazioni.".$v_incarichi_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_incarichi_interni_last_update i
+               FROM segnalazioni.".$v_incarichi_interni_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_provvedimenti_cautelari_last_update i
+               FROM segnalazioni.".$v_provvedimenti_cautelari_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_provvedimenti_cautelari < 3)) > 0 OR (( SELECT count(i.id) AS sum
-               FROM segnalazioni.v_sopralluoghi_last_update i
+               FROM segnalazioni.".$v_sopralluoghi_last_update." i
               WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_sopralluogo < 3)) > 0 THEN 't'::text
             ELSE 'f'::text
         END AS incarichi,
@@ -495,7 +515,7 @@ $query= " SELECT
     max(s.geom::text) AS geom 
    FROM segnalazioni.t_segnalazioni s
      JOIN segnalazioni.tipo_criticita c ON c.id = s.id_criticita
-     JOIN eventi.t_eventi e ON e.id = s.id_evento
+     JOIN eventi.t_eventi e ON e.id = ".$id."
      LEFT JOIN segnalazioni.join_segnalazioni_in_lavorazione jl ON jl.id_segnalazione = s.id
      LEFT JOIN segnalazioni.t_segnalazioni_in_lavorazione l ON jl.id_segnalazione_in_lavorazione = l.id
      LEFT JOIN geodb.municipi m ON s.id_municipio = m.id::integer
@@ -564,10 +584,9 @@ while($r = pg_fetch_assoc($result)) {
 		 JOIN segnalazioni.join_segnalazioni_incarichi j ON j.id_incarico = i.id
 		 JOIN segnalazioni.stato_incarichi st ON st.id_incarico = i.id
 		 JOIN segnalazioni.tipo_stato_incarichi t ON t.id = st.id_stato_incarico
-		 JOIN segnalazioni.v_segnalazioni s ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
 		 JOIN varie.v_incarichi_mail u ON u.cod = i.id_uo::text
-		 JOIN eventi.t_eventi e ON e.id = s.id_evento
-		WHERE s.id_lavorazione=".$r['id_lavorazione']."
+		 JOIN eventi.t_eventi e ON e.id = ".$id."
+		WHERE j.id_segnalazione_in_lavorazione = ".$r['id_lavorazione']."
 		AND st.data_ora_stato = (select max(data_ora_stato) from segnalazioni.stato_incarichi where id_incarico =i.id) 
 		GROUP BY i.id, data_invio, ora_invio, i.descrizione, descrizione_uo, time_preview, time_start, time_stop, note_ente, note_rifiuto, descrizione_stato,parziale, id_stato_incarico;";
 		//echo $query2 ."<br>";
@@ -626,10 +645,9 @@ while($r = pg_fetch_assoc($result)) {
 		 JOIN segnalazioni.join_segnalazioni_incarichi_interni j ON j.id_incarico = i.id
 		 JOIN segnalazioni.stato_incarichi_interni st ON st.id_incarico = i.id
 		 JOIN segnalazioni.tipo_stato_incarichi t ON t.id = st.id_stato_incarico
-		 JOIN segnalazioni.v_segnalazioni s ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
 		 JOIN users.v_squadre_all u ON u.id::text = i.id_squadra::text
-		 JOIN eventi.t_eventi e ON e.id = s.id_evento
-		WHERE s.id_lavorazione=".$r['id_lavorazione']."
+		 JOIN eventi.t_eventi e ON e.id = ".$id."
+		WHERE j.id_segnalazione_in_lavorazione = ".$r['id_lavorazione']."
 		AND st.data_ora_stato = (select max(data_ora_stato) from segnalazioni.stato_incarichi_interni where id_incarico =i.id) 
 		GROUP BY i.id, data_invio, ora_invio, i.descrizione, time_preview, time_start, time_stop, note_ente, note_rifiuto, descrizione_stato,parziale, id_stato_incarico;";
 		//echo $query2 ."<br>";
@@ -707,11 +725,10 @@ while($r = pg_fetch_assoc($result)) {
 		 JOIN segnalazioni.join_segnalazioni_sopralluoghi j ON j.id_sopralluogo = i.id
 		 JOIN segnalazioni.stato_sopralluoghi st ON st.id_sopralluogo = i.id
 		 JOIN segnalazioni.tipo_stato_sopralluoghi t ON t.id = st.id_stato_sopralluogo
-		 JOIN segnalazioni.v_segnalazioni s ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
 		 JOIN segnalazioni.join_sopralluoghi_squadra ii ON ii.id_sopralluogo = i.id
 		 JOIN users.v_squadre_all u ON u.id::text = ii.id_squadra::text
-		 JOIN eventi.t_eventi e ON e.id = s.id_evento
-		WHERE s.id_lavorazione=".$r['id_lavorazione']."
+		 JOIN eventi.t_eventi e ON e.id = ".$id."
+		WHERE j.id_segnalazione_in_lavorazione = ".$r['id_lavorazione']."
 		AND st.data_ora_stato = (select max(data_ora_stato) from segnalazioni.stato_sopralluoghi where id_sopralluogo =i.id) 
 		GROUP BY i.id, data_invio, ora_invio, i.descrizione, time_preview, time_start, time_stop, note_ente, descrizione_stato, id_stato_sopralluogo;";
 		//echo $query2 ."<br>";
