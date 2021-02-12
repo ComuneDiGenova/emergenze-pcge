@@ -138,7 +138,7 @@ function nameFormatter(value,row) {
         </div>\
         <div class="modal-body">\
         Se confermi di voler l\'utente? clicca qua \
-		<a href="./elimina_volontario.php?id=\''+ value + '\'" class="btn btn-danger" role="button" title="Elimina persona" ><i class="fa fa-times" aria-hidden="true"></i> Elimina </a>\
+		<a href="./elimina_volontario.php?id='+ value + '" class="btn btn-danger" role="button" title="Elimina persona" ><i class="fa fa-times" aria-hidden="true"></i> Elimina </a>\
         </div>\
         <!--div class="modal-footer">\
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
@@ -177,7 +177,7 @@ function nameFormatter_val(value) {
 
   function nameFormatter1(value) {
 
-        return '<a href="./permessi.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
+        return '<a href="./permessi.php?id='+ value + '" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
     }
 
 </script>

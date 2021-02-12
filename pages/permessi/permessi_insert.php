@@ -88,7 +88,7 @@ echo "<br>";
 echo $query_log;
 
 echo "<br>Matr=".$matr;
-exit;
+//exit;
 if ($matr==''){
 	//header("location: ../lista_volontari.php");
 	header("location: ../update_volontario.php?id=".$cf);

@@ -11,8 +11,8 @@ if(isset($_GET["from"])){
 if(isset($_GET["to"])){
 	$filtro_to=$_GET["to"];
 }
-$resp=$_GET["r"];
-$uo=$_GET["u"];
+$resp=pg_escape_string($_GET["r"]);
+$uo=pg_escape_string($_GET["u"]);
 
 
 $uri=basename($_SERVER['REQUEST_URI']);
@@ -131,9 +131,12 @@ require('./tables/filtri_segnalazioni.php');
         </div>
         
 
-        <table  id="pres" class="table-hover" data-toggle="table" data-url="./tables/griglia_sopralluoghi.php?r=<?php echo $resp;?>&u=<?php echo $uo;?>&from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
-		data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" data-pagination="true" 
-		data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
+<table  id="pres" class="table-hover" data-toggle="table" 
+data-url="./tables/griglia_sopralluoghi.php?r=<?php echo $resp;?>&u=<?php echo $uo;?>&from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
+data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" 
+data-pagination="true" 
+data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" 
+data-show-columns="true" data-toolbar="#toolbar">
 
 
         
