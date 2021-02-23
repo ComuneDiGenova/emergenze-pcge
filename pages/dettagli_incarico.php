@@ -449,10 +449,15 @@ while($r_e = pg_fetch_assoc($result_e)) {
 					
 					<?php
 					if ($stato_attuale==2){
+						
 					?>
 						<hr>
+						<?php 
+						//echo $profilo_sistema .' - '.$id_livello1;
+						if ($profilo_sistema==8 and $id_livello1==$id_uo ){ ?>
 						<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#mail"><i class="fas fa-comment"></i> Invia mail </button>
-						 - 
+						<?php }?>
+						- 
 						<button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
                <i class="fa fa-print" aria-hidden="true"></i> Crea stampa o PDF 
 			   <i class="fa fa-file-pdf" aria-hidden="true"></i></button>
