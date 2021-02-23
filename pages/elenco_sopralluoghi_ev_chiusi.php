@@ -131,7 +131,8 @@ require('./tables/filtri_segnalazioni.php');
         </div>
         
 
-        <table  id="pres" class="table-hover" data-toggle="table" data-url="./tables/griglia_sopralluoghi_eventi_chiusi.php?r=<?php echo $resp;?>&u=<?php echo $uo;?>&from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
+        <table  id="pres" class="table-hover" data-toggle="table"  data-filter-control="true" 
+        data-url="./tables/griglia_sopralluoghi_eventi_chiusi.php?r=<?php echo $resp;?>&u=<?php echo $uo;?>&from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
 		data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" data-pagination="true" data-sidePagination="true" 
 		data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
 
@@ -146,11 +147,11 @@ require('./tables/filtri_segnalazioni.php');
 			<th data-field="id_profilo" data-sortable="true" data-formatter="presidiFormatter2" data-visible="true" >Resp</th>
             <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
 				<!--th data-field="oggetto" data-sortable="true"  data-visible="true">Localizzazione</th-->
-            <th data-field="descrizione" data-sortable="true"   data-visible="true">Descrizione</th>
-            <th data-field="id_evento" data-sortable="true"  data-visible="true">Evento</th>
-            <th data-field="time_preview" data-sortable="true"  data-visible="true">Ora<br>prevista</th>
-            <th data-field="time_start" data-sortable="true"  data-visible="true">Ora<br>inizio</th>
-            <th data-field="time_stop" data-sortable="true"  data-visible="true">Ora<br>fine</th>
+            <th data-field="descrizione" data-sortable="true" data-filter-control="input"  data-visible="true">Descrizione</th>
+            <th data-field="id_evento" data-sortable="true" data-filter-control="select" data-visible="true">Evento</th>
+            <th data-field="time_preview" data-sortable="true" data-filter-control="input" data-visible="true">Ora<br>prevista</th>
+            <th data-field="time_start" data-sortable="true" data-filter-control="input" data-visible="true">Ora<br>inizio</th>
+            <th data-field="time_stop" data-sortable="true" data-filter-control="input" data-visible="true">Ora<br>fine</th>
             <!--th data-field="note" data-sortable="false" data-visible="true" >Note</th-->
             <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th>            
 				<th data-field="id_segnalazione" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Segnalazione</th>

@@ -1,6 +1,6 @@
 <?php 
 
-$subtitle="Elenco comunicazioni";
+$subtitle="Elenco storico mail inviate ";
 
 if(isset($_GET["f"])){
 	$getfiltri=$_GET["f"];
@@ -17,9 +17,9 @@ if(isset($_GET["from"])){
 if(isset($_GET["to"])){
 	$filtro_to=$_GET["to"];
 }
-if(isset($_GET["r"])){
+/*if(isset($_GET["r"])){
 	$resp=$_GET["r"];
-}
+}*/
 
 //echo $filtro_evento_attivo; 
 
@@ -76,7 +76,22 @@ require('./tables/filtri_segnalazioni.php');
             
             <br><br>
             <div class="row">
+            <?php
+            if ($profilo_sistema == 8){
+			    //echo $id_livello1."<br>";
+                $resp='uo_'.$id_livello1;
+                $query0 = "SELECT id1, descrizione FROM users.uo_1_livello where id1 > 1 and invio_incarichi='t'";
+                $query0 = $query0. " and id1=$1";
+                
+                //echo $query0;
+                $result0 = pg_prepare($conn,"myquery0", $query0);
+                $result0 = pg_execute($conn,"myquery0", array($id_livello1));
+                while($r0 = pg_fetch_assoc($result0)) {
+                    echo "<h3> Si visualizzano solo le mail inviate da ". $r0['descrizione']."</h3>";
+                }
+            }
 
+            ?>
 <p>
             <!--a class="btn btn-primary" data-toggle="collapse" href="#collapsecriticita" role="button" aria-expanded="false" aria-controls="collapseExample">
             <i class="fas fa-filter"></i>  Filtra per criticità
@@ -96,83 +111,6 @@ require('./tables/filtri_segnalazioni.php');
 		
 
 
-		<div class="collapse" id="collapsecriticita">
-          <div class="card card-body">
-         		  
-          <form id="filtro_cr" action="./tables/decodifica_filtro0.php?r=<?php echo $resp;?>&a=<?php echo $filtro_evento_attivo?>&from=<?php echo $filtro_from?>&to=<?php echo $filtro_to?>&m=<?php echo $filtro_municipio?>" method="post">
-            <input type="hidden" name="pagina" id="hiddenField" value="<?php echo $pagina; ?>" />
-			
-			<?php
-            $query='SELECT * FROM segnalazioni.tipo_criticita where valido=\'t\' ORDER BY descrizione;';
-            $result = pg_query($conn, $query);
-	         #echo $result;
-	         //exit;
-	         //$rows = array();
-            //echo '<div class="form-check form-check-inline">';
-            echo '<div class="row">';
-	         while($r = pg_fetch_assoc($result)) {
-					echo '<div class="form-check col-md-3">';
-	            echo '  <input class="form-check-input" type="checkbox" id="filtro_cr" name="filter'.$r['id'].'"  value=1" >';
-	            echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['descrizione'].'</label>';
-	            echo "</div>";
-	            
-            }
-            echo "</div>";
-
-        ?>
-        <!--hr-->
-		
-			<button id="checkBtn_filtri" type="submit" class="btn btn-primary"> 
-			<?php if ($getfiltri=='' or intval($getfiltri)==0) {?>
-				Filtra 
-			<?php } else {?>
-				Aggiorna filtro
-			<?php }?>
-			</button>
-			
-
-        </form>
-          </div>
-        </div>
-		
-		<div class="collapse" id="collapsemunicipio">
-          <div class="card card-body">
-         		  
-          <form id="filtro_mun" action="./tables/decodifica_filtro1.php?r=<?php echo $resp;?>&a=<?php echo $filtro_evento_attivo?>&from=<?php echo $filtro_from?>&to=<?php echo $filtro_to?>&f=<?php echo $getfiltri?>" method="post">
-            <input type="hidden" name="pagina" id="hiddenField" value="<?php echo $pagina; ?>" />
-			<?php
-            $query='SELECT * FROM geodb.municipi ORDER BY codice_mun;';
-            $result = pg_query($conn, $query);
-	         #echo $result;
-	         //exit;
-	         //$rows = array();
-            //echo '<div class="form-check form-check-inline">';
-            echo '<div class="row">';
-	         while($r = pg_fetch_assoc($result)) {
-					echo '<div class="form-check col-md-3">';
-	            echo '  <input class="form-check-input" type="checkbox" id="filtro_mun" name="filter'.$r['codice_mun'].'"  value=1" >';
-	            echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['codice_mun'].' - '.$r['nome_munic'].'</label>';
-	            echo "</div>";
-	            
-            }
-            echo "</div>";
-
-        ?>
-        <!--hr-->
-		
-			<button id="checkBtn_filtri" type="submit" class="btn btn-primary"> 
-			<?php if ($getfiltri=='' or intval($getfiltri)==0) {?>
-				Filtra 
-			<?php } else {?>
-				Aggiorna filtro
-			<?php }?>
-			</button>
-			
-
-        </form>
-          </div>
-        </div>
-		
 		
 		
 		<div class="collapse" id="collapsedata">
@@ -240,9 +178,9 @@ require('./tables/filtri_segnalazioni.php');
         <div style="overflow-x:auto;">
 
       	
-        <table  id="segnalazioni" class="table-hover" data-toggle="table" data-filter-control="true" 
+        <table  id="mail" class="table-hover" data-toggle="table" data-filter-control="true" 
   data-show-search-clear-button="true" 
-		data-url="./tables/griglia_comunicazioni.php?r=<?php echo $resp;?>&f=<?php echo $getfiltri;?>&from=<?php echo $filtro_from; ?>&to=<?php echo $filtro_to;?>&m=<?php echo $filtro_municipio;?>" 
+		data-url="./tables/griglia_storico_mail.php?r=<?php echo $resp;?>&f=<?php echo $getfiltri;?>&from=<?php echo $filtro_from; ?>&to=<?php echo $filtro_to;?>&m=<?php echo $filtro_municipio;?>" 
 		 data-show-export="false" data-search="true" data-click-to-select="true" data-pagination="true" data-page-size=50 data-page-list=[10,25,50,100,200,500] 
 		data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
       	
@@ -254,10 +192,11 @@ require('./tables/filtri_segnalazioni.php');
  	<tr>
             <!--th data-field="state" data-checkbox="true"></th-->
             <!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-            <th data-field="testo" data-sortable="true" data-visible="true" data-filter-control="input">Testo</th> 
-            <th data-field="allegato" data-sortable="true" data-formatter="nameFormatterRischio" data-visible="true"data-filter-control="select">Allegato</th>
-            <th data-field="data_ora_stato" data-sortable="true"   data-visible="true" data-filter-control="input">Data</th>
-            <th data-field="id" data-sortable="true" data-formatter="nameFormatterDettagli" data-visible="true">Dettagli</th>
+            <th data-field="mittente" data-sortable="true" data-visible="true" data-filter-control="input">Mittente</th> 
+            <th data-field="destinatario" data-sortable="true" data-visible="true" data-filter-control="input">Destinatario</th> 
+            <th data-field="testo_aggiuntivo" data-sortable="true" data-visible="true" data-filter-control="input">Testo aggiuntivo</th> 
+            <th data-field="data_ora" data-sortable="true"   data-visible="true" data-filter-control="input">Data</th>
+            <th data-field="id_incarico" data-sortable="true" data-formatter="nameFormatterDettagli" data-visible="true">Incarico</th>
     </tr>
 </thead>
 
@@ -285,7 +224,7 @@ require('./tables/filtri_segnalazioni.php');
 
 function nameFormatterDettagli(value, row) {
 	//var test_id= row.id;
-	return' <a class="btn btn-info" target="_new" href="./dettagli_'+row.tipo+'.php?id='+value+'"><i class="fas fa-comments" title="Visualizza dettagli comunicazioni '+row.tipo+' in nuova scheda"></i></a>';
+	return' <a class="btn btn-info" target="_new" href="./dettagli_incarico.php?id='+value+'"><i class="fas fa-comments" title="Visualizza dettagli comunicazioni '+row.tipo+' in nuova scheda"></i></a>';
 }
 	
 	
@@ -318,7 +257,7 @@ require('./req_bottom.php');
 <script>
     // DA MODIFICARE NELLA PRIMA RIGA L'ID DELLA TABELLA VISUALIZZATA (in questo caso t_volontari)
     $(function () {
-    	var $table = $('#segnalazioni');
+    	var $table = $('#mail');
         $('#toolbar').find('select').change(function () {
             $table.bootstrapTable('destroy').bootstrapTable({
                 exportDataType: $(this).val()

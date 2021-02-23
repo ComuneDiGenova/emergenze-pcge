@@ -198,7 +198,7 @@ if ($profilo_sistema <=2){
 			    </div>
 			    <div id="list_comunicazioni_riservate" class="panel-collapse collapse">
 			      <div class="panel-body">
-				 <i class="fa fa-user-secret"></i> <i>Le comunicazioni qui presenti sono visibili solo ai profili 1 (amministratori di sistema) e  2 (responsanbile salal operativa)</i>
+				 <i class="fa fa-user-secret"></i> <i>Le comunicazioni qui presenti sono visibili solo ai profili 1 (amministratori di sistema) e  2 (responsanbile sala operativa)</i>
 				<?php
 				
 				echo $testo2;

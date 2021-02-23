@@ -5,5 +5,6 @@ $mail->Port = 25;
 //We don't need to set this as it's the default value
 //$mail->SMTPAuth = false;
 
+$mail->CharSet = 'UTF-8';
 
 ?>

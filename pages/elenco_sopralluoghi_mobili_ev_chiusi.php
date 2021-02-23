@@ -121,7 +121,8 @@ require('./tables/filtri_segnalazioni.php');
         </div>
         
 
-        <table  id="pres" class="table-hover" data-toggle="table" data-url="./tables/griglia_sopralluoghi_mobili_eventi_chiusi.php?from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
+        <table  id="pres" class="table-hover" data-toggle="table"  data-filter-control="true" 
+        data-url="./tables/griglia_sopralluoghi_mobili_eventi_chiusi.php?from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
         data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" 
         data-pagination="true" data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" 
         data-show-columns="true" data-toolbar="#toolbar">
@@ -135,11 +136,11 @@ require('./tables/filtri_segnalazioni.php');
             <!--th data-field="state" data-checkbox="true"></th-->
             <th data-field="id_stato_sopralluogo" data-sortable="true" data-formatter="presidiFormatter" data-visible="true" >Stato</th> 
             <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
-			<th data-field="id_evento" data-sortable="true" data-visible="true" >Evento</th> 
+			<th data-field="id_evento" data-sortable="true" data-filter-control="select" data-visible="true" >Evento</th> 
 				<th data-field="descrizione_uo" data-sortable="true"  data-visible="true">Ultima squadra</th>
-            <th data-field="descrizione" data-sortable="true"   data-visible="true">Descrizione</th>
+            <th data-field="descrizione" data-sortable="true"  data-filter-control="select" data-visible="true">Descrizione</th>
             <!--th data-field="id_evento" data-sortable="true"  data-visible="true">Id<br>evento</th-->
-            <th data-field="data_ora_invio" data-sortable="true"  data-visible="true">Data e ora<br>assegnazione</th>
+            <th data-field="data_ora_invio" data-sortable="true" data-filter-control="input" data-visible="true">Data e ora<br>assegnazione</th>
             <!--th data-field="time_start" data-sortable="true"  data-visible="true">Ora<br>inizio</th>
             <th data-field="time_stop" data-sortable="true"  data-visible="true">Ora<br>fine</th>
             <th data-field="note" data-sortable="false" data-visible="true" >Note</th-->

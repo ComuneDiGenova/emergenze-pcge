@@ -134,7 +134,7 @@ require('./tables/filtri_segnalazioni.php');
 <table  id="pres" class="table-hover" data-toggle="table" 
 data-url="./tables/griglia_sopralluoghi.php?r=<?php echo $resp;?>&u=<?php echo $uo;?>&from=<?php echo $filtro_from;?>&to=<?php echo $filtro_to;?>" 
 data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" 
-data-pagination="true" 
+data-pagination="true"  data-filter-control="true" 
 data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" 
 data-show-columns="true" data-toolbar="#toolbar">
 
@@ -147,16 +147,16 @@ data-show-columns="true" data-toolbar="#toolbar">
             <th data-field="state" data-checkbox="true"></th>
             <th data-field="id_stato_sopralluogo" data-sortable="true" data-formatter="presidiFormatter" data-visible="true" >Stato</th>
             <th data-field="id_profilo" data-sortable="true" data-formatter="presidiFormatter2" data-visible="true" >Resp</th>
-			<th data-field="data_ora_invio" data-sortable="true"  data-visible="true">Ora<br>assegnazione</th>
+			<th data-field="data_ora_invio" data-sortable="true"  data-filter-control="input" data-visible="true">Ora<br>assegnazione</th>
 			<!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
 			<!--th data-field="oggetto" data-sortable="true"  data-visible="true">Localizzazione</th-->
-            <th data-field="descrizione" data-sortable="true"   data-visible="true">Descrizione</th>
-            <th data-field="id_evento" data-sortable="true"  data-visible="true">Id<br>evento</th>
+            <th data-field="descrizione" data-sortable="true" data-filter-control="input"  data-visible="true">Descrizione</th>
+            <th data-field="id_evento" data-sortable="true" data-filter-control="select" data-visible="true">Id<br>evento</th>
             <!--th data-field="time_preview" data-sortable="true"  data-visible="true">Ora<br>prevista</th>
             <th data-field="time_start" data-sortable="true"  data-visible="true">Ora<br>inizio</th>
             <th data-field="time_stop" data-sortable="true"  data-visible="true">Ora<br>fine</th-->
-			<th data-field="nome" data-sortable="true"  data-visible="true">Nome<br>squadra</th>
-			<th data-field="componenti" data-sortable="true"  data-visible="true">Componenti<br>squadra</th>
+			<th data-field="nome" data-sortable="true" data-filter-control="select" data-visible="true">Nome<br>squadra</th>
+			<th data-field="componenti" data-sortable="true" data-filter-control="input" data-visible="true">Componenti<br>squadra</th>
             <!--th data-field="note" data-sortable="false" data-visible="true" >Note</th-->
             <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th>            
 				<th data-field="id_segnalazione" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Segnalazione</th>

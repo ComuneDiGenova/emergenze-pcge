@@ -1,6 +1,6 @@
 <?php
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 //require('../check_evento.php');
@@ -22,12 +22,12 @@ if ($check_evento==1){
 
 
 // Filtro per tipologia di criticità
-$getfiltri=$_GET["f"];
+$getfiltri=pg_escape_string($_GET["f"]);
 //echo $getfiltri;
-$filtro_municipio=$_GET["m"];
-$filtro_from=$_GET["from"];
-$filtro_to=$_GET["to"];
-$resp=$_GET["r"];
+$filtro_municipio=pg_escape_string($_GET["m"]);
+$filtro_from=pg_escape_string($_GET["from"]);
+$filtro_to=pg_escape_string($_GET["to"]);
+$resp=pg_escape_string($_GET["r"]);
 
 
 require('./filtri_segnalazioni.php'); //contain the function filtro used in the following line

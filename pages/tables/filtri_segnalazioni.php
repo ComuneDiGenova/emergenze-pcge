@@ -205,7 +205,7 @@ function filtro2($idfilter, $idfilter1, $idfilter2, $idfilter3){
 	}
 	
 	if (strlen($idfilter2)>=12 ) {
-		$filter = $filter . " data_ora > ".$idfilter2." ";
+		$filter = $filter . " data_ora > '".$idfilter2."' ";
 	}
 	
 	if (strlen($idfilter2)>=12 && strlen($idfilter3)>=12) {
@@ -213,7 +213,7 @@ function filtro2($idfilter, $idfilter1, $idfilter2, $idfilter3){
 	}
 	
 	if (strlen($idfilter3)>=12) {
-		$filter = $filter . " data_ora < ".$idfilter3." ";
+		$filter = $filter . " data_ora < '".$idfilter3."' ";
 	}
 	
 	if ($check2==1){

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 //require('../check_evento.php');
@@ -8,12 +8,12 @@ $filtro_from='';
 $filtro_to='';
 
 // Filtro per tipologia di criticità
-$getfiltri=$_GET["f"];
-$filtro_evento_attivo=$_GET["a"];
-$filtro_municipio=$_GET["m"];
-$filtro_from=$_GET["from"];
-$filtro_to=$_GET["to"];
-$resp=$_GET["r"];
+$getfiltri=pg_escape_string($_GET["f"]);
+$filtro_evento_attivo=pg_escape_string($_GET["a"]);
+$filtro_municipio=pg_escape_string($_GET["m"]);
+$filtro_from=pg_escape_string($_GET["from"]);
+$filtro_to=pg_escape_string($_GET["to"]);
+$resp=pg_escape_string($_GET["r"]);
 
 //echo $getfiltri;
 
@@ -21,13 +21,13 @@ if ($filtro_from!='' or $filtro_to!=''){
 	$filtro= ' WHERE ';
 }
 if ($filtro_from!=''){
-	$filtro= $filtro." data_ora_stato > ".$filtro_from."";;
+	$filtro= $filtro." data_ora_stato > $1";;
 }
 if ($filtro_from!='' and $filtro_to!=''){
 	$filtro= $filtro.' AND ';
 }
 if ($filtro_to!=''){
-	$filtro= $filtro." data_ora_stato < ".$filtro_to."";;
+	$filtro= $filtro." data_ora_stato < $2";;
 }
 
 if(!$conn) {
@@ -147,15 +147,27 @@ if(!$conn) {
 		when c.allegato is not null then 'y' end
 		as allegato
 		from segnalazioni.t_comunicazioni_segnalazioni c
-		JOIN 
+		LEFT JOIN 
 		(SELECT min(id_segnalazione) as id, id_segnalazione_in_lavorazione FROM segnalazioni.join_segnalazioni_in_lavorazione GROUP BY id_segnalazione_in_lavorazione) 
 		as s ON s.id_segnalazione_in_lavorazione=c.id_lavorazione
 		 ".$filtro." ORDER BY data_ora_stato desc;";
 	
 	
     //echo $query."<br>";
-	$result = pg_query($conn, $query);
-	#echo $query;
+	//$result = pg_query($conn, $query);
+	$result = pg_prepare($conn,"myquery0", $query);
+	if ($filtro_from!='' and $filtro_to!=''){
+		$result = pg_execute($conn,"myquery0", array($filtro_from, $filtro_to));
+	} else if ($filtro_from!='' ){
+		$result = pg_execute($conn,"myquery0", array($filtro_from));
+	} else if ($filtro_to!='' ){
+		$result = pg_execute($conn,"myquery0", array($filtro_to));
+	} else {
+		$result = pg_execute($conn,"myquery0", array());
+	}  
+
+
+		#echo $query;
 	#exit;
 	$rows = array();
 	while($r = pg_fetch_assoc($result)) {
@@ -168,7 +180,8 @@ if(!$conn) {
 		//print $rows;
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		//echo $query;
+		echo "<br>[{\"NOTE\":'No data'}]";
 	}
 }
 

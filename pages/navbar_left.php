@@ -282,6 +282,14 @@
                                     <small> (<i class="fas fa-stop"></i> chiusi)</small>
                                     </a>
                                 </li>
+                                <?php if ($profilo_sistema==1 OR $profilo_sistema==8){ ?>
+                                <li>
+                                    <a href="elenco_storico_mail.php"> 
+                                    <i class="fas fa-envelope-open-text"></i>Elenco mail incarichi 
+                                    <small><br>(Utenti esterni)</small>
+                                    </a>
+                                </li>
+								<?php } ?>
                                 <li>
                                     <a href="elenco_inc_int.php">Elenco incarichi interni
                                     <small> (<i class="fas fa-play"></i> in corso)</small>
@@ -297,7 +305,13 @@
 
                                     </a>
                                 </li>
-								
+                                <?php if ($profilo_sistema<3){ ?>
+                                <li>
+                                    <a href="elenco_comunicazioni_riservate.php"> <i class="fas fa-user-secret"></i><i class="fas fa-comments"></i>Elenco comunicazioni riservate
+
+                                    </a>
+                                </li>
+								<?php } ?>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>

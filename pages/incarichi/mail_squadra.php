@@ -1,13 +1,13 @@
 <?php
 
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 
 //echo $_SESSION['user'];
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-$address=$_POST["address"];
+$address=pg_escape_string($_POST["address"]);
 
 echo $address."<br>";
 
@@ -16,23 +16,24 @@ $mails=array($address);
 echo $mails."<br>";
 
 //$id=$_GET["id"];
-$id=str_replace("'", "", $_GET['id']); //segnazione in lavorazione
+//$id=str_replace("'", "", $_GET['id']); //segnazione in lavorazione
+$id=pg_escape_string($_GET['id']);
 
+//$descrizione= str_replace("'", "''", $_POST["descrizione"]);
+$descrizione=pg_escape_string($_POST["descrizione"]);
 
-$descrizione= str_replace("'", "''", $_POST["descrizione"]);
-
-$note= str_replace("'", "''", $_POST["note"]);
-
-
+//$note= str_replace("'", "''", $_POST["note"]);
+$note=pg_escape_string($_POST["note"]);
 //$uo= str_replace("'", "", $_GET["uo"]);
 
-$uo=$_POST["uo"];
+$uo=pg_escape_string($_POST["uo"]);
 
-$id_uo=$_POST["id_uo"];
+$id_uo=pg_escape_string($_POST["id_uo"]);
 
-$lat=$_POST["lat"];
-$lon=$_POST["lon"];
+$lat=pg_escape_string($_POST["lat"]);
+$lon=pg_escape_string($_POST["lon"]);
 
+$indirizzo_stampa=pg_escape_string($_POST["indirizzo_stampa"]);
 echo "Id_uo:".$id_uo. "<br>";
 echo "Unita_operativa:".$uo. "<br>";
 
@@ -42,7 +43,7 @@ echo "Descrizione:".$descrizione. "<br>";
 echo "Altre note:".$note. "<br>";
 //echo "<h2>La gestione degli incarichi e' attualmente in fase di test and debug. Ci scusiamo per il disagio</h2> <br> ";
 
-
+echo "Indirizzo:".$indirizzo_stampa. "<br>";
 
 echo "<br>";
 
@@ -53,6 +54,14 @@ echo "<br>";
 
 
 
+$query="INSERT INTO segnalazioni.t_storico_mail
+( id_uo1_mittente, destinatario, testo_aggiuntivo, id_incarico)
+VALUES($1, $2, $3, $4);";
+
+$result=pg_prepare($conn, "myquery", $query);
+$result=pg_execute($conn, "myquery", array($id_uo,$address, $note, $id));
+
+//exit;
 
 
 //Import the PHPMailer class into the global namespace
@@ -81,6 +90,7 @@ $mail->isSMTP();
 $mail->SMTPDebug = 0;
 //Set the hostname of the mail server
 
+
 // host and port on the file credenziali_mail.php
 require './credenziali_mail.php';
 
@@ -102,33 +112,32 @@ $mail->Subject = 'Urgente - La tua squadra ha ricevuto un nuovo incarico ('.$uo.
 //convert HTML into a basic plain-text alternative body
 //$mail->Body =  'Questa mail ti viene inviata tramite il nuovo sistema informativo del Comune di Genova
 $body =  'Questa mail ti viene inviata tramite il nuovo sistema informativo del Comune di Genova
-per le gestione delle emergenze per descrivere un incarico assegnato alla tua squadra che risulta di competenza 
-dell\'unit‡ operativa '.$uo.'  
+per le gestione delle emergenze per descrivere un incarico che risulta di competenza 
+dell\'unit√† operativa '.$uo.'  
   <br>Ti preghiamo di non rispondere a questa mail
-  <br> - Descrizione incarico assegnato alla tua Unit‡: '.$descrizione.'
-  <br> - Eventuali altre note della tua Unit‡: '.$note.'
-  
-  <br><br>
-  Visualizza la posizione di massima della segnalazione su <a href="https://maps.google.com/?q='.$lat.','.$lon.'" >
+  <br> - <b>Descrizione incarico assegnato alla tua Unit√†</b>: '.$descrizione.'
+  <br> - <b>Eventuali altre note della tua Unit√†</b>: '.$note.'
+  <br> - '.$indirizzo_stampa. '. 
+  Puoi visualizzare la posizione di massima della segnalazione su <a href="https://maps.google.com/?q='.$lat.','.$lon.'" >
   google maps</a> (anche tramite navigatore Android) 
   
   <br><br>
-  Il COC tramite mail della Protezione Civile - Comune Genova';
+  Il COC ('.$uo.') tramite mail della Protezione Civile - Comune Genova';
   
 require('../informativa_privacy_mail.php');
 
 $mail-> Body=$body ;
 
 
-// metto in CC i contatti dell'Unit‡ operativa
-$query="SELECT mail FROM users.t_mail_incarichi WHERE cod='".$id_uo."';";
-echo $query;
+// metto in CC i contatti dell'Unit√† operativa
+$query="SELECT mail FROM users.t_mail_incarichi WHERE cod=$1;";
+//echo $query;
 
-$result=pg_query($conn, $query);
+$result=pg_prepare($conn, "queryCC", $query);
+$result=pg_execute($conn, "queryCC", array($id_uo));
 
 while($r = pg_fetch_assoc($result)) {
 	$mail->AddCC($r[mail]);
-  
 }
 
 
@@ -155,7 +164,7 @@ if (!$mail->send()) {
 	?>
 	<script> alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script>
 	<?php
-	echo '<br>L\'incarico Ë stato correttamente assegnato, ma si Ë riscontrato un problema nell\'invio della mail.';
+	echo '<br>L\'incarico √® stato correttamente assegnato, ma si √® riscontrato un problema nell\'invio della mail.';
 	echo '<br>Entro 10" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
 	echo '<a href="../dettagli_incarico.php?id='.$id.'">link</a> per saltare l\'attesa.</h3>' ;
 	//sleep(30);

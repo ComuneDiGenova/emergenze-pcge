@@ -1,11 +1,11 @@
 <?php
 
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-$id=$_GET["id"];
+$id=pg_escape_string($_GET["id"]);
 
 $id=str_replace("'", "", $id);
 

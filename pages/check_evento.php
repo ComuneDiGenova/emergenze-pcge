@@ -216,29 +216,15 @@ while($r1 = pg_fetch_assoc($result1)) {
 }
 
 
-
-
 # chiamata alla funzione per la raccolta dei request headers 
 $headers = getallheaders();
 # visualizzazione dei valori dell'array tramite ciclo
 foreach ($headers as $name => $content)
 {
-	# chiamata alla funzione per la raccolta dei request headers 
-$headers = getallheaders();
-# visualizzazione dei valori dell'array tramite ciclo
-foreach ($headers as $name => $content)
-{
-  //echo "[$name] = $content<br>";
+	  //echo "[$name] = $content<br>";
 	if ($name=='comge_codicefiscale'){
 		$CF=$content;
 	}
-
-}
-	if ($name=='comge_codicefiscale'){
-		$CF=$content;
-	}
-	
-
 }
 
 

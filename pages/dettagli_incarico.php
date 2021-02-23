@@ -219,7 +219,7 @@ while($r_e = pg_fetch_assoc($result_e)) {
 						      
 						
 						   <form autocomplete="off" action="incarichi/accetta.php?id=<?php echo $id; ?>" method="POST">
-							<input type="hidden" name="uo" value="<?php echo $r['descrizione_uo'];?>" />
+							<input type="hidden" name="uo" value="<?php echo $uo_desc;?>" />
 							<input type="hidden" name="id_lavorazione" value="<?php echo $id_lavorazione;?>" />
 							<!--input type="hidden" name="uo" value="<?php echo $r['descrizione_uo'];?>" /-->
 								
@@ -319,7 +319,7 @@ while($r_e = pg_fetch_assoc($result_e)) {
 						      
 						
 						        <form autocomplete="off" action="incarichi/rifiuta.php?id=<?php echo $id; ?>" method="POST">
-									<input type="hidden" name="uo" value="<?php echo $r['descrizione_uo'];?>" />
+									<input type="hidden" name="uo" value="<?php echo $uo_desc;?>" />
 									<input type="hidden" name="id_lavorazione" value="<?php echo $r['id_lavorazione'];?>" />
 										 <div class="form-group">
 									    <label for="note_rifiuto">Note rifiuto</label>  <font color="red">*</font>
@@ -404,7 +404,7 @@ while($r_e = pg_fetch_assoc($result_e)) {
 						      
 						
 						        <form autocomplete="off" action="incarichi/chiudi.php?id=<?php echo $id; ?>" method="POST">
-									<input type="hidden" name="uo" value="<?php echo $r['descrizione_uo'];?>" />
+									<input type="hidden" name="uo" value="<?php echo $uo_desc;?>" />
 									<input type="hidden" name="id_lavorazione" value="<?php echo $r['id_lavorazione'];?>" />
 										 <div class="form-group">
 									    <label for="note_rifiuto">Note chiusura</label>  <font color="red">*</font>
@@ -713,68 +713,7 @@ while($r_e = pg_fetch_assoc($result_e)) {
 					
 					
 					
-					<!-- Modal mail-->
-						<div id="mail" class="modal fade" role="dialog">
-						  <div class="modal-dialog">
-						
-						    <!-- Modal content-->
-						    <div class="modal-content">
-						      <div class="modal-header">
-						        <button type="button" class="close" data-dismiss="modal">&times;</button>
-						        <h4 class="modal-title">Invio mail</h4>
-						      </div>
-						      <div class="modal-body">
-							  <ul>
-							  <li>E' possibile inviare una mail a un indirizzo per volta.</li>
-							  <li>Le mail verranno inviate in automatico anche alle caselle mail di 
-							  <?php echo $uo_desc;?> registrate a sistema.</li>
-								</ul>
-						        <form autocomplete="off"  enctype="multipart/form-data"  action="incarichi/mail_squadra.php?id=<?php echo $id; ?>" method="POST">
-									<input type="hidden" name="uo" value="<?php echo $r['descrizione_uo'];?>" />
-									<input type="hidden" name="id_uo" value="<?php echo $id_uo_mail;?>" />
-									<input type="hidden" name="lat" value="<?php echo $lat;?>" />
-									<input type="hidden" name="lon" value="<?php echo $lon;?>" />
-									<?php
-									
-									?>
-									<div class="form-group">
-									    <label for="address">Specifica un indirizzo e-mail</label>  <font color="red">*</font>
-									    <input type="email" required="" class="form-control" id="address"  name="address" rows="3"></input>
-									</div>
-									
-									<div class="form-group">
-									    <label for="address">Descrizione dell'incarico</label>  <font color="red">*</font>
-									    <input type="text" required="" readonly="" class="form-control" id="descrizione"  name="descrizione" 
-										value="<?php echo $descrizione_incarico; ?>"></input>
-									</div>
-									
-									<div class="form-group">
-									    <label for="note">Eventuali note aggiuntive comunicazione</label>  <font color="red">*</font>
-									    <textarea  class="form-control" id="note"  name="note" rows="3"></textarea>
-									  </div>
-									
-									<div class="form-group">
-									   <label for="note">Eventuale allegato</label>
-										<input type="file" class="form-control-file" name="userfile" id="userfile">
-									</div>
-									
-									<!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
-									<!--div class="form-group">
-									   <label for="note">Eventuale allegato</label>
-										<input type="file" class="form-control-file" name="userfile" id="userfile">
-									</div-->
-						
-						        <button  id="conferma" type="submit" class="btn btn-primary">Invia mail</button>
-						            </form>
-						
-						      </div>
-						      <div class="modal-footer">
-						        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-						      </div>
-						    </div>
-						
-						  </div>
-						</div>
+					
 					
 					
 					
@@ -900,6 +839,73 @@ while($r_e = pg_fetch_assoc($result_e)) {
             <!-- /.row -->
     </div>
     <!-- /#wrapper -->
+
+
+
+<!-- Modal mail-->
+<div id="mail" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+	<!-- Modal content-->
+	<div class="modal-content">
+		<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		<h4 class="modal-title">Invio mail</h4>
+		</div>
+		<div class="modal-body">
+		<ul>
+		<li>E' possibile inviare una mail a un indirizzo per volta.</li>
+		<li>Le mail verranno inviate in automatico anche alle caselle mail di 
+		<?php echo $uo_desc;?> registrate a sistema.</li>
+		</ul>
+		<form autocomplete="off"  enctype="multipart/form-data"  action="incarichi/mail_squadra.php?id=<?php echo $id; ?>" method="POST">
+			<input type="hidden" name="uo" value="<?php echo $uo_desc;?>" />
+			<input type="hidden" name="id_uo" value="<?php echo $id_uo_mail;?>" />
+			<input type="hidden" name="lat" value="<?php echo $lat;?>" />
+			<input type="hidden" name="lon" value="<?php echo $lon;?>" />
+			<input type="hidden" name="indirizzo_stampa" value="<?php echo $indirizzo_stampa;?>" />
+			<?php
+			
+			?>
+			<div class="form-group">
+				<label for="address">Specifica un indirizzo e-mail</label>  <font color="red">*</font>
+				<input type="email" required="" class="form-control" id="address"  name="address" rows="3"></input>
+			</div>
+			
+			<div class="form-group">
+				<label for="address">Descrizione dell'incarico</label>  <font color="red">*</font>
+				<input type="text" required="" readonly="" class="form-control" id="descrizione"  name="descrizione" 
+				value="<?php echo $descrizione_incarico; ?>"></input>
+			</div>
+			
+			<div class="form-group">
+				<label for="note">Eventuali note aggiuntive comunicazione</label>  <font color="red">*</font>
+				<textarea  class="form-control" id="note"  name="note" rows="3"></textarea>
+				</div>
+			
+			<div class="form-group">
+				<label for="note">Eventuale allegato</label>
+				<input type="file" class="form-control-file" name="userfile" id="userfile">
+			</div>
+			
+			<!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
+			<!--div class="form-group">
+				<label for="note">Eventuale allegato</label>
+				<input type="file" class="form-control-file" name="userfile" id="userfile">
+			</div-->
+
+		<button  id="conferma" type="submit" class="btn btn-primary">Invia mail</button>
+			</form>
+
+		</div>
+		<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+		</div>
+	</div>
+
+	</div>
+</div>
+
 
 <?php 
 

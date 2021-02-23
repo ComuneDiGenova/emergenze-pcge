@@ -1,12 +1,12 @@
 <?php
 session_start();
-require('../validate_input.php');
+//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 //require('../check_evento.php');
 
 // Filtro per tipologia di criticità
-$getfiltri=$_GET["f"];
+$getfiltri=pg_escape_string($_GET["f"]);
 //echo $getfiltri;
 
 if ($getfiltri == 'prima_pagina'){
@@ -17,8 +17,8 @@ if ($getfiltri == 'prima_pagina'){
 }
 
 
-$filtro_from=$_GET["from"];
-$filtro_to=$_GET["to"];
+$filtro_from=pg_escape_string($_GET["from"]);
+$filtro_to=pg_escape_string($_GET["to"]);
 
 
 //require('./filtri_segnalazioni.php'); //contain the function filtro used in the following line
@@ -34,7 +34,7 @@ if (strlen($filtro_from)>=12 || strlen($filtro_to)>=12){
 	}
 	
 	if (strlen($filtro_from)>=12 ) {
-		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') > ".$filtro_from." ";
+		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') > '".$filtro_from."' ";
 	}
 	
 	if (strlen($filtro_from)>=12 && strlen($filtro_to)>=12) {
@@ -42,7 +42,7 @@ if (strlen($filtro_from)>=12 || strlen($filtro_to)>=12){
 	}
 	
 	if (strlen($filtro_to)>=12) {
-		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') < ".$filtro_to." ";
+		$filter = $filter . " TO_TIMESTAMP(data_ora_invio, 'DD/MM/YYYY HH24:MI:SS') < '".$filtro_to."' ";
 	}
 	
 	if ($check2==1){

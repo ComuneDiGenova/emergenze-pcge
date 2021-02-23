@@ -1,6 +1,6 @@
 <?php 
 
-$subtitle="Elenco comunicazioni";
+$subtitle="Elenco comunicazioni riservate";
 
 if(isset($_GET["f"])){
 	$getfiltri=$_GET["f"];
@@ -48,6 +48,10 @@ require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
+
+if ($profilo_sistema > 2){
+	header("location: ./divieto_accesso.php");
+}
 
 require('./tables/filtri_segnalazioni.php');
 ?>
@@ -242,9 +246,11 @@ require('./tables/filtri_segnalazioni.php');
       	
         <table  id="segnalazioni" class="table-hover" data-toggle="table" data-filter-control="true" 
   data-show-search-clear-button="true" 
-		data-url="./tables/griglia_comunicazioni.php?r=<?php echo $resp;?>&f=<?php echo $getfiltri;?>&from=<?php echo $filtro_from; ?>&to=<?php echo $filtro_to;?>&m=<?php echo $filtro_municipio;?>" 
-		 data-show-export="false" data-search="true" data-click-to-select="true" data-pagination="true" data-page-size=50 data-page-list=[10,25,50,100,200,500] 
-		data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
+		data-url="./tables/griglia_comunicazioni_riservate.php?r=<?php echo $resp;?>&f=<?php echo $getfiltri;?>&from=<?php echo $filtro_from; ?>&to=<?php echo $filtro_to;?>&m=<?php echo $filtro_municipio;?>" 
+		data-show-export="false" data-search="true" data-click-to-select="true" 
+        data-pagination="true" data-page-size=50 data-page-list=[10,25,50,100,200,500] 
+		data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" 
+        data-show-columns="true" data-toolbar="#toolbar">
       	
 
         

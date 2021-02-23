@@ -81,7 +81,8 @@ Con pip3 (python package installer) sono stati installati i seguenti moduli nece
 * simplejson 
 * telepot 
 * urllib3 
-
+* logging
+* tempfile 
 
 ## IL DB
 Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5). Una copia del DB vuota sarà aggiunta al repository quanto prima.

@@ -3,8 +3,9 @@ if($id_civico !='') {
 	$queryc= "SELECT * FROM geodb.civici WHERE id=".$id_civico.";";
 	$resultc=pg_query($conn, $queryc);
 	while($rc = pg_fetch_assoc($resultc)) {
-		echo "<b>Indirizzo civico</b>:" .$rc['desvia'].", ".$rc['testo'].", ".$rc['cap'];
-		echo "<br><b>Municipio</b>:" .$rc['desmunicipio'];
+		$indirizzo_stampa= "<b>Indirizzo civico</b>:" .$rc['desvia'].", ".$rc['testo'].", ".$rc['cap'];
+		$indirizzo_stampa= $indirizzo_stampa. "<br><b>Municipio</b>:" .$rc['desmunicipio'];
+		echo $indirizzo_stampa;
 	}
 } else {
 	$queryc= "SELECT desvia, testo, cap, st_distance(st_transform(geom,4326),'".$geom."') as distance  
@@ -15,8 +16,9 @@ if($id_civico !='') {
 	//echo $queryc;
 	$resultc=pg_query($conn, $queryc);
 	while($rc = pg_fetch_assoc($resultc)) {
-		echo "<b>Indirizzo civico (segnalazione non precisa, indirizzo di prossimità ricavato automaticamente)</b>:" .$rc['desvia'].", ".$rc['testo'].", ".$rc['cap'];
+		$indirizzo_stampa = "<b>Indirizzo civico (segnalazione non precisa, indirizzo di prossimità ricavato automaticamente)</b>:" .$rc['desvia'].", ".$rc['testo'].", ".$rc['cap'];
 		//echo "<br><b>Municipio</b>:" .$rc['desmunicipio'];
+		echo $indirizzo_stampa;
 	}
 	$queryc= "SELECT nome_munic FROM geodb.municipi WHERE codice_mun='".$id_municipio."';";
 	//echo $queryc;
