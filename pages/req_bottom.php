@@ -97,7 +97,18 @@ $(document).ready(function(){
    
 function reloadChat () {
      //$('#navbar_emergenze').load('navbar_up.php?r=true&&s\'<?php echo $subtitle;?>\'');
-	 $('#navbar_emergenze').load('navbar_up.php?r=true&s=<?php echo $subtitle2;?>');
+    <?php
+		if(basename($_SERVER['PHP_SELF']) == 'index.php') {
+	?>
+	    $('#navbar1').load('navbar_up.php?r=true&i=true&s=<?php echo $subtitle2;?>');
+    <?php
+        } else {
+    ?>
+        $('#navbar1').load('navbar_up.php?r=true&i=false&s=<?php echo $subtitle2;?>');
+    <?php
+        }
+    ?>
+
 }
 
 /*function loadnavbar(){

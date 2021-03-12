@@ -39,14 +39,14 @@ require('./check_evento.php');
 
     <div id="wrapper" >
 
+        <div id="navbar1">
+<?php
+require('navbar_up.php');
+?>
+</div>  
+
         <?php 
-            require('./navbar_up.php')
-        ?>  
-        <?php 
-            require('./navbar_left.php')
-            
-            
-            
+            require('./navbar_left.php')  
         ?> 
             
 

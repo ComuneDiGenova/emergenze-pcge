@@ -43,9 +43,11 @@ if ($profilo_sistema > 6){
 
     <div id="wrapper">
 
-        <?php 
-            require('./navbar_up.php')
-        ?>  
+        <div id="navbar1">
+<?php
+require('navbar_up.php');
+?>
+</div>  
         <?php 
             require('./navbar_left.php')
         ?> 

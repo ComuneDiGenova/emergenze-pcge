@@ -1,9 +1,19 @@
 <?php 
-
+$check_index=0; 
 require ('./note_ambiente.php');
 if(isset($_GET['r'])){
 	if ($_GET['r']=='true'){
 		require('./check_evento.php');
+	}
+} else {
+	if(basename($_SERVER['PHP_SELF']) == 'index.php') {
+		$check_index=1;
+	}
+
+}
+if(isset($_GET['i'])){
+	if ($_GET['i']=='true'){
+		$check_index=1;
 	}
 }
 if (isset($subtitle)) {
@@ -46,7 +56,7 @@ if (isset($subtitle)) {
             <ul class="nav navbar-top-links navbar-right">
              
 			<?php
-				if(basename($_SERVER['PHP_SELF']) == 'index.php') {
+				if($check_index == 1) {
 			?>
 				<li class="nav-item active">
 					<a class="nav-link" title="Elenco segnalazioni" href="#segn_sintesi"><i class="fas fa-list"></i></a>
@@ -61,7 +71,7 @@ if (isset($subtitle)) {
 			} else {
 				if ($profilo_sistema == 10){
 			?>	
-			
+
 				<li class="nav-item active">
 					<a class="nav-link" title="Torna alla prima pagina" href="index.php"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard</a>
 				</li>

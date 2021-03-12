@@ -17,6 +17,36 @@ function sendMessage($chatID, $messaggio, $token) {
 }
 
 
+
+function sendPhoto($chatID, $messaggio, $photo_path, $token) {
+    echo "sending message to " . $chatID . "\n";
+
+    $url = "https://api.telegram.org/bot" . $token . "/sendPhoto?chat_id=" . $chatID;
+    //$url = $url . "&photo=" . $photo_path;
+    //$url = $url . "&caption=" . urlencode($messaggio);
+    $post_fields = array('chat_id'   => $chatID,
+        'caption' => $messaggio, 
+        'photo'     => new CURLFile(realpath($photo_path))
+    );
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        "Content-Type:multipart/form-data"
+    ));
+    curl_setopt($ch, CURLOPT_URL, $url); 
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields); 
+    /*$optArray = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true
+    );
+    curl_setopt_array($ch, $optArray);
+    */
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+
+
 /*$bot_url    = "https://api.telegram.org/bot<bot_id>/";
 $url        = $bot_url . "sendPhoto?chat_id=" . $chat_id ;
 
@@ -36,7 +66,7 @@ $output = curl_exec($ch);
 
 
 
-function sendPhoto($chatID, $foto, $token) {
+function sendPhoto2($chatID, $foto, $token) {
     echo "sending foto to " . $chatID . "\n";
     $url = "https://api.telegram.org/bot" . $token . "/sendPhoto?chat_id=" . $chatID;
     $url = $url . "&photo=" . $foto;
