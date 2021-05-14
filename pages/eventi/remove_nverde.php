@@ -14,7 +14,7 @@ $time=$_GET["t"];
 
 $id=str_replace("'", "", $id);
 
-$query="DELETE FROM eventi.t_attivazione_nverde WHERE id_evento=".$id_evento." data_ora_inizio=".$time.";";
+$query="DELETE FROM eventi.t_attivazione_nverde WHERE id_evento=".$id_evento." data_ora_inizio='".$time."';";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);
@@ -31,7 +31,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-header("location: ../dettagli_evento.php");
+header("location: ../dettagli_evento.php?e=".$id_evento."");
 
 
 ?>

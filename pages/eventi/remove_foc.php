@@ -13,7 +13,7 @@ $time=$_GET["t"];
 
 $id=str_replace("'", "", $id);
 
-$query="DELETE FROM eventi.join_tipo_foc WHERE id_evento=".$id_evento." AND  id_tipo_foc=".$id_foc." AND data_ora_inizio_foc=".$time.";";
+$query="DELETE FROM eventi.join_tipo_foc WHERE id_evento=".$id_evento." AND  id_tipo_foc=".$id_foc." AND data_ora_inizio_foc='".$time."';";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);
@@ -30,7 +30,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-header("location: ../dettagli_evento.php");
+header("location: ../dettagli_evento.php?e=".$id_evento."");
 
 
 ?>

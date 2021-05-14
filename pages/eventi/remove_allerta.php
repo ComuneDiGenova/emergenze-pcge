@@ -9,11 +9,11 @@ $id_evento=$_GET["e"];
 $id_allerta=$_GET["a"];
 $time=$_GET["t"];
 
-
+//echo $time. "<br>";
 
 $id=str_replace("'", "", $id);
 
-$query="DELETE FROM eventi.join_tipo_allerta WHERE id_evento=".$id_evento." AND  id_tipo_allerta=".$id_allerta." AND data_ora_inizio_allerta=".$time.";";
+$query="DELETE FROM eventi.join_tipo_allerta WHERE id_evento=".$id_evento." AND  id_tipo_allerta=".$id_allerta." AND data_ora_inizio_allerta='".$time."';";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);
@@ -30,7 +30,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-header("location: ../dettagli_evento.php");
+header("location: ../dettagli_evento.php?e=".$id_evento."");
 
 
 ?>
