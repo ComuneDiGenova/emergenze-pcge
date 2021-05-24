@@ -8,7 +8,7 @@ import logging
 
 from aiogram.types import callback_query, message
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
-import credenziali
+
 from aiogram import Bot, Dispatcher, executor, types
 from datetime import datetime
 import sqlite3
