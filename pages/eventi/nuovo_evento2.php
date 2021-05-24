@@ -217,6 +217,7 @@ if ($notifiche =='t') {
 		echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente <a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>';
 		//$id variabile non definita, probabilmente riferita a vecchio codice
 		//passiamo newid alla url del reindirizzamento --> da semplificare/rimuovere if perchè non avendo più l'id non hanno senso
+
 		/* if ($id!=''){
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
 		} else {
@@ -232,7 +233,7 @@ if ($notifiche =='t') {
 			header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
 		} */
 	} else {
-		echo "Message sent!";
+		echo "Message sent correctly!";
 		header("location:../dettagli_evento.php?e=".$new_id);
 		/* if ($id!=''){
 			header("location:../dettagli_evento.php?e=".$new_id);
