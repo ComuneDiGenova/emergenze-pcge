@@ -214,28 +214,31 @@ if ($notifiche =='t') {
 		echo "<h3>Problema nell'invio della mail";
 
 		echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
-		echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
+		echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente <a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>';
 		//$id variabile non definita, probabilmente riferita a vecchio codice
 		//passiamo newid alla url del reindirizzamento --> da semplificare/rimuovere if perchè non avendo più l'id non hanno senso
-		if ($id!=''){
+		/* if ($id!=''){
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
 		} else {
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
-		}
+		} */
+
+		header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
 		
 		//sleep(30);
-		if ($id!=''){
+		/* if ($id!=''){
 			header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
 		} else {
 			header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
-		}
+		} */
 	} else {
 		echo "Message sent!";
-		if ($id!=''){
+		header("location:../dettagli_evento.php?e=".$new_id);
+		/* if ($id!=''){
 			header("location:../dettagli_evento.php?e=".$new_id);
 		} else {
 			header("location:../dettagli_evento.php?e=".$new_id);
-		}
+		} */
 	}
 } else {
 	header("location:../dettagli_evento.php?e=".$new_id);
