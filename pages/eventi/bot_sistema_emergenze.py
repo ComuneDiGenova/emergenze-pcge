@@ -6,13 +6,16 @@
 
 import logging
 import os
+import aiogram.utils.markdown as md
 from aiogram.types import callback_query, message
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
 from aiogram import Bot, Dispatcher, executor, types
 from datetime import datetime
 #import sqlite3
-#import psycopg2
+import psycopg2
 import emoji
 import config
 
@@ -37,6 +40,11 @@ logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=lo
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
+
+class Form (StatesGroup):
+    motivo= State () # Will be represented in storage as 'Form: name'
+    #age= State () # Will be represented in storage as 'Form: age'
+    #gender= State () # Will be represented in storage as 'Form: gender'
 
 
 def keyboard (kb_config):
@@ -77,9 +85,9 @@ async def callback (callback_query: types.CallbackQuery):
         testo='Hai inserito {} e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
         await bot.send_message (callback_query.from_user.id, text= testo)
         
-    if callback_query.data !='':
+    """ if callback_query.data !='':
         testo='Gentile {} hai fornito la seguente motivazione {}'.format(callback_query.from_user.first_name, callback_query.data)
-        await bot.send_message (callback_query.from_user.id, text= testo)
+        await bot.send_message (callback_query.from_user.id, text= testo) """
 
 #first command handler
 
@@ -211,16 +219,38 @@ async def send_accetto(message: types.Message):
     This handler will be called when user sends `/accetto` command
     """
     await bot.send_message(message.chat.id,"Ciao {} hai accettato l'incarico {}".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
-    
+
+      
 @dp.message_handler(commands='rifiuto')
 async def send_rifiuto(message: types.Message):
     """
     This handler will be called when user sends `/rifiuto` command
     """
-    await bot.send_message(message.chat.id,"Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
-    mess_id=message.message_id
-    #print(mess_id)
+    #await bot.send_message(message.chat.id,"Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
+    await Form.motivo.set()
+    await message.reply("Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
 
+""" da verificare perchè non entra qui
+@dp.message_handler(state= Form.motivo)
+async def process_motivo(message: types.Message, state: FSMContext):
+
+    #Process user name
+
+    async with state.proxy() as data:
+        data ['motivo']= message.text
+        await bot.send_message(
+            message.chat.id,
+            md.text(
+                md.text('Hai fornito questo motivo: ', md.bold(data['motivo'])),
+                #md.text ('Age:', md.code (data ['age'])),
+                #md.text ('Gender:', data ['gender']),
+                #sep= '\ n',
+            ),
+            #reply_markup= markup,
+            #parse_mode= ParseMode.MARKDOWN,
+        )
+    await state.finish () 
+"""
 
 #questa funzione deve essere l'ultima dello script altrimenti entra qui dentro e ignora le funzioni successive
 @dp.message_handler()
