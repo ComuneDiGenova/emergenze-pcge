@@ -5,28 +5,34 @@
 
 
 import logging
-
+import os
 from aiogram.types import callback_query, message
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
-
+import conn
 from aiogram import Bot, Dispatcher, executor, types
 from datetime import datetime
-import sqlite3
-
+#import sqlite3
+#import psycopg2
 import emoji
+import config
 
-
+'''
 db_name='./sistema'
 table_name='presenze_operatori'
 conn=sqlite3.connect(db_name)
+'''
 
 
 
 
-API_TOKEN = '1829248321:AAFUbfI7evTquQkOCbZ2YuIEHtTH8w7DHUY'
+API_TOKEN = config.TOKEN
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logfile='{}/bot_sistema_emergenze.log'.format(os.path.dirname(os.path.realpath(__file__)))
+if os.path.exists(logfile):
+    os.remove(logfile)
+
+logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
@@ -45,6 +51,7 @@ def keyboard (kb_config):
 
 @ dp.callback_query_handler ()
 async def callback (callback_query: types.CallbackQuery):
+
     await bot.answer_callback_query (callback_query.id, text= callback_query.data,)
     if callback_query.data=='2':
         
@@ -69,7 +76,10 @@ async def callback (callback_query: types.CallbackQuery):
     elif callback_query.data=='alto':
         testo='Hai inserito {} e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
         await bot.send_message (callback_query.from_user.id, text= testo)
-
+        
+    if callback_query.data !='':
+        testo='Gentile {} hai fornito la seguente motivazione {}'.format(callback_query.from_user.first_name, callback_query.data)
+        await bot.send_message (callback_query.from_user.id, text= testo)
 
 #first command handler
 
@@ -136,16 +146,16 @@ async def send_welcome(message: types.Message):
     """
     selquery='''select * from presenze_operatori where operatore=\'{}\''''.format(message.chat.id)
 
-    conn=sqlite3.connect(db_name)
+    conn = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    curr = conn.cursor()
+    conn.autocommit = True
+    query_chat_id= "SELECT telegram_id from users.v_utenti_sistema where telegram_id !='' and telegram_attivo='t' and (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"
+    curr.execute(query_chat_id)
+    lista_chat_id = curr.fetchall() 
 
-    c=conn.cursor()
-    try:
-        c.execute(selquery)
-    except Exception as e:
-        print(e)
     
-    result=c.fetchall()
-    print(result)
+    """
+    #to update after the new connection to the DB
     if len(result)==0:
         await message.reply("Ciao {}, il tuo utente non riuslta registrato nel sistema.\nPer favore contatta l'amministratore di sistema e comunicagli il tuo chat id che è {}".format(message.from_user.first_name,message.chat.id))
     elif result[0][1]==0:
@@ -172,7 +182,7 @@ async def send_welcome(message: types.Message):
         except Exception as e:
             print(e)
             await message.reply("{} la tua registrazione non è andata a buon fine".format(message.from_user.first_name))
-            
+        """    
 
 
 
@@ -195,8 +205,24 @@ async def send_welcome(message: types.Message):
     #print(mess_id)
     #await message.reply("Gentile {} hai registrato la tua presenza il {}-{}-{}  alle ore {}".format(message.from_user.first_name,now.strftime("%d"),now.strftime("%m"),now.strftime("%Y"),now.strftime("%H:%M")))
 
+@dp.message_handler(commands=['accetto'])
+async def send_accetto(message: types.Message):
+    """
+    This handler will be called when user sends `/accetto` command
+    """
+    await bot.send_message(message.chat.id,"Ciao {} hai accettato l'incarico {}".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
+    
+@dp.message_handler(commands='rifiuto')
+async def send_rifiuto(message: types.Message):
+    """
+    This handler will be called when user sends `/rifiuto` command
+    """
+    await bot.send_message(message.chat.id,"Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
+    mess_id=message.message_id
+    #print(mess_id)
 
 
+#questa funzione deve essere l'ultima dello script altrimenti entra qui dentro e ignora le funzioni successive
 @dp.message_handler()
 async def echo(message: types.Message):
     # old style:
@@ -204,6 +230,7 @@ async def echo(message: types.Message):
     #print(message.text, message.chat.id)
     #await message.answer(message.text)
     await bot.send_message(message.chat.id, 'hai inserito testo senza schiacciare nessun comando. In particolare hai scritto \'{}\''.format(message.text))
+    
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

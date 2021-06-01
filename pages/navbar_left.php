@@ -173,13 +173,13 @@
                             
                         </li>
                         <li>
-                            <a href="#"><i class="fas fa-map-marked-alt"></i> Registro presenze<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fas fa-user-clock"></i> Registro presenze<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="elenco_presenti.php"><i class="fas fa-user-check"></i> Utenti presenti</a>
                                 </li>
                                 <li>
-                                    <a href="elenco_presenti_storico.php"><i class="fas fa-user-check"></i> Stoico utenti presenti</a>
+                                    <a href="elenco_presenti_storico.php"><i class="fas fa-user-times"></i> Stoico utenti presenti</a>
                                 </li>
                             </ul>
                         </li>

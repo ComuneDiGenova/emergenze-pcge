@@ -34,7 +34,7 @@ while True:
     f.write("\n{} - Ripartito lo script {}".format(x,filename))
     f.close
     print("\nStarting " + filename)
-    p = Popen("python3 " + filename, shell=True)
+    p = Popen("python3.8 " + filename, shell=True)
     pidfile.write(str(p.pid))
     pidfile.close()
     p.wait()

@@ -1,7 +1,7 @@
 <?php 
 
 
-$subtitle="Elenco utenti presenti";
+$subtitle="Storico utenti presenti";
 
 
 $getfiltri=$_GET["f"];
@@ -33,7 +33,7 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
 
-$subtitle="Elenco utenti presenti";
+$subtitle="Storico utenti presenti";
 
 /* if ($profilo_ok==3){
 	$subtitle="Elenco utenti presenti";
@@ -75,20 +75,21 @@ require('navbar_up.php');
 			} 
 						
 			/*$query="SELECT count(matricola_cf) From \"users\".\"v_utenti_sistema\" ".$filter." ;";*/
-            $query="SELECT count(matricola_cf) From \"users\".\"v_utenti_presenti\" ".$filter.";";
+            /* query per avere il contatore degli utenti presenti, nello storico non serve */
+            /* $query="SELECT count(matricola_cf) From \"users\".\"v_utenti_presenti\" ".$filter.";";
             $result = pg_prepare($conn, "myquery0", $query);
             $result = pg_execute($conn, "myquery0", array());
             
 
 			while($r = pg_fetch_assoc($result)) {
                 echo '<i class="fas fa-user-check  faa-ring animated"></i> '. $r['count']. ' utenti presenti registrati da telegram';
-				/* if ($profilo_ok==3){
-					echo '<i class="fas fa-users  faa-ring animated"></i> '. $r['count']. ' utenti registrati a sistema';
-				} else {
-					echo '<i class="fas fa-users faa-ring animated"></i> '. $r['count']. ' utenti della tua unit� operativa abilitati';
-				} */
+				//if ($profilo_ok==3){
+					//echo '<i class="fas fa-users  faa-ring animated"></i> '. $r['count']. ' utenti registrati a sistema';
+				//} else {
+					//echo '<i class="fas fa-users faa-ring animated"></i> '. $r['count']. ' utenti della tua unit� operativa abilitati';
+				//}
 				
-			}	
+			}	 */
 						
 			?>			
             <br>
@@ -107,7 +108,7 @@ require('navbar_up.php');
         </div>
         
 
-        <table  id="presenti" class="table-hover" data-toggle="table" data-url="./tables/griglia_utenti_presenti.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" data-pagination="false" data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
+        <table  id="presenti" class="table-hover" data-toggle="table" data-url="./tables/griglia_storico_utenti_presenti.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" data-height="900" data-show-export="true" data-search="true" data-click-to-select="true" data-pagination="false" data-sidePagination="true" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-toolbar="#toolbar">
 
 
         
@@ -126,12 +127,12 @@ require('navbar_up.php');
             <th data-field="data_fine" data-sortable="true"  data-visible="true">Data/ora<br>fine turno</th>
 			<!--th data-field="valido" data-sortable="true" data-formatter="nameFormatter" data-visible="true">Stato</th-->
             <!--th data-field="matricola_cf" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th-->
-            <?php
+            <!-- <?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
             <?php
                 }
-            ?>
+            ?> -->
     </tr>
 </thead>
 

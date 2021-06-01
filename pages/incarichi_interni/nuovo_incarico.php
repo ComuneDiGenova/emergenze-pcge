@@ -140,15 +140,35 @@ $result = pg_query($conn, $query_log);
 echo "<br>";
 //echo $query_log;
 
+require('../token_telegram.php');
 
+require('../send_message_telegram.php');
 
-$query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
+/* $query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
 $result=pg_query($conn, $query);
 $mails=array();
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
+} */
+$query="SELECT mail, telegram_id 
+	FROM users.t_mail_squadre s
+	left join users.v_utenti_sistema u 
+  	on s.matricola_cf = u.matricola_cf 
+	WHERE cod=$1 and u.telegram_attivo = true;";
+$result = pg_prepare($conn, "myquery0", $query);
+$result = pg_execute($conn, "myquery0", array($uo));
+$mails=array();
+//$telegram_id=array();
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico interno alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /accetto \xF0\x9F\x91\x8E per rifiutare l'incarico digita /rifiuto";
+
+while($r = pg_fetch_assoc($result)) {
+  array_push($mails,$r['mail']);
+  //array_push($telegram_id,$r['telegram_id']);
+  sendMessage($r['telegram_id'], $messaggio , $token);
 }
 
+echo "<br>";
 echo "<br>";
 //echo $query;
 //echo "<br>";
@@ -199,11 +219,11 @@ $mail->Subject = 'Urgente - Nuovo incarico interno assegnato tramite il Sistema 
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo incarico interno alla squadra di tua appartenenza 
+$body =  'Hai ricevuto questo messaggio in quanto ï¿½ stato assegnato un nuovo incarico interno alla squadra di tua appartenenza 
  '.$uo_descrizione.'. <br> Ti preghiamo di non rispondere a questa mail, ma di visualizzare i dettagli dell\'incarico accedendo 
  con le tue credenziali al nuovo <a href="https://emergenze.comune.genova.it/emergenze/pages/dettagli_incarico_interno.php?id='.$id_incarico.'" > Sistema di Gestione delle Emergenze </a> del Comune di Genova.
- <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema. 
- Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it ';
+ <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail ï¿½ registrato a sistema. 
+ Per modificare queste impostazioni ï¿½ possibile inviare una mail a salaemergenzepc@comune.genova.it ';
 
   
 require('../informativa_privacy_mail.php');

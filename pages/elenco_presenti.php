@@ -23,7 +23,7 @@ $uri=basename($_SERVER['REQUEST_URI']);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="roberto" >
+    <meta name="author" content="roberta" >
 
     <title>Gestione emergenze</title>
 <?php 
@@ -88,9 +88,79 @@ require('navbar_up.php');
 					echo '<i class="fas fa-users faa-ring animated"></i> '. $r['count']. ' utenti della tua unit� operativa abilitati';
 				} */
 				
-			}	
-						
-			?>			
+			}
+            //iniziato a imbastire la funzione di rendere presente l'operatore anche da web (già creato file aggiungi_presenza.php da collegare al form nel modal)
+            //if ($profilo_ok==3){?>
+                <!--div class="row">
+                <div class="col-md-12">
+                    <h3>Aggiungi presenza <i class="fas fa-arrow-right"></i>
+                    <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_presenza"><i class="fas fa-plus"></i> Nuova presenza </button></h3><hr>
+
+					<div id="new_presenza" class="modal fade" role="dialog">
+					  <div class="modal-dialog">
+					
+
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <button type="button" class="close" data-dismiss="modal">&times;</button>
+					        <h4 class="modal-title">Nuova Presenza</h4>
+					      </div>
+					      <div class="modal-body">
+					      
+					
+					        <form autocomplete="off" action="squadre/aggiungi_presenza.php" method="POST">
+							
+
+							<div class="form-group">
+				            <label for="nome"> Operatore</label> <font color="red">*</font>  
+
+
+
+				              
+				            </div>
+							
+					
+					             <div class="form-group">
+										 <label for="descrizione"> Nome squadra </label> <font color="red">*</font>
+					                <input type="text" name="nome" class="form-control" required="">
+							      </div>  
+					            
+					            <div class="form-group">
+					              <label for="tipo_segn">Chi gestisce la squadra:</label> <font color="red">*</font>
+					                            <select class="form-control" name="afferenza" id="afferenza" required="" >
+
+
+					                    <option name="afferenza" value="<?php echo $cod_profilo_squadra;?>" ><?php echo $descrizione_profilo_squadra;?></option>
+					             
+					
+					             </select>            
+					             </div>
+					            <div class="form-group">
+					                <input type="checkbox" class="form-check-input" name="permanente" id="permanente">
+    									<label class="form-check-label" for="permanente">Rendi squadra permanente <br>
+    									</label>
+    									<br>
+    									<small>Verrà creata in automatico una squadra con lo stesso nome anche per gli eventi futuri
+    									</small>           
+					             </div>
+					
+					        <button  id="conferma" type="submit" class="btn btn-primary">Crea squadra</button>
+					            </form>
+					
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+					      </div>
+					    </div>
+					
+					  </div>
+					</div-->
+            <!--?php
+                }else{
+                    echo '<i class="fas fa-minus-circle"></i> L\'utente non è autorizzato a aggiungere nuove presenze</h3><hr> ';
+                }
+            ?-->
+									
             <br>
             <div class="row">
 
@@ -129,6 +199,7 @@ require('navbar_up.php');
             <?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
+                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th>
             <?php
                 }
             ?>
@@ -176,6 +247,46 @@ require('navbar_up.php');
 
  function nameFormatterEdit1(value, row) {
 	return '<a class="btn btn-warning" href=./chiudi_presenza.php?id='+row.id+'> <i class="fas fa-user-times"></i> </a>';
+    }
+
+function nameFormatterEdit2(value, row) {
+	//return '<a class="btn btn-warning" href=./chiudi_presenza.php?id='+row.id+'> <i class="fas fa-user-times"></i> </a>';
+    //aggiungere la parte che consente di modificare data e turno (vedi isernia)
+    //verificare se è installato il boostrap validator per validazione dei form
+    return' <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updatePres'+row.id+'" title="Modifica dettagli turno" onclick="checkVal('+row.id+')"><i class="fas fa-user-edit"></i></button>\
+            <div class="myclass modal fade" id="updatePres'+row.id+'" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">\
+          <div class="modal-dialog modal-dialog-centered" role="document">\
+            <div class="modal-content">\
+              <div class="modal-header">\
+                <h5 class="modal-title" id="exampleModalLabelBci'+row.id+'">Dettagli turno</h5>\
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">\
+                  <span aria-hidden="true">&times;</span>\
+                </button>\
+              </div>\
+              <div class="modal-body">\
+            <form id="detTurno'+row.id+'" action="modifica_turno.php?id='+row.id+'" method="post" enctype="multipart/form-data">\
+            <div class="form-group">\
+            <label>Data Inizio Turno</label><br><br>\
+              <input type="text" class="form-control" name="dataInizioTurno" id="dataInizioTurno'+row.id+'" value="'+row.data_inizio+'" style="height: auto;"><br>\
+              <div class="help-block with-errors"></div>\
+              </div>\
+              <label>Durata turno</label>\
+              <div class="form-group">\
+              <input type="text" class="form-control" name="durataTurno" id="durataTurno'+row.id+'" value="'+row.durata+'"><br>\
+              <div class="help-block with-errors"></div>\
+              </div>\
+              <div class="form-group">\
+              <input type="submit" value="Modifica" name="Submit">\
+              </div>\
+            </form>\
+              </div>\
+              <div class="modal-footer">\
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>\
+                <!--button type="button" class="btn btn-primary">Save changes</button-->\
+              </div>\
+            </div>\
+          </div>\
+        </div>' ;
     }
 
 
