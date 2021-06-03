@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Lorenzo Benvenuto copyleft 2021
+# Lorenzo Benvenuto, Roberta Fagandini
+# copyleft 2021
 
 
 import logging
@@ -13,7 +14,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
 from aiogram import Bot, Dispatcher, executor, types
-from datetime import datetime
+from datetime import datetime, timedelta
 #import sqlite3
 import psycopg2
 import emoji
@@ -36,6 +37,49 @@ if os.path.exists(logfile):
     os.remove(logfile)
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
+
+
+
+
+def esegui_query(connection,query,query_type):
+    '''
+    Function to execute a generic query in a postresql DB
+    
+    Query_type:
+    
+        i = insert
+        u = update
+        s = select
+       
+    The function returns:
+    
+        1 = if the query didn't succeed
+        0 = if the query succeed (for query_type u and i)
+        array of tuple with query's result = if the query succeed (for query_type s)
+    '''
+    
+    if isinstance(query_type,str)==False:
+        logging.warning('query type must be a str. The query {} was not executed'.format(query))
+        return 1
+    elif query_type != 'i' and query_type !='u' and query_type != 's':
+        logging.warning('query type non recgnized for query: {}. The query was not executed'.format(query))
+        return 1
+    
+    
+    curr = connection.cursor()
+    connection.autocommit = True
+    try:
+        curr.execute(query)
+    except Exception as e:
+        logging.error('Query non eseguita per il seguente motivo: {}'.format(e))
+        return 1
+    if query_type=='s':
+        result= curr.fetchall() 
+        curr.close()   
+        return result
+    else:
+        return 0
+
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
@@ -61,28 +105,32 @@ def keyboard (kb_config):
 async def callback (callback_query: types.CallbackQuery):
 
     await bot.answer_callback_query (callback_query.id, text= callback_query.data,)
-    if callback_query.data=='2':
-        
-        testo='Hai inserito {} ore e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
-    elif callback_query.data=='4':
-        testo='Hai inserito {} ore e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
-    elif callback_query.data=='6':
-        testo='Hai inserito {} ore e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
-    elif callback_query.data=='8':
-        testo='Hai inserito {} ore e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    
+    if callback_query.data=='2' or callback_query.data=='4' or callback_query.data=='6' or callback_query.data=='8':
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
+        query_time_operativo='''INSERT INTO users.t_presenze (operativo, data_inizio, durata, id_telegram)
+        VALUES(true, now(), {}, '{}')'''.format(callback_query.data,callback_query.from_user.id)
+        result=esegui_query(con,query_time_operativo,'i')
+        if result ==0:
+            termine_turno=datetime.now()+ timedelta(hours=int(callback_query.data))
+            testo='{} Caro {}, la tua presenza è stata registrata. Il tuo turno comincia adesso e terminerà alle ore {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True),callback_query.from_user.first_name,termine_turno.strftime("%H:%M"))
+            await bot.send_message (callback_query.from_user.id, text= testo)
+        else:
+            await bot.send_message(callback_query.from_user.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
 
     elif callback_query.data=='basso':
-        testo='Hai inserito {} e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
+        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
         await bot.send_message (callback_query.from_user.id, text= testo)
     elif callback_query.data=='medio':
-        testo='Hai inserito {} e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
+        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
         await bot.send_message (callback_query.from_user.id, text= testo)
     elif callback_query.data=='alto':
-        testo='Hai inserito {} e il tuo chat id è {}'.format(callback_query.data,callback_query.from_user.id)
+        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
         await bot.send_message (callback_query.from_user.id, text= testo)
         
     """ if callback_query.data !='':
@@ -152,31 +200,37 @@ async def send_welcome(message: types.Message):
     """
     This handler will be called when user sends `/registra_presenza` command
     """
-    selquery='''select * from presenze_operatori where operatore=\'{}\''''.format(message.chat.id)
-
-    conn = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-    curr = conn.cursor()
-    conn.autocommit = True
-    query_chat_id= "SELECT telegram_id from users.v_utenti_sistema where telegram_id !='' and telegram_attivo='t' and (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"
-    curr.execute(query_chat_id)
-    lista_chat_id = curr.fetchall() 
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    
+    query_tlgrm_id= "select * from users.utenti_sistema where telegram_id ='{}'".format(message.chat.id)
 
     
-    """
-    #to update after the new connection to the DB
-    if len(result)==0:
-        await message.reply("Ciao {}, il tuo utente non riuslta registrato nel sistema.\nPer favore contatta l'amministratore di sistema e comunicagli il tuo chat id che è {}".format(message.from_user.first_name,message.chat.id))
-    elif result[0][1]==0:
-        await message.reply("Ciao {}, attualmente risulti già operativo. Se hai finito il tuo turno usa il comando /registra_uscita".format(message.from_user.first_name))
-    elif result[0][1]==1:
-        now = datetime.now()
-        query="UPDATE presenze_operatori SET Operativo = 0 WHERE Operatore ='{}'".format(message.chat.id)
-        c=conn.cursor()
-        try:
-            c.execute(query)
+        
+    registrato = esegui_query(con,query_tlgrm_id,'s')
+    
+    if registrato ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registrato) !=0:
+        #messaggio superfluo usato per debug
+        #await bot.send_message(message.chat.id,'{} Il tuo utente è registrato nel sistema'.format(emoji.emojize(":white_check_mark:",use_aliases=True)))
+
+        #controllo se utente risulta operativo
+        query_operativo="select * from users.t_presenze where id_telegram ='{}' and operativo = 't'".format(message.chat.id)
+        operativo=esegui_query(con,query_operativo,'s')
+        #print(operativo)
+        if operativo ==1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(operativo)!=0:
+            await bot.send_message(message.chat.id,'''{} Caro {}, in questo momento risulti già operativo. 
+                                   \nProva a chiudere il tuo turno con il comando /registra_uscita, oppure contatta un amministratore di sistema'''.format(emoji.emojize(":warning:",use_aliases=True) ,message.from_user.first_name))
+        elif len(operativo)==0:
+
             await bot.send_message(
                 chat_id=message.from_user.id,
-                text="Ciao {}, quante ore prevedi di rimanere operativo?".format(message.from_user.first_name),
+                text='''{} Caro {}, al momento non risulti operativo, quindi puoi iniziare il tuo turno.
+                \n\n{} Quante ore prevedi di rimanere operativo?'''.format(emoji.emojize(":white_check_mark:",use_aliases=True),message.from_user.first_name,emoji.emojize(":hourglass_flowing_sand:",use_aliases=True)),
                 reply_markup= keyboard ([
                                         ["2", "2 ore", "message text", None],
                                         ["4", "4 ore", "message text", None],
@@ -184,13 +238,38 @@ async def send_welcome(message: types.Message):
                                         ["8", "8 ore", "message text", None]
                                         ])
                                     )
-            mess_id=message.message_id
-            print(mess_id)
-            #await message.reply("Gentile {} hai registrato la tua presenza il {}-{}-{}  alle ore {}".format(message.from_user.first_name,now.strftime("%d"),now.strftime("%m"),now.strftime("%Y"),now.strftime("%H:%M")))
-        except Exception as e:
-            print(e)
-            await message.reply("{} la tua registrazione non è andata a buon fine".format(message.from_user.first_name))
-        """    
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                               \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
+
+
+@dp.message_handler(commands='registra_uscita')
+async def send_welcome(message: types.Message):
+    """
+    This handler will be called when user sends `/start` or `/help` command
+    """
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    #await bot.send_message(message.chat.id,"Ciao {} stai per terminare il tuo turno".format(message.from_user.first_name))
+    #controlli
+    
+    controllo_operativo="SELECT operativo, data_inizio, durata, data_fine, id, id_telegram FROM users.t_presenze where operativo =true and id_telegram ='{}'".format(message.chat.id)
+    result_operativo=esegui_query(con,controllo_operativo,'s')
+    if result_operativo ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(result_operativo)==0:
+        await bot.send_message(message.chat.id,'''{} Caro {}, in questo momento non risulti operativo. 
+                                   \nProva a chiudere iniziare il tuo turno con il comando /registra_presenza, oppure contatta un amministratore di sistema'''.format(emoji.emojize(":warning:",use_aliases=True) ,message.from_user.first_name))
+    elif len(result_operativo)==1:
+        query_fine_turno="UPDATE users.t_presenze SET operativo=false, data_fine=now() WHERE operativo =true and id_telegram ='{}'".format(message.chat.id)
+        result=esegui_query(con,query_fine_turno,'u')
+        if result==0:
+            await bot.send_message(message.chat.id,"Caro {}, il tuo turno è stato chiuso correttamente".format(message.from_user.first_name))
+        else:
+            await bot.send_message(message.chat.id,"Caro {}, si è verificato un problema nella chiusura del tuo turno.\nPer favore contatta un amministratore di sistema".format(message.from_user.first_name))
+    else:
+        print('errore che non ho ancora scoperto')
 
 
 
