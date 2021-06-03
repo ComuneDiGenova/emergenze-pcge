@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 import psycopg2
 import emoji
 import config
+import time
 
 '''
 db_name='./sistema'
@@ -238,6 +239,8 @@ async def send_welcome(message: types.Message):
                                         ["8", "8 ore", "message text", None]
                                         ])
                                     )
+            #elimino messaggio con comando per evitare tocchi maldestri
+            await bot.delete_message(message.chat.id,message.message_id)
     else:
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
                                \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
@@ -260,7 +263,7 @@ async def send_welcome(message: types.Message):
                                \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
     elif len(result_operativo)==0:
         await bot.send_message(message.chat.id,'''{} Caro {}, in questo momento non risulti operativo. 
-                                   \nProva a chiudere iniziare il tuo turno con il comando /registra_presenza, oppure contatta un amministratore di sistema'''.format(emoji.emojize(":warning:",use_aliases=True) ,message.from_user.first_name))
+                                   \nProva ad iniziare il tuo turno con il comando /registra_presenza, oppure contatta un amministratore di sistema'''.format(emoji.emojize(":warning:",use_aliases=True) ,message.from_user.first_name))
     elif len(result_operativo)==1:
         query_fine_turno="UPDATE users.t_presenze SET operativo=false, data_fine=now() WHERE operativo =true and id_telegram ='{}'".format(message.chat.id)
         result=esegui_query(con,query_fine_turno,'u')
@@ -288,10 +291,9 @@ async def send_welcome(message: types.Message):
                                 ["alto", "Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True)), "message text", None]
                                 ])
                             )
-    mess_id=message.message_id
-    #print(mess_id)
-    #await message.reply("Gentile {} hai registrato la tua presenza il {}-{}-{}  alle ore {}".format(message.from_user.first_name,now.strftime("%d"),now.strftime("%m"),now.strftime("%Y"),now.strftime("%H:%M")))
-
+    #elimino messaggio con comando per evitare tocchi maldestri
+    await bot.delete_message(message.chat.id,message.message_id)
+   
 @dp.message_handler(commands=['accetto'])
 async def send_accetto(message: types.Message):
     """
