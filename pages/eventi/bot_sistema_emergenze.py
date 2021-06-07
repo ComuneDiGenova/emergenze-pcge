@@ -14,21 +14,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
 #import sqlite3
 import psycopg2
 import emoji
 import config
 import time
-
-'''
-db_name='./sistema'
-table_name='presenze_operatori'
-conn=sqlite3.connect(db_name)
-'''
-
-
-
 
 API_TOKEN = config.TOKEN
 
@@ -84,12 +76,13 @@ def esegui_query(connection,query,query_type):
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+storage = MemoryStorage()
+dp = Dispatcher(bot, storage=storage)
 
 class Form (StatesGroup):
-    motivo= State () # Will be represented in storage as 'Form: name'
-    #age= State () # Will be represented in storage as 'Form: age'
-    #gender= State () # Will be represented in storage as 'Form: gender'
+    motivo = State() # Will be represented in storage as 'Form: name'
+    #age= State() # Will be represented in storage as 'Form: age'
+    #gender= State() # Will be represented in storage as 'Form: gender'
 
 
 def keyboard (kb_config):
@@ -110,8 +103,8 @@ async def callback (callback_query: types.CallbackQuery):
     
     if callback_query.data=='2' or callback_query.data=='4' or callback_query.data=='6' or callback_query.data=='8':
         await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
-        query_time_operativo='''INSERT INTO users.t_presenze (operativo, data_inizio, durata, id_telegram)
-        VALUES(true, now(), {}, '{}')'''.format(callback_query.data,callback_query.from_user.id)
+        query_time_operativo='''INSERT INTO users.t_presenze (operativo, data_inizio, durata, id_telegram, data_fine_hp)
+        VALUES(true, now(), {0}, '{1}', now() + interval '{0} hours')'''.format(callback_query.data,callback_query.from_user.id)
         result=esegui_query(con,query_time_operativo,'i')
         if result ==0:
             termine_turno=datetime.now()+ timedelta(hours=int(callback_query.data))
@@ -121,6 +114,22 @@ async def callback (callback_query: types.CallbackQuery):
             await bot.send_message(callback_query.from_user.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
                                \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
 
+    elif callback_query.data=='termina_turno':
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
+        query_fine_turno="UPDATE users.t_presenze SET operativo=false, data_fine=now() WHERE operativo =true and id_telegram ='{}'".format(callback_query.from_user.id)
+        result=esegui_query(con,query_fine_turno,'u')
+        if result==0:
+            #await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
+            await bot.send_message(callback_query.from_user.id,"Caro {}, il tuo turno è stato chiuso correttamente.".format(callback_query.from_user.first_name))
+        else:
+            #await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
+            await bot.send_message(callback_query.from_user.id,"Caro {}, si è verificato un problema nella chiusura del tuo turno.\nPer favore contatta un amministratore di sistema".format(callback_query.from_user.first_name))
+    elif callback_query.data=='continua_turno':
+        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
+        await bot.send_message(callback_query.from_user.id,"Hai annullato il comando e il tuo turno proseguirà. Utilizza nuovamente il comando /registra_uscita per terminare il turno")
+        
+        
+    
     elif callback_query.data=='basso':
         testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
         await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
@@ -265,14 +274,15 @@ async def send_welcome(message: types.Message):
         await bot.send_message(message.chat.id,'''{} Caro {}, in questo momento non risulti operativo. 
                                    \nProva ad iniziare il tuo turno con il comando /registra_presenza, oppure contatta un amministratore di sistema'''.format(emoji.emojize(":warning:",use_aliases=True) ,message.from_user.first_name))
     elif len(result_operativo)==1:
-        query_fine_turno="UPDATE users.t_presenze SET operativo=false, data_fine=now() WHERE operativo =true and id_telegram ='{}'".format(message.chat.id)
-        result=esegui_query(con,query_fine_turno,'u')
-        if result==0:
-            await bot.send_message(message.chat.id,"Caro {}, il tuo turno è stato chiuso correttamente".format(message.from_user.first_name))
-        else:
-            await bot.send_message(message.chat.id,"Caro {}, si è verificato un problema nella chiusura del tuo turno.\nPer favore contatta un amministratore di sistema".format(message.from_user.first_name))
+        await bot.send_message(message.chat.id,text='Sei sicuro di voler terminare ora il tuo turno?',
+        reply_markup= keyboard ([
+                                        ["termina_turno", "si", "message text", None],
+                                        ["continua_turno", "annulla", "message text", None]
+                                        ])
+                                    )
     else:
         print('errore che non ho ancora scoperto')
+        
 
 
 
@@ -292,7 +302,7 @@ async def send_welcome(message: types.Message):
                                 ])
                             )
     #elimino messaggio con comando per evitare tocchi maldestri
-    await bot.delete_message(message.chat.id,message.message_id)
+    #await bot.delete_message(message.chat.id,message.message_id)
    
 @dp.message_handler(commands=['accetto'])
 async def send_accetto(message: types.Message):
@@ -301,24 +311,13 @@ async def send_accetto(message: types.Message):
     """
     await bot.send_message(message.chat.id,"Ciao {} hai accettato l'incarico {}".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
 
-      
-@dp.message_handler(commands='rifiuto')
-async def send_rifiuto(message: types.Message):
-    """
-    This handler will be called when user sends `/rifiuto` command
-    """
-    #await bot.send_message(message.chat.id,"Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
-    await Form.motivo.set()
-    await message.reply("Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
-
-""" da verificare perchè non entra qui
 @dp.message_handler(state= Form.motivo)
 async def process_motivo(message: types.Message, state: FSMContext):
 
     #Process user name
 
     async with state.proxy() as data:
-        data ['motivo']= message.text
+        data['motivo']= message.text
         await bot.send_message(
             message.chat.id,
             md.text(
@@ -330,8 +329,61 @@ async def process_motivo(message: types.Message, state: FSMContext):
             #reply_markup= markup,
             #parse_mode= ParseMode.MARKDOWN,
         )
+        print(message.text, message.chat.id)
+        con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+        #questo select va modificato in funzione di quello che mi serve per le due query che vanno spostate qui
+        query_incarico2= '''select us.matricola_cf, vc.id, viilu.id
+            from users.utenti_sistema us 
+            left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
+            left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
+            where us.telegram_id = '{}' and vc.data_end is null and viilu.id_stato_incarico =1'''.format(message.chat.id)
+        incarico_assegnato2 = esegui_query(con,query_incarico2,'s')
+        print(message.chat.id, incarico_assegnato2)
+        query_motivo= "UPDATE segnalazioni.t_incarichi_interni SET note_rifiuto='{}' WHERE id={};".format(message.text, incarico_assegnato2[0][2])
+        update_motivo = esegui_query(con,query_motivo,'u')
     await state.finish () 
-"""
+      
+@dp.message_handler(commands='rifiuto')
+async def send_rifiuto(message: types.Message):
+    """
+    This handler will be called when user sends `/rifiuto` command
+    """
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+    #print(registered_user[0][0])
+    
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registered_user) !=0:
+        query_incarico= '''select * from users.v_componenti_squadre vcs 
+        left join segnalazioni.v_incarichi_interni_last_update viilu on vcs.id::text = viilu.id_squadra::text 
+        where vcs.matricola_cf = '{}' and vcs.data_end is null and viilu.id_stato_incarico =1'''.format(registered_user[0][0])
+        incarico_assegnato = esegui_query(con,query_incarico,'s')
+        id_squadra=incarico_assegnato[0][0]
+        print(id_squadra)
+        id_incarico=incarico_assegnato[0][14]
+        if incarico_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(incarico_assegnato) !=0:
+            await Form.motivo.set()
+            await message.reply("Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
+            print(id_incarico)
+            #queste due query vanno spostate nella funzione che gestisce il messaggio altrimenti poi non si riesce a recuperare l'id incarico perchè cambia lo stato
+            query_stato = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 4)".format(id_incarico)
+            stato = esegui_query(con,query_stato,'i')
+            print('id={}'.format(id_squadra))
+            query_squadra = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(id_squadra)
+            squadra = esegui_query(con,query_squadra,'u')
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        #await bot.delete_message(message.chat.id,message.message_id)
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                               \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
 
 #questa funzione deve essere l'ultima dello script altrimenti entra qui dentro e ignora le funzioni successive
 @dp.message_handler()

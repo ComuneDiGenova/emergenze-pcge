@@ -1,0 +1,8 @@
+wget https://www.python.org/ftp/python/3.8.3/Python-3.8.3.tgz
+tar xvf Python-3.8.3.tgz
+cd Python-3.8.3
+./configure --enable-optimizations
+sudo make altinstall
+
+sudo yum install postgresql-devel
+sudo /usr/local/bin/pip3.8 install psycopg2
