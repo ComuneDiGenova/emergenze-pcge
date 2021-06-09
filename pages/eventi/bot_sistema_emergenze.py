@@ -13,6 +13,7 @@ from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
+from aiogram.types import ParseMode
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
@@ -81,8 +82,8 @@ dp = Dispatcher(bot, storage=storage)
 
 class Form (StatesGroup):
     motivo = State() # Will be represented in storage as 'Form: name'
-    #age= State() # Will be represented in storage as 'Form: age'
-    #gender= State() # Will be represented in storage as 'Form: gender'
+    orario= State() # Will be represented in storage as 'Form: age'
+    tipopresa= State() # Will be represented in storage as 'Form: gender'
 
 
 def keyboard (kb_config):
@@ -303,13 +304,119 @@ async def send_welcome(message: types.Message):
                             )
     #elimino messaggio con comando per evitare tocchi maldestri
     #await bot.delete_message(message.chat.id,message.message_id)
-   
+
+# Check orario è numerico
+@dp.message_handler(lambda message: not message.text.isdigit(), state=Form.orario)
+async def process_orario_invalid(message: types.Message):
+    return await message.reply("I minuti inseriti non sono validi, devi inserire un numero")
+
+@dp.message_handler(lambda message: message.text.isdigit(), state= Form.orario)
+async def process_orario(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['orario']= message.text
+        inizio_incarico = datetime.now() + timedelta(minutes=int(data['orario']))
+        timepreview = inizio_incarico.replace(second=0, microsecond=0).time()
+
+    await Form.next()
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+    markup.add("Regolare", "Parziale")
+    #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
+    await message.reply("La presa in carico è regolare o parziale?", reply_markup=markup)
+    #await state.finish ()
+
+#funzione che controlla che schiaccino un bottone
+@dp.message_handler(lambda message: message.text not in ["Regolare", "Parziale"], state=Form.tipopresa)
+async def process_gender_invalid(message: types.Message):
+    return await message.reply("Il valore inserito non è valido. Seleziona il valore dalla tastiera.")
+    
+@dp.message_handler(state=Form.tipopresa)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['tipopresa'] = message.text
+
+        # Remove keyboard
+        markup = types.ReplyKeyboardRemove()
+
+        # And send message
+        await bot.send_message(
+            message.chat.id,
+            md.text(
+                md.text('La presa in carico è ', md.bold(data['tipopresa']), '.\n'),
+                md.text('Prevedi di iniziare l\'incarico tra ', md.bold(data['orario']), ' minuti.\n'),
+                md.text('Una volta completato l\'incarico ricordati di chiuderlo digitando /chiudi.\n'),
+            ),
+            reply_markup=markup,
+            parse_mode=ParseMode.MARKDOWN,
+        )
+    inizio_incarico = datetime.now() + timedelta(minutes=int(data['orario']))
+    inizio_preview = inizio_incarico.replace(second=0, microsecond=0)
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione
+            from users.utenti_sistema us 
+            left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
+            left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
+            left join segnalazioni.v_incarichi_interni vii on viilu.id = vii.id
+            where us.telegram_id = '{}' and vc.data_end is null and viilu.id_stato_incarico =1'''.format(message.chat.id)
+    incarico_assegnato2 = esegui_query(con,query_incarico2,'s')
+    print(incarico_assegnato2)
+    query_time= "UPDATE segnalazioni.t_incarichi_interni SET time_preview='{}' WHERE id={};".format(inizio_preview, incarico_assegnato2[0][3])
+    time_inizio = esegui_query(con,query_time,'u')
+    if data['tipopresa'] == 'Parziale':
+        query_stato_p= "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico, parziale) VALUES ({}, 2 , 'true');".format(incarico_assegnato2[0][3])
+        stato_p = esegui_query(con,query_stato_p,'i')
+        query_storico_p = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento)
+            VALUES ({0}, ' Incarico interno {1} preso in carico (parzialmente) dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_incarico_interno.php?id={1}"> Visualizza dettagli </a>');'''.format(incarico_assegnato2[0][4], incarico_assegnato2[0][3], incarico_assegnato2[0][2])
+        storico_p = esegui_query(con,query_storico_p,'i')
+    else:
+        query_stato_r= "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 2 );".format(incarico_assegnato2[0][3])
+        stato_r = esegui_query(con,query_stato_r,'i')
+        query_storico_r = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento)
+            VALUES ({0}, ' Incarico interno {1} preso in carico dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_incarico_interno.php?id={1}"> Visualizza dettagli </a>');'''.format(incarico_assegnato2[0][4], incarico_assegnato2[0][3], incarico_assegnato2[0][2])
+        storico_r = esegui_query(con,query_storico_r,'i')
+    query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} preso in carico');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
+    log = esegui_query(con,query_log,'i')
+    # Finish conversation
+    await state.finish()
+    
+  
 @dp.message_handler(commands=['accetto'])
 async def send_accetto(message: types.Message):
     """
     This handler will be called when user sends `/accetto` command
     """
-    await bot.send_message(message.chat.id,"Ciao {} hai accettato l'incarico {}".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
+    
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+    #print(registered_user[0][0])
+    
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registered_user) !=0:
+        query_incarico= '''select * from users.v_componenti_squadre vcs 
+        left join segnalazioni.v_incarichi_interni_last_update viilu on vcs.id::text = viilu.id_squadra::text 
+        where vcs.matricola_cf = '{}' and vcs.data_end is null and viilu.id_stato_incarico =1'''.format(registered_user[0][0])
+        incarico_assegnato = esegui_query(con,query_incarico,'s')
+        #id_squadra=incarico_assegnato[0][0]
+        #print(id_squadra)
+        #id_incarico=incarico_assegnato[0][14]
+        if incarico_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(incarico_assegnato) !=0:
+            await Form.orario.set()
+            await message.reply("Ciao {} hai accettato l'incarico {}. Tra quanti minuti sarai sul posto?".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
+
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        #await bot.delete_message(message.chat.id,message.message_id)
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
 
 @dp.message_handler(state= Form.motivo)
 async def process_motivo(message: types.Message, state: FSMContext):
@@ -322,25 +429,31 @@ async def process_motivo(message: types.Message, state: FSMContext):
             message.chat.id,
             md.text(
                 md.text('Hai fornito questo motivo: ', md.bold(data['motivo'])),
-                #md.text ('Age:', md.code (data ['age'])),
-                #md.text ('Gender:', data ['gender']),
-                #sep= '\ n',
             ),
-            #reply_markup= markup,
-            #parse_mode= ParseMode.MARKDOWN,
         )
         print(message.text, message.chat.id)
         con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-        #questo select va modificato in funzione di quello che mi serve per le due query che vanno spostate qui
-        query_incarico2= '''select us.matricola_cf, vc.id, viilu.id
+        query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione
             from users.utenti_sistema us 
             left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
             left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
+            left join segnalazioni.v_incarichi_interni vii on viilu.id = vii.id
             where us.telegram_id = '{}' and vc.data_end is null and viilu.id_stato_incarico =1'''.format(message.chat.id)
         incarico_assegnato2 = esegui_query(con,query_incarico2,'s')
-        print(message.chat.id, incarico_assegnato2)
-        query_motivo= "UPDATE segnalazioni.t_incarichi_interni SET note_rifiuto='{}' WHERE id={};".format(message.text, incarico_assegnato2[0][2])
+        #print(message.chat.id, incarico_assegnato2)
+        query_motivo= "UPDATE segnalazioni.t_incarichi_interni SET note_rifiuto='{}' WHERE id={};".format(message.text, incarico_assegnato2[0][3])
         update_motivo = esegui_query(con,query_motivo,'u')
+        query_stato = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 4)".format(incarico_assegnato2[0][3])
+        stato = esegui_query(con,query_stato,'i')
+        #print('id={}'.format(incarico_assegnato2[0][1]))
+        query_squadra = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(incarico_assegnato2[0][1])
+        squadra = esegui_query(con,query_squadra,'u')
+        query_storico = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento) 
+            VALUES ({0}, ' Incarico {1} rifiutato dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_incarico_interno.php?id={1}"> Visualizza dettagli </a>');'''.format(incarico_assegnato2[0][4], incarico_assegnato2[0][3], incarico_assegnato2[0][2])
+        storico = esegui_query(con,query_storico,'i')
+        query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} rifiutato');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
+        log = esegui_query(con,query_log,'i')
+        #notifica che l'incarico è stato rifiutato? a chi?
     await state.finish () 
       
 @dp.message_handler(commands='rifiuto')
@@ -362,22 +475,22 @@ async def send_rifiuto(message: types.Message):
         left join segnalazioni.v_incarichi_interni_last_update viilu on vcs.id::text = viilu.id_squadra::text 
         where vcs.matricola_cf = '{}' and vcs.data_end is null and viilu.id_stato_incarico =1'''.format(registered_user[0][0])
         incarico_assegnato = esegui_query(con,query_incarico,'s')
-        id_squadra=incarico_assegnato[0][0]
-        print(id_squadra)
-        id_incarico=incarico_assegnato[0][14]
+        #id_squadra=incarico_assegnato[0][0]
+        #print(id_squadra)
+        #id_incarico=incarico_assegnato[0][14]
         if incarico_assegnato == 1:
             await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
                                \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
         elif len(incarico_assegnato) !=0:
             await Form.motivo.set()
             await message.reply("Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
-            print(id_incarico)
+            #print(id_incarico)
             #queste due query vanno spostate nella funzione che gestisce il messaggio altrimenti poi non si riesce a recuperare l'id incarico perchè cambia lo stato
-            query_stato = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 4)".format(id_incarico)
+            ''' query_stato = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 4)".format(id_incarico)
             stato = esegui_query(con,query_stato,'i')
             print('id={}'.format(id_squadra))
             query_squadra = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(id_squadra)
-            squadra = esegui_query(con,query_squadra,'u')
+            squadra = esegui_query(con,query_squadra,'u') '''
         else:
             await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
         #await bot.delete_message(message.chat.id,message.message_id)
