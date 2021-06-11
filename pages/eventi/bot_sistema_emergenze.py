@@ -22,6 +22,7 @@ import psycopg2
 import emoji
 import config
 import time
+import asyncio
 
 API_TOKEN = config.TOKEN
 
@@ -73,7 +74,7 @@ def esegui_query(connection,query,query_type):
         return result
     else:
         return 0
-
+    
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
@@ -81,9 +82,12 @@ storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
 class Form (StatesGroup):
-    motivo = State() # Will be represented in storage as 'Form: name'
-    orario= State() # Will be represented in storage as 'Form: age'
-    tipopresa= State() # Will be represented in storage as 'Form: gender'
+    motivo = State()
+    orario= State()
+    tipopresa= State()
+    chiudo= State()
+    orarioPresidio= State()
+    stop= State()
 
 
 def keyboard (kb_config):
@@ -95,6 +99,22 @@ def keyboard (kb_config):
         )
         _keyboard.insert (btn)
     return _keyboard
+
+''' async def invia_notifica(idinc, txt):
+    print('ciao')
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    query_profilo = "SELECT id_profilo, max(id_segnalazione) as id_segn FROM segnalazioni.v_incarichi_interni WHERE id = {} group by id_profilo;".format(idinc)
+    profilo= esegui_query(con,query_profilo,'s')
+    if profilo[0][0] == 3:
+        query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
+    else:
+        query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(profilo[0][0])
+    notifica =  esegui_query(con,query_notifica,'s')
+    print(notifica)
+    for tid in notifica:
+        print(tid[0])
+        await bot.send_message(tid[0], txt) '''
+
 
 @ dp.callback_query_handler ()
 async def callback (callback_query: types.CallbackQuery):
@@ -285,8 +305,6 @@ async def send_welcome(message: types.Message):
         print('errore che non ho ancora scoperto')
         
 
-
-
 @dp.message_handler(commands=['inserisci_mira'])
 async def send_welcome(message: types.Message):
     """
@@ -304,12 +322,14 @@ async def send_welcome(message: types.Message):
                             )
     #elimino messaggio con comando per evitare tocchi maldestri
     #await bot.delete_message(message.chat.id,message.message_id)
-
-# Check orario è numerico
+    
+##### INIZIO BOT INCARICHI INTERNI #####
+# Check orario inizio incarico interno è numerico
 @dp.message_handler(lambda message: not message.text.isdigit(), state=Form.orario)
 async def process_orario_invalid(message: types.Message):
     return await message.reply("I minuti inseriti non sono validi, devi inserire un numero")
 
+# gestione orario inizio incarico interno  
 @dp.message_handler(lambda message: message.text.isdigit(), state= Form.orario)
 async def process_orario(message: types.Message, state: FSMContext):
 
@@ -325,11 +345,12 @@ async def process_orario(message: types.Message, state: FSMContext):
     await message.reply("La presa in carico è regolare o parziale?", reply_markup=markup)
     #await state.finish ()
 
-#funzione che controlla che schiaccino un bottone
+#funzione che controlla che schiaccino un bottone per presa in carico
 @dp.message_handler(lambda message: message.text not in ["Regolare", "Parziale"], state=Form.tipopresa)
 async def process_gender_invalid(message: types.Message):
     return await message.reply("Il valore inserito non è valido. Seleziona il valore dalla tastiera.")
-    
+
+# accettazione incarico interno  scrittura su DB  
 @dp.message_handler(state=Form.tipopresa)
 async def process_presa(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -344,7 +365,7 @@ async def process_presa(message: types.Message, state: FSMContext):
             md.text(
                 md.text('La presa in carico è ', md.bold(data['tipopresa']), '.\n'),
                 md.text('Prevedi di iniziare l\'incarico tra ', md.bold(data['orario']), ' minuti.\n'),
-                md.text('Una volta completato l\'incarico ricordati di chiuderlo digitando /chiudi.\n'),
+                md.text('Una volta completato l\'incarico ricordati di chiuderlo digitando /chiudo.\n'),
             ),
             reply_markup=markup,
             parse_mode=ParseMode.MARKDOWN,
@@ -352,7 +373,7 @@ async def process_presa(message: types.Message, state: FSMContext):
     inizio_incarico = datetime.now() + timedelta(minutes=int(data['orario']))
     inizio_preview = inizio_incarico.replace(second=0, microsecond=0)
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-    query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione
+    query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione
             from users.utenti_sistema us 
             left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
             left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
@@ -376,10 +397,19 @@ async def process_presa(message: types.Message, state: FSMContext):
         storico_r = esegui_query(con,query_storico_r,'i')
     query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} preso in carico');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
     log = esegui_query(con,query_log,'i')
+    if incarico_assegnato2[0][5] == 3:
+        query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
+    else:
+        query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
+    notifica =  esegui_query(con,query_notifica,'s')
+    print(notifica)
+    for tid in notifica:
+        print(tid[0])
+        await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato accettato'.format(emoji.emojize(":thumbsup:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6]))
     # Finish conversation
     await state.finish()
     
-  
+# accettazione incarico interno   
 @dp.message_handler(commands=['accetto'])
 async def send_accetto(message: types.Message):
     """
@@ -417,11 +447,9 @@ async def send_accetto(message: types.Message):
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
                             \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
 
-
+# rifiuto incarico interno  scrittura su DB
 @dp.message_handler(state= Form.motivo)
 async def process_motivo(message: types.Message, state: FSMContext):
-
-    #Process user name
 
     async with state.proxy() as data:
         data['motivo']= message.text
@@ -433,7 +461,7 @@ async def process_motivo(message: types.Message, state: FSMContext):
         )
         print(message.text, message.chat.id)
         con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-        query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione
+        query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione
             from users.utenti_sistema us 
             left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
             left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
@@ -453,9 +481,19 @@ async def process_motivo(message: types.Message, state: FSMContext):
         storico = esegui_query(con,query_storico,'i')
         query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} rifiutato');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
         log = esegui_query(con,query_log,'i')
+        if incarico_assegnato2[0][5] == 3:
+            query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
+        else:
+            query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
+        notifica =  esegui_query(con,query_notifica,'s')
+        print(notifica)
+        for tid in notifica:
+            print(tid[0])
+            await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato rifiutato con le seguenti note: {}'.format(emoji.emojize(":x:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text))
         #notifica che l'incarico è stato rifiutato? a chi?
     await state.finish () 
-      
+
+# rifiuto incarico interno   
 @dp.message_handler(commands='rifiuto')
 async def send_rifiuto(message: types.Message):
     """
@@ -484,16 +522,242 @@ async def send_rifiuto(message: types.Message):
         elif len(incarico_assegnato) !=0:
             await Form.motivo.set()
             await message.reply("Ciao {} hai rifiutato l'incarico {}. Per favore fornisci la motivazione digitando un breve testo.".format(message.from_user.first_name, emoji.emojize(":thumbsdown:",use_aliases=True)))
-            #print(id_incarico)
-            #queste due query vanno spostate nella funzione che gestisce il messaggio altrimenti poi non si riesce a recuperare l'id incarico perchè cambia lo stato
-            ''' query_stato = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 4)".format(id_incarico)
-            stato = esegui_query(con,query_stato,'i')
-            print('id={}'.format(id_squadra))
-            query_squadra = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(id_squadra)
-            squadra = esegui_query(con,query_squadra,'u') '''
         else:
             await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
         #await bot.delete_message(message.chat.id,message.message_id)
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                               \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
+# chiusura incarico interno scrittura su DB
+@dp.message_handler(state= Form.chiudo)
+async def process_chiudo_note(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['chiudo']= message.text
+        await bot.send_message(
+            message.chat.id,
+            md.text(
+                md.text('Hai fornito queste note: ', md.bold(data['chiudo']), '.'),
+            ),
+        )
+        print(message.text, message.chat.id)
+        con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+        query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione
+            from users.utenti_sistema us 
+            left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
+            left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text
+            left join segnalazioni.v_incarichi_interni vii on viilu.id = vii.id
+            where us.telegram_id = '{}' and vc.data_end is null and viilu.id_stato_incarico =2
+            group by us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione'''.format(message.chat.id)
+        incarico_assegnato2 = esegui_query(con,query_incarico2,'s')
+        print(message.chat.id, incarico_assegnato2)
+        query_note= "UPDATE segnalazioni.t_incarichi_interni SET note_ente='{}', time_stop=now() WHERE id={};".format(message.text, incarico_assegnato2[0][3])
+        update_motivo = esegui_query(con,query_note,'u')
+        query_stato_c = "INSERT INTO segnalazioni.stato_incarichi_interni(id_incarico, id_stato_incarico) VALUES ({}, 3)".format(incarico_assegnato2[0][3])
+        stato = esegui_query(con,query_stato_c,'i')
+        #print('id={}'.format(incarico_assegnato2[0][1]))
+        query_squadra_c = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(incarico_assegnato2[0][1])
+        squadra = esegui_query(con,query_squadra_c,'u')
+        query_storico_c = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento) 
+            VALUES ({0}, ' Incarico interno {1} chiuso dalla seguente squadra: {2} con il seguente messaggio: <br><i>{3}</i><br> - <a class="btn btn-info" href="dettagli_incarico_interno.php?id={1}"> Visualizza dettagli </a>');'''.format(incarico_assegnato2[0][4], incarico_assegnato2[0][3], incarico_assegnato2[0][2], message.text)
+        storico = esegui_query(con,query_storico_c,'i')
+        query_log_c= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} chiuso');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
+        log = esegui_query(con,query_log_c,'i')
+        #txt_notifica = '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato chiuso con le seguenti note: {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text)
+        if incarico_assegnato2[0][5] == 3:
+            query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
+        else:
+            query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
+            notifica =  esegui_query(con,query_notifica,'s')
+            print(notifica)
+            for tid in notifica:
+                print(tid[0])
+                await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato chiuso con le seguenti note: {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text))
+            #asyncio.run(invia_notifica(incarico_assegnato2[0][3], txt_notifica))
+        #notifica che l'incarico è stato rifiutato? a chi?
+    await state.finish () 
+
+# chiusura incarico interno      
+@dp.message_handler(commands='chiudo')
+async def send_chiudo(message: types.Message):
+    """
+    This handler will be called when user sends `/chiudo` command
+    """
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registered_user) !=0:
+        query_incarico= '''select * from users.v_componenti_squadre vcs 
+        left join segnalazioni.v_incarichi_interni_last_update viilu on vcs.id::text = viilu.id_squadra::text 
+        where vcs.matricola_cf = '{}' and vcs.data_end is null and viilu.id_stato_incarico =2'''.format(registered_user[0][0])
+        incarico_assegnato = esegui_query(con,query_incarico,'s')
+        if incarico_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(incarico_assegnato) !=0:
+            await Form.chiudo.set()
+            await message.reply("Ciao {} stai chiudendo l'incarico. Per favore fornisci una nota di chiusura digitando un breve testo.".format(message.from_user.first_name))
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                               \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
+##### FINE BOT INCARICHI INTERNI #####
+
+##### INIZIO BOT PRESIDI #####
+
+# Check orario inizio incarico interno è numerico
+@dp.message_handler(lambda message: not message.text.isdigit(), state=Form.orarioPresidio)
+async def process_orario_invalid(message: types.Message):
+    return await message.reply("I minuti inseriti non sono validi, devi inserire un numero")
+
+# gestione orario inizio presidio e scrittura sul DB  
+@dp.message_handler(lambda message: message.text.isdigit(), state= Form.orarioPresidio)
+async def process_orario_presidio(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['orarioPresidio']= message.text
+        inizio_incarico = datetime.now() + timedelta(minutes=int(data['orarioPresidio']))
+        timepreview = inizio_incarico.replace(second=0, microsecond=0).time()
+        await bot.send_message(
+            message.chat.id,
+            md.text(
+                md.text('Hai indicato', md.bold(data['orarioPresidio']), 'minuti quindi l\'ora di inizio è', md.bold(timepreview), 'circa.'),
+                md.text('Una volta terminato il presidio ricordati di chiuderlo digitando /stop.\n'),
+            ),
+        )
+    print(timepreview)
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    query_presidio2= '''select us.matricola_cf, vc.id, vc.nome_squadra, vslu.id, vs.id_lavorazione
+            from users.utenti_sistema us 
+            left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
+            left join segnalazioni.v_sopralluoghi_last_update vslu on vc.id::text = vslu.id_squadra::text
+            left join segnalazioni.v_sopralluoghi vs on vslu.id = vs.id
+            where us.telegram_id = '{}' and vc.data_end is null and vslu.id_stato_sopralluogo=1'''.format(message.chat.id)
+    presidio_assegnato2 = esegui_query(con,query_presidio2,'s')
+    print(presidio_assegnato2)
+    query_time= "UPDATE segnalazioni.t_sopralluoghi SET time_preview='{}' WHERE id={};".format(timepreview, presidio_assegnato2[0][3])
+    time_inizio = esegui_query(con,query_time,'u')
+    query_stato_presidio= "INSERT INTO segnalazioni.stato_sopralluoghi(id_sopralluogo, id_stato_sopralluogo, parziale) VALUES ({}, 2 , 'false');".format(presidio_assegnato2[0][3])
+    stato_presidio = esegui_query(con,query_stato_presidio,'i')
+    query_storico_presidio = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento)
+        VALUES ({0}, ' Sopralluogo {1} preso in carico dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_sopralluogo.php?id={1}"> Visualizza dettagli </a>');'''.format(presidio_assegnato2[0][4], presidio_assegnato2[0][3], presidio_assegnato2[0][2])
+    storico_presidio = esegui_query(con,query_storico_presidio,'i')
+    query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Presidio (o sopralluogo) {} preso in carico');".format(presidio_assegnato2[0][0], presidio_assegnato2[0][3])
+    log = esegui_query(con,query_log,'i')
+    #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.".format(data['orarioPresidio'], timepreview))
+    await state.finish ()
+
+# accettazione presidio   
+@dp.message_handler(commands=['presidio'])
+async def send_accetto(message: types.Message):
+    """
+    This handler will be called when user sends `/presidio` command
+    """
+    
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+    #print(registered_user[0][0])
+    
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registered_user) !=0:
+        query_presidio= '''select * from users.v_componenti_squadre vcs 
+        left join segnalazioni.v_sopralluoghi_last_update vslu on vcs.id::text = vslu.id_squadra::text 
+        where vcs.matricola_cf = '{}' and vcs.data_end is null and vslu.id_stato_sopralluogo =1;'''.format(registered_user[0][0])
+        presidio_assegnato = esegui_query(con,query_presidio,'s')
+        #id_squadra=incarico_assegnato[0][0]
+        #print(id_squadra)
+        #id_incarico=incarico_assegnato[0][14]
+        if presidio_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(presidio_assegnato) !=0:
+            await Form.orarioPresidio.set()
+            await message.reply("Ciao {} hai accettato il presidio {}. Tra quanti minuti sarai sul posto?".format(message.from_user.first_name, emoji.emojize(":thumbs_up:",use_aliases=True)))
+
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano incarichi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        #await bot.delete_message(message.chat.id,message.message_id)
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
+# chiusura presidio scrittura su DB
+@dp.message_handler(state= Form.stop)
+async def process_chiudo_note(message: types.Message, state: FSMContext):
+
+    async with state.proxy() as data:
+        data['stop']= message.text
+        await bot.send_message(
+            message.chat.id,
+            md.text(
+                md.text('Hai fornito queste note: ', md.bold(data['stop']), '.'),
+            ),
+        )
+        print(message.text, message.chat.id)
+        con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+        query_presidio2= '''select us.matricola_cf, vc.id, vc.nome_squadra, vslu.id, vs.id_lavorazione
+            from users.utenti_sistema us 
+            left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
+            left join segnalazioni.v_sopralluoghi_last_update vslu on vc.id::text = vslu.id_squadra::text
+            left join segnalazioni.v_sopralluoghi vs on vslu.id = vs.id
+            where us.telegram_id = '{}' and vc.data_end is null and vslu.id_stato_sopralluogo =2
+            group by us.matricola_cf, vc.id, vc.nome_squadra, vslu.id, vs.id_lavorazione'''.format(message.chat.id)
+        presidio_assegnato2 = esegui_query(con,query_presidio2,'s')
+        print(message.chat.id, presidio_assegnato2)
+        query_note= "UPDATE segnalazioni.t_sopralluoghi SET note_ente='{}', time_stop=now() WHERE id={};".format(message.text, presidio_assegnato2[0][3])
+        update_motivo = esegui_query(con,query_note,'u')
+        query_stato_cp = "INSERT INTO segnalazioni.stato_sopralluoghi(id_sopralluogo, id_stato_sopralluogo) VALUES ({}, 3)".format(presidio_assegnato2[0][3])
+        stato = esegui_query(con,query_stato_cp,'i')
+        #print('id={}'.format(incarico_assegnato2[0][1]))
+        query_squadra_cp = "UPDATE users.t_squadre SET id_stato=2 WHERE id={}".format(presidio_assegnato2[0][1])
+        squadra = esegui_query(con,query_squadra_cp,'u')
+        query_storico_cp = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento) 
+            VALUES ({0}, ' Presidio {1} chiuso dalla seguente squadra: {2} con il seguente messaggio: <br><i>{3}</i><br> - <a class="btn btn-info" href="dettagli_sopralluogo.php?id={1}"> Visualizza dettagli </a>');'''.format(presidio_assegnato2[0][4], presidio_assegnato2[0][3], presidio_assegnato2[0][2], message.text)
+        storico = esegui_query(con,query_storico_cp,'i')
+        query_log_cp= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('sopralluoghi','{}', 'Presidio (o sopralluogo) {} chiuso');".format(presidio_assegnato2[0][0], presidio_assegnato2[0][3])
+        log = esegui_query(con,query_log_cp,'i')
+        #notifica che l'incarico è stato rifiutato? a chi?
+    await state.finish () 
+
+# chiusura presidio      
+@dp.message_handler(commands='stop')
+async def send_chiudo(message: types.Message):
+    """
+    This handler will be called when user sends `/stop` command
+    """
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    elif len(registered_user) !=0:
+        query_presidio= '''select * from users.v_componenti_squadre vcs 
+        left join segnalazioni.v_sopralluoghi_last_update vslu on vcs.id::text = vslu.id_squadra::text 
+        where vcs.matricola_cf = '{}' and vcs.data_end is null and vslu.id_stato_sopralluogo=2'''.format(registered_user[0][0])
+        presidio_assegnato = esegui_query(con,query_presidio,'s')
+        if presidio_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                               \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(presidio_assegnato) !=0:
+            await Form.stop.set()
+            await message.reply("Ciao {} stai chiudendo il presidio. Per favore fornisci una nota di chiusura digitando un breve testo.".format(message.from_user.first_name))
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano presidi assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
     else:
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
                                \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))

@@ -160,7 +160,7 @@ $result = pg_execute($conn, "myquery0", array($uo));
 $mails=array();
 //$telegram_id=array();
 $messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico interno alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
-$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /accetto \xF0\x9F\x91\x8E per rifiutare l'incarico digita /rifiuto";
+$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /accetto \xE2\x9D\x8C per rifiutare l'incarico digita /rifiuto";
 
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
