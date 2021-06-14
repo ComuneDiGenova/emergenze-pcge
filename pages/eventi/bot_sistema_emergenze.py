@@ -277,7 +277,7 @@ async def send_welcome(message: types.Message):
 
 
 
-@dp.message_handler(commands='registra_uscita')
+@dp.message_handler(commands=['registra_uscita','tuscita'])
 async def send_welcome(message: types.Message):
     """
     This handler will be called when user sends `/start` or `/help` command

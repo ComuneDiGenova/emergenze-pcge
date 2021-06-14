@@ -12,17 +12,9 @@ import psycopg2
 import emoji
 import config
 import time
-
-import aiogram.utils.markdown as md
-from aiogram.types import callback_query, message
-from aiogram.types.reply_keyboard import ReplyKeyboardRemove
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
-
+import urllib.parse
 
 
 # Configure logging
@@ -33,23 +25,43 @@ if os.path.exists(logfile):
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.ERROR)
 
 API_TOKEN = config.TOKEN
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+
 
 def telegram_bot_sendtext(bot_message,chat_id):
     
-    send_text = 'https://api.telegram.org/bot' + API_TOKEN + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + bot_message
-
+    urllib.parse.quote('/', safe='')
+    send_text = 'https://api.telegram.org/bot' + API_TOKEN + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + urllib.parse.quote(bot_message)
     response = requests.get(send_text)
-
     return response.json()
 
 
 
 
 
+
+
+testo='{} {} Il tuo turno sta per terminare. Ricordati di usare il comando /tuscita per chiudere correttamente il turo.'.format(emoji.emojize(":warning:",use_aliases=True),emoji.emojize(":alarm_clock:",use_aliases=True))
 #telegram_bot_sendtext(testo,'306530623')
-@ dp.message_handler (content_types= ['text'])
-async def send_message ():
-    await bot.send_message (chat_id= '306530623', text= 'Hello!')
-send_message()
+con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+query='select * from users.t_presenze where operativo =true'
+curr = con.cursor()
+con.autocommit = True
+try:
+    curr.execute(query)
+except Exception as e:
+    logging.error('Query non eseguita per il seguente motivo: {}'.format(e))
+
+result= curr.fetchall() 
+curr.close()   
+con.close()
+
+for p in result:
+
+    if datetime.now()>(p[-1]-timedelta(minutes=15)): 
+        telegram_bot_sendtext(testo,p[5])
+ 
+    else:
+        continue
+
+
+#
