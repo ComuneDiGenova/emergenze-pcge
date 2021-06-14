@@ -51,7 +51,7 @@ echo $query;
 //exit;
 $result=pg_query($conn, $query);
 
-$query= "SELECT id_profilo, max(id_segnalazione) as id_segn FROM segnalazioni.v_incarichi_interni WHERE id = ".$id." group by id_profilo;";
+/* $query= "SELECT id_profilo, max(id_segnalazione) as id_segn FROM segnalazioni.v_incarichi_interni WHERE id = ".$id." group by id_profilo;";
 $result=pg_query($conn, $query);
 
 while($r = pg_fetch_assoc($result)) {
@@ -87,7 +87,7 @@ while($r_telegram = pg_fetch_assoc($result_telegram)) {
 	//echo $r_telegram['telegram_id'];
 	//$chat_id = $r_telegram['telegram_id'];
 	sendMessage($r_telegram['telegram_id'], $messaggio , $token);
-}
+} */
 
 $query= "INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento";
 

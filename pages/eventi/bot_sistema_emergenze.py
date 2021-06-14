@@ -397,7 +397,7 @@ async def process_presa(message: types.Message, state: FSMContext):
         storico_r = esegui_query(con,query_storico_r,'i')
     query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} preso in carico');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
     log = esegui_query(con,query_log,'i')
-    if incarico_assegnato2[0][5] == 3:
+    """ if incarico_assegnato2[0][5] == 3:
         query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
     else:
         query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
@@ -405,7 +405,7 @@ async def process_presa(message: types.Message, state: FSMContext):
     print(notifica)
     for tid in notifica:
         print(tid[0])
-        await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato accettato'.format(emoji.emojize(":thumbsup:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6]))
+        await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato accettato'.format(emoji.emojize(":thumbsup:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6])) """
     # Finish conversation
     await state.finish()
     
@@ -565,7 +565,7 @@ async def process_chiudo_note(message: types.Message, state: FSMContext):
         query_log_c= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Incarico interno {} chiuso');".format(incarico_assegnato2[0][0], incarico_assegnato2[0][3])
         log = esegui_query(con,query_log_c,'i')
         #txt_notifica = '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato chiuso con le seguenti note: {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text)
-        if incarico_assegnato2[0][5] == 3:
+        ''' if incarico_assegnato2[0][5] == 3:
             query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';"
         else:
             query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
@@ -573,7 +573,7 @@ async def process_chiudo_note(message: types.Message, state: FSMContext):
             print(notifica)
             for tid in notifica:
                 print(tid[0])
-                await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato chiuso con le seguenti note: {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text))
+                await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato chiuso con le seguenti note: {}'.format(emoji.emojize(":white_check_mark:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text)) '''
             #asyncio.run(invia_notifica(incarico_assegnato2[0][3], txt_notifica))
         #notifica che l'incarico è stato rifiutato? a chi?
     await state.finish () 
@@ -635,7 +635,7 @@ async def process_orario_presidio(message: types.Message, state: FSMContext):
         )
     print(timepreview)
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-    query_presidio2= '''select us.matricola_cf, vc.id, vc.nome_squadra, vslu.id, vs.id_lavorazione
+    query_presidio2= '''select us.matricola_cf, vc.id, vc.nome_squadra, vslu.id, vs.id_lavorazione, vs.id_profilo, vs.id_segnalazione
             from users.utenti_sistema us 
             left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
             left join segnalazioni.v_sopralluoghi_last_update vslu on vc.id::text = vslu.id_squadra::text
@@ -647,9 +647,10 @@ async def process_orario_presidio(message: types.Message, state: FSMContext):
     time_inizio = esegui_query(con,query_time,'u')
     query_stato_presidio= "INSERT INTO segnalazioni.stato_sopralluoghi(id_sopralluogo, id_stato_sopralluogo, parziale) VALUES ({}, 2 , 'false');".format(presidio_assegnato2[0][3])
     stato_presidio = esegui_query(con,query_stato_presidio,'i')
-    query_storico_presidio = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento)
-        VALUES ({0}, ' Sopralluogo {1} preso in carico dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_sopralluogo.php?id={1}"> Visualizza dettagli </a>');'''.format(presidio_assegnato2[0][4], presidio_assegnato2[0][3], presidio_assegnato2[0][2])
-    storico_presidio = esegui_query(con,query_storico_presidio,'i')
+    if (presidio_assegnato2[0][6] != ''):
+        query_storico_presidio = '''INSERT INTO segnalazioni.t_storico_segnalazioni_in_lavorazione(id_segnalazione_in_lavorazione, log_aggiornamento)
+            VALUES ({0}, ' Sopralluogo {1} preso in carico dalla seguente squadra: {2} - <a class="btn btn-info" href="dettagli_sopralluogo.php?id={1}"> Visualizza dettagli </a>');'''.format(presidio_assegnato2[0][4], presidio_assegnato2[0][3], presidio_assegnato2[0][2])
+        storico_presidio = esegui_query(con,query_storico_presidio,'i')
     query_log= "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('segnalazioni','{}', 'Presidio (o sopralluogo) {} preso in carico');".format(presidio_assegnato2[0][0], presidio_assegnato2[0][3])
     log = esegui_query(con,query_log,'i')
     #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.".format(data['orarioPresidio'], timepreview))

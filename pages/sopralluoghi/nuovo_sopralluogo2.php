@@ -166,6 +166,9 @@ if($_POST["permanente"]=='on') {
 	//exit;
 	$result=pg_query($conn, $query);
 
+	$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso con accettazione automatica alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+	$messaggio= $messaggio ." Una volta terminato il presidio ricordati di chiuderlo digitando /stop ";
+
 } else {
 	$query= "INSERT INTO segnalazioni.stato_sopralluoghi(id_sopralluogo, id_stato_sopralluogo";
 	//values
@@ -174,6 +177,9 @@ if($_POST["permanente"]=='on') {
 	//echo $query."<br>";
 	//exit;
 	$result=pg_query($conn, $query);
+
+	$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+	$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
 }
 
 
@@ -223,8 +229,8 @@ $result = pg_execute($conn, "myquery0", array($uo));
 
 $mails=array();
 //$telegram_id=array();
-$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
-$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
+#$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+#$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
 
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
