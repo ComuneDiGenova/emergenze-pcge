@@ -157,11 +157,11 @@ require('../token_telegram.php');
 
 require('../send_message_telegram.php');
 
-$query="SELECT mail, telegram_id 
+$query="SELECT mail, telegram_id, u.telegram_attivo
 	FROM users.t_mail_squadre s
 	left join users.v_utenti_sistema u 
   	on s.matricola_cf = u.matricola_cf 
-	WHERE cod=$1 and u.telegram_attivo = true;";
+	WHERE cod=$1;";
 $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array($uo));
 
@@ -173,7 +173,9 @@ $messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /pres
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
   //array_push($telegram_id,$r['telegram_id']);
-  sendMessage($r['telegram_id'], $messaggio , $token);
+  if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
+	sendMessage($r['telegram_id'], $messaggio , $token);
+  }
 }
 
 echo "<br>";

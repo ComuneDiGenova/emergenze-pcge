@@ -5,8 +5,10 @@
 # copyleft 2021
 
 
+from dataclasses import dataclass
 import logging
 import os
+from aiogram.types.inline_keyboard import InlineKeyboardButton
 import aiogram.utils.markdown as md
 from aiogram.types import callback_query, message
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
@@ -89,6 +91,23 @@ class Form (StatesGroup):
     orarioPresidio= State()
     stop= State()
 
+class FormPresa (StatesGroup):
+    rivo = State()
+    mira = State ()
+
+
+def keyboardMire (kb_config):
+    _keyboard= types.InlineKeyboardMarkup ()
+    for rows in kb_config:
+        btn= types.InlineKeyboardButton (
+            callback_data= rows [0],
+            text= rows [1]
+        )
+        _keyboard.insert (btn)
+    return _keyboard
+
+
+
 
 def keyboard (kb_config):
     _keyboard= types.InlineKeyboardMarkup ()
@@ -151,18 +170,15 @@ async def callback (callback_query: types.CallbackQuery):
         
         
     
-    elif callback_query.data=='basso':
+    elif callback_query.data in ('basso','medio','alto'):
         testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
         await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
         await bot.send_message (callback_query.from_user.id, text= testo)
-    elif callback_query.data=='medio':
-        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
+
+    
+    elif callback_query.data in ('voltri','pra','sestri','sampierdarena','brignole'):
         await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
-    elif callback_query.data=='alto':
-        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
-        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
+        await bot.send_message(callback_query.from_user.id,'hai inserito {}'.format(callback_query.data))
         
     """ if callback_query.data !='':
         testo='Gentile {} hai fornito la seguente motivazione {}'.format(callback_query.from_user.first_name, callback_query.data)
@@ -205,17 +221,6 @@ async def send_welcome(message: types.Message):
 @dp.message_handler(commands='sito')
 async def start_cmd_handler(message: types.Message):
     keyboard_markup = types.InlineKeyboardMarkup(row_width=4)
-    # default row_width is 3, so here we can omit it actually
-    # kept for clearness
-
-    #text_and_data = (
-    #    ('Yes!', 'yes'),
-    #    ('No!', 'no'),
-    #    ('Maybe!','maybe')
-    #)
-    # in real life for the callback_data the callback data factory should be used
-    # here the raw string is used for the simplicity
-    #row_btns = (types.InlineKeyboardButton(text, callback_data=data) for text, data in text_and_data)
 
     keyboard_markup.row(
         # url buttons have no callback data
@@ -305,21 +310,91 @@ async def send_welcome(message: types.Message):
         print('errore che non ho ancora scoperto')
         
 
+##### INIZIO BOT MIRE #####
+
+@dp.message_handler(state=FormPresa.rivo)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['rivo'] = message.text
+        print(data['rivo'])
+        markup_old = types.ReplyKeyboardRemove()
+        await bot.send_message(message.chat.id,'Hai inserito {}'.format(data['rivo']),reply_markup=markup_old)
+        
+        await FormPresa.next()
+        markup_new = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+        markup_new.add("Basso {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Medio {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
+        #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
+        await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
+        
+        
+@dp.message_handler(state=FormPresa.mira)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['mira'] = message.text
+
+        # Remove keyboard
+        markup = types.ReplyKeyboardRemove()
+
+        # And send message
+        
+        await bot.send_message(message.chat.id,'Per il rivo {} hai inserito il valore di mira: {}'.format(data['rivo'],data['mira'][:-1]),reply_markup=markup)
+
+
+        await state.finish()
+
+
+
 @dp.message_handler(commands=['inserisci_mira'])
 async def send_welcome(message: types.Message):
     """
-    This handler will be called when user sends `/registra_presenza` command
+    This handler will be called when user sends `/inserisci_mira` command
     """
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    
+    registered_user = esegui_query(con,query_telegram_id,'s')
+    
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    
+    elif len(registered_user) !=0:
+        
+        query_presidio_mobile= '''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi_mobili_last_update vsmlu on vcs.id::text = vsmlu.id_squadra::text
+        where vcs.matricola_cf ='{}' and vcs.data_end is null and vsmlu.id_stato_sopralluogo =2'''.format(registered_user[0][0])
+        pm_assegnato = esegui_query(con,query_presidio_mobile,'s')
+        
+        if pm_assegnato == 1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        
+        elif len(pm_assegnato) !=0:
 
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text="Come valuti il livello dell'acqua per il torrente in questione?",
-        reply_markup= keyboard ([
-                                ["basso", "Basso {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "message text", None],
-                                ["medio", "Medio {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)), "message text", None],
-                                ["alto", "Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True)), "message text", None]
-                                ])
-                            )
+            await FormPresa.rivo.set()
+            testo_dati=[('cerusa'),('branega'),('varenna'),('chiaravagna'),('polcevera'),('bisagno'),('fereggiano'),('leira'),('priariggua'),('secca'),('torbella')]
+            
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+            for e in testo_dati:
+                markup.add(e,)
+                
+            await bot.send_message(message.chat.id,'Per quale tra i seguenti rivi vuoi inserire la mira?',reply_markup=markup)
+            
+            '''
+            keyboardMire=types.InlineKeyboardMarkup()
+            for e in testo_dati:
+                keyboardMire.add(types.InlineKeyboardButton(e[0],callback_data=e[1]))
+           
+            await bot.send_message(message.chat.id,'prova elenco',reply_markup=keyboardMire)     
+            '''
+        
+        else:
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano presidi mobili assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        #await bot.delete_message(message.chat.id,message.message_id)
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+
+
     #elimino messaggio con comando per evitare tocchi maldestri
     #await bot.delete_message(message.chat.id,message.message_id)
     

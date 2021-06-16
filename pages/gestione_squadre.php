@@ -206,7 +206,7 @@ require('navbar_up.php');
 	    	
             <th data-field="stato" data-sortable="true" data-formatter="nameFormatter1" data-visible="true" >Stato</th>
             <!--th data-field="id" data-visible="true" data-formatter="nameFormatter0" >Aggiorna stato</th-->
-			<!--th data-field="id" data-visible="true" data-formatter="nameFormatter00" >Attivabile</th-->
+			<th data-field="capo_squadra" data-visible="true" data-formatter="nameFormatter00" >Attivabile</th>
             <th data-field="num_componenti" data-sortable="true" data-formatter="nameFormatter2" data-visible="true" >Num</th>
             <th data-field="componenti" data-sortable="true" data-formatter="nameFormatter2" data-visible="true" >Componenti</th>
             <?php
@@ -491,17 +491,13 @@ function nameFormatter0(value, row, index) {
 		}         
 }
 
-/* function nameFormatter00(value, row, index) {
-	if (row.id_stato==2){
-		return '<a href="./squadre/riposo.php?id='+ value + '" class="btn btn-danger" \
-        title="Imposta a riposo" role="button"><i class="fa fa-stop" aria-hidden="true"></i>\
-         </a>';
-		} else if (row.id_stato==3) {
-			return '<a href="./squadre/play.php?id='+ value + '" class="btn btn-success" \
-        title="Imposta come a disposizione" role="button"><i class="fa fa-play" aria-hidden="true"></i>\
-        </a>';
-		}         
-} */
+function nameFormatter00(value, row, index) {
+	if (row.capo_squadra == 't' && row.operativo=='t'){
+		return '<i class="fas fa-check-circle" aria-hidden="true" style="color: green; font-size: xx-large;"></i>';
+	}else if (row.capo_squadra == 't' && row.operativo!='t') {
+			return '<i class="fas fa-times-circle" aria-hidden="true" style="color: orange; font-size: xx-large;"></i>';
+	} 
+}
 				
 function nameFormatter1(value, row, index) {
 	if (row.id_stato==1){

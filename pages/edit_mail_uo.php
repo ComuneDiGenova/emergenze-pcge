@@ -78,23 +78,68 @@ require('navbar_up.php');
             <!-- /.row -->
 
             <div class="row">
-				<h2>Mail già a sistema</h2>
+				<h2>Contatti già a sistema</h2>
 				<?php
-				$check_mail=0; // non ci sono maio diventa 1 se ce ne sono già
-				$query="SELECT cod, mail, matricola_cf FROM users.t_mail_incarichi WHERE cod='".$uo."';";
+				$check_mail=0; // non ci sono mail diventa 1 se ce ne sono già
+				$query="SELECT cod, mail, matricola_cf, id_telegram FROM users.t_mail_incarichi WHERE cod='".$uo."';";
 				$result = pg_query($conn, $query);
 				while($r = pg_fetch_assoc($result)) {
 					$check_mail=1;
-					echo '<b>Mail</b>:'.$r['mail'].' ';
-					echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&mail='.$r['mail'].'"> Elimina </a><br><br>';
+					echo '<b>Mail</b>: '.$r['mail'].' ';
+					//echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&mail='.$r['mail'].'"> Elimina </a><br><br>';
+					if($r['id_telegram']!=''){
+						echo '- <b>Telegram ID</b>: '.$r['id_telegram'].' ';
+						echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&idt='.$r['id_telegram'].'&mail='.$r['mail'].'"> Elimina </a><br><br>';
+					}else{
+						echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&mail='.$r['mail'].'"> Elimina </a>
+						<button type="button" class="btn btn-primary noprint"  data-toggle="modal" data-target="#add_tid"> Aggiungi Telegram ID </button><br><br>
+						<!-- Modal sopralluogo-->
+						<div id="add_tid" class="modal fade" role="dialog">
+						  <div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+							  <div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+								<h4 class="modal-title">Aggiungi telegram ID</h4>
+							  </div>
+							  <div class="modal-body">
+							  
+
+								<form autocomplete="off" action="./incarichi/add_telegramid.php?cod='.$r['cod'].'&mail='.$r['mail'].'"method="POST">
+    
+									 
+									<div class="form-group">
+											 <label for="descrizione"> Telegram ID</label> <font color="red">*</font>
+										<input type="text" name="idt" class="form-control" required="">
+									  </div>            
+										  
+
+
+
+								<button  id="conferma" type="submit" class="btn btn-primary noprint"  data-toggle="tooltip" data-placement="top" title="Cliccando su questo tasto confermi le informazioni precedenti e assegni l\'id telegram all\'unità operatica">Aggiungi</button>
+									</form>
+
+							  </div>
+							  <div class="modal-footer">
+								<button type="button" class="btn btn-default noprint" data-dismiss="modal">Annulla</button>
+							  </div>
+							</div>
+
+						  </div>
+						</div>';
+
+					}
 				}
 				
 				?>
 
+						
+
 				<hr>
 				<br>
-				<h2>Aggiungi mail</h2> 
-				</div>
+				<h2>Aggiungi contatto</h2> 
+			</div>
             <!-- /.row -->
             <div class="row">
             
@@ -112,8 +157,20 @@ require('navbar_up.php');
 				            url: "get_mail.php",
 				            data:'cod='+val,
 				            success: function(data){
+								console.log(data),
 					            $("#mail-input").html(data);
-					            //$("#cf-input").html(data);
+					            //$("#telegramid-input").html(data);
+					            //$(this).after('<input id="mail-input" class="form-control" type="text" name="mail-input" />')
+				            }
+				            });
+							$.ajax({
+				            type: "POST",
+				            url: "get_telegramid.php",
+				            data:'cod='+val,
+				            success: function(data){
+								console.log(data),
+					            $("#telegramid-input").html(data);
+					            //$("#telegramid-input").html(data);
 					            //$(this).after('<input id="mail-input" class="form-control" type="text" name="mail-input" />')
 				            }
 				            });
@@ -153,16 +210,27 @@ require('navbar_up.php');
 			             </div>
 			             
 			             </div-->
-							<div class="col-md-6"> 
+						<div class="col-md-3"> 
 			
-			            <div class="form-group">
-			            <label for="mail-input">Mail:</label> <font color="red">*</font>
-			                <select readonly="" class="form-control" name="mail" id="mail-input" class="demoInputBox" required="">
-			                <option value="">Mail utente..</option>
-			            </select> 
-			             </div>
+			            	<div class="form-group">
+								<label for="mail-input">Mail:</label> <font color="red">*</font>
+								<select readonly="" class="form-control" name="mail" id="mail-input" class="demoInputBox" required="">
+									<option value="">Mail utente..</option>
+								</select> 
+			             	</div>
+	
 			             
-			             </div>
+			            </div>
+						<div class="col-md-3"> 
+			
+							<div class="form-group">
+							<label for="telegramid-input">Telegram ID:</label> <font color="red">*</font>
+								<select readonly="" class="form-control" name="telegramid" id="telegramid-input" class="demoInputBox" required="">
+								<option value="">Telegram ID utente..</option>
+							</select> 
+							</div>
+			             
+			            </div>
 			             
 			             
 			             </div>

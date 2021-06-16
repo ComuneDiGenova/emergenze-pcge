@@ -87,6 +87,7 @@ require('navbar_up.php');
             <th style="word-break:break-all; word-wrap:break-word; " data-field="tipo" data-sortable="true" data-filter-control="select" data-visible="true">Tipo</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="descrizione" data-sortable="true" data-filter-control="input" data-visible="true">Descrizione<br>U.O.</th>
 	          <th data-field="mails" data-sortable="true"  data-visible="true" data-filter-control="input" >Mail</th>
+              <th data-field="ids_telegram" data-sortable="true"  data-visible="true" data-filter-control="input" >Telegram</th>
             <?php
 				if ($check_operatore == 1){
 				?>
