@@ -484,7 +484,7 @@ async def process_presa(message: types.Message, state: FSMContext):
 @dp.message_handler(content_types=types.ContentType.PHOTO, state=FormComunicazione.foto)
 async def process_presa(message: types.Message, state: FSMContext):
     async with state.proxy() as data: 
-        data['foto'] = message.photo[-1] #non funzione
+        data['foto'] = message.photo[-1]
         #print(data['foto'])
         pid= await bot.get_file(data['foto'].file_id)
         photo_name='{}_{}.jpg'.format(message.chat.id,datetime.now().strftime("%Y%m%d%H%M"))

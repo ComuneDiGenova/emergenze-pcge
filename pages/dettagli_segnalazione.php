@@ -119,6 +119,7 @@ require('navbar_up.php');
 						//$check_operatore=0; //controllo se l'operatore può fare qualcosa o meno
 						$id_profilo=$r['id_profilo'];
 						$id_municipio=$r['id_municipio'];
+						$id_evento=$r['id_evento'];
 						
 						
 						//echo 'Munic'. $id_municipio.'<br>';
