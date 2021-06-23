@@ -246,7 +246,7 @@ if ($profilo_sistema <=2){
 			<input type="hidden" name="id_lavorazione" value="<?php echo $r['id_lavorazione'];?>" />
 			<input type="hidden" name="id_evento" value="<?php echo $id_evento;?>" />
 				 <div class="form-group">
-				<label for="note">Testo comunicazione <?php echo $id_evento;?></label>  <font color="red">*</font>
+				<label for="note">Testo comunicazione <!--?php echo $id_evento;?--></label>  <font color="red">*</font>
 				<textarea required="" class="form-control" id="note"  name="note" rows="3"></textarea>
 			  </div>
 			

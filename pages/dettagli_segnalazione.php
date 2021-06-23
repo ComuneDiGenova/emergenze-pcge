@@ -106,6 +106,7 @@ require('navbar_up.php');
 						$id_civico=$r['id_civico'];
 						$geom=$r['geom'];
 						$id_municipio=$r['id_municipio'];
+						$id_evento=$r['id_evento'];
 						
 					?>            
             
