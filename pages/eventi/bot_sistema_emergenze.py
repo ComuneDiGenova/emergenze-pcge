@@ -10,9 +10,9 @@ import logging
 import os
 from aiogram.types.inline_keyboard import InlineKeyboardButton
 import aiogram.utils.markdown as md
-from aiogram.types import callback_query, message
+from aiogram.types import callback_query, message, message_entity, update
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
-from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher import FSMContext, middlewares
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import conn
 from aiogram.types import ParseMode
@@ -91,23 +91,6 @@ class Form (StatesGroup):
     orarioPresidio= State()
     stop= State()
 
-class FormPresa (StatesGroup):
-    rivo = State()
-    mira = State ()
-
-
-def keyboardMire (kb_config):
-    _keyboard= types.InlineKeyboardMarkup ()
-    for rows in kb_config:
-        btn= types.InlineKeyboardButton (
-            callback_data= rows [0],
-            text= rows [1]
-        )
-        _keyboard.insert (btn)
-    return _keyboard
-
-
-
 
 def keyboard (kb_config):
     _keyboard= types.InlineKeyboardMarkup ()
@@ -167,19 +150,17 @@ async def callback (callback_query: types.CallbackQuery):
     elif callback_query.data=='continua_turno':
         await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
         await bot.send_message(callback_query.from_user.id,"Hai annullato il comando e il tuo turno proseguirà. Utilizza nuovamente il comando /registra_uscita per terminare il turno")
-        
-        
     
-    elif callback_query.data in ('basso','medio','alto'):
-        testo='Hai inserito {} e il tuo chat id è {}, da qui bisogna continuare l\'implementazione del comando'.format(callback_query.data,callback_query.from_user.id)
-        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
-        await bot.send_message (callback_query.from_user.id, text= testo)
+    elif callback_query.data =='Carica' or callback_query.data =='Annulla':
+        markup = types.ReplyKeyboardRemove()
+        if callback_query.data == "Carica":
+            await bot.send_message("Foto caricata a sistema!",reply_markup=markup)
+        else:
+            await bot.send_message("Comando annullato!",reply_markup=markup)
+            
+            
+                
 
-    
-    elif callback_query.data in ('voltri','pra','sestri','sampierdarena','brignole'):
-        await bot.delete_message(callback_query.from_user.id,callback_query.message.message_id)
-        await bot.send_message(callback_query.from_user.id,'hai inserito {}'.format(callback_query.data))
-        
     """ if callback_query.data !='':
         testo='Gentile {} hai fornito la seguente motivazione {}'.format(callback_query.from_user.first_name, callback_query.data)
         await bot.send_message (callback_query.from_user.id, text= testo) """
@@ -206,6 +187,7 @@ async def send_help(message: types.Message):
     \n{0} registra_presenza: comando per registrare la propria presenza all'inizio della fase operativa
     \n{0} registra_uscita: comando per registrare la conclusione della propria fase operativa
     \n{0} inserisci_mira: comando per inserire il valore della mira
+    \n{0} comunicazione: comando per inserire una comunicazione su una data segnalazione
     \n\nPuoi accedere a questi comandi cliccando nel riquadro con il cararrete / in basso a destra. 
     \n\nTramite questo BOT potrai anche ricevere notifiche dal sistema. Per fare questo devi inserire il tuo telegram_id nel portale e attivare le notifiche.""".format(emoji.emojize(":arrow_forward:",use_aliases=True)))
 
@@ -312,11 +294,20 @@ async def send_welcome(message: types.Message):
 
 ##### INIZIO BOT MIRE #####
 
+class FormPresa (StatesGroup):
+    rivo = State()
+    mira = State ()
+
+#funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
+@dp.message_handler(lambda message: message.text not in [i for i in mire.keys()], state=FormPresa.rivo)
+async def process_gender_invalid(message: types.Message):
+    return await message.reply("Il rio inserito non è valido. Seleziona il rio usando le opzioni presenti sulla tastiera.")
+
+
 @dp.message_handler(state=FormPresa.rivo)
 async def process_presa(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['rivo'] = message.text
-        print(data['rivo'])
         markup_old = types.ReplyKeyboardRemove()
         await bot.send_message(message.chat.id,'Hai inserito {}'.format(data['rivo']),reply_markup=markup_old)
         
@@ -326,23 +317,50 @@ async def process_presa(message: types.Message, state: FSMContext):
         #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
         await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
         
+#funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
+@dp.message_handler(lambda message: message.text not in ["Basso {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Medio {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True))], state=FormPresa.mira)
+async def process_gender_invalid(message: types.Message):
+    return await message.reply("Il valore inserito non è valido. Seleziona un valore usando le opzioni presenti sulla tastiera.")
         
 @dp.message_handler(state=FormPresa.mira)
 async def process_presa(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['mira'] = message.text
 
-        # Remove keyboard
-        markup = types.ReplyKeyboardRemove()
-
-        # And send message
+        #assegno il valore della mira all'id corrispondente        
+        if data['mira'][:-2]=='Basso':
+            id_lettura=1
+        elif data['mira'][:-2]=='Medio':
+            id_lettura=2
+        elif data['mira'][:-2]=='Alto':
+            id_lettura=3
         
-        await bot.send_message(message.chat.id,'Per il rivo {} hai inserito il valore di mira: {}'.format(data['rivo'],data['mira'][:-1]),reply_markup=markup)
+        # l'id del rivo lo recupero dal dizionario mettendo come chiave il nome del rivo selezionato
+        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now())'.format(mire[data['rivo']],id_lettura)
+        con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+        inserimento_mira=esegui_query(con,query_update_mira,'i')
+        
+        if inserimento_mira==0:
+            # Remove keyboard
+            markup = types.ReplyKeyboardRemove()
 
+            # And send message
+            await bot.send_message(message.chat.id,'''Mira inserita correttamente.\nRiepilogo dei dati inseriti:
+                                \nRivo/Mira: {}
+                                \nValore: {}
+                                '''.format(data['rivo'],data['mira'],),reply_markup=markup)        
 
-        await state.finish()
+            await state.finish()
+        else:
+            # Remove keyboard
+            markup = types.ReplyKeyboardRemove()
 
+            # And send message
+            await bot.send_message(message.chat.id,'''Si è verificato un problema nell'inserimento della mira nel database.
+                                   \nSe visualizzi questo messaggio prova ad usare nuovamente il comando /inserisci_mira o a contattare un tecnico''',reply_markup=markup)        
 
+            await state.finish()
+            
 
 @dp.message_handler(commands=['inserisci_mira'])
 async def send_welcome(message: types.Message):
@@ -363,40 +381,136 @@ async def send_welcome(message: types.Message):
         query_presidio_mobile= '''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi_mobili_last_update vsmlu on vcs.id::text = vsmlu.id_squadra::text
         where vcs.matricola_cf ='{}' and vcs.data_end is null and vsmlu.id_stato_sopralluogo =2'''.format(registered_user[0][0])
         pm_assegnato = esegui_query(con,query_presidio_mobile,'s')
-        
+                
         if pm_assegnato == 1:
-            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema:
                             \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
         
         elif len(pm_assegnato) !=0:
-
-            await FormPresa.rivo.set()
-            testo_dati=[('cerusa'),('branega'),('varenna'),('chiaravagna'),('polcevera'),('bisagno'),('fereggiano'),('leira'),('priariggua'),('secca'),('torbella')]
+            percorso_assegnato=pm_assegnato[0][17]
+            id_evento=pm_assegnato[0][25]
             
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-            for e in testo_dati:
-                markup.add(e,)
+            #controllo se presenza FOC
+            
+            queryfoc="SELECT * FROM eventi.v_foc WHERE id_evento={} and data_ora_fine_foc > now()".format(id_evento)
+            foc=esegui_query(con,queryfoc,'s')
+            if foc==1:
+                 await bot.send_message(message.chat.id,'''{} Si è verificato un problema sulla verifica della presenza di una F.O.C.:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+            elif len(foc)!=0:
+               
+                if foc[0][2]=='Attenzione':
+                    nome_perc='perc_al_g'
+                elif foc[0][2]=='Pre-allarme':
+                    nome_perc='perc_al_a'
+                elif foc[0][2]=='Allarme':
+                    nome_perc='perc_al_r'
                 
-            await bot.send_message(message.chat.id,'Per quale tra i seguenti rivi vuoi inserire la mira?',reply_markup=markup)
-            
-            '''
-            keyboardMire=types.InlineKeyboardMarkup()
-            for e in testo_dati:
-                keyboardMire.add(types.InlineKeyboardButton(e[0],callback_data=e[1]))
-           
-            await bot.send_message(message.chat.id,'prova elenco',reply_markup=keyboardMire)     
-            '''
+                query_mire='''SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
+			                    FROM geodb.punti_monitoraggio_ok p WHERE p.id is not null and "{}"= '{}'
+                       order by nome'''.format(nome_perc,percorso_assegnato)
+                testo_dati=esegui_query(con,query_mire,'s') 
+                
+                if len(testo_dati)==0:
+
+                    await bot.send_message(message.chat.id,'''Non ci sono rivi per cui inserire la mira.
+                                           \nDurante la F.O.C. {}, infatti il percorso {}, che è stato assegnato alla tua squadra, è disabilitato.'''.format(foc[0][2],percorso_assegnato))
+                    
+                else:
+                    await FormPresa.rivo.set()
+                    global mire
+                    mire={}               
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+                    for i in testo_dati:
+                        markup.add(i[1],)
+                        mire[i[1]]=i[0]
+                    
+                    await bot.send_message(message.chat.id,'Per quale tra i seguenti rivi vuoi inserire la mira?',reply_markup=markup)
+
+            else:
+                await bot.send_message(message.chat.id,'''{} Al momento non risultano F.O.C. attive sul tuo evento, per cui non puoi usare questo comando.'''.format(emoji.emojize(":warning:",use_aliases=True)))
         
         else:
-            await bot.send_message(message.chat.id,'''{} Al momento non risultano presidi mobili assegnati alla tua squadra'''.format(emoji.emojize(":warning:",use_aliases=True)))
+            await bot.send_message(message.chat.id,'''{} Al momento non risultano presidi mobili assegnati e/o accettati alla tua squadra, per cui non puoi usare questo comando.'''.format(emoji.emojize(":warning:",use_aliases=True)))
         #await bot.delete_message(message.chat.id,message.message_id)
     else:
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
-                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando.'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+    
+##### FINE BOT MIRE #####
 
 
-    #elimino messaggio con comando per evitare tocchi maldestri
-    #await bot.delete_message(message.chat.id,message.message_id)
+##### INIZIO BOT COMUNICAZIONE #####
+
+class FormComunicazione (StatesGroup):
+    testo_com = State()
+    foto_flag = State ()
+    foto = State ()
+    
+
+
+@dp.message_handler(state=FormComunicazione.testo_com)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['testo_com'] = message.text
+        
+        await FormComunicazione.next()
+        markupnext=types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+
+        markupnext.add("Foto","Invia")
+        
+        await message.reply("Vuoi allegare una foto alla comunicazione inserita o inviarla senza foto?",reply_markup=markupnext)
+       
+        
+@dp.message_handler(lambda message: message.text not in ["Foto","Invia"], state=FormComunicazione.foto_flag)
+async def process_gender_invalid(message: types.Message):
+    return await message.reply("Comando non valido. Seleziona il comando usando le opzioni presenti sulla tastiera.")
+
+@dp.message_handler(state=FormComunicazione.foto_flag)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['foto_com'] = message.text
+        markupend=types.ReplyKeyboardRemove()
+        if data['foto_com']=='Foto':
+            
+           
+            await message.reply("Scatta una foto dal tuo dispositivo ",reply_markup=markupend)
+            await FormComunicazione.next()        
+        else:
+            
+            await message.reply('Comunicazione senza foto inviata',reply_markup=markupend)
+            await state.finish()
+            
+@dp.message_handler(content_types=types.ContentType.PHOTO, state=FormComunicazione.foto)
+async def process_presa(message: types.Message, state: FSMContext):
+    async with state.proxy() as data: 
+        data['foto'] = message.photo[-1] #non funzione
+        #print(data['foto'])
+        pid= await bot.get_file(data['foto'].file_id)
+        photo_name='{}_{}.jpg'.format(message.chat.id,datetime.now().strftime("%Y%m%d%H%M"))
+
+        destination='{}/bot_photos/{}'.format(os.path.dirname(os.path.realpath(__file__)),photo_name)
+
+        await bot.download_file(pid.file_path,destination)
+        
+        markupend=types.ReplyKeyboardRemove()
+
+        await message.reply("Hai inviato la foto {} al sistema.".format(photo_name),reply_markup=markupend)
+        await state.finish()
+        
+        
+            
+@dp.message_handler(commands='comunicazione')
+async def save_photo(message: types.Message):
+    """
+    This handler will be called when user sends `/comunicazione` command
+    """
+    
+    await FormComunicazione.testo_com.set()
+    
+    await bot.send_message(message.chat.id,"Inserisci il testo della comunicazione")
+
+##### FINE BOT COMUNICAZIONE #####
     
 ##### INIZIO BOT INCARICHI INTERNI #####
 # Check orario inizio incarico interno è numerico
@@ -838,13 +952,27 @@ async def send_chiudo(message: types.Message):
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
                                \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
 
+
+##### FINE BOT PRESIDI #####
+
+#message handler che gestisce i messaggi con foto
+@dp.message_handler(content_types=types.ContentTypes.PHOTO)
+async def bot_echo_all(message: types.Message):
+    await message.reply('Hai inserito una foto quando non è il momento di farlo. Questa foto pertanto sarà ignorata dal sistema.')
+
 #questa funzione deve essere l'ultima dello script altrimenti entra qui dentro e ignora le funzioni successive
 @dp.message_handler()
 async def echo(message: types.Message):
     # old style:
     # await bot.send_message(message.chat.id, message.text)
     #print(message.text, message.chat.id)
+    print(message_entity.MessageEntityType)
+    file=bot.get_file(update.Message.photo[-1].file_id)
     #await message.answer(message.text)
+    print(message.document.file_id)
+    
+    pippo = await bot.get_file()
+    print(pippo)
     await bot.send_message(message.chat.id, 'hai inserito testo senza schiacciare nessun comando. In particolare hai scritto \'{}\''.format(message.text))
     
 
