@@ -313,12 +313,12 @@ async def process_presa(message: types.Message, state: FSMContext):
         
         await FormPresa.next()
         markup_new = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-        markup_new.add("Basso {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Medio {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
+        markup_new.add("Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
         #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
         await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
         
 #funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
-@dp.message_handler(lambda message: message.text not in ["Basso {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Medio {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Alto {}".format(emoji.emojize(":red_circle:",use_aliases=True))], state=FormPresa.mira)
+@dp.message_handler(lambda message: message.text not in ["Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True))], state=FormPresa.mira)
 async def process_gender_invalid(message: types.Message):
     return await message.reply("Il valore inserito non è valido. Seleziona un valore usando le opzioni presenti sulla tastiera.")
         
@@ -328,11 +328,11 @@ async def process_presa(message: types.Message, state: FSMContext):
         data['mira'] = message.text
 
         #assegno il valore della mira all'id corrispondente        
-        if data['mira'][:-2]=='Basso':
+        if data['mira'][:-2]=='Verde':
             id_lettura=1
-        elif data['mira'][:-2]=='Medio':
+        elif data['mira'][:-2]=='Giallo':
             id_lettura=2
-        elif data['mira'][:-2]=='Alto':
+        elif data['mira'][:-2]=='Rosso':
             id_lettura=3
         
         # l'id del rivo lo recupero dal dizionario mettendo come chiave il nome del rivo selezionato
@@ -373,7 +373,7 @@ async def send_welcome(message: types.Message):
     registered_user = esegui_query(con,query_telegram_id,'s')
     
     if registered_user ==1:
-        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile capire se il tuo utente è registrato nel sistema:
                             \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
     
     elif len(registered_user) !=0:
@@ -459,7 +459,7 @@ async def process_presa(message: types.Message, state: FSMContext):
 
         markupnext.add("Foto","Invia")
         
-        await message.reply("Vuoi allegare una foto alla comunicazione inserita o inviarla senza foto?",reply_markup=markupnext)
+        await message.reply("{} Vuoi allegare una foto alla comunicazione inserita o inviarla senza foto?".format(emoji.emojize(":camera:",use_aliases=True)),reply_markup=markupnext)
        
         
 @dp.message_handler(lambda message: message.text not in ["Foto","Invia"], state=FormComunicazione.foto_flag)
@@ -478,25 +478,48 @@ async def process_presa(message: types.Message, state: FSMContext):
             await FormComunicazione.next()        
         else:
             
-            await message.reply('Comunicazione senza foto inviata',reply_markup=markupend)
+            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+            qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo) VALUES({},'{}','{}') '''.format(id_lavorazione,mittente,data['testo_com'])
+            query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(user, id_segnalazione)
+            resultins=esegui_query(con, qinsertcom,'i')
+            resultlog=esegui_query(con,query_log,'i')
+            if resultins==1 or resultlog==1:
+                await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+            else:
+                await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
             await state.finish()
             
-@dp.message_handler(content_types=types.ContentType.PHOTO, state=FormComunicazione.foto)
-async def process_presa(message: types.Message, state: FSMContext):
-    async with state.proxy() as data: 
-        data['foto'] = message.photo[-1]
-        #print(data['foto'])
-        pid= await bot.get_file(data['foto'].file_id)
-        photo_name='{}_{}.jpg'.format(message.chat.id,datetime.now().strftime("%Y%m%d%H%M"))
 
-        destination='{}/bot_photos/{}'.format(os.path.dirname(os.path.realpath(__file__)),photo_name)
+@dp.message_handler(content_types=types.ContentType.ANY, state=FormComunicazione.foto)
+async def process_foto(message: types.Message, state: FSMContext):
+    if message.content_type is types.ContentType.PHOTO:      
+        async with state.proxy() as data: 
+            data['foto'] = message.photo[-1]
+            photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
+            destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/s_{}'.format(id_evento,id_segnalazione)
 
-        await bot.download_file(pid.file_path,destination)
-        
-        markupend=types.ReplyKeyboardRemove()
+            if not os.path.exists(destination):
 
-        await message.reply("Hai inviato la foto {} al sistema.".format(photo_name),reply_markup=markupend)
-        await state.finish()
+                os.system('mkdir -p {}'.format(destination))
+
+            await data['foto'].download('{}/{}'.format(destination,photo_name))
+            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+            
+            allegato='{}/{}'.format(destination[26:],photo_name)
+            
+            qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(id_lavorazione,mittente,data['testo_com'],allegato)
+            query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(user, id_segnalazione)
+            resultins=esegui_query(con, qinsertcom,'i')
+            resultlog=esegui_query(con,query_log,'i')
+            markupend=types.ReplyKeyboardRemove()
+            if resultins==1 or resultlog==1:
+                await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+            else:
+                await message.reply('{}{} Comunicazione con foto inviata al sistema'.format(emoji.emojize(":arrow_right:",use_aliases=True), emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+            
+            await state.finish()
+    else:
+        await message.reply('Contenuto del messaggio non valido. Inserisci una foto.')
         
         
             
@@ -506,9 +529,94 @@ async def save_photo(message: types.Message):
     This handler will be called when user sends `/comunicazione` command
     """
     
-    await FormComunicazione.testo_com.set()
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
+    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
     
-    await bot.send_message(message.chat.id,"Inserisci il testo della comunicazione")
+    registered_user = esegui_query(con,query_telegram_id,'s')
+    
+    if registered_user ==1:
+        await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile capire se il tuo utente è registrato nel sistema:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    
+    elif len(registered_user) !=0:
+        
+        q1='''select * from users.v_componenti_squadre vcs left join users.v_squadre_notifica vsn on vcs.id_squadra ::text = vsn.id ::text 
+                where vcs.matricola_cf ='{}' and  (vsn.id_incarico_interno is not null or vsn.id_sopralluogo is not null or vsn.id_sm is not null)'''.format(registered_user[0][0])
+        #lo scopo di questa query è capire se alla squadra è assegnato un incarico interno, un presidio fisso o un presidio mobile e ricavarne l id.
+        incarico=esegui_query(con,q1,'s')
+        
+        if incarico==1:
+            await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile se alla tua squadra sono stati assegnati dei compiti:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+        elif len(incarico)!=0:
+            global id_segnalazione
+            global id_lavorazione
+            global id_evento
+            global mittente
+            #global id_compito
+            global user
+            
+            if incarico[0][-3]:
+                
+                #caso incarico interno
+                tipo= 'incarico interno'
+                queryii='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_incarichi_interni vii on vcs.id ::text =vii.id_squadra ::text 
+                            where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null'''.format(registered_user[0][0])
+                resultii=esegui_query(con,queryii,'s')
+                
+                if resultii==1:
+                    await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile risalite all'id dell'evento:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                elif len(resultii)!=0:
+                    #print(resultii)
+                    user=resultii[0][2]
+                    mittente='{} {} ({})'.format(resultii[0][4],resultii[0][5],resultii[0][6])
+                    id_segnalazione=resultii[0][-10]
+                    id_lavorazione=resultii[0][-9]
+                    id_evento=resultii[0][-8]
+                    
+                    
+                else:
+                    await bot.send_message(message.chat.id,'''{} Attenzione: l'incarico assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))           
+                
+            elif incarico[0][-2]:
+                #caso presidio fisso
+                tipo='presidio fisso'
+                querypf='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi vs on vcs.id_squadra  ::text = vs.id_squadra ::text
+                           where vcs.matricola_cf ='{}' and vs.id_stato_sopralluogo =2 and vs.time_stop is null'''.format(registered_user[0][0])
+                resultpf=esegui_query(con,querypf,'s')
+                if resultpf==1:
+                    await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile risalite all'id dell'evento:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                elif len(resultpf)!=0:
+                    
+                    user=resultpf[0][2]
+                    mittente='{} {} ({})'.format(resultpf[0][4],resultpf[0][5],resultpf[0][6])
+                    id_segnalazione=resultpf[0][-10]
+                    id_lavorazione=resultpf[0][-9]
+                    id_evento=resultpf[0][-8]
+
+                else:
+                    await bot.send_message(message.chat.id,'''{} Attenzione: il presidio fisso assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                
+            elif incarico[0][-1]:
+                #caso presidio mobile
+                tipo='presidio mobile'
+                qeurypm=''
+
+            await FormComunicazione.testo_com.set()
+    
+            await bot.send_message(message.chat.id,"""Alla tua squadra risulta assegnato un {} sulla segnalazine {} nell\'ambito dell\'evento {}.
+                                   \n{} Inserisci il testo della comunicazione che vuoi mandare alla centrale""".format(tipo,id_segnalazione,id_evento,emoji.emojize(":memo:",use_aliases=True)))
+                        
+        else:
+            await bot.send_message(message.chat.id,'''{} Alla tua squadra in questo momento non sono stati assegnati incarichi o presidi, pertanto non è possibile inserire una comunicazione.'''.format(emoji.emojize(":warning:",use_aliases=True)))
+    
+    else:
+        await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
+                            \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando.'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
+   
+    
 
 ##### FINE BOT COMUNICAZIONE #####
     
@@ -955,26 +1063,10 @@ async def send_chiudo(message: types.Message):
 
 ##### FINE BOT PRESIDI #####
 
-#message handler che gestisce i messaggi con foto
-@dp.message_handler(content_types=types.ContentTypes.PHOTO)
-async def bot_echo_all(message: types.Message):
-    await message.reply('Hai inserito una foto quando non è il momento di farlo. Questa foto pertanto sarà ignorata dal sistema.')
-
 #questa funzione deve essere l'ultima dello script altrimenti entra qui dentro e ignora le funzioni successive
-@dp.message_handler()
-async def echo(message: types.Message):
-    # old style:
-    # await bot.send_message(message.chat.id, message.text)
-    #print(message.text, message.chat.id)
-    print(message_entity.MessageEntityType)
-    file=bot.get_file(update.Message.photo[-1].file_id)
-    #await message.answer(message.text)
-    print(message.document.file_id)
-    
-    pippo = await bot.get_file()
-    print(pippo)
-    await bot.send_message(message.chat.id, 'hai inserito testo senza schiacciare nessun comando. In particolare hai scritto \'{}\''.format(message.text))
-    
+@dp.message_handler(content_types=types.ContentTypes.ANY)
+async def bot_echo_all(message: types.Message):
+    await message.reply('Hai questo messaggio senza utilizzare nessun comando. Il contenuto di questo messaggio pertanto verrà ignorato dal sistema.')
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
