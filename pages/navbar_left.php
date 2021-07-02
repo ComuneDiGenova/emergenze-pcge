@@ -179,7 +179,7 @@
                                     <a href="elenco_presenti.php"><i class="fas fa-user-check"></i> Utenti presenti</a>
                                 </li>
                                 <li>
-                                    <a href="elenco_presenti_storico.php"><i class="fas fa-user-times"></i> Stoico utenti presenti</a>
+                                    <a href="elenco_presenti_storico.php"><i class="fas fa-user-times"></i> Storico utenti presenti</a>
                                 </li>
                             </ul>
                         </li>

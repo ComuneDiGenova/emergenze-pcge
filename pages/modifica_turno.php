@@ -13,17 +13,17 @@ if(!$conn) {
         #$fine= "'".$durata." hours'";
         $fine= $durata." hours";
         #$fine_hp = str_replace("\"","'",$fine);
-        echo $fine;
+        //echo $fine;
         #echo $fine_hp;
 
         $query="UPDATE users.t_presenze SET data_inizio = '".$inizio_turno."', durata = '".$durata."' where id = ".$id.";";
         $result=pg_query($conn, $query);
-        echo $query;
+        //echo $query;
         $query1="UPDATE users.t_presenze SET data_fine_hp = data_inizio + interval '".$fine."'
         where id = ".$id.";";
         $result=pg_query($conn, $query1);
-        echo $query;
-        echo $query1;
+        //echo $query;
+        //echo $query1;
         
         //capire perchè con questo metodo di scrittura della query non si riesce a passare il valore di interval
         /* $query = "UPDATE users.t_presenze SET

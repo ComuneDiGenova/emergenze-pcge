@@ -33,8 +33,8 @@ while True:
     pidfile = open(pidfilename, 'w')
     f.write("\n{} - Ripartito lo script {}".format(x,filename))
     f.close
-    print("\nStarting " + filename)
-    p = Popen("python3.8 " + filename, shell=True)
+    #print("\nStarting " + filename)
+    p = Popen("/usr/local/bin/python3.8 " + filename, shell=True)
     pidfile.write(str(p.pid))
     pidfile.close()
     p.wait()

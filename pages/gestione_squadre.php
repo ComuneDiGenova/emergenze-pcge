@@ -206,7 +206,7 @@ require('navbar_up.php');
 	    	
             <th data-field="stato" data-sortable="true" data-formatter="nameFormatter1" data-visible="true" >Stato</th>
             <!--th data-field="id" data-visible="true" data-formatter="nameFormatter0" >Aggiorna stato</th-->
-			<th data-field="capo_squadra" data-visible="true" data-formatter="nameFormatter00" >Attivabile</th>
+			<th data-field="capo_squadra" data-visible="true" data-formatter="nameFormatter00" >Telegram</th>
             <th data-field="num_componenti" data-sortable="true" data-formatter="nameFormatter2" data-visible="true" >Num</th>
             <th data-field="componenti" data-sortable="true" data-formatter="nameFormatter2" data-visible="true" >Componenti</th>
             <?php

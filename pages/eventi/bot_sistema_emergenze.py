@@ -446,11 +446,10 @@ class FormComunicazione (StatesGroup):
     testo_com = State()
     foto_flag = State ()
     foto = State ()
-    
 
 
 @dp.message_handler(state=FormComunicazione.testo_com)
-async def process_presa(message: types.Message, state: FSMContext):
+async def process_testo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['testo_com'] = message.text
         
@@ -524,7 +523,7 @@ async def process_foto(message: types.Message, state: FSMContext):
         
             
 @dp.message_handler(commands='comunicazione')
-async def save_photo(message: types.Message):
+async def comunication(message: types.Message):
     """
     This handler will be called when user sends `/comunicazione` command
     """
