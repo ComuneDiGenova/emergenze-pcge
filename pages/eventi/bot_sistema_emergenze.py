@@ -477,22 +477,39 @@ async def process_presa(message: types.Message, state: FSMContext):
             await message.reply("Scatta una foto dal tuo dispositivo ",reply_markup=markupend)
             await FormComunicazione.next()        
         else:
-            with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
+            
+            #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
                 #tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento (mantenere l ordine)
-                details=tmpfile.read().split(',')
-            os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
-            
-            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-            qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo) VALUES({},'{}','{}') '''.format(details[4],details[2],data['testo_com'])
-            query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(details[1], details[3])
-            resultins=esegui_query(con, qinsertcom,'i')
-            resultlog=esegui_query(con,query_log,'i')
-            if resultins==1 or resultlog==1:
-                await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+            #    details=tmpfile.read().split(',')
+            #os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
+            if data['tipo']=='presidio mobile':
+                
+                qinsertpm='''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo) VALUES ({},'{}')'''.format(data['id_pm'],data['testo_com'])
+                query_logpm='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'],data['testo_com'])
+                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+                
+                resultinspm=esegui_query(con, qinsertpm,'i')
+                resultlogpm=esegui_query(con,query_logpm,'i')
+                
+                if resultinspm==1 or resultlogpm==1:
+                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+                else:
+                    await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+                await state.finish()
+                
             else:
-                await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
             
-            await state.finish()
+                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+                qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo) VALUES({},'{}','{}') '''.format(data['id_lavorazione'],data['mittente'],data['testo_com'])
+                query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
+                resultins=esegui_query(con, qinsertcom,'i')
+                resultlog=esegui_query(con,query_log,'i')
+                
+                if resultins==1 or resultlog==1:
+                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+                else:
+                    await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+                await state.finish()
             
 
 @dp.message_handler(content_types=types.ContentType.ANY, state=FormComunicazione.foto)
@@ -502,43 +519,69 @@ async def process_foto(message: types.Message, state: FSMContext):
             data['foto'] = message.photo[-1]
             photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
             
-            with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
+            #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
                 #tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento (mantenere l ordine)
-                details=tmpfile.read().split(',')
-            os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
-            
-            destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/s_{}'.format(details[5],details[3])
+            #    details=tmpfile.read().split(',')
+            #os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
+            if data['tipo']=='presidio mobile':
+                
+                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/pm_{}'.format(data['id_evento'],data['id_pm'])
 
-            if not os.path.exists(destination):
+                if not os.path.exists(destination):
 
-                os.system('mkdir -p {}'.format(destination))
+                    os.system('mkdir -p {}'.format(destination))
 
-            await data['foto'].download('{}/{}'.format(destination,photo_name))
-            
-            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-
-            allegato='{}/{}'.format(destination[26:],photo_name)
-            
-            qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(details[4],details[2],data['testo_com'],allegato)
-            query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(details[1], details[3])
-            resultins=esegui_query(con, qinsertcom,'i')
-            resultlog=esegui_query(con,query_log,'i')
-            markupend=types.ReplyKeyboardRemove()
-            
-           
-            if resultins==1 or resultlog==1:
-                await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+                await data['foto'].download('{}/{}'.format(destination,photo_name))
+                markupend=types.ReplyKeyboardRemove()
+                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+                allegato='{}/{}'.format(destination[26:],photo_name)
+                
+                qinsertpm='''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({},'{}','{}')'''.format(data['id_pm'],data['testo_com'],allegato)
+                query_logpm='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'],data['testo_com'])
+                
+                resultinspm=esegui_query(con, qinsertpm,'i')
+                resultlogpm=esegui_query(con,query_logpm,'i')
+                
+                if resultinspm==1 or resultlogpm==1:
+                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+                else:
+                    await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+                await state.finish()
+                
+                
+                
             else:
-                await message.reply('{}{} Comunicazione con foto inviata al sistema'.format(emoji.emojize(":arrow_right:",use_aliases=True), emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/s_{}'.format(data['id_evento'],data['id_segnalazione'])
 
-            await state.finish()
+                if not os.path.exists(destination):
+
+                    os.system('mkdir -p {}'.format(destination))
+
+                await data['foto'].download('{}/{}'.format(destination,photo_name))
+                
+                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
+
+                allegato='{}/{}'.format(destination[26:],photo_name)
+                
+                qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(data['id_lavorazione'],data['mittente'],data['testo_com'],allegato)
+                query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
+                resultins=esegui_query(con, qinsertcom,'i')
+                resultlog=esegui_query(con,query_log,'i')
+                markupend=types.ReplyKeyboardRemove()
+            
+                if resultins==1 or resultlog==1:
+                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
+                else:
+                    await message.reply('{}{} Comunicazione con foto inviata al sistema'.format(emoji.emojize(":arrow_right:",use_aliases=True), emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+
+                await state.finish()
     else:
         await message.reply('Contenuto del messaggio non valido. Inserisci una foto.')
         
         
             
 @dp.message_handler(commands='comunicazione')
-async def comunication(message: types.Message):
+async def comunication(message: types.Message,state=FSMContext):
     """
     This handler will be called when user sends `/comunicazione` command
     """
@@ -563,13 +606,7 @@ async def comunication(message: types.Message):
             await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile se alla tua squadra sono stati assegnati dei compiti:
                             \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
         elif len(incarico)!=0:
-            #global id_segnalazione
-            #global id_lavorazione
-            #global id_evento
-            #global mittente
-            #global id_compito
-            #global user
-            
+
             if incarico[0][-3]:
                 
                 #caso incarico interno
@@ -588,8 +625,9 @@ async def comunication(message: types.Message):
                     id_segnalazione=resultii[0][-10]
                     id_lavorazione=resultii[0][-9]
                     id_evento=resultii[0][-8]
-                    with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
-                        tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
+                    id_pm=''
+                    #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
+                    #    tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
                     
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: l'incarico assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))           
@@ -610,18 +648,51 @@ async def comunication(message: types.Message):
                     id_segnalazione=resultpf[0][-10]
                     id_lavorazione=resultpf[0][-9]
                     id_evento=resultpf[0][-8]
-                    with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
-                        tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
-
+                    id_pm=''
+                    #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
+                    #    tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: il presidio fisso assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
                 
             elif incarico[0][-1]:
                 #caso presidio mobile
                 tipo='presidio mobile'
-                qeurypm=''
-            
+                
+                #queryfoc="SELECT * FROM eventi.v_foc WHERE id_evento={} and data_ora_fine_foc > now()".format(id_evento)
+                
+                querypm='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi_mobili vsm on vcs.id ::text =vsm.id_squadra ::text 
+                            where vcs.matricola_cf ='{}' and vsm.id_stato_sopralluogo =2 and time_stop is null''' .format(registered_user[0][0])
+                resultpm=esegui_query(con,querypm,'s')
+                
+                if resultpm ==1:
+                    await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile risalite all'id dell'evento:
+                            \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                elif len(resultpm)!=0:
+                    
+                    user=resultpm[0][2]
+                    mittente='{} {} ({})'.format(resultpm[0][4],resultpm[0][5],resultpm[0][6])
+                    id_segnalazione=''
+                    id_lavorazione=''
+                    id_evento=resultpm[0][-5]
+                    id_pm=resultpm[0][14]
+                
+                else:
+                    await bot.send_message(message.chat.id,'''{} Attenzione: il presidio mobile assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                
+                
+                #select * from segnalazioni.t_comunicazioni_sopralluoghi_mobili
+
+                #select * from varie.t_log where operatore ='BNVLNZ91L22D969H'   
+                    
             await FormComunicazione.testo_com.set()
+            async with state.proxy() as data:
+                data['tipo']=tipo
+                data['user']=user
+                data['mittente']=mittente
+                data['id_segnalazione']=id_segnalazione
+                data['id_lavorazione']=id_lavorazione
+                data['id_evento']=id_evento
+                data['id_pm']=id_pm
     
             await bot.send_message(message.chat.id,"""Alla tua squadra risulta assegnato un {} sulla segnalazine {} nell\'ambito dell\'evento {}.
                                    \n{} Inserisci il testo della comunicazione che vuoi mandare alla centrale""".format(tipo,id_segnalazione,id_evento,emoji.emojize(":memo:",use_aliases=True)))
