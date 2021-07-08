@@ -298,24 +298,20 @@ class FormPresa (StatesGroup):
     rivo = State()
     mira = State ()
 
-#funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
-@dp.message_handler(lambda message: message.text not in [i for i in mire.keys()], state=FormPresa.rivo)
-async def process_gender_invalid(message: types.Message):
-    return await message.reply("Il rio inserito non è valido. Seleziona il rio usando le opzioni presenti sulla tastiera.")
-
-
 @dp.message_handler(state=FormPresa.rivo)
 async def process_presa(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['rivo'] = message.text
-        markup_old = types.ReplyKeyboardRemove()
-        await bot.send_message(message.chat.id,'Hai inserito {}'.format(data['rivo']),reply_markup=markup_old)
-        
-        await FormPresa.next()
-        markup_new = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-        markup_new.add("Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
-        #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
-        await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
+    async with state.proxy() as data:       
+        if message.text not in data['rivi'].keys():
+            await message.reply('Il rio inserito non è valido. Seleziona il rio usando le opzioni presenti sulla tastiera.')
+        else:
+            data['rivo'] = message.text             
+            markup_old = types.ReplyKeyboardRemove()
+            await bot.send_message(message.chat.id,'Hai inserito {}'.format(data['rivo']),reply_markup=markup_old)
+            await FormPresa.next()
+            markup_new = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+            markup_new.add("Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
+            #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
+            await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
         
 #funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
 @dp.message_handler(lambda message: message.text not in ["Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True))], state=FormPresa.mira)
@@ -336,11 +332,14 @@ async def process_presa(message: types.Message, state: FSMContext):
             id_lettura=3
         
         # l'id del rivo lo recupero dal dizionario mettendo come chiave il nome del rivo selezionato
-        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now())'.format(mire[data['rivo']],id_lettura)
+        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now())'.format(data['rivi'][data['rivo']][0],id_lettura)
+        query_log='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','{}', 'Inserita lettura mira . {}')'''.format(data['user'],data['rivi'][data['rivo']][0])
+        
         con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
         inserimento_mira=esegui_query(con,query_update_mira,'i')
-        
-        if inserimento_mira==0:
+        resultlog=esegui_query(con,query_log,'i')
+                
+        if inserimento_mira==0 and resultlog==0:
             # Remove keyboard
             markup = types.ReplyKeyboardRemove()
 
@@ -363,7 +362,7 @@ async def process_presa(message: types.Message, state: FSMContext):
             
 
 @dp.message_handler(commands=['inserisci_mira'])
-async def send_welcome(message: types.Message):
+async def send_welcome(message: types.Message,state: FSMContext):
     """
     This handler will be called when user sends `/inserisci_mira` command
     """
@@ -412,18 +411,19 @@ async def send_welcome(message: types.Message):
                 testo_dati=esegui_query(con,query_mire,'s') 
                 
                 if len(testo_dati)==0:
-
                     await bot.send_message(message.chat.id,'''Non ci sono rivi per cui inserire la mira.
                                            \nDurante la F.O.C. {}, infatti il percorso {}, che è stato assegnato alla tua squadra, è disabilitato.'''.format(foc[0][2],percorso_assegnato))
                     
-                else:
-                    await FormPresa.rivo.set()
-                    global mire
+                else:              
                     mire={}               
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
                     for i in testo_dati:
                         markup.add(i[1],)
-                        mire[i[1]]=i[0]
+                        mire[i[1]]=i   
+                    await FormPresa.rivo.set()
+                    async with state.proxy() as data:
+                        data['rivi']=mire
+                        data['user']=registered_user[0][0]
                     
                     await bot.send_message(message.chat.id,'Per quale tra i seguenti rivi vuoi inserire la mira?',reply_markup=markup)
 
@@ -477,11 +477,7 @@ async def process_presa(message: types.Message, state: FSMContext):
             await message.reply("Scatta una foto dal tuo dispositivo ",reply_markup=markupend)
             await FormComunicazione.next()        
         else:
-            
-            #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
-                #tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento (mantenere l ordine)
-            #    details=tmpfile.read().split(',')
-            #os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
+
             if data['tipo']=='presidio mobile':
                 
                 qinsertpm='''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo) VALUES ({},'{}')'''.format(data['id_pm'],data['testo_com'])
@@ -518,11 +514,7 @@ async def process_foto(message: types.Message, state: FSMContext):
         async with state.proxy() as data: 
             data['foto'] = message.photo[-1]
             photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
-            
-            #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'r') as tmpfile:
-                #tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento (mantenere l ordine)
-            #    details=tmpfile.read().split(',')
-            #os.remove('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id))
+
             if data['tipo']=='presidio mobile':
                 
                 destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/pm_{}'.format(data['id_evento'],data['id_pm'])
@@ -626,9 +618,6 @@ async def comunication(message: types.Message,state=FSMContext):
                     id_lavorazione=resultii[0][-9]
                     id_evento=resultii[0][-8]
                     id_pm=''
-                    #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
-                    #    tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
-                    
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: l'incarico assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))           
                 
@@ -649,8 +638,7 @@ async def comunication(message: types.Message,state=FSMContext):
                     id_lavorazione=resultpf[0][-9]
                     id_evento=resultpf[0][-8]
                     id_pm=''
-                    #with open ('{}/comtmp/com{}.txt'.format(os.path.dirname(os.path.realpath(__file__)),message.chat.id),'w') as tmpfile:
-                    #    tmpfile.write('{},{},{},{},{},{}'.format(tipo,user,mittente,id_segnalazione,id_lavorazione,id_evento))
+
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: il presidio fisso assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
                 
@@ -679,11 +667,6 @@ async def comunication(message: types.Message,state=FSMContext):
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: il presidio mobile assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
                 
-                
-                #select * from segnalazioni.t_comunicazioni_sopralluoghi_mobili
-
-                #select * from varie.t_log where operatore ='BNVLNZ91L22D969H'   
-                    
             await FormComunicazione.testo_com.set()
             async with state.proxy() as data:
                 data['tipo']=tipo
