@@ -15,7 +15,7 @@ echo $data_fine;
 
 echo "<br>";
 
-$query="UPDATE eventi.join_tipo_foc SET data_ora_fine_foc='".$data_fine."' where id_evento=".$id_evento." AND  id_tipo_foc=".$id_foc." AND data_ora_inizio_foc=".$time.";";
+$query="UPDATE eventi.join_tipo_foc SET data_ora_fine_foc='".$data_fine."' where id_evento=".$id_evento." AND  id_tipo_foc=".$id_foc." AND data_ora_inizio_foc='".$time."';";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);
@@ -32,7 +32,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-header("location: ../dettagli_evento.php");
+header("location: ../dettagli_evento.php?e=".$id_evento."");
 
 
 ?>

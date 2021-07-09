@@ -34,7 +34,10 @@ while True:
     f.write("\n{} - Ripartito lo script {}".format(x,filename))
     f.close
     #print("\nStarting " + filename)
+    #per server test
     p = Popen("/usr/local/bin/python3.8 " + filename, shell=True)
+    #per server in esercizio
+    #p = Popen("/opt/rh/rh-python38/root/usr/bin/python3.8" + filename, shell=True)
     pidfile.write(str(p.pid))
     pidfile.close()
     p.wait()

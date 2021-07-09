@@ -444,7 +444,7 @@ require('navbar_up.php');
 								//$color=str_replace("'","",$r["rgb_hex"]);
 								echo "<li> <h5> ".$stato." dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. "</h5>";
 								if ($profilo_sistema <= 2){
-									echo "<a class=\"btn btn-success\"  href=\"./prolunga_nverde.php?e=".$r["id_evento"]."&t='".$r["data_ora_inizio"]."'\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia orari num. verde</a> - ";
+									echo "<a class=\"btn btn-success\"  href=\"./prolunga_nverde.php?e=".$r["id_evento"]."&t=".$r["data_ora_inizio"]."\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia orari num. verde</a> - ";
 									echo "<a class=\"btn btn-danger\"  href=\"eventi/remove_nverde.php?e=".$r["id_evento"]."&t=".$r["data_ora_inizio"]."\"><i class=\"fas fa-trash\"></i> Cancella attivazione numero verde </a></li>";
 								}
 							}							
@@ -579,7 +579,7 @@ require('navbar_up.php');
 								
 								if ($profilo_sistema <= 2){
 								
-									echo "<a class=\"btn btn-info\"  href=\"./prolunga_allerta.php?e=".$r["id_evento"]."&a=".$r["id_tipo_allerta"]."&t='".$r["data_ora_inizio_allerta"]."'\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia allerta</a> - ";
+									echo "<a class=\"btn btn-info\"  href=\"./prolunga_allerta.php?e=".$r["id_evento"]."&a=".$r["id_tipo_allerta"]."&t=".$r["data_ora_inizio_allerta"]."\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia allerta</a> - ";
 									echo "<a class=\"btn btn-danger\"  href=\"eventi/remove_allerta.php?e=".$r["id_evento"]."&a=".$r["id_tipo_allerta"]."&t=".$r["data_ora_inizio_allerta"]."\"><i class=\"fas fa-trash\"></i> Cancella allerta</a></li>";
 								
 								}
@@ -621,7 +621,7 @@ require('navbar_up.php');
 								$color=str_replace("'","",$r["rgb_hex"]);
 								echo "<li> <h5><i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"\"></i> <b>Fase di ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " ".$stato."</h5>";
 								if ($profilo_sistema <= 2){
-									echo "<a class=\"btn btn-info\"  href=\"./prolunga_foc.php?e=".$r["id_evento"]."&a=".$r["id_tipo_foc"]."&t='".$r["data_ora_inizio_foc"]."'\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia F.O.C.</a> - ";
+									echo "<a class=\"btn btn-info\"  href=\"./prolunga_foc.php?e=".$r["id_evento"]."&a=".$r["id_tipo_foc"]."&t=".$r["data_ora_inizio_foc"]."\"><i class=\"fas fa-clock\"></i> Prolunga / accorcia F.O.C.</a> - ";
 									echo "<a class=\"btn btn-danger\"  href=\"eventi/remove_foc.php?e=".$r["id_evento"]."&a=".$r["id_tipo_foc"]."&t=".$r["data_ora_inizio_foc"]."\"><i class=\"fas fa-trash\"></i> Cancella F.O.C. </a></li>";
 								}
 							}							
