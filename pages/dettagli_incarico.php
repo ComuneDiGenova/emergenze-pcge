@@ -430,7 +430,7 @@ require('navbar_up.php');
 					<?php
 
 					
-					}
+					//}
 					echo "<hr>";
 					include 'incarichi/panel_comunicazioni.php';
 					if ($stato_attuale<3){
@@ -608,7 +608,7 @@ require('navbar_up.php');
 						      
 						
 						        <form autocomplete="off"  enctype="multipart/form-data" action="incarichi/comunicazione_a_UO.php?id=<?php echo $id; ?>" method="POST">
-									<input type="hidden" name="uo" value="<?php echo $id_uo;?>" />
+									<input type="hidden" name="uo" value="<?php echo $r['id_uo'];?>" />
 									<input type="hidden" name="id_lavorazione" value="<?php echo $id_lavorazione;?>" />
 									<input type="hidden" name="id_evento" value="<?php echo $id_evento;?>" />
 										 <div class="form-group">
@@ -731,6 +731,7 @@ require('navbar_up.php');
 					
 					<?php
 					}
+					} #chiudo il while di $r
 					if ($check_segnalazione==1){
 					?>
 					<h3><i class="fas fa-list-ul"></i> Segnalazioni collegate all'incarico </h3><br>

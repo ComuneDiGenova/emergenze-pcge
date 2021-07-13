@@ -167,7 +167,7 @@ $result = pg_execute($conn, "myquery0", array($uo));
 
 $mails=array();
 //$telegram_id=array();
-$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio sulla segnalazione n. ".$segn." alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
 $messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
 
 while($r = pg_fetch_assoc($result)) {

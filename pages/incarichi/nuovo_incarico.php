@@ -184,7 +184,7 @@ $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array($uo));
 $mails=array();
 $telegram=array();
-$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico all'unità operativa di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico sulla segnalazione n. ".$segn." all'unità operativa di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
 $messaggio= $messaggio ." Visualizzare i dettagli dell'incarico accedendo con le tue credenziali al Sistema di Gestione delle Emergenze del Comune di Genova.";
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);

@@ -149,12 +149,31 @@ $result = pg_query($conn, $query_log);
 
 
 
-$query="SELECT mail FROM users.t_mail_incarichi WHERE cod='".$uo."';";
-$result=pg_query($conn, $query);
+// $query="SELECT mail FROM users.t_mail_incarichi WHERE cod='".$uo."';";
+// $result=pg_query($conn, $query);
+// $mails=array();
+// while($r = pg_fetch_assoc($result)) {
+//   array_push($mails,$r['mail']);
+// }
+
+require('../token_telegram.php');
+
+require('../send_message_telegram.php');
+
+$query="SELECT mail, id_telegram FROM users.t_mail_incarichi WHERE cod=$1;";
+$result = pg_prepare($conn, "myquery0", $query);
+$result = pg_execute($conn, "myquery0", array($uo));
 $mails=array();
+$telegram=array();
+$messaggio="\xE2\x9C\x89 Messaggio inviato da Protezione Civile Genova circa l'incarico assegnato: ".$note."";
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
+  array_push($telegram,$r['id_telegram']);
+  //sendMessage($r['id_telegram'], $messaggio , $token);
 }
+foreach ($telegram as $chatid) {
+	sendMessage($chatid, $messaggio , $token);
+  }
 
 //echo "<br>";
 //echo $query;
