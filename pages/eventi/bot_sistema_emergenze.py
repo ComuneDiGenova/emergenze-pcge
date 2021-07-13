@@ -220,11 +220,13 @@ async def send_welcome(message: types.Message):
     """
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
     
-    query_tlgrm_id= "select * from users.utenti_sistema where telegram_id ='{}'".format(message.chat.id)
-
-    
-        
+    query_tlgrm_id= "select * from users.utenti_sistema where telegram_id ='{}'".format(message.chat.id)   
     registrato = esegui_query(con,query_tlgrm_id,'s')
+    
+    # if len(registrato==0:
+    #     query_tlgrm_id= "select * from users.utenti_esterni where telegram_id ='{}'".format(message.chat.id)   
+    #     registrato = esegui_query(con,query_tlgrm_id,'s')
+    
     
     if registrato ==1:
         await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:

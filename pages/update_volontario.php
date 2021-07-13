@@ -52,7 +52,7 @@ require('navbar_up.php');
                     
                     <?php
                     $check_profilo=0;
-                    $query="SELECT * From \"users\".\"v_utenti_esterni\" where \"cf\"='$cf';"; 
+                    $query="SELECT * From \"users\".\"v_utenti_esterni_telegram2\" where \"cf\"='$cf';"; 
                     
                     $result = pg_query($conn, $query);
 	                //$rows = array();
@@ -300,7 +300,7 @@ require('navbar_up.php');
 
 
 
-
+              
 
 
 
@@ -313,6 +313,25 @@ require('navbar_up.php');
             <b>Mail</b>: <?php echo $r['mail'] ?>  <br>
             <b>Telefono secondario</b>: <?php echo $r['telefono2'] ?>  <br>   
             <b>Fax:</b> <?php echo $r['fax'] ?> <br>
+            <b>ID Telegram:</b> <?php echo $r['telegram_id'] ?> 
+            <?php
+            if ($profilo_sistema<=3 OR $id=='\''.$CF.'\'' ){
+              if($r['telegram_id']!=''){
+                if ($r['telegram_attivo'] == 't'){
+            ?>
+            <a class="btn btn-warning btn-sm" title="Disattiva notifiche telegram" href="./disattiva_notifiche.php?cf=<?php echo $r['cf']?>"> <i class="fas fa-bell-slash"></i> </a>
+            <!--a class="btn btn-warning btn-sm" title="Disattiva notifiche telegram" href="update_v/disattiva_notifiche.php?cf=<?php echo $r['cf']?>"> <i class="fas fa-bell-slash"></i> </a-->
+            <?php
+                }else{
+            ?>
+             <a class="btn btn-primary btn-sm" title="Attiva notifiche telegram" href="./attiva_notifiche.php?cf=<?php echo $r['cf']?>"> <i class="fas fa-bell"></i> </a>
+             <!--a class="btn btn-primary btn-sm" title="Attiva notifiche telegram" href="update_v/attiva_notifiche.php?cf=<?php echo $r['cf']?>"> <i class="fas fa-bell"></i> </a-->
+            <br>
+            <?php
+                }
+              }
+            }
+            ?>
 				<br>
 				
 			<?php
@@ -356,7 +375,21 @@ require('navbar_up.php');
               <div class="form-group">
                 <label for="fax">Fax</label>
                 <input type="text" name="fax" value='<?php echo $r['fax']?>' class="form-control">
-              </div>            
+              </div>
+              <div class="form-group">
+                <label for="fax">ID Telegram</label>
+                <?php
+                  if ($profilo != ''){
+                ?>
+                  <input type="text" name="telegram_id" value='<?php echo $r['telegram_id']?>' class="form-control">
+                <?php
+                  }else{
+                ?>
+                  <input type="text" name="telegram_id" value='<?php echo $r['telegram_id']?>' class="form-control" disabled title="Devi assegnare un profilo all'utente per inserire l'ID Telegram">
+                <?php
+                  }
+                ?>
+              </div>           
                 
               
             <button type="submit" class="btn btn-primary">Aggiorna</button>
