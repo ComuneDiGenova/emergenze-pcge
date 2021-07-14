@@ -84,7 +84,7 @@ require('navbar_up.php');
             <br>
 			
 			<?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_ana"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -159,7 +159,7 @@ require('navbar_up.php');
            
            <br>
 		   <?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_res"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -313,9 +313,12 @@ require('navbar_up.php');
             <b>Mail</b>: <?php echo $r['mail'] ?>  <br>
             <b>Telefono secondario</b>: <?php echo $r['telefono2'] ?>  <br>   
             <b>Fax:</b> <?php echo $r['fax'] ?> <br>
-            <b>ID Telegram:</b> <?php echo $r['telegram_id'] ?> 
+            <!--b>ID Telegram:</b--> <!--?php echo $r['telegram_id'] ?--> 
             <?php
-            if ($profilo_sistema<=3 OR $id=='\''.$CF.'\'' ){
+            if ($profilo_sistema<=3 OR $id==$CF ){
+            ?>
+              <b>ID Telegram:</b> <?php echo $r['telegram_id'] ?>
+            <?php
               if($r['telegram_id']!=''){
                 if ($r['telegram_attivo'] == 't'){
             ?>
@@ -330,12 +333,17 @@ require('navbar_up.php');
             <?php
                 }
               }
+            }else{
+              if($r['telegram_id']!='' && $r['telegram_attivo'] == 't'){?>
+                <b>ID Telegram:</b> <i class="fas fa-check-circle" style="color:green;"></i>
+              <?php
+              }
             }
             ?>
 				<br>
 				
 			<?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
 				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_con"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -415,7 +423,7 @@ require('navbar_up.php');
 				<b>N° Gruppo Genova</b>: <?php echo $r['numero_gg']?>
 				
 				<?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
 				<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_gg"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -427,7 +435,7 @@ require('navbar_up.php');
 				
             <b>UO I livello</b>: <?php echo $r['livello1'] ?>  
 			<?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_I_livello"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -439,7 +447,7 @@ require('navbar_up.php');
             
             <b>UO II livello</b>: <?php echo $r['livello2'] ?>
 			<?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_II_livello"> 
 				     <i class="fa fa-pencil-alt"></i>        
@@ -452,7 +460,7 @@ require('navbar_up.php');
             
             <!--b>UO III livello </b>: <?php echo $r['livello3'] ?>
             <?php
-			if ($profilo_sistema<=3 OR $id=='\''.$CF.'\''){
+			if ($profilo_sistema<=3 OR $id==$CF){
 			?>
 			<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_III_livello"> 
 				     <i class="fa fa-pencil-alt"></i>        
