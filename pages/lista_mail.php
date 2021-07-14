@@ -87,12 +87,17 @@ require('navbar_up.php');
             <th style="word-break:break-all; word-wrap:break-word; " data-field="tipo" data-sortable="true" data-filter-control="select" data-visible="true">Tipo</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="descrizione" data-sortable="true" data-filter-control="input" data-visible="true">Descrizione<br>U.O.</th>
 	          <th data-field="mails" data-sortable="true"  data-visible="true" data-filter-control="input" >Mail</th>
-              <th data-field="ids_telegram" data-sortable="true"  data-visible="true" data-filter-control="input" >Telegram</th>
+              <!--th data-field="ids_telegram" data-sortable="true"  data-visible="true" data-filter-control="input" >Telegram</th-->
             <?php
 				if ($check_operatore == 1){
 				?>
+                    <th data-field="ids_telegram" data-sortable="true"  data-visible="true" data-filter-control="input" >Telegram</th>
 					<th data-field="cod" data-sortable="false" data-formatter="nameFormatter" data-visible="true" > Edit </th>           
 				<?php
+				}else{
+				?>
+                <th data-field="ids_telegram" data-sortable="false" data-formatter="nameFormatter2" data-visible="true">Telegram</th>
+                <?php
 				}
 				?>
     </tr>
@@ -141,6 +146,15 @@ function nameFormatter0(value) {
 
         return '<a href="./permessi.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
     }
+
+function nameFormatter2(value) {
+    console.log(value)
+    if (value!=null){
+        return '<i class="fas fa-check-circle" style="color:green;" aria-hidden="true"></i>';
+	} else {
+		return '-';
+	}
+}
 
 </script>
 
