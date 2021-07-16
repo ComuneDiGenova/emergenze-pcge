@@ -237,6 +237,7 @@ while($r = pg_fetch_assoc($result)) {
   //array_push($telegram_id,$r['telegram_id']);
   if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
 	sendMessage($r['telegram_id'], $messaggio , $token);
+	sendLocation($r['telegram_id'], $_POST["lat"], $_POST["lon"], $token);
   }
 }
 

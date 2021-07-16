@@ -159,16 +159,27 @@ $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array($uo));
 $mails=array();
 //$telegram_id=array();
-$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico interno sulla segnalazione n. ".$segn." alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico interno sulla segnalazione n. ".$segn." alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli: ".$descrizione."\n";
 $messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /accetto \xE2\x9D\x8C per rifiutare l'incarico digita /rifiuto";
+
 
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
   //array_push($telegram_id,$r['telegram_id']);
   if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
 	sendMessage($r['telegram_id'], $messaggio , $token);
+	$query2 = "SELECT ST_X(geom) as lon, ST_Y(geom) as lat FROM segnalazioni.t_segnalazioni where id=$1;";
+	$result2 = pg_prepare($conn, "myquery1", $query2);
+	$result2 = pg_execute($conn, "myquery1", array($segn));
+	while($r2 = pg_fetch_assoc($result2)) {
+	 	// $coord = 'lat = '.$r2['lat'].' lon = '.$r2['lon'];
+		// sendMessage($r['telegram_id'], $coord , $token);
+	 	sendLocation($r['telegram_id'], $r2['lat'], $r2['lon'], $token);
+	// 	//$map= 'https://api.telegram.org/'.$token.'/sendlocation?chat_id='.$r['telegram_id'].'&latitude='.$r2['lat'].'&longitude='.$r2['lon'].''
+	}
   }
 }
+
 
 echo "<br>";
 echo "<br>";

@@ -334,7 +334,7 @@ async def process_presa(message: types.Message, state: FSMContext):
             id_lettura=3
         
         # l'id del rivo lo recupero dal dizionario mettendo come chiave il nome del rivo selezionato
-        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now())'.format(data['rivi'][data['rivo']][0],id_lettura)
+        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now()::timestamp(0))'.format(data['rivi'][data['rivo']][0],id_lettura)
         query_log='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','{}', 'Inserita lettura mira . {}')'''.format(data['user'],data['rivi'][data['rivo']][0])
         
         con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
@@ -595,15 +595,16 @@ async def comunication(message: types.Message,state=FSMContext):
                 where vcs.matricola_cf ='{}' and  (vsn.id_incarico_interno is not null or vsn.id_sopralluogo is not null or vsn.id_sm is not null)'''.format(registered_user[0][0])
         #lo scopo di questa query è capire se alla squadra è assegnato un incarico interno, un presidio fisso o un presidio mobile e ricavarne l id.
         incarico=esegui_query(con,q1,'s')
-        
+        tipi_compiti=['incarico interno','presidio fisso','presidio mobile']
         if incarico==1:
             await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile se alla tua squadra sono stati assegnati dei compiti:
                             \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
         elif len(incarico)!=0:
-
+            inizio_com=False
             if incarico[0][-3]:
                 
                 #caso incarico interno
+                inizio_com=True
                 tipo= 'incarico interno'
                 queryii='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_incarichi_interni vii on vcs.id ::text =vii.id_squadra ::text 
                             where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null'''.format(registered_user[0][0])
@@ -625,6 +626,7 @@ async def comunication(message: types.Message,state=FSMContext):
                 
             elif incarico[0][-2]:
                 #caso presidio fisso
+                inizio_com=True
                 tipo='presidio fisso'
                 querypf='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi vs on vcs.id_squadra  ::text = vs.id_squadra ::text
                            where vcs.matricola_cf ='{}' and vs.id_stato_sopralluogo =2 and vs.time_stop is null'''.format(registered_user[0][0])
@@ -648,8 +650,6 @@ async def comunication(message: types.Message,state=FSMContext):
                 #caso presidio mobile
                 tipo='presidio mobile'
                 
-                #queryfoc="SELECT * FROM eventi.v_foc WHERE id_evento={} and data_ora_fine_foc > now()".format(id_evento)
-                
                 querypm='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi_mobili vsm on vcs.id ::text =vsm.id_squadra ::text 
                             where vcs.matricola_cf ='{}' and vsm.id_stato_sopralluogo =2 and time_stop is null''' .format(registered_user[0][0])
                 resultpm=esegui_query(con,querypm,'s')
@@ -665,22 +665,35 @@ async def comunication(message: types.Message,state=FSMContext):
                     id_lavorazione=''
                     id_evento=resultpm[0][-5]
                     id_pm=resultpm[0][14]
-                
+                    queryfoc="SELECT * FROM eventi.v_foc WHERE id_evento={} and data_ora_fine_foc > now()".format(id_evento)
+                    
+                    foc=esegui_query(con,queryfoc,'s')
+                    if foc==1:
+                        await bot.send_message(message.chat.id,'''{} Si è verificato un problema sulla verifica della presenza di una F.O.C.:
+                                    \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
+                        
+                    elif len(foc)!=0:
+                        inizio_com=True
+                        
+                    else:
+                        await bot.send_message(message.chat.id,'''{} Stai cercando di inserire una comunicazione sul presidio mobile a te assegnato, ma al momento non risultano F.O.C. attive su questo tuo evento. Per questo motivo non puoi usare questo comando, riprova ad utilizzarlo quando ci sarà una F.O.C. attiva.'''.format(emoji.emojize(":warning:",use_aliases=True)))
+
                 else:
                     await bot.send_message(message.chat.id,'''{} Attenzione: il presidio mobile assegnato alla tua squadra potrebbe non esser ancora stato preso in carico, pertanto non è possibile inserire una comunicazione'''.format(emoji.emojize(":warning:",use_aliases=True)))
-                
-            await FormComunicazione.testo_com.set()
-            async with state.proxy() as data:
-                data['tipo']=tipo
-                data['user']=user
-                data['mittente']=mittente
-                data['id_segnalazione']=id_segnalazione
-                data['id_lavorazione']=id_lavorazione
-                data['id_evento']=id_evento
-                data['id_pm']=id_pm
-    
-            await bot.send_message(message.chat.id,"""Alla tua squadra risulta assegnato un {} sulla segnalazine {} nell\'ambito dell\'evento {}.
-                                   \n{} Inserisci il testo della comunicazione che vuoi mandare alla centrale""".format(tipo,id_segnalazione,id_evento,emoji.emojize(":memo:",use_aliases=True)))
+            
+            if inizio_com==True:
+                await FormComunicazione.testo_com.set()
+                async with state.proxy() as data:
+                    data['tipo']=tipo
+                    data['user']=user
+                    data['mittente']=mittente
+                    data['id_segnalazione']=id_segnalazione
+                    data['id_lavorazione']=id_lavorazione
+                    data['id_evento']=id_evento
+                    data['id_pm']=id_pm
+        
+                await bot.send_message(message.chat.id,"""Alla tua squadra risulta assegnato un {} sulla segnalazine {} nell\'ambito dell\'evento {}.
+                                    \n{} Inserisci il testo della comunicazione che vuoi mandare alla centrale""".format(tipo,id_segnalazione,id_evento,emoji.emojize(":memo:",use_aliases=True)))
                         
         else:
             await bot.send_message(message.chat.id,'''{} Alla tua squadra in questo momento non sono stati assegnati incarichi o presidi, pertanto non è possibile inserire una comunicazione.'''.format(emoji.emojize(":warning:",use_aliases=True)))

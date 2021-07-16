@@ -184,15 +184,23 @@ $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array($uo));
 $mails=array();
 $telegram=array();
-$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico sulla segnalazione n. ".$segn." all'unità operativa di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico sulla segnalazione n. ".$segn." all'unità operativa di tua appartenenza ".$uo_descrizione." con i seguenti dettagli: ".$descrizione."\n";
 $messaggio= $messaggio ." Visualizzare i dettagli dell'incarico accedendo con le tue credenziali al Sistema di Gestione delle Emergenze del Comune di Genova.";
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
   array_push($telegram,$r['id_telegram']);
+  $query2 = "SELECT ST_X(geom) as lon, ST_Y(geom) as lat FROM segnalazioni.t_segnalazioni where id=$1;";
+  $result2 = pg_prepare($conn, "myquery1", $query2);
+	$result2 = pg_execute($conn, "myquery1", array($segn));
+	while($r2 = pg_fetch_assoc($result2)) {
+		$lat =$r2['lat'];
+		$lon =$r2['lon'];
+	}
   //sendMessage($r['id_telegram'], $messaggio , $token);
 }
 foreach ($telegram as $chatid) {
 	sendMessage($chatid, $messaggio , $token);
+	sendLocation($chatid, $lat, $lon, $token);
   }
 
 echo "<br>";
