@@ -539,7 +539,7 @@ async def process_foto(message: types.Message, state: FSMContext):
                 if resultinspm==1 or resultlogpm==1:
                     await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
                 else:
-                    await message.reply('{}{} Comunicazione senza foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+                    await message.reply('{}{} Comunicazione con foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
                 await state.finish()
                 
                 

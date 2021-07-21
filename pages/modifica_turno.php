@@ -33,7 +33,7 @@ if(!$conn) {
         //echo $query_lizmap;
         $result = pg_prepare($conn, "myquery", $query);
         $result = pg_execute($conn, "myquery", array($inizio_turno, $durata, $fine, $id)); */
-        //header ("Location: elenco_presenti.php");
+        header ("Location: elenco_presenti.php");
     }
     pg_close($conn);
 }
