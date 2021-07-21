@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Lorenzo Benvenuto, Roberta Fagandini
-# copyleft 2021
+# Gter copyleft 2021
 
 
 from dataclasses import dataclass
