@@ -53,9 +53,9 @@ require('navbar_up.php');
                     <?php
                     $check_profilo=0;
                     $query="SELECT * From \"users\".\"v_utenti_esterni_telegram2\" where \"cf\"='$cf';"; 
-                    
+
                     $result = pg_query($conn, $query);
-	                //$rows = array();
+
 	                //echo $result;
 	                while($r = pg_fetch_assoc($result)) {
                     		//$rows[] = $r;
