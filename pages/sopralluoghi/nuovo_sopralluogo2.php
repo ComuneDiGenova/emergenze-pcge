@@ -166,6 +166,9 @@ if($_POST["permanente"]=='on') {
 	//exit;
 	$result=pg_query($conn, $query);
 
+	$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso con accettazione automatica alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+	$messaggio= $messaggio ." Una volta terminato il presidio ricordati di chiuderlo digitando /stop ";
+
 } else {
 	$query= "INSERT INTO segnalazioni.stato_sopralluoghi(id_sopralluogo, id_stato_sopralluogo";
 	//values
@@ -174,6 +177,9 @@ if($_POST["permanente"]=='on') {
 	//echo $query."<br>";
 	//exit;
 	$result=pg_query($conn, $query);
+
+	$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+	$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
 }
 
 
@@ -202,11 +208,37 @@ $result = pg_query($conn, $query_log);
 echo "<br>";
 //echo $query_log;
 
-$query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
+/* $query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
 $result=pg_query($conn, $query);
 $mails=array();
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
+} */
+
+require('../token_telegram.php');
+
+require('../send_message_telegram.php');
+
+$query="SELECT mail, telegram_id, u.telegram_attivo
+	FROM users.t_mail_squadre s
+	left join users.v_utenti_sistema u 
+  	on s.matricola_cf = u.matricola_cf 
+	WHERE cod=$1;";
+$result = pg_prepare($conn, "myquery0", $query);
+$result = pg_execute($conn, "myquery0", array($uo));
+
+$mails=array();
+//$telegram_id=array();
+#$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio fisso alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli:".$descrizione."\n";
+#$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
+
+while($r = pg_fetch_assoc($result)) {
+  array_push($mails,$r['mail']);
+  //array_push($telegram_id,$r['telegram_id']);
+  if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
+	sendMessage($r['telegram_id'], $messaggio , $token);
+	sendLocation($r['telegram_id'], $_POST["lat"], $_POST["lon"], $token);
+  }
 }
 
 echo "<br>";
@@ -259,11 +291,11 @@ $mail->Subject = 'Urgente - Nuovo presidio assegnato tramite il Sistema di Gesti
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo presidio alla squadra di tua appartenenza 
+$body =  'Hai ricevuto questo messaggio in quanto ï¿½ stato assegnato un nuovo presidio alla squadra di tua appartenenza 
  '.$uo_descrizione.'. <br> Ti preghiamo di non rispondere a questa mail, ma di visualizzare i dettagli del presidio accedendo 
  con le tue credenziali al nuovo <a href="http://192.168.153.110/emergenze/pages/dettagli_sopralluogo.php?id='.$id_sopralluogo.'" > Sistema di Gestione delle Emergenze </a> del Comune di Genova.
- <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema. 
- Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it ';
+ <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail ï¿½ registrato a sistema. 
+ Per modificare queste impostazioni ï¿½ possibile inviare una mail a salaemergenzepc@comune.genova.it ';
 
   
 require('../informativa_privacy_mail.php');

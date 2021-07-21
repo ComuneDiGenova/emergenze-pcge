@@ -1,0 +1,8 @@
+start - avvia il bot per la prima volta
+help - illustrazione funzionalità del BOT
+telegram_id - restituisce il codice telegram da inserire nel portale
+sito - restituisce il link per connettersi al portale delle emergenze
+registra_presenza - da usare per registrare la propria presenza all'inizio della fase operativa
+registra_uscita - da usare quando viene conclusa la fase operativa
+inserisci_mira - inserisci il valore della mira 
+comunicazione - inserisci una comunicazione per una segnalazione

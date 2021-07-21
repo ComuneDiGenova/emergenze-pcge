@@ -120,6 +120,7 @@ require('navbar_up.php');
 						//$check_operatore=0; //controllo se l'operatore può fare qualcosa o meno
 						$id_profilo=$r['id_profilo'];
 						$id_municipio=$r['id_municipio'];
+						$id_evento=$r['id_evento'];
 						
 						
 						//echo 'Munic'. $id_municipio.'<br>';
@@ -959,17 +960,16 @@ require('navbar_up.php');
 									<div class="form-group">
 									  <label for="id_civico">Seleziona squadra:</label> <font color="red">*</font>
 										<select class="form-control" name="uo" id="uo-list" class="demoInputBox" required="">
-										<option  id="uo" name="uo" value="">Seleziona la squadra</option>
-										<?php    
-										while($r2 = pg_fetch_assoc($result2)) { 
-											$valore=  $r2['cf']. ";".$r2['nome'];            
-										?>
-													
-												<option id="uo" name="uo" value="<?php echo $r2['id'];?>" ><?php echo $r2['nome'].' ('.$r2['id'].')';?></option>
+											<option  id="uo" name="uo" value="">Seleziona la squadra</option>
+											<?php    
+											while($r2 = pg_fetch_assoc($result2)) { 
+												$valore=  $r2['cf']. ";".$r2['nome'];            
+											?>
+											<option id="uo" name="uo" value="<?php echo $r2['id'];?>"><?php echo $r2['nome'].' ('.$r2['id'].')';?></option>
 										 <?php } ?>
-									</select>
-									<small> Se non trovi una squadra adatta vai alla <a href="gestione_squadre.php" >gestione squadre</a>. </small>
-									 </div>       
+										</select>
+										<small> Se non trovi una squadra adatta vai alla <a href="gestione_squadre.php" >gestione squadre</a>. </small>
+									</div>       
 									 
 									<div class="form-group">
 											 <label for="descrizione"> Descrizione</label> <font color="red">*</font>

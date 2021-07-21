@@ -153,11 +153,35 @@ $result = pg_query($conn, $query_log);
 echo "<br>";
 //echo $query_log;
 
-$query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
-$result=pg_query($conn, $query);
+require('../token_telegram.php');
+
+require('../send_message_telegram.php');
+
+$query="SELECT mail, telegram_id, u.telegram_attivo
+	FROM users.t_mail_squadre s
+	left join users.v_utenti_sistema u 
+  	on s.matricola_cf = u.matricola_cf 
+	WHERE cod=$1;";
+$result = pg_prepare($conn, "myquery0", $query);
+$result = pg_execute($conn, "myquery0", array($uo));
+
 $mails=array();
+//$telegram_id=array();
+$messaggio="\xE2\x80\xBC E' stato assegnato un nuovo presidio sulla segnalazione n. ".$segn." alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli: ".$descrizione."\n";
+$messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /presidio ";
+
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
+  //array_push($telegram_id,$r['telegram_id']);
+  if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
+	sendMessage($r['telegram_id'], $messaggio , $token);
+	$query2 = "SELECT ST_X(geom) as lon, ST_Y(geom) as lat FROM segnalazioni.t_segnalazioni where id=$1;";
+	$result2 = pg_prepare($conn, "myquery1", $query2);
+	$result2 = pg_execute($conn, "myquery1", array($segn));
+	while($r2 = pg_fetch_assoc($result2)) {
+	 	sendLocation($r['telegram_id'], $r2['lat'], $r2['lon'], $token);
+	}
+  }
 }
 
 echo "<br>";
@@ -210,11 +234,11 @@ $mail->Subject = 'Urgente - Nuovo sopralluogo assegnato tramite il Sistema di Ge
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo sopralluogo alla squadra di tua appartenenza 
+$body =  'Hai ricevuto questo messaggio in quanto ï¿½ stato assegnato un nuovo sopralluogo alla squadra di tua appartenenza 
  '.$uo_descrizione.'. <br> Ti preghiamo di non rispondere a questa mail, ma di visualizzare i dettagli del sopralluogo accedendo 
  con le tue credenziali al nuovo <a href="http://192.168.153.110/emergenze/pages/dettagli_sopralluogo.php?id='.$id_sopralluogo.'" > Sistema di Gestione delle Emergenze </a> del Comune di Genova.
- <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema. 
- Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it ';
+ <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail ï¿½ registrato a sistema. 
+ Per modificare queste impostazioni ï¿½ possibile inviare una mail a salaemergenzepc@comune.genova.it ';
   
 require('../informativa_privacy_mail.php');
 

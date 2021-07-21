@@ -46,7 +46,7 @@
             <form action="permessi/permessi_insert.php" method="POST">
             <!-- Devo passare al php che gestisce l'aggiornamento permessi anche la matricola con un campo nascosto-->
 			<?php
-			if (strlen($id)==18){
+			if (strlen($id)>=11){
 			?>
 				<input type="hidden" name="cf" id="hiddenField" value="<?php echo $id ?>" />
             <?php

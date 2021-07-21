@@ -139,10 +139,10 @@
                             <ul class="nav nav-second-level">
 								<li>					                                  
   									<a href="mire.php"><i class="fas fa-search"></i> Mire su corsi d'acqua</a>
-                        </li>
+                                </li>
 								<li>					                                  
   									<a href="idrometri_arpa.php"><i class="fas fa-chart-line"></i> Grafici idrometri </a>
-                        </li>
+                                </li>
                         <?php
                			if ($check_evento==1){
 									$len=count($eventi_attivi);	               
@@ -170,6 +170,18 @@
 						
                         <li>
                             <a href="gestione_squadre.php"><i class="fa fa-users"></i> Gestione squadre</a>
+                            
+                        </li>
+                        <li>
+                            <a href="#"><i class="fas fa-user-clock"></i> Registro presenze<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="elenco_presenti.php"><i class="fas fa-user-check"></i> Utenti presenti</a>
+                                </li>
+                                <li>
+                                    <a href="elenco_presenti_storico.php"><i class="fas fa-user-times"></i> Storico utenti presenti</a>
+                                </li>
+                            </ul>
                         </li>
  								<?php 
  								}

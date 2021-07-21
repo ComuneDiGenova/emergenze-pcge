@@ -18,7 +18,8 @@ while($r_max = pg_fetch_assoc($result_max)) {
 	}
 }
 
-echo $new_id;
+echo "id nuovo evento = ".$new_id;
+echo "id = ".$id;
 echo "<br>";
 
 
@@ -184,7 +185,7 @@ if ($notifiche =='t') {
 	//Read an HTML message body from an external file, convert referenced images to embedded,
 	//convert HTML into a basic plain-text alternative body
 	$body =  'La tua unit&agrave operativa ha ricevuto questo messaggio automaticamente in quanto &egrave stato creato un nuovo evento di tipo '.$descrizione_tipo.' (id='.$new_id.') da parte 
-	della Protezione Civile. <br>
+	della Protezione Civile. <br> Stampa '.$id.'###<br>
 	 Ti preghiamo di non rispondere a questa mail, ma di avvisare chi di dovere perch&egrave il sistema venga mantenuto sotto controllo.  <br>
 	 Per accedere al nuovo <a href="https;//emergenze.comune.genova.it/pages/index.php" > Sistema di Gestione delle Emergenze </a> del Comune di Genova &egrave necessaria
 	 la matricola personale (personale comunale) o le credenziale SPID. Occorre inoltre essere abilitati all\'accesso da parte della Protezione Civile.
@@ -208,34 +209,40 @@ if ($notifiche =='t') {
 	//send the message, check for errors
 	//echo "<br>OK 2<br>";
 	if (!$mail->send()) {
+		//entra in questo if anche se viene inviata la mail perchè non riesce a inviarla a uno dei contatti (cristina olivieri) per capire decpmmentare riga sotto
 		//echo "<h3>Problema nell'invio della mail: " . $mail->ErrorInfo;
 		echo "<h3>Problema nell'invio della mail";
 
 		echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
-		echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
-		
-		if ($id!=''){
+		echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente <a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>';
+		//$id variabile non definita, probabilmente riferita a vecchio codice
+		//passiamo newid alla url del reindirizzamento --> da semplificare/rimuovere if perchè non avendo più l'id non hanno senso
+
+		/* if ($id!=''){
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
 		} else {
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
-		}
+		} */
+
+		header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
 		
 		//sleep(30);
-		if ($id!=''){
-			header("refresh:1;url=../dettagli_evento.php");
+		/* if ($id!=''){
+			header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
 		} else {
-			header("refresh:1;url=../dettagli_evento.php");
-		}
+			header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
+		} */
 	} else {
-		echo "Message sent!";
-		if ($id!=''){
-			header("location:../dettagli_evento.php");
+		echo "Message sent correctly!";
+		header("location:../dettagli_evento.php?e=".$new_id);
+		/* if ($id!=''){
+			header("location:../dettagli_evento.php?e=".$new_id);
 		} else {
-			header("location:../dettagli_evento.php");
-		}
+			header("location:../dettagli_evento.php?e=".$new_id);
+		} */
 	}
 } else {
-	header("location:../dettagli_evento.php");
+	header("location:../dettagli_evento.php?e=".$new_id);
 }
 
 

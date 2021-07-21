@@ -110,7 +110,7 @@ require('navbar_up.php');
 			}
 			?>
 			
-			
+			<!--la funzione clickButton sembrerebbe essere non utilizzata quindi il file nuova_lettura2.php  è da ignorare-->
 			<script type="text/javascript">
 			function clickButton() {
 			var mira=document.getElementById('mira').value;

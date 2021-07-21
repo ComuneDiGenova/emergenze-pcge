@@ -1,0 +1,23 @@
+wget https://www.python.org/ftp/python/3.8.3/Python-3.8.3.tgz
+tar xvf Python-3.8.3.tgz
+cd Python-3.8.3
+./configure --enable-optimizations
+sudo make altinstall
+
+sudo yum install postgresql-devel
+sudo /usr/local/bin/pip3.8 install psycopg2
+
+install aiogram with /usr/local/bin/pip3.8
+
+1) sudo su
+
+2) /usr/local/bin/pip3.8 install -U aiogram
+
+3) /usr/local/bin/pip3.8 install uvloop
+
+4) /usr/local/bin/pip3.8 install ujson
+
+5) /usr/local/bin/pip3.8 install aiohttp[speedups]
+
+6) /usr/local/bin/pip3.8 install emoji
+

@@ -27,7 +27,13 @@ sleep 20
 # RPM chkconfig avvio_bot.sh on
 
 
-python3 $CONF/forever.py $CONF/pc_bot_multithread_demo.py
+#python3 $CONF/forever.py $CONF/pc_bot_multithread_demo.py
+
+#server di test
+/usr/local/bin/python3.8 $CONF/forever.py $CONF/bot_sistema_emergenze.py
+
+#server in esercizio
+/opt/rh/rh-python38/root/usr/bin/python3.8
 
 echo "FINE SCRIPT AVVIO TELGRAM BOT DAEMON"
 

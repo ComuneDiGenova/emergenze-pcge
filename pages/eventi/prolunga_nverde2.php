@@ -16,7 +16,7 @@ echo $data_fine;
 
 echo "<br>";
 
-$query="UPDATE eventi.t_attivazione_nverde SET data_ora_fine='".$data_fine."' where id_evento=".$id_evento." AND data_ora_inizio=".$time.";";
+$query="UPDATE eventi.t_attivazione_nverde SET data_ora_fine='".$data_fine."' where id_evento=".$id_evento." AND data_ora_inizio='".$time."';";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);
@@ -33,7 +33,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-header("location: ../dettagli_evento.php");
+header("location: ../dettagli_evento.php?e=".$id_evento."");
 
 
 ?>

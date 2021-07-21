@@ -24,3 +24,4 @@ pages/eventi/*.log
 pages/eventi/crash.log
 conn.php
 pages/eventi/bot.pid
+pages/eventi/bot_photos/*

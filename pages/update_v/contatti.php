@@ -40,6 +40,26 @@ if ($_POST["fax"]){
 	$result = pg_execute($conn, "myquery4", array(NULL,$cf));
 }
 
+$telegram_id=pg_escape_string($_POST["telegram_id"]);
+echo "<br>".$telegram_id;
+$query="UPDATE users.utenti_sistema SET telegram_id=$1, telegram_attivo=$2 WHERE matricola_cf=$3;";
+$result = pg_prepare($conn, "myquery5", $query);
+if ($_POST["telegram_id"]){
+	$result = pg_execute($conn, "myquery5", array($telegram_id,'t',$cf));
+} else {
+	$result = pg_execute($conn, "myquery5", array(NULL,'f',$cf));
+}
+
+/* $telegram_id=pg_escape_string($_POST["telegram_id"]);
+echo "<br>".$telegram_id;
+$query="UPDATE users.utenti_esterni SET telegram_id=$1, telegram_attivo=$2 WHERE cf=$3;";
+$result = pg_prepare($conn, "myquery5", $query);
+if ($_POST["telegram_id"]){
+	$result = pg_execute($conn, "myquery5", array($telegram_id,'t',$cf));
+} else {
+	$result = pg_execute($conn, "myquery5", array(NULL,'f',$cf));
+} */
+
 /*$query="UPDATE users.utenti_esterni SET telefono1='".$_POST["telefono1"]."', mail='".$_POST["mail"]."' ";
 if ($_POST["telefono2"]){
 	$query= $query. " , telefono2='".$_POST["telefono2"]."' ";
