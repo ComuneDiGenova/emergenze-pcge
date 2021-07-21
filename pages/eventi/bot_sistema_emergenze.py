@@ -19,7 +19,6 @@ from aiogram.types import ParseMode
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
-#import sqlite3
 import psycopg2
 import emoji
 import config
