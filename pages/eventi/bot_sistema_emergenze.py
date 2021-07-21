@@ -156,7 +156,13 @@ async def callback (callback_query: types.CallbackQuery):
             await bot.send_message("Foto caricata a sistema!",reply_markup=markup)
         else:
             await bot.send_message("Comando annullato!",reply_markup=markup)
+            
+            
+                
 
+    """ if callback_query.data !='':
+        testo='Gentile {} hai fornito la seguente motivazione {}'.format(callback_query.from_user.first_name, callback_query.data)
+        await bot.send_message (callback_query.from_user.id, text= testo) """
 
 #first command handler
 
