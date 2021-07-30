@@ -17,15 +17,13 @@ function sendMessage($chatID, $messaggio, $token) {
 }
 
 
-
-function sendPhoto($chatID, $messaggio, $photo_path, $token) {
+function sendPhoto($chatID, $photo_path, $token) {
     echo "sending message to " . $chatID . "\n";
 
     $url = "https://api.telegram.org/bot" . $token . "/sendPhoto?chat_id=" . $chatID;
     //$url = $url . "&photo=" . $photo_path;
     //$url = $url . "&caption=" . urlencode($messaggio);
     $post_fields = array('chat_id'   => $chatID,
-        'caption' => $messaggio, 
         'photo'     => new CURLFile(realpath($photo_path))
     );
     $ch = curl_init();

@@ -19,15 +19,15 @@ $d1 =  strtotime($data_inizio);
 
 $aggiornamento= str_replace("'", "''", $_POST["aggiornamento"]);
 
-
+$hh=$_SERVER['HTTP_X_FORWARDED_HOST'];
 
 
 //$d1 = DateTime::createFromFormat('Y-m-d H:M', strtotime($data_inizio));
 //$d2 = DateTime::createFromFormat('Y-m-d H:M', $data_fine);
-echo $data_inizio;
-echo "<br>";
-echo $d1;
-echo "<br>";
+// echo $data_inizio;
+// echo "<br>";
+// echo $d1;
+// echo "<br>";
 
 
 
@@ -123,10 +123,10 @@ if ($allegato!=''){
 	$query= $query . ",'". $allegato_array."'";
 }
 $query= $query.");";
-echo $query;
+//echo $query;
 //exit;
 $result = pg_query($conn, $query);
-echo "<br>";
+//echo "<br>";
 
 
 
@@ -143,8 +143,8 @@ $result = pg_query($conn, $query_log);
 
 //$idfascicolo=str_replace('A','',$idfascicolo);
 //$idfascicolo=str_replace('B','',$idfascicolo);
-echo "<br>";
-echo $query_log;
+//echo "<br>";
+//echo $query_log;
 
 
 //**********************************************************
@@ -155,10 +155,10 @@ require('../token_telegram.php');
 require('../send_message_telegram.php');
 
 
-$query_telegram="SELECT telegram_id from users.utenti_sistema where id_profilo <= 3 and matricola_cf='MRZRRT84B01D969U' and telegram_id !='' and telegram_attivo='t';";
+$query_telegram="SELECT telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';";
 echo $query_telegram;
 echo "<br>";
-$messaggio= "\xE2\x9A\xA0 - MONITORAGGIO METEO \xE2\x9A\xA0". $aggiornamento;
+$messaggio= "\xE2\x9A\xA0 - MONITORAGGIO METEO \xE2\x9A\xA0 \n\n Aggiornamento: ". $aggiornamento;
 $messaggio= $messaggio. "\n\nPer maggiori info consultre il programma ".$link." ";
 $messaggio= $messaggio ." (\xE2\x84\xB9 ricevi questo messaggio in quanto operatore di Protezione Civile \xE2\x84\xB9)";
 echo $messaggio;
@@ -170,17 +170,19 @@ while($r_telegram = pg_fetch_assoc($result_telegram)) {
 	$allegati=explode(";",$allegato_array);
 	// Count total files
 	$countfiles2 = count($allegati);
-	echo $countfiles2;
-	echo "<br>";
+	//echo $countfiles2;
+	//echo "<br>";
 	// Looping all files
 	if($countfiles2 > 0) {
 		for($i=0;$i<$countfiles2;$i++){
 			$n_a=$i+1;
-			echo "../../../".$allegati[$i];
+			//echo "../../../".$allegati[$i];
 			//echo "<br>";
-			echo $hh=$_SERVER['HTTP_X_FORWARDED_HOST'];
-			echo "<br>";
-			sendPhoto($r_telegram['telegram_id'], 'https://'.$hh."/".$allegati[$i] , $token);
+			//$hh=$_SERVER['HTTP_X_FORWARDED_HOST'];
+			//echo "<br>";
+			//$img = curl_file_create('test.png','image/png');
+			//sendPhoto2($r_telegram['telegram_id'], 'https://'.$hh.'/'.$allegati[$i].'\'' , $token);
+			sendPhoto($r_telegram['telegram_id'], '../../../'.$allegati[$i] , $token);
 		}
 	}
 }
@@ -197,7 +199,7 @@ while($r_telegram = pg_fetch_assoc($result_telegram)) {
 
 //$idfascicolo=str_replace('A','',$idfascicolo);
 //$idfascicolo=str_replace('B','',$idfascicolo);
-echo "<br>";
+//echo "<br>";
 //echo $query_log;
 
 $query="SELECT mail FROM users.t_mail_meteo WHERE valido = 't' ;";
@@ -258,11 +260,36 @@ $mail->Subject = 'Nuovo aggiornamento meteo ' .$data_mail.' '.$note_ambiente_mai
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  $aggiornamento . ' <br> <br> Protezione Civile del Comune di Genova. 
-<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema (invio monitoraggio meteo). 
+$body =  $aggiornamento . ' <br> <br> Protezione Civile del Comune di Genova. '.$hh.'<br><br>--<br><br>
+							Aggiornamenti meteo per l\'evento '.$id.'<br><br>';
+
+$query="SELECT * FROM report.t_aggiornamento_meteo WHERE id_evento = $1 ;";
+$result = pg_prepare($conn, "myquery0", $query);
+$result = pg_execute($conn, "myquery0", array($id));
+while($r = pg_fetch_assoc($result)) {
+	$body .= $r['data'].' - '.$r['aggiornamento'].'<br><br>';
+	if($r['allegati']!==null){
+		if (strpos($r['allegati'], ';') !== false) { 
+			$allegati=explode(";",$r['allegati']);
+			$countfiles3 = count($allegati);
+			// Looping all files
+			if($countfiles3 > 0) {
+				for($i=0;$i<$countfiles3;$i++){
+					$n_a=$i+1;
+					$body .= '<a href="https://'.$hh.'/'.$allegati[$i].'" target="_blank">Visualizza allegato '.$n_a.'</a> <br><br>';
+					//$body .= '<a href="https://emergenze.comune.genova.it/'.$allegati[$i].'" target="_blank">Visualizza allegato '.$n_a.'</a> <br><br>';
+				}
+			}
+		}else{
+			$body .= '<a href="https://'.$hh.'/'.$r['allegati'].'" target="_blank">Visualizza allegato</a> <br><br>';
+			//$body .= '<a href="https://emergenze.comune.genova.it/'.$r['allegati'].'" target="_blank">Visualizza allegato</a> <br><br>';
+		}
+	}
+}
+
+$body .=  '<br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema (invio monitoraggio meteo). 
  Per modificare queste impostazioni è possibile inviare una mail a adminemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
 
- 
 require('../informativa_privacy_mail.php');
 
 $mail-> Body=$body ;
