@@ -596,7 +596,7 @@ require('navbar_up.php');
 							JOIN segnalazioni.t_incarichi_interni c ON c.id=a.id_incarico
 							WHERE id_incarico =".$id." 
 							ORDER BY data_ora";
-							echo $query_s;
+							//echo $query_s;
 							require('./query_storico_squadre_incarichi.php');
 							?>
 							<hr>
