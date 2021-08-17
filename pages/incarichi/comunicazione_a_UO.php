@@ -221,7 +221,7 @@ while (list ($key, $val) = each ($mails)) {
   $mail->AddAddress($val);
 }
 //Set the subject line
-$mail->Subject = 'Urgente - Nuovo incarico dalla Protezione Civile del Comune di Genova';
+$mail->Subject = 'Urgente - Nuovo messaggio dalla Protezione Civile del Comune di Genova';
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body

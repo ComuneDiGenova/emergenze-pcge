@@ -19,7 +19,8 @@ $segn=str_replace("'", "", $_GET['s']); //segnazione in lavorazione
 $descrizione= str_replace("'", "''", $_POST["descrizione"]);
 
 $uo= str_replace("'", "''", $_POST["uo"]);
-
+$id_squad = pg_escape_string($_POST["uo"]);
+$idn_squad=(int)$id_squad;
 
 //echo "Segnalazione in lavorazione:".$id. "<br>";
 //echo "Segnalazione:".$segn. "<br>";
@@ -157,13 +158,15 @@ require('../token_telegram.php');
 
 require('../send_message_telegram.php');
 
-$query="SELECT mail, telegram_id, u.telegram_attivo
-	FROM users.t_mail_squadre s
-	left join users.v_utenti_sistema u 
-  	on s.matricola_cf = u.matricola_cf 
-	WHERE cod=$1;";
+$query='SELECT u.telegram_id, u.telegram_attivo, s.mail
+FROM users.v_componenti_squadre vcs
+left join users.v_utenti_sistema u 
+on u.matricola_cf = vcs.matricola_cf 
+left join (select matricola_cf, mail from users.t_mail_squadre s where cod=$1) as s
+on vcs.matricola_cf = s.matricola_cf
+where id=$2 and data_end is null;';
 $result = pg_prepare($conn, "myquery0", $query);
-$result = pg_execute($conn, "myquery0", array($uo));
+$result = pg_execute($conn, "myquery0", array($uo, $idn_squad));
 
 $mails=array();
 //$telegram_id=array();

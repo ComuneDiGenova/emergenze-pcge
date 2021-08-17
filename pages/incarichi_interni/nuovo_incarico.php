@@ -18,6 +18,8 @@ $segn=str_replace("'", "", $_GET['s']); //segnazione in lavorazione
 
 $descrizione= str_replace("'", "''", $_POST["descrizione"]);
 
+$id_squad = pg_escape_string($_POST["uo"]);
+$idn_squad=(int)$id_squad;
 $uo= str_replace("'", "''", $_POST["uo"]);
 
 
@@ -25,8 +27,9 @@ $uo= str_replace("'", "''", $_POST["uo"]);
 //echo "Segnalazione:".$segn. "<br>";
 //echo "Descrizione:".$descrizione. "<br>";
 //echo "Squadra:".$uo. "<br>";
+//echo "id Squadra:".$id_squad. "<br>";
 
-
+//exit;
 
 //echo "<h2>La gestione degli incarichi e' attualmente in fase di test and debug. Ci scusiamo per il disagio</h2> <br> ";
 
@@ -144,19 +147,39 @@ require('../token_telegram.php');
 
 require('../send_message_telegram.php');
 
-/* $query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
+/*$query="SELECT mail FROM users.t_mail_squadre WHERE cod='".$uo."';";
 $result=pg_query($conn, $query);
 $mails=array();
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
-} */
-$query="SELECT mail, telegram_id, u.telegram_attivo
+}*/
+/*$query="SELECT s.mail
+	FROM users.t_mail_squadre s
+	right join (select matricola_cf, mail from users.v_componenti_squadre vcs where id=$uo and data_end is null) as vcs 
+	on s.matricola_cf = vcs.matricola_cf
+	where cod='".$uo."';";
+$result=pg_query($conn, $query);
+$mails=array();
+while($r = pg_fetch_assoc($result)) {
+  array_push($mails,$r['mail']);
+}*/
+/*$query="SELECT mail, telegram_id, u.telegram_attivo
 	FROM users.t_mail_squadre s
 	left join users.v_utenti_sistema u 
   	on s.matricola_cf = u.matricola_cf 
-	WHERE cod=$1;";
+	WHERE cod=$1;";*/
+$query='SELECT u.telegram_id, u.telegram_attivo, s.mail
+FROM users.v_componenti_squadre vcs
+left join users.v_utenti_sistema u 
+on u.matricola_cf = vcs.matricola_cf 
+left join (select matricola_cf, mail from users.t_mail_squadre s where cod=$1) as s
+on vcs.matricola_cf = s.matricola_cf
+where id=$2 and data_end is null;';
 $result = pg_prepare($conn, "myquery0", $query);
-$result = pg_execute($conn, "myquery0", array($uo));
+$result = pg_execute($conn, "myquery0", array($uo, $idn_squad));
+//echo $query;
+//exit;
+//$result=pg_query($conn, $query);
 $mails=array();
 //$telegram_id=array();
 $messaggio="\xE2\x80\xBC E' stato assegnato un nuovo incarico interno sulla segnalazione n. ".$segn." alla squadra di tua appartenenza ".$uo_descrizione." con i seguenti dettagli: ".$descrizione."\n";
@@ -165,6 +188,7 @@ $messaggio= $messaggio ." \xF0\x9F\x91\x8D per accettare l'incarico digita /acce
 
 while($r = pg_fetch_assoc($result)) {
   array_push($mails,$r['mail']);
+  //echo $r['mail']."<br>";
   //array_push($telegram_id,$r['telegram_id']);
   if($r['telegram_id']!='' && $r['telegram_attivo']=='t'){
 	sendMessage($r['telegram_id'], $messaggio , $token);

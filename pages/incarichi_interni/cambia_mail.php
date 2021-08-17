@@ -8,7 +8,7 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 
 $uo=$_GET["s"];
-$mail=$_POST["mail"];
+$mail=$_POST["mailsq"];
 $matricola_cf=$_GET["cf"];
 
 echo $matricola_cf;

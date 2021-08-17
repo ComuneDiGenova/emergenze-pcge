@@ -15,6 +15,19 @@ echo $query;
 //exit;
 $result=pg_query($conn, $query);
 
+// $query="DELETE FROM users.t_mail_squadre 
+// WHERE cod='".$id_squadra."';";
+// echo $query;
+// //exit;
+// //lasciamo perdere
+// $result=pg_query($conn, $query);
+
+// $query="DELETE FROM users.t_telefono_squadre 
+// WHERE cod='".$id_squadra."';";
+// echo $query;
+// //exit;
+// //lasciamo perdere
+// $result=pg_query($conn, $query);
 
 $query = "SELECT count(c.id_squadra) AS count FROM users.v_componenti_squadre c
  WHERE c.id_squadra = ".$id_squadra." and c.data_end is null ";

@@ -12,8 +12,8 @@ $idt=$_GET["idt"];
 
 echo "<br>";
 if($idt!=''){
-    $query="DELETE FROM users.t_mail_incarichi WHERE cod='".$uo."' AND mail='".$mail."' AND id_telegram=".$idt."';";
-    $testo = "Eliminati mail ".$mail." e telegra id ".$idt." dal Unit� Operativa ".$uo;
+    $query="DELETE FROM users.t_mail_incarichi WHERE cod='".$uo."' AND mail='".$mail."' AND id_telegram='".$idt."';";
+    $testo = "Eliminati mail ".$mail." e telegram id ".$idt." dal Unit� Operativa ".$uo;
     echo $testo;
 }else{
     $query="DELETE FROM users.t_mail_incarichi WHERE cod='".$uo."' AND mail='".$mail."';";
