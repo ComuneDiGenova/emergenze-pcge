@@ -15,7 +15,7 @@ $matricola_cf=$_GET['m'];
 
 //$query="DELETE FROM users.t_componenti_squadre 
 $query="UPDATE users.t_componenti_squadre SET data_end=now() 
-WHERE matricola_cf= '".$matricola_cf."' AND id_squadra=".$id_squadra.";";
+WHERE matricola_cf= '".$matricola_cf."' AND id_squadra=".$id_squadra." and data_end is null;";
 echo $query;
 //exit;
 $result=pg_query($conn, $query);
