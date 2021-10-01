@@ -589,7 +589,7 @@ async def comunication(message: types.Message,state=FSMContext):
     elif len(registered_user) !=0:
         
         q1='''select * from users.v_componenti_squadre vcs left join users.v_squadre_notifica vsn on vcs.id_squadra ::text = vsn.id ::text 
-                where vcs.matricola_cf ='{}' and  (vsn.id_incarico_interno is not null or vsn.id_sopralluogo is not null or vsn.id_sm is not null)'''.format(registered_user[0][0])
+                where vcs.matricola_cf ='{}' and  (vsn.id_incarico_interno is not null or vsn.id_sopralluogo is not null or vsn.id_sm is not null) and vcs.data_end is null'''.format(registered_user[0][0])
         #lo scopo di questa query è capire se alla squadra è assegnato un incarico interno, un presidio fisso o un presidio mobile e ricavarne l id.
         incarico=esegui_query(con,q1,'s')
         tipi_compiti=['incarico interno','presidio fisso','presidio mobile']
@@ -604,7 +604,7 @@ async def comunication(message: types.Message,state=FSMContext):
                 inizio_com=True
                 tipo= 'incarico interno'
                 queryii='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_incarichi_interni vii on vcs.id ::text =vii.id_squadra ::text 
-                            where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null'''.format(registered_user[0][0])
+                            where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null and and vcs.data_end is null'''.format(registered_user[0][0])
                 resultii=esegui_query(con,queryii,'s')
                 
                 if resultii==1:
@@ -626,7 +626,7 @@ async def comunication(message: types.Message,state=FSMContext):
                 inizio_com=True
                 tipo='presidio fisso'
                 querypf='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi vs on vcs.id_squadra  ::text = vs.id_squadra ::text
-                           where vcs.matricola_cf ='{}' and vs.id_stato_sopralluogo =2 and vs.time_stop is null'''.format(registered_user[0][0])
+                           where vcs.matricola_cf ='{}' and vs.id_stato_sopralluogo =2 and vs.time_stop is null and vcs.data_end is null'''.format(registered_user[0][0])
                 resultpf=esegui_query(con,querypf,'s')
                 if resultpf==1:
                     await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile risalite all'id dell'evento:
@@ -648,7 +648,7 @@ async def comunication(message: types.Message,state=FSMContext):
                 tipo='presidio mobile'
                 
                 querypm='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_sopralluoghi_mobili vsm on vcs.id ::text =vsm.id_squadra ::text 
-                            where vcs.matricola_cf ='{}' and vsm.id_stato_sopralluogo =2 and time_stop is null''' .format(registered_user[0][0])
+                            where vcs.matricola_cf ='{}' and vsm.id_stato_sopralluogo =2 and vsm.time_stop is null and vcs.data_end is null''' .format(registered_user[0][0])
                 resultpm=esegui_query(con,querypm,'s')
                 
                 if resultpm ==1:
