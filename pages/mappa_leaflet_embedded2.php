@@ -128,7 +128,7 @@
         });
         
         var base_genova = L.tileLayer.wms("https://mappe.comune.genova.it/geoserver/ows?", {
-                layers: 'BASE_CARTOGRAFICA',maxZoom: 22,
+                layers: 'MEDIATORE:BASE_CARTOGRAFICA',maxZoom: 22,
                 format: 'image/jpeg',attribution: '<a href="https://geoportale.comune.genova.it/" target="_blank">Comune di Genova &copy; CC-BY Tiles</a>.'
               });
 
