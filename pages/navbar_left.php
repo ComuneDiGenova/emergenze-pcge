@@ -183,6 +183,24 @@
                                 </li>
                             </ul>
                         </li>
+                        <?php 
+                            }
+                        ?>
+                        <?php
+						
+						if ($profilo_sistema <= 3){
+                            ?>
+                        <li>
+                            <a href="#"><i class="fas fa-user-check"></i> Convocazione COC<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="elenco_coc.php"><i class="fas fa-user-check"></i> Ultima Convocazione</a>
+                                </li>
+                                <li>
+                                    <a href="elenco_coc_storico.php"><i class="fas fa-user-times"></i> Storico Convocazioni</a>
+                                </li>
+                            </ul>
+                        </li>
  								<?php 
  								}
 								//****************************************************
@@ -401,7 +419,13 @@
                                     </i> Reperibilit&agrave COC Esterni</a>
                                 </li>
 								<?php } ?>
-								
+                                <?php if($profilo_sistema<=3){ ?>
+                                <li>
+                                    <a href="lista_utenti_coc.php"> 
+                                    <i class="fas fa-user-cog">
+                                    </i> Componenti COC Direttivo</a>
+                                </li>
+								<?php } ?>
 								 <?php if ($profilo_sistema<=6){ ?>
                                  
                                 <li>

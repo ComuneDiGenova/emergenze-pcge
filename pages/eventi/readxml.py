@@ -20,8 +20,10 @@ import telepot
 import config
 # Il token è contenuto nel file config.py e non è aggiornato su GitHub per evitare utilizzi impropri
 TOKEN=config.TOKEN
+TOKENCOC=config.TOKEN_COC
 
 bot = telepot.Bot(TOKEN)
+botCOC = telepot.Bot(TOKENCOC)
 #per ora solo un test su Roberto
 #chat_id= config.chat_id
 
@@ -68,11 +70,27 @@ def scarica_bollettino(tipo,nome,ora):
                 chat_id=row[0]
                 print(chat_id)
                 try:
+                    #print('test debug') #per debug
                     bot.sendMessage(chat_id, "Nuovo bollettino Protezione civile!\n\n{}".format(messaggio))
                 except:
                     print('Problema invio messaggio all\'utente con chat_id={}'.format(chat_id))
                 #bot.sendMessage(chat_id, messaggio)
                 #time.sleep(1)
+            query_coc= "SELECT telegram_id from users.utenti_coc;"
+            curr.execute(query_coc)
+            lista_coc = curr.fetchall() 
+            for row_coc in lista_coc:
+                chat_id_coc=row_coc[0]
+                try:
+                    #query insert DB
+                    query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('minute', now()), {});".format(chat_id_coc)
+                    curr.execute(query_convocazione)
+                    os.system("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, messaggio, TOKENCOC))
+                    os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato e di controllare nei prossimi minuti la propria casella di posta elettronica per avere informazioni su data, ora e luogo di convocazione del COC Direttivo\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, TOKENCOC))
+                except Exception as e:
+                    print(e)
+                    print('Problema invio messaggio all\'utente del coc con chat_id={}'.format(chat_id_coc))
+                
     else:
         print("File of type {} already download".format(tipo))
         #if tipo == 'PC':
@@ -108,14 +126,16 @@ def main():
     print(update2)
     log_file_allerte.write("Ultimo aggiornamento: {}".format(update2))
         
-    # messaggio PROTEZIONE CIVILE
+    # messaggio PROTEZIONE CIVILE (DA DECOMMENTARE)
     for elem in root.findall('MessaggioProtezioneCivile'):
         bollettino = elem.attrib['nomeFilePDF']
         #emissione = elem.attrib['dataEmissione']
         if bollettino!='':
             scarica_bollettino("PC",bollettino,'NULL')
         #datatake = elem.find('Testo')
-        #print(datatake.text)
+        #print(datatake.text) protciv_89608.pdf
+    
+    #scarica_bollettino("PC",'protciv_89608.pdf','NULL') #per debug
 
     # meteo ARPA
     for elem in root.findall('MessaggioMeteoARPAL'):
