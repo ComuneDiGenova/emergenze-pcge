@@ -14,12 +14,13 @@ if(!$conn) {
         $cognome=pg_escape_string($_POST["addCognome"]);
         $mail=pg_escape_string($_POST["addMail"]);
         $telegram=pg_escape_string($_POST["addTelegram"]);
+        $funzione=pg_escape_string($_POST["addFunzione"]);
 
-        $query="INSERT INTO users.utenti_coc(matricola_cf, nome, cognome, mail, telegram_id) VALUES ($1, $2, $3, $4, $5);";
+        $query="INSERT INTO users.utenti_coc(matricola_cf, nome, cognome, mail, telegram_id, funzione) VALUES ($1, $2, $3, $4, $5, $6);";
         //echo $query;
         //exit;
         $result = pg_prepare($conn,"myquery", $query);
-        $result = pg_execute($conn,"myquery", array($cf, $nome, $cognome, $mail, $telegram));
+        $result = pg_execute($conn,"myquery", array($cf, $nome, $cognome, $mail, $telegram, $funzione));
 
         $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('users',$1, 'Aggiunto componente COC CF: $2');";
         $result = pg_prepare($conn,"myquery2", $query_log);

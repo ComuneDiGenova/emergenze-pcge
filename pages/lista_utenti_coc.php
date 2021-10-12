@@ -22,6 +22,8 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 require('./check_evento.php');
 
+require('./funzioni_coc.php');
+
 $check_operatore=0;
 if ($profilo_sistema <= 3){
 	$check_operatore=1;
@@ -94,6 +96,26 @@ require('navbar_up.php');
                                 <input type="text" class="form-control" name="addMatricolaCf" id="addMatricolaCf" required>
                             </div>
                             <div class="form-group">
+                                <label for="addFunzione" >Funzione <font color="red">*</font></label> 
+                                <?php 
+                                  $len=count($tipo_funzione);
+                                  // echo $len;
+                                  // for ($i=0;$i<$len;$i++){
+                                    
+                                  //   echo $tipo_funzione[$i][1];
+                                  // }               
+                                ?>               
+                                <select class="form-control"  name="addFunzione" required>
+                                  <option value=''>Seleziona una Funzione</option>
+                                  <?php 
+                                  for ($i=0;$i<$len;$i++){
+                                    
+                                      echo '<option name="addFunzione" value="'.$tipo_funzione[$i][0].'">'. $tipo_funzione[$i][1].'</option>';
+                                    }
+                                  ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="addNome" >Nome <font color="red">*</font></label>                 
                                 <input type="text" class="form-control" name="addNome" id="addNome" required>
                             </div> 
@@ -102,8 +124,8 @@ require('navbar_up.php');
                                 <input type="text" class="form-control" name="addCognome" id="addCognome" required>
                             </div> 
                             <div class="form-group">
-                                <label for="addMail" >Mail <font color="red">*</font></label>                 
-                                <input type="text" class="form-control" name="addMail" id="addMail" required>
+                                <label for="addMail" >Mail</label>                 
+                                <input type="text" class="form-control" name="addMail" id="addMail">
                             </div> 
                             <div class="form-group">
                                 <label for="addTelegram" >ID Telegram <font color="red">*</font></label>                 
@@ -145,7 +167,8 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <th data-field="matricola_cf" data-sortable="false"  data-visible="true">CF</th>
+            <!--th data-field="matricola_cf" data-sortable="false"  data-visible="true">CF</th-->
+            <th data-field="funzione" data-sortable="false"  data-visible="true">Funzione COC</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="nome" data-sortable="true"  data-visible="true">Nome</th>           
             <?php
@@ -225,6 +248,19 @@ function nameFormatter0(value, row) {
               <input type="text" class="form-control" name="matricolaCf" id="matricolaCf'+row.matricola_cf+'" value="'+row.matricola_cf+'" style="height: auto;" required><br>\
               <div class="help-block with-errors"></div>\
               </div>\
+              <label>Funzione COC <span style="color:red;">*</span></label><br><br>\
+              <div class="form-group">\
+              <select class="form-control"  name="addFunzione" required>\
+                  <option value="'+row.funzione+'">'+row.funzione+'</option>\
+                  <?php 
+                  for ($i=0;$i<$len;$i++){
+                    
+                      echo '<option name="addFunzione" value="'.$tipo_funzione[$i][0].'">'. $tipo_funzione[$i][1].'</option>';
+                    }
+                  ?>
+                </select>\
+                <div class="help-block with-errors"></div>\
+              </div>\
               <label>Nome <span style="color:red;">*</span></label>\
               <div class="form-group">\
               <input type="text" class="form-control" name="nome" id="nome'+row.matricola_cf+'" value="'+row.nome+'" required><br>\
@@ -235,9 +271,9 @@ function nameFormatter0(value, row) {
               <input type="text" class="form-control" name="cognome" id="cognome'+row.matricola_cf+'" value="'+row.cognome+'" required><br>\
               <div class="help-block with-errors"></div>\
               </div>\
-              <label>Mail <span style="color:red;">*</span></label>\
+              <label>Mail</label>\
               <div class="form-group">\
-              <input type="text" class="form-control" name="mail" id="mail'+row.matricola_cf+'" value="'+row.mail+'" required><br>\
+              <input type="text" class="form-control" name="mail" id="mail'+row.matricola_cf+'" value="'+row.mail+'"><br>\
               <div class="help-block with-errors"></div>\
               </div>\
               <label>ID Telegram <span style="color:red;">*</span></label>\

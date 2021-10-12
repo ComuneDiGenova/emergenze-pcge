@@ -108,7 +108,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         if result_c == 1:
             text='Si è verificato un problema nell\'invio della conferma di lettura.'
         else:
-            text='Gentile {}, hai confermato la ricezione della convocazione inviata in data {}.'.format(result_s[0][1], result_s[0][5])
+            text='Gentile {}, hai dato conferma di lettura dell\'emanazione dell\'allerta emanata in data {}. Ti ricodrdiamo di controllare nei prossimi minuti la tua casella di posta elettronica per avere informazioni su data, ora e luogo di convocazione del COC Direttivo'.format(result_s[0][1], result_s[0][5])
             await bot.delete_message(query.from_user.id,query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
