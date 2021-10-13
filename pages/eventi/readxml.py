@@ -83,7 +83,7 @@ def scarica_bollettino(tipo,nome,ora):
                 chat_id_coc=row_coc[0]
                 try:
                     #query insert DB
-                    query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('minute', now()), {});".format(chat_id_coc)
+                    query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {});".format(chat_id_coc)
                     curr.execute(query_convocazione)
                     os.system("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, messaggio, TOKENCOC))
                     os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato e di controllare nei prossimi minuti la propria casella di posta elettronica per avere informazioni su data, ora e luogo di convocazione del COC Direttivo\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, TOKENCOC))

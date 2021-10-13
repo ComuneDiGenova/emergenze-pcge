@@ -125,8 +125,9 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF/matricola</th> 
+            <!--th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF/matricola</th--> 
             <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
+            <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione</th>
             <th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
             <!--th data-field="data_invio" data-sortable="true"  data-visible="true" data-filter-control="select">Data/ora invio notifica</th-->
@@ -138,7 +139,7 @@ require('navbar_up.php');
             <!--?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
-                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th>
+                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th-->
             <!--?php
                 }
             ?-->

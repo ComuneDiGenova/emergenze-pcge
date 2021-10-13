@@ -18,6 +18,7 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT u.matricola_cf,
+	jtfc.funzione,
     u.nome,
     u.cognome,
     u.telegram_id,
@@ -27,8 +28,9 @@ if(!$conn) {
     tp.data_conferma
    	FROM users.utenti_coc u
     right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
+    join users.join_tipo_funzione_coc jtfc on jtfc.id = u.funzione
   	WHERE tp.data_invio < (select max(tp.data_invio) FROM users.t_convocazione tp) 
-  	GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio 
+  	GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, jtfc.funzione
  	order by tp.data_invio desc;";
 	// $query="SELECT u.matricola_cf,
 	// u.nome,
