@@ -76,7 +76,13 @@ async def start_cmd_handler(message: types.Message):
     await message.reply("Ciao!\nBenvenuto nel BOT di convocazione del COC Direttivo")
 
 
-
+# comando per telegram ID
+@dp.message_handler(commands=['telegram_id'])
+async def send_welcome(message: types.Message):
+    """
+    This handler will be called when user sends `/telegram_id` command
+    """
+    await message.reply("Ciao {}, il tuo codice (telegram id) è {}".format(message.from_user.first_name,message.chat.id))
 
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
