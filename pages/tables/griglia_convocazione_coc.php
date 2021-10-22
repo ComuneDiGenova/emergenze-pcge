@@ -24,7 +24,10 @@ if(!$conn) {
     u.telegram_id,
     tp.data_invio,
     tp.lettura,
-    tp.data_conferma
+    tp.data_conferma,
+	tp.data_invio_conv,
+	tp.data_conferma_conv,
+	tp.lettura_conv 
    	FROM users.utenti_coc u
 	right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
 	join users.join_tipo_funzione_coc jtfc on jtfc.id = u.funzione

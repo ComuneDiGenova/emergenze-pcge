@@ -130,8 +130,9 @@ require('navbar_up.php');
             <th data-field="ora_invio" data-sortable="true"  data-visible="true" data-filter-control="input">Ora invio notifica</th>
             <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
             <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
-			<!--th data-field="valido" data-sortable="true" data-formatter="nameFormatter" data-visible="true">Stato</th-->
-            <!--th data-field="matricola_cf" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th-->
+			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
+            <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
+            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
             <!-- <?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
@@ -164,12 +165,23 @@ require('navbar_up.php');
 
  function letturaFormatter(value) {
         if (value=='t'){
-        		return '<center><i class="fas fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
+        		return '<center><i class="far fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
         } else {
-        	   return '<center><i class="fas fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';;
+        	   return '<center><i class="far fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';;
         }
 
     }
+
+function letturaFormatter2(value, row) {
+    if (row.data_invio_conv != null && value =='t'){
+            return '<center><i class="fas fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
+    } else if (row.data_invio_conv != null && value != 't') {
+            return '<center><i class="fas fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';
+    } else{
+        return '<center>-</center>';
+    }
+
+}
 
  function nameFormatterEdit(value) {
     if (value.length==16){

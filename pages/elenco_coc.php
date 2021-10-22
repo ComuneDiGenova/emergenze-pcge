@@ -96,7 +96,40 @@ require('navbar_up.php');
                     <h1 class="page-header noprint">Ultima Convocazione COC Direttivo
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
+                    <?php if ($profilo_ok<=3){ ?>
+                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
+                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                    <?php
+                    }
+                    ?>
 					</h1>
+
+			<!-- Modal convocazione coc-->
+            <div id="conv_coc" class="modal fade" role="dialog">
+				  <div class="modal-dialog">
+				
+				    <!-- Modal content-->
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal">&times;</button>
+				        <h4 class="modal-title">Convocazione COC</h4>
+				      </div>
+				      <div class="modal-body">
+      
+
+        			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
+                            <div class="form-group">
+                                <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
+                                <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
+                            </div>
+                            <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                        </div>
+                    </div>
+
                 </div>
                 </div>
             <div class="row">
@@ -134,8 +167,9 @@ require('navbar_up.php');
             <th data-field="data_invio" data-sortable="true"  data-visible="true">Data/ora invio notifica</th>
             <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
             <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
-			<!--th data-field="valido" data-sortable="true" data-formatter="nameFormatter" data-visible="true">Stato</th-->
-            <!--th data-field="matricola_cf" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th-->
+			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
+            <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
+            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
             <!--?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
@@ -168,9 +202,20 @@ require('navbar_up.php');
 
  function letturaFormatter(value) {
         if (value=='t'){
-        		return '<center><i class="fas fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
+        		return '<center><i class="far fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
         } else {
-        	   return '<center><i class="fas fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';;
+        	   return '<center><i class="far fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';
+        }
+
+    }
+
+function letturaFormatter2(value, row) {
+        if (row.data_invio_conv != null && value =='t'){
+        		return '<center><i class="fas fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
+        } else if (row.data_invio_conv != null && value != 't') {
+        	   return '<center><i class="fas fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';
+        } else{
+            return '<center>-</center>';
         }
 
     }
