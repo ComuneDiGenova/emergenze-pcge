@@ -6,7 +6,7 @@ session_start();
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 
-$query1="SELECT * From \"users\".\"join_tipo_funzione_coc\" ORDER BY id;";
+$query1="SELECT * From \"users\".\"tipo_funzione_coc\" ORDER BY id;";
 //echo $query1;
 $result1 = pg_query($conn, $query1);
 	while($r1 = pg_fetch_assoc($result1)) {

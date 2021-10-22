@@ -384,7 +384,7 @@ if($_GET["s"] != '' and $_GET["t"] != ''){
 					<?php
 					
 					$query2="select * from information_schema.tables where table_name ilike 'tipo%' OR 
-					table_name ilike 'uo_1_livello' OR table_name ilike 'uo_2_livello' OR table_name ilike 'soglie%' OR table_name ilike 'join_tipo_funzione_coc'
+					table_name ilike 'uo_1_livello' OR table_name ilike 'uo_2_livello' OR table_name ilike 'soglie%' OR table_name ilike 'tipo_funzione_coc'
 					order by table_schema,table_name ";
 					$result2 = pg_query($conn, $query2);
 					 

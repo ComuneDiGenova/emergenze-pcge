@@ -30,7 +30,7 @@ FROM (SELECT distinct on (u.telegram_id) u.matricola_cf,
     tp.data_conferma
    	FROM users.utenti_coc u
 	right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-	join users.join_tipo_funzione_coc jtfc on jtfc.id = u.funzione) AS subquery
+	join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione) AS subquery
 WHERE tc.id =subquery.id;";
 
 $result0 = pg_prepare($conn, "myquery0", $query0);

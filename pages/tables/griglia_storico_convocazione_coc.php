@@ -32,7 +32,7 @@ if(!$conn) {
 	tp.lettura_conv 
    	FROM users.utenti_coc u
     right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-    join users.join_tipo_funzione_coc jtfc on jtfc.id = u.funzione
+    join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
   	WHERE tp.data_invio < (select max(tp.data_invio) FROM users.t_convocazione tp) 
   	GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, jtfc.funzione, tp.data_invio_conv, tp.data_conferma_conv,tp.lettura_conv
  	order by tp.data_invio desc;";
