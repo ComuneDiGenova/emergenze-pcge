@@ -26,7 +26,8 @@ if(!$conn) {
 	tp.data_invio::timestamp::time as ora_invio,
     tp.lettura,
     tp.data_conferma, 
-	tp.data_invio_conv,
+	tp.data_invio_conv::timestamp::date,
+	tp.data_invio_conv::timestamp::time as ora_convocazione,
 	tp.data_conferma_conv,
 	tp.lettura_conv 
    	FROM users.utenti_coc u

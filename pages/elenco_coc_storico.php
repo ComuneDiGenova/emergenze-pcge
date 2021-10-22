@@ -129,10 +129,11 @@ require('navbar_up.php');
             <th data-field="data_invio" data-sortable="true"  data-visible="true" data-filter-control="select">Data invio notifica</th>
             <th data-field="ora_invio" data-sortable="true"  data-visible="true" data-filter-control="input">Ora invio notifica</th>
             <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
-            <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
-			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
+            <th data-field="data_conferma" data-sortable="true"  data-visible="false">Data/ora conferma lettura</th>
+			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true" data-filter-control="select">Data invio Convocazione</th>
+            <th data-field="ora_convocazione" data-sortable="true"  data-visible="true" data-filter-control="input">Ora invio Convocazione</th>
             <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
-            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
+            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="false">Data/ora conferma convocazione</th>
             <!-- <?php
             if ($profilo_ok==3){?>
                 <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
