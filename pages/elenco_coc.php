@@ -96,9 +96,39 @@ require('navbar_up.php');
                     <h1 class="page-header noprint">Ultima Convocazione COC Direttivo
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
-                    <?php if ($profilo_ok<=3){ ?>
+                    <?php if ($profilo_ok<=3){ 
+                        $query_coc="SELECT distinct on (u.telegram_id) u.matricola_cf,
+                        u.nome,
+                        u.cognome,
+                        jtfc.funzione,
+                        u.telegram_id,
+                        tp.data_invio,
+                        tp.lettura,
+                        tp.data_conferma,
+                        tp.data_invio_conv,
+                        tp.data_conferma_conv,
+                        tp.lettura_conv 
+                        FROM users.utenti_coc u
+                        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
+                        join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
+                        order by u.telegram_id, tp.data_invio desc;";
+                        $result_coc = pg_prepare($conn, "myquery0", $query_coc);
+                        $result_coc = pg_execute($conn, "myquery0", array());
+                        while($r = pg_fetch_assoc($result_coc)) {
+                            $check_coc = count($r);
+                        }
+                            if($check_coc != 0){
+                    ?>
                         <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
                         <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                    <?php
+                            }else{
+                    ?>
+                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
+                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                    <?php
+                            }//chiudo else
+                    ?>
                     <?php
                     }
                     ?>

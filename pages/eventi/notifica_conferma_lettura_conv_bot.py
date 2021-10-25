@@ -17,7 +17,7 @@ import urllib.parse
 
 
 # Configure logging
-logfile='{}/notifica_conferma_lettura_bot.log'.format(os.path.dirname(os.path.realpath(__file__)))
+logfile='{}/notifica_conferma_lettura_conv_bot.log'.format(os.path.dirname(os.path.realpath(__file__)))
 if os.path.exists(logfile):
     os.remove(logfile)
 
@@ -39,7 +39,7 @@ def telegram_bot_sendtext(bot_message,chat_id):
 
 
 
-testo='{} {} Non è ancora stata inviata la conferma di avvenuta lettura dell\'emanazione dello STATO di ALLERTA. Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK.'.format(emoji.emojize(":warning:",use_aliases=True),emoji.emojize(":bell:",use_aliases=True))
+testo='{} {} Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK.'.format(emoji.emojize(":warning:",use_aliases=True),emoji.emojize(":bell:",use_aliases=True))
 #telegram_bot_sendtext(testo,'306530623')
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
 query='''SELECT u.matricola_cf,
@@ -48,12 +48,15 @@ u.cognome,
 u.telegram_id,
 tp.data_invio,
 tp.lettura,
-tp.data_conferma
+tp.data_conferma,
+tp.data_invio_conv,
+tp.lettura_conv,
+tp.data_conferma_conv
 FROM users.utenti_coc u
 right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-WHERE tp.data_invio = (select max(tp.data_invio) FROM users.t_convocazione tp) and tp.lettura is not true
-GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio 
-order by tp.data_invio desc;'''
+WHERE tp.data_invio_conv = (select max(tp.data_invio_conv) FROM users.t_convocazione tp) and tp.lettura_conv is not true
+GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, tp.data_invio_conv, tp.lettura_conv, tp.data_conferma_conv
+order by tp.data_invio_conv desc;'''
 curr = con.cursor()
 con.autocommit = True
 try:
@@ -68,8 +71,8 @@ con.close()
 #print(result)
 
 for p in result:
-    print(p[4])
-    if datetime.now()>=(p[4]+timedelta(minutes=5)): 
+    print(p[7])
+    if datetime.now()>=(p[7]+timedelta(minutes=5)): 
         #print(p[4]+timedelta(minutes=5))
         telegram_bot_sendtext(testo,p[3])
  
