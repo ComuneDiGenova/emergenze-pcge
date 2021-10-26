@@ -604,7 +604,7 @@ async def comunication(message: types.Message,state=FSMContext):
                 inizio_com=True
                 tipo= 'incarico interno'
                 queryii='''select * from users.v_componenti_squadre vcs left join segnalazioni.v_incarichi_interni vii on vcs.id ::text =vii.id_squadra ::text 
-                            where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null and and vcs.data_end is null'''.format(registered_user[0][0])
+                            where vcs.matricola_cf ='{}' and vii.id_stato_incarico=2 and time_stop is null and vcs.data_end is null'''.format(registered_user[0][0])
                 resultii=esegui_query(con,queryii,'s')
                 
                 if resultii==1:
