@@ -14,6 +14,7 @@ from conn import *
 import time
 import datetime
 import telepot
+import json
 
 
 
@@ -82,11 +83,13 @@ def scarica_bollettino(tipo,nome,ora):
             for row_coc in lista_coc:
                 chat_id_coc=row_coc[0]
                 try:
-                    #query insert DB
-                    query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {});".format(chat_id_coc)
-                    curr.execute(query_convocazione)
-                    os.system("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, messaggio, TOKENCOC))
-                    os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato e di controllare nei prossimi minuti la propria casella di posta elettronica per avere informazioni su data, ora e luogo di convocazione del COC Direttivo\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, TOKENCOC))
+                    msg_bollettino = os.popen("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, messaggio, TOKENCOC)).read()
+                    msg_bollettino_j = json.loads(msg_bollettino)
+                    if msg_bollettino_j['ok'] == True:
+                        os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato e di controllare nei prossimi minuti la propria casella di posta elettronica per avere informazioni su data, ora e luogo di convocazione del COC Direttivo\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"%(chat_id_coc, TOKENCOC))
+                        #query insert DB
+                        query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {});".format(chat_id_coc)
+                        curr.execute(query_convocazione)
                 except Exception as e:
                     print(e)
                     print('Problema invio messaggio all\'utente del coc con chat_id={}'.format(chat_id_coc))
