@@ -10,22 +10,25 @@ import datetime
 x = datetime.datetime.now()
 #print(x)
 
-
+filename = sys.argv[1]
+nome_file = filename.split('/')[-1]
 
 #recupero il percorso al file
 path=os.path.realpath(__file__).replace('forever.py','')
-#print(path)
-logfile="{0}crash.log".format(path)
-pidfilename ="{0}bot.pid".format(path)
+#print('il percorso è {}'.format(path))
+logfile="{0}crash_{1}.log".format(path, nome_file[:-3])
+pidfilename ="{0}{1}.pid".format(path, nome_file[:-3])
 
+#print('il logfile è {}'.format(logfile))
 f = open(logfile, "a")
-#print(logfile)
 
 #quit()
 
 f.write("\n{} - Partito lo script forever.py".format(x))
 f.close
-filename = sys.argv[1]
+#filename = sys.argv[1]
+
+
 while True:
     # ricalcolo le ore
     x = datetime.datetime.now()
