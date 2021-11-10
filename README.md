@@ -155,12 +155,23 @@ if (!$conn) {
 
 * pages/eventi/conn.py
 ```
-#credenziali DB valide per DB prova interno a server GTER
+#credenziali DB
 ip='127.0.0.1'
 db='emergenze'
 user='XXXXXX'
 pwd='XXXXXX'
 port='5432'
+```
+* pages/eventi/conn_mssql.py
+```
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#creadenziali DB Comune sensoristica
+server='XXXXXXXXXXXX'
+user='XXXXXX'
+password='XXXXXX'
+database='XXXXXX'
 ```
 
 * pages/eventi/config.py
@@ -252,7 +263,7 @@ IdSegnalante='XXXXXX' # test
 
 * pages/segnalazioni/conn.py
 ```
-#credenziali DB valide per DB prova interno a server GTER
+#credenziali DB
 ip='127.0.0.1'
 db='emergenze'
 user='xxxxxxxxxx'
@@ -264,7 +275,7 @@ port='5432'
 ```
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#credenziali DB valide per DB manutenzioni
 server='xxxxxxxxxxxxx'
 user='xxxxxxxxxxxx'
 password='xxxxxxxxxx'
