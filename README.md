@@ -268,7 +268,7 @@ port='5432'
 server='xxxxxxxxxxxxx'
 user='xxxxxxxxxxxx'
 password='xxxxxxxxxx'
-database='is_manutenzioni'
+database='xxxxxxxxxxxx'
 ```
 
 
