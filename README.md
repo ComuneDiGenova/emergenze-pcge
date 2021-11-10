@@ -105,11 +105,10 @@ website= "https://emergenze.comune.genova.it/emergenze"
 link= "https://emergenze.comune.genova.it/emergenze" #da sostituire con li
 ```
 
-Il file che regola il bot di Sistema Emergenze si chiama **bot_sistema_emergenze.py** e viene lanciato all'avvio del sistema dal file avvio_bot.sh che a sua volta usa lo script python **forever.py** Il file *forevere.py* richiama il file **forever_conf.py** che ha il seguente contenuto:
+Il file che regola il bot di Sistema Emergenze si chiama **bot_sistema_emergenze.py** e viene lanciato all'avvio del sistema dal file avvio_bot.sh che a sua volta usa lo script python **forever.py** Il file *forever.py* richiama il file **forever_conf.py** che ha il seguente contenuto:
 
 ```
 py_path = 'xxxxxxxxxxxxxxxx ' #da sostituire con il percorso a python 3.8
-
 ```
 
 Il file che regola il bot di Convocazione COC si chiama **bot_convocazione_coc.py** e viene lanciato all'avvio del sistema dal file avvio_bot_coc.sh che a sua volta usa lo script python **forever.py** che richiama il file **forever_conf.py**
@@ -155,16 +154,123 @@ if (!$conn) {
 ```
 
 * pages/eventi/conn.py
+```
+#credenziali DB valide per DB prova interno a server GTER
+ip='127.0.0.1'
+db='emergenze'
+user='XXXXXX'
+pwd='XXXXXX'
+port='5432'
+```
+
 * pages/eventi/config.py
 * pages/eventi/forever_conf.py
 * pages/incarichi/credenziali_mail.php
+```
+<?php
+$mail->Host = $mail_smtp;
+//Set the SMTP port number - likely to be 25, 465 or 587
+$mail->Port = XX;
+//We don't need to set this as it's the default value
+//$mail->SMTPAuth = false;
+
+$mail->CharSet = 'UTF-8';
+
+?>
+```
+
 * pages/incarichi_interni/credenziali_mail.php
+```
+<?php
+$mail->Host = $mail_smtp;
+//Set the SMTP port number - likely to be 25, 465 or 587
+$mail->Port = XX;
+//We don't need to set this as it's the default value
+//$mail->SMTPAuth = false;
+
+$mail->CharSet = 'UTF-8';
+
+?>
+```
+
 * pages/sopralluoghi/credenziali_mail.php
+```
+<?php
+$mail->Host = $mail_smtp;
+//Set the SMTP port number - likely to be 25, 465 or 587
+$mail->Port = XX;
+//We don't need to set this as it's the default value
+//$mail->SMTPAuth = false;
+
+$mail->CharSet = 'UTF-8';
+
+?>
+```
+
 * pages/provvedimenti_cautelari/credenziali_mail.php
+```
+<?php
+$mail->Host = $mail_smtp;
+//Set the SMTP port number - likely to be 25, 465 or 587
+$mail->Port = XX;
+//We don't need to set this as it's the default value
+//$mail->SMTPAuth = false;
+
+$mail->CharSet = 'UTF-8';
+
+?>
+```
+
 * pages/token_telegram.php
+```
+<?php
+
+$bot_name="XXXXXXXXXXXXXXXXXXXXXXXXX";
+
+// token gesteremert bot
+$token = "XXXXXXXXXXXXXXXXXXXXXXXXX";
+// token convocazione coc bot
+$tokencoc = "XXXXXXXXXXXXXXXXXXXXXXXXX";
+
+$link="https://gestemert.comune.genova.it/emergenze/";
+?>
+```
+
 * pages/segnalazioni/token_api_ge.py
+```
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Gter copyleft 2020
+
+url = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+token='XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' # TEST
+
+IdSegnalante='XXXXXX' # test
+```
+
 * pages/segnalazioni/conn.py
+```
+#credenziali DB valide per DB prova interno a server GTER
+ip='127.0.0.1'
+db='emergenze'
+user='xxxxxxxxxx'
+pwd='xxxxxxxx'
+port='5432'
+```
+
 * pages/segnalazioni/conn_mssql.py
+```
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+server='xxxxxxxxxxxxx'
+user='xxxxxxxxxxxx'
+password='xxxxxxxxxx'
+database='is_manutenzioni'
+```
+
 
 
 ## Contatti
