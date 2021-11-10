@@ -89,11 +89,14 @@ Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5). Una copia del DB vu
 
 
 
-## Il bot telegram 
-La configurazione principale del bot telegram avviene nella cartella pages/eventi laddove deve essere incluso il file config.py che ha il seguente contenuto:
+## I bot telegram
+Sono stati sviluppati due bot telegram, uno dedicato all'interazione con Sistema Emergenze per quanto riguarda la notifica di apertura eventi, affidamento degli incarichi, ecc. e uno specificatamente sviluppato per gestire la convocazione del COC Direttivo in caso di emanazione di un'allerta.
+
+La configurazione principale dei bot telegram avviene nella cartella pages/eventi laddove deve essere incluso il file config.py che ha il seguente contenuto:
 
 ```
 TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" #da sostituire
+TOKEN_COC="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" #da sostituire
 
 #per ora solo un test su Roberto
 chat_id= "XXXXX"
@@ -102,12 +105,21 @@ website= "https://emergenze.comune.genova.it/emergenze"
 link= "https://emergenze.comune.genova.it/emergenze" #da sostituire con li
 ```
 
-Il file che regola il bot si chiama **pc_bot_multithread_demo.py** e viene lanciato all'avvio del sistema dal file avvio_bot.sh che a sua volta usa lo script python **forever.py**
+Il file che regola il bot di Sistema Emergenze si chiama **bot_sistema_emergenze.py** e viene lanciato all'avvio del sistema dal file avvio_bot.sh che a sua volta usa lo script python **forever.py** Il file *forevere.py* richiama il file **forever_conf.py** che ha il seguente contenuto:
+
+```
+py_path = 'xxxxxxxxxxxxxxxx ' #da sostituire con il percorso a python 3.8
+
+```
+
+Il file che regola il bot di Convocazione COC si chiama **bot_convocazione_coc.py** e viene lanciato all'avvio del sistema dal file avvio_bot_coc.sh che a sua volta usa lo script python **forever.py** che richiama il file **forever_conf.py**
 
 In fase di installazione occorre eseguire i seguenti passaggi da root:
 - fare un link dello script sh  /etc/init.d/ --> `ln -s /home/......./pages/eventi/avvio_bot.sh /etc/init.d/`
 - `chmod +x /etc/init.d/avvio_bot.sh`
 - `update-rc.d avvio_bot.sh defaults`
+
+Gli stessi passaggi vanno eseguiti anche per l'installazione del bot di Convocazione COC utilizzando il file avvio_bot_coc.sh
 
 I bot si possono creare e gestire tramite BotFather
 
@@ -144,6 +156,7 @@ if (!$conn) {
 
 * pages/eventi/conn.py
 * pages/eventi/config.py
+* pages/eventi/forever_conf.py
 * pages/incarichi/credenziali_mail.php
 * pages/incarichi_interni/credenziali_mail.php
 * pages/sopralluoghi/credenziali_mail.php
