@@ -6,6 +6,7 @@ pages/download/*
 pages/eventi/conn.py
 pages/eventi/conn.pyc
 pages/eventi/config.py
+pages/eventi/forever_conf.py
 pages/eventi/config.pyc
 pages/eventi/conn_mysql.py
 pages/eventi/conn_mssql.py
