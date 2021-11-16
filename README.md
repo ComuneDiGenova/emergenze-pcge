@@ -85,7 +85,7 @@ Con pip3 (python package installer) sono stati installati i seguenti moduli nece
 * tempfile 
 
 ## IL DB
-Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5). Una copia del DB vuota sarà aggiunta al repository quanto prima.
+Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5).
 
 ### DB template
 
