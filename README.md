@@ -87,7 +87,32 @@ Con pip3 (python package installer) sono stati installati i seguenti moduli nece
 ## IL DB
 Il DB è PostgreSQL con estensione spaziale PostGIS (v 2.5). Una copia del DB vuota sarà aggiunta al repository quanto prima.
 
+### DB template
 
+All'interno di questa *repository* è presente un template del DB del sistema
+Emergenze ottenuto mediante i seguenti comandi PostgreSQL:
+
+```sh
+pg_dump -O -x -d emergenze -t *.tipo_* > emergenze_codifica.sql
+pg_dump -s -O -x -d emergenze -T *.tipo_* > emergenze.sql
+```
+
+Il *dump* è suddiviso nei due file:
+* emergenze.sql - contiene la struttura del DB (schemi e tabelle)
+* emergenze_codifica.sql - popola le tabelle di decodifica nominate con prefisso *tipo_* utilizzate per popolare ad esempio i menù a discesa presenti nel Sistema 
+
+#### Restore
+
+Il template può essere ricreato con i seguenti passi:
+
+1. Creazione di un nuovo database vuoto di destinazione:
+    ```sql
+    create database newdb;
+    ```
+2. *Restore* della struttura e dei dati:
+    ```sh
+    psql -d newdb -f emergenze.sql
+    psql -d newdb -f emergenze_codifica.sql
 
 ## I bot telegram
 Sono stati sviluppati due bot telegram, uno dedicato all'interazione con Sistema Emergenze per quanto riguarda la notifica di apertura eventi, affidamento degli incarichi, ecc. e uno specificatamente sviluppato per gestire la convocazione del COC Direttivo in caso di emanazione di un'allerta.
