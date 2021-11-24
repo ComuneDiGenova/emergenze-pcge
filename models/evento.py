@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .generic import db
 from .evento_decodifica import SCHEMA, Field, db
 
 from pydal.validators import *
