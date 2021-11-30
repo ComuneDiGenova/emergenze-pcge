@@ -134,6 +134,7 @@ db.define_table('v_utenti_sistema',
     Field('cognome'),
     Field('descrizione'),
     Field('matricola', rname='matricola_cf'),
+    primarykey = ['matricola'],
     rname = 'users.v_utenti_sistema'
 )
 

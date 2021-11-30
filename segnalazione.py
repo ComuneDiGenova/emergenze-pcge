@@ -8,8 +8,6 @@ DEFAULT_DESCRIZIONE_UTILIZZATORE = db(db.profilo_utilizatore.id==6).select(db.pr
 
 GEOM_SRID = 3003
 
-# DEFAULT_OGGETTO_CIVICO_A_RISCHIO = db(db.tipo_oggetto_rischio.descrizione=='Civici').select(db.tipo_oggetto_rischio.id).first().id
-
 TIPO_OGGETTI_A_RISCHIO = {row.nome_tabella: row
     for row in db(db.tipo_oggetto_rischio.descrizione).select(
         db.tipo_oggetto_rischio.id,
@@ -19,18 +17,37 @@ TIPO_OGGETTI_A_RISCHIO = {row.nome_tabella: row
     )
 }
 
-new_id = lambda table: db(table).select(table.id, orderby=~table.id, limitby=(0,1,)).first().id+1
 
-def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # municipio_id=None,
+def create(evento_id, nome, descrizione, lon_lat, criticita, operatore,
     telefono=None, note=None, nverde=False, note_geo=None,
-    civico_id=None, persone_a_rischio=None, tabella_oggetto=None, oggetto_id=None,
+    civico_id=None, persone_a_rischio=None, tabella_oggetto=None,
     note_riservate=None
 ):
+    """
+    Funzione di creazione nuova segnalazione.
+    
+    evento_id      @integer : Id evento,
+    nome            @string : Nome segnalante,
+    descrizione     @string : Descrizione segnalazione,
+    lon_lat           @list : Coordinate,
+    criticita       @string : Tipo criticità,
+    operatore       @string : Identificativo operatore (matricola o CF)
+    telefono        @string : Numero di telefono segnalante,
+    note            @string : Note,
+    nverde            @bool : Attivazione num verde,
+    note_geo        @string : Note di geolocalizzazione,
+    civico_id      @integer : Id civico,
+    persone_a_rischio @bool : Nome tabella oggetto a rischio (eg.: 'geodb.fiumi')
+    note_riservate  @string : Note riservate
+    
+    Restituisce: Id nuova segnalazione
+    """
+
 
     # Insert SEGNALANTE
 
     segnalante_id = db.segnalante.insert(
-        id = new_id(db.segnalante),
+        # id = new_id(db.segnalante),
         tipo_segnalante_id = DEFAULT_TIPO_SEGNALANTE,
         nome_cognome = nome,
         telefono = telefono,
@@ -41,10 +58,11 @@ def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # munici
 
     municipio_id = db(db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))).select(db.municipio.codice).first().codice
 
+
     # Insert DEGNALAZIONE
 
     segnalazione_id = db.segnalazione.insert(
-        id = new_id(db.segnalazione),
+        # id = new_id(db.segnalazione),
         uo_ins = DEFAULT_DESCRIZIONE_UTILIZZATORE,
         segnalante_id = segnalante_id,
         descrizione = descrizione,
@@ -62,22 +80,24 @@ def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # munici
         note_geo = note_geo
     )
 
+
     # Insert OGGETTO A RISCHIO
 
-    if tabella_oggetto in TIPO_OGGETTI_A_RISCHIO.values():
+    if tabella_oggetto in TIPO_OGGETTI_A_RISCHIO:
         if TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].descrizione == 'Civici':
-            db.join_oggetto_richio.insert(
-                segnalazione_id = segnalazione_id,
-                tipo_oggetto_id = TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].id,
-                oggetto_id = civico_id
-            )
+            if not civico_id is None:
+                _ = db.join_oggetto_richio.insert(
+                    segnalazione_id = segnalazione_id,
+                    tipo_oggetto_id = TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].id,
+                    oggetto_id = civico_id
+                )
         else:
             oggetto_tabella = next(filter(lambda tt: tt._rname==tabella_oggetto, db))
             risko = db(oggetto_tabella).select(
                 oggetto_tabella[TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].campo_identificativo].with_alias('myid'),
                 orderby = f"ST_Distance({POINT3003}, geom)",
                 limitby = (0,1,)
-            )
+            ).first()
             db.join_oggetto_richio.insert(
                 segnalazione_id = segnalazione_id,
                 tipo_oggetto_id = TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].id,
@@ -87,6 +107,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # munici
         pass
     else:
         raise ValueError(tabella_oggetto)
+
 
     # Insert NOTE RISERVATE
 
@@ -98,7 +119,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # munici
             limitby = (0,1,)
         ).first()
         if not operatore_ is None:
-            db.segnalazione_riservata.insert(
+            _ = db.segnalazione_riservata.insert(
                 segnalazione_id = segnalazione_id,
                 mittente = f"{operatore_.nome} {operatore_.cognome} ({operatore_.descrizione})",
                 testo = note_riservate
@@ -111,3 +132,6 @@ def create(evento_id, nome, descrizione, lon_lat, criticita, operatore, # munici
     )
 
     return segnalazione_id
+
+def update():
+    """ """

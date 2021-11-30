@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from .tools import new_id
 from .segnalazione_decodifica import SCHEMA, db, Field
 
 # from pydal.validators import *
 
 db.define_table('segnalazione',
+    Field('id', 'id', compute=lambda _: new_id(db['segnalazione'])),
     Field('inizio', 'datetime', rname='data_ora'),
     Field('segnalante_id', required=True, notnull=True, rname='id_segnalante'),
     Field('descrizione', required=True, notnull=True),
@@ -22,6 +24,7 @@ db.define_table('segnalazione',
 )
 
 db.define_table('segnalante',
+    Field('id', 'id', compute=lambda _: new_id(db['segnalante'])),
     Field('tipo_segnalante_id', 'reference tipo_segnalante', rname='id_tipo_segnalante'),
     Field('altro_tipo'),
     Field('nome_cognome'),
@@ -36,6 +39,7 @@ db.define_table('join_oggetto_richio',
     Field('oggetto_id', 'integer', rname='id_oggetto'),
     Field('attivo', 'boolean', notnull=True, default=True),
     Field('aggiornamento', 'datetime', notnull=True),
+    primarykey = ['segnalazione_id', 'tipo_oggetto_id', 'oggetto_id', 'attivo', 'aggiornamento'],
     rname = f'{SCHEMA}.join_oggetto_rischio'
 )
 
