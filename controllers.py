@@ -59,8 +59,9 @@ def evento():
     return {'result': _evento.fetch()}
 
 @action('civico', method=['GET', 'POST'])
+@action('civico.<format>', method=['GET', 'POST'])
 # @action.uses(query2forms())
-def civico():
+def civico(format=None):
     db.civico.desvia.comment = 'Cerca per toponimo'
     res = db(db.civico).select(
         db.civico.numero.min().with_alias('nummin'),
@@ -113,6 +114,9 @@ def civico():
         lat = form.vars.pop('lat')
         if not None in (lon, lat,):
             form.vars["near_by"] = geojson.Point([lon, lat])
-        result = _civico.fetch(**form.vars)
+        result = _civico.fetch(**form.vars, as_geojson=(format=='geojson'))
 
-    return {'result': result, 'form': sf.form2dict(form)}
+    if format=='geojson':
+        return {'result': geojson.FeatureCollection(result), 'form': sf.form2dict(form)}
+    else:
+        return {'result': result, 'form': sf.form2dict(form)}

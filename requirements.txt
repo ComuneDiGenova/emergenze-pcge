@@ -1,2 +1,3 @@
+geojson
 geomet
 -e git+https://github.com/manuelep/mptools.git#egg=mptools

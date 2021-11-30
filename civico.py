@@ -40,15 +40,23 @@ from .common import db
 #             return self.null
 #         return value
 
+import geojson
 
-def render(row):
-    rec = {k: v for k,v in row.items() if not k.startswith('_')}
-    return rec
+geometry_ = 'ST_AsText(ST_Transform(geom, 4326))'
+
+def render(row, as_geojson=False):
+    rec = {k: v for k,v in row.items() if not k.startswith('_') and k!='civico'}
+    if as_geojson:
+        return geojson.Feature(id=row.id, geometry=row.civico.geometry, properties=rec)
+    else:
+        # lon, lat = rec.pop('civico').geometry['coordinates']
+        rec['longitude'], rec['latitude'] = row.civico.geometry['coordinates']
+        return rec
 
 
 def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
     sounds_like=None, starts_with=None, near_by=None, page=0, paginate=None,
-    epsg=4326
+    epsg=4326, as_geojson=False
 ):
     """ """
 
@@ -65,24 +73,32 @@ def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
     if not desvia is None:
         cnts = []
         for substr in desvia.split():
+            # Conto quante delle parole passate compaiono (almeno una volta) nei toponimi
             cnts.append(f"CASE WHEN length(desvia) - length(replace(lower(desvia), lower('{substr}'), '')) > 0 THEN 1 ELSE 0 END")
 
     if not starts_with is None:
         dbset = dbset(db.civico.desvia.ilike(f'{starts_with}%'))
 
     orderby = db.civico.desvia | db.civico.numero | db.civico.lettera | db.civico.colore
+
     if not sounds_like is None:
+        # NOTA: Questa opzione di ricerca richiede l'estensione Fuzzystrmatch
+        # ma non da le soddisfazioni presupposte prima dei test quindi
+        # forse non vale la pena.
+        # DOC: https://www.postgresql.org/docs/14/fuzzystrmatch.html#id-1.11.7.24.7
+        #      https://en.wikipedia.org/wiki/Levenshtein_distance
         orderby = f"LEVENSHTEIN(lower('{sounds_like}'), lower(desvia)) ASC, "\
         f"{orderby}"
 
     if not near_by is None:
-
+        # Distanza euclidea
         orderby = f"ST_Distance(geom, ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON('{near_by}'), {epsg}), 3003)) ASC, {orderby}"
 
     if not desvia is None:
         orderby = f"{' + '.join(cnts)} DESC, {orderby}"
 
     fields = (
+        db.civico.id.with_alias('id'),
         db.civico.codvia.with_alias('codvia'),
         db.civico.desvia.with_alias('desvia'),
         db.civico.numero.with_alias('numero'),
@@ -90,9 +106,12 @@ def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
         db.civico.colore.with_alias('colore'),
         db.civico.cap.with_alias('cap'),
         db.civico.desmunicipio.with_alias('municipio'),
+        # non rimuovere
+        db.civico.geom,
+        geometry_
     )
 
-    result = map(render, dbset.select(*fields,
+    result = map(lambda rr, ff=as_geojson: render(rr, ff), dbset.select(*fields,
         orderby = orderby,
         limitby = None if None in (page, paginate,) else (page, max(paginate, 1),),
     ))
