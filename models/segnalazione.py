@@ -39,7 +39,7 @@ db.define_table('join_oggetto_richio',
     Field('oggetto_id', 'integer', rname='id_oggetto'),
     Field('attivo', 'boolean', notnull=True, default=True),
     Field('aggiornamento', 'datetime', notnull=True),
-    primarykey = ['segnalazione_id', 'tipo_oggetto_id', 'oggetto_id', 'attivo', 'aggiornamento'],
+    primarykey = ('segnalazione_id', 'tipo_oggetto_id', 'oggetto_id', 'attivo', 'aggiornamento',),
     rname = f'{SCHEMA}.join_oggetto_rischio'
 )
 
@@ -49,6 +49,33 @@ db.define_table('segnalazione_riservata',
     Field('testo'),
     Field('timeref', rname='data_ora_stato'),
     Field('allegato'),
-    primarykey=['segnalazione_id', 'timeref'],
+    primarykey=('segnalazione_id', 'timeref',),
     rname = f'{SCHEMA}.t_comunicazioni_segnalazioni_riservate'
+)
+
+db.define_table('segnalazione_lavorazione',
+    Field('id', 'id', compute=lambda _: new_id(db['segnalazione_lavorazione'])),
+    Field('in_lavorazione', 'boolean', notnull=True, default=True),
+    Field('profilo_id', 'reference profilo_utilizatore', rname='id_profilo'),
+    Field('invio_manutenzioni', 'boolean'),
+    Field('geom', 'geometry()'),
+    Field('descrizione_chiusura'),
+    Field('id_man', 'integer'),
+    rname=f'{SCHEMA}.t_segnalazioni_in_lavorazione'
+)
+
+db.define_table('join_segnalazione_lavorazione',
+    Field('lavorazione_id', 'reference segnalazione_lavorazione', rname='id_segnalazione_in_lavorazione'),
+    Field('segnalazione_id', 'reference segnalazione', rname='id_segnalazione'),
+    Field('sospeso', 'boolean', notnull=True, default=False),
+    primarykey = ('segnalazione_id',),
+    rname = f'{SCHEMA}.join_segnalazioni_in_lavorazione'
+)
+
+db.define_table('storico_segnalazione_lavorazione',
+    Field('lavorazione_id', 'reference segnalazione_lavorazione', rname='id_segnalazione_in_lavorazione'),
+    Field('aggiornamento', rname='log_aggiornamento'),
+    Field('timeref', 'datetime', rname='data_ora'),
+    primarykey = ('lavorazione_id', 'timeref',), # id_segnalazione_in_lavorazione, data_ora
+    rname = f'{SCHEMA}.t_storico_segnalazioni_in_lavorazione'
 )
