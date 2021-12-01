@@ -34,6 +34,7 @@ from pydal.validators import *
 
 from . import evento as _evento
 from . import civico as _civico
+from . import segnalazione as _segnalazione
 
 from mptools.frameworks.py4web import shampooform as sf
 
@@ -120,3 +121,80 @@ def civico(format=None):
         return {'result': geojson.FeatureCollection(result), 'form': sf.form2dict(form)}
     else:
         return {'result': result, 'form': sf.form2dict(form)}
+
+@action('segnalazione', method=['GET', 'POST'])
+def segnalazione():
+    """ """
+
+    res = db(db.evento).select(
+        db.evento.id.min().with_alias('idmin'),
+        db.evento.id.max().with_alias('idmax')
+    ).first()
+
+    civ_stats = db(db.civico).select(
+        db.civico.id.min().with_alias('idmin'),
+        db.civico.id.max().with_alias('idmax')
+    ).first()
+
+    form = Form([
+        Field('evento_id', 'integer', label='Id Evento', required=True,
+            comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}',
+            requires = IS_INT_IN_RANGE(res.idmin, res.idmax)
+        ),
+        Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
+        Field('descrizione', required=True),
+        Field('lon', 'double', label='Longitudine', requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(-180., 180.))),
+        Field('lat', 'double', label='Latitudine', requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(-90., 90.))),
+        Field('criticita_id', label='Id Criticità',
+            comment='Scegli il tipo di criticità da segnalare',
+            requires = IS_IN_DB(
+                db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
+                db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
+                orderby=db.tipo_criticita.descrizione
+            )
+        ),
+        db.segnalazione.operatore,
+        db.segnalante.telefono,
+        db.segnalante.note,
+        db.segnalazione.nverde,
+        Field('note_geo',
+            label = db.segnalazione.note.label,
+            comment = db.segnalazione.note.comment
+        ),
+        Field('civico_id', 'integer',
+            label = 'Id civico',
+            comment = f"Inserisci un Id civico valido compreso tra {civ_stats.idmin:d} e {civ_stats.idmax:d}",
+            length = db.civico.id.length,
+            requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(civ_stats.idmin), int(civ_stats.idmax)))
+        ),
+        Field('persone_a_rischio',
+            label = db.segnalazione.rischio.label,
+            comment = db.segnalazione.rischio.comment
+        ),
+        Field('tabella_oggetto_id',
+            label = 'Seleziona la tabella degli oggetti a rischio',
+            requires = IS_IN_DB(
+                db(db.tipo_oggetto_rischio),
+                db.tipo_oggetto_rischio.id,
+                label = db.tipo_oggetto_rischio.descrizione
+            )
+        ),
+        Field('note_riservate',
+            label=db.segnalazione_riservata.testo.label,
+            comment=db.segnalazione_riservata.testo.comment,
+        ),
+    ],
+        hidden = {'rollback': False},
+        validation = _segnalazione.valida_segnalazione,
+        deletable = False, dbio=False,
+        form_name = 'civico',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        if 'rollback' in form.vars:
+            # Modalità test del form
+            db.rollback()
+
+    return {'result': result, 'form': sf.form2dict(form)}
