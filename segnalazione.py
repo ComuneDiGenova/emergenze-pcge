@@ -9,14 +9,8 @@ DEFAULT_DESCRIZIONE_UTILIZZATORE = db(db.profilo_utilizatore.id==6).select(db.pr
 
 GEOM_SRID = 3003
 
-TIPO_OGGETTI_A_RISCHIO = {row.nome_tabella: row
-    for row in db(db.tipo_oggetto_rischio.descrizione).select(
-        db.tipo_oggetto_rischio.id,
-        db.tipo_oggetto_rischio.descrizione,
-        db.tipo_oggetto_rischio.nome_tabella,
-        db.tipo_oggetto_rischio.campo_identificativo
-    )
-}
+TABELLA_CIVICI = db.tipo_oggetto_rischio(descrizione='Civici')
+
 
 def valida_segnalazione(form):
     """ """
@@ -24,7 +18,7 @@ def valida_segnalazione(form):
     if msg:
         form.errors['evento_id'] = msg
 
-    _, msg = IS_IN_DB(db(db.civico), db.civico.id)(form.vars['civico_id'])
+    _, msg = IS_EMPTY_OR(IS_IN_DB(db(db.civico), db.civico.id))(form.vars['civico_id'])
     if msg:
         form.errors['civico_id'] = msg
 
@@ -32,11 +26,11 @@ def valida_segnalazione(form):
 def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     tipo_segnalante=DEFAULT_TIPO_SEGNALANTE, municipio_id=None,
     telefono=None, note=None, nverde=False, note_geo=None,
-    civico_id=None, persone_a_rischio=None, tabella_oggetto=None,
+    civico_id=None, persone_a_rischio=None, tabella_oggetto_id=None,
     note_riservate=None
 ):
     """
-    Funzione di creazione nuova segnalazione.
+    Funzione dedicata alla creazione di una nuova Segnalazione.
 
     evento_id          @integer : Id evento,
     nome                @string : Nome segnalante,
@@ -69,7 +63,9 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     logger.debug(f'Nuovo segnalante: {db.segnalante[segnalante_id]}')
 
     if municipio_id is None:
-        municipio_id = db(db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))).select(db.municipio.codice).first().codice
+        municipio_id = db(
+            db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))
+        ).select(db.municipio.codice).first().codice
 
     # Insert DEGNALAZIONE
 
@@ -92,32 +88,35 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
 
     # Insert OGGETTO A RISCHIO
 
-    if tabella_oggetto in TIPO_OGGETTI_A_RISCHIO:
-        if TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].descrizione == 'Civici':
-            if not civico_id is None:
-                db.join_oggetto_rischio.insert(
-                    segnalazione_id = segnalazione_id,
-                    tipo_oggetto_id = TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].id,
-                    oggetto_id = civico_id
-                )
-        else:
-            oggetto_tabella = next(filter(lambda tt: tt._rname==tabella_oggetto, db))
-            POINT3003 = f"ST_Transform(ST_SetSRID(ST_GeomFromText('POINT({lon_lat[0]} {lon_lat[1]})'), 4326), {GEOM_SRID})"
-            risko = db(oggetto_tabella).select(
-                oggetto_tabella[TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].campo_identificativo].with_alias('myid'),
-                orderby = f"ST_Distance({POINT3003}, geom)",
-                limitby = (0,1,)
-            ).first()
-            db.join_oggetto_rischio.insert(
-                segnalazione_id = segnalazione_id,
-                tipo_oggetto_id = TIPO_OGGETTI_A_RISCHIO[tabella_oggetto].id,
-                oggetto_id = risko.myid
-            )
-    elif tabella_oggetto is None:
-        pass
-    else:
-        raise ValueError(tabella_oggetto)
+    if tabella_oggetto_id==TABELLA_CIVICI.id and not civico_id is None:
+        # L'oggetto a rischio è un civico
+        _ = db.join_oggetto_rischio.insert(
+            segnalazione_id = segnalazione_id,
+            tipo_oggetto_id = tabella_oggetto_id,
+            oggetto_id = civico_id
+        )
+        logger.debug(f'Aggiunto civico a rischio: {_}')
+    elif not tabella_oggetto_id is None:
+        # L'oggetto a rischio è qualcosaltro
+        # Tipo oggetto a rischio dalla tabella segnalazioni.tipo_oggetti_rischio
+        tabella_oggetto = db.tipo_oggetto_rischio[tabella_oggetto_id]
+        # Oggetto tabella definito in db e identificato da tabella_oggetto
+        oggetto_tabella = next(filter(lambda tt: tt._rname==tabella_oggetto.nome_tabella, db))
 
+        POINT3003 = f"ST_Transform(ST_SetSRID(ST_GeomFromText('POINT({lon_lat[0]} {lon_lat[1]})'), 4326), {GEOM_SRID})"
+        risko = db(oggetto_tabella).select(
+            oggetto_tabella[tabella_oggetto.campo_identificativo].with_alias('myid'),
+            orderby = f"ST_Distance({POINT3003}, geom)",
+            limitby = (0,1,)
+        ).first()
+        logger.debug(f'Trovato oggetto a rischio: {risko}')
+
+        _ = db.join_oggetto_rischio.insert(
+            segnalazione_id = segnalazione_id,
+            tipo_oggetto_id = tabella_oggetto.id,
+            oggetto_id = risko.myid
+        )
+        logger.debug(f'Aggiunto oggetto a rischio: {_}')
 
     # Insert NOTE RISERVATE
 
@@ -129,11 +128,12 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
             limitby = (0,1,)
         ).first()
         if not operatore_ is None:
-            db.segnalazione_riservata.insert(
+            _ = db.segnalazione_riservata.insert(
                 segnalazione_id = segnalazione_id,
                 mittente = f"{operatore_.nome} {operatore_.cognome} ({operatore_.descrizione})",
                 testo = note_riservate
             )
+            logger.debug(f"Nuova nota riservata: {db.segnalazione_riservata[_]}")
 
     # Insert LOG
 
@@ -145,9 +145,14 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
 
     return segnalazione_id
 
+
 def update_(segnalazione_id, segnalante_id, criticita=None, lon_lat=None,
     persone_a_rischio=None, **kwargs):
-    """ """
+    """
+
+    Funzione dedicata all'aggiornamento dei dati di Segnalazione
+
+    """
 
     if not criticita is None:
         kwargs['id_criticita'] = db(
@@ -170,7 +175,11 @@ def update_(segnalazione_id, segnalante_id, criticita=None, lon_lat=None,
 
 def update(segnalazione_id, nome, telefono, operatore, note=None,
     tipo_segnalante=DEFAULT_TIPO_SEGNALANTE, **kwargs):
-    """ """
+    """
+
+    Funzione dedicata alla procedura di aggiornamento dei dati di Segnalazione
+
+    """
 
     # Insert SEGNALANTE
 
@@ -190,11 +199,17 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
 
 def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
     """
+
+    Funzione dedicata alla presa in carico della Segnalazione
+
     segnalazione_id @integer : Id segnalazione
     operatore        @string : Identificativo operatore (matricola o CF)
     profilo_id      @integer : Id del profilo utilizzatore assegnatario della
                                segnalazione (default: 'Emergenza Distretto PM')
-    sospeso         @boolean : Sospendere la segnalazione? 
+    sospeso         @boolean : Sospendere la segnalazione?
+
+    Cosa restiuisce:
+
     """
 
     segnalazione = db.segnalazione[segnalazione_id]

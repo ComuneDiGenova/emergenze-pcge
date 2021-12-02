@@ -123,6 +123,8 @@ def civico(format=None):
         return {'result': result, 'form': sf.form2dict(form)}
 
 @action('segnalazione', method=['GET', 'POST'])
+@action('crea/segnalazione', method=['GET', 'POST'])
+@action('CreaSegnalazione', method=['GET', 'POST'])
 def segnalazione():
     """ """
 
@@ -143,8 +145,8 @@ def segnalazione():
         ),
         Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
         Field('descrizione', required=True),
-        Field('lon', 'double', label='Longitudine', requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(-180., 180.))),
-        Field('lat', 'double', label='Latitudine', requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(-90., 90.))),
+        Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
+        Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
         Field('criticita_id', label='Id Criticità',
             comment='Scegli il tipo di criticità da segnalare',
             requires = IS_IN_DB(
@@ -153,7 +155,7 @@ def segnalazione():
                 orderby=db.tipo_criticita.descrizione
             )
         ),
-        db.segnalazione.operatore,
+        db.segnalazione.operatore, # TODO: Introdurre validazione (CF valido o matricola in db)
         db.segnalante.telefono,
         db.segnalante.note,
         db.segnalazione.nverde,
@@ -173,11 +175,11 @@ def segnalazione():
         ),
         Field('tabella_oggetto_id',
             label = 'Seleziona la tabella degli oggetti a rischio',
-            requires = IS_IN_DB(
+            requires = IS_EMPTY_OR(IS_IN_DB(
                 db(db.tipo_oggetto_rischio),
                 db.tipo_oggetto_rischio.id,
                 label = db.tipo_oggetto_rischio.descrizione
-            )
+            ))
         ),
         Field('note_riservate',
             label=db.segnalazione_riservata.testo.label,
@@ -193,7 +195,14 @@ def segnalazione():
 
     result = None
     if form.accepted:
-        if 'rollback' in form.vars:
+        lon = form.vars.pop('lon')
+        lat = form.vars.pop('lat')
+        form.vars['lon_lat'] = (lon, lat,)
+        rollback = 'rollback' in form.vars
+        if rollback:
+            form.vars.pop('rollback')
+        result =_segnalazione.create(**form.vars)
+        if rollback:
             # Modalità test del form
             db.rollback()
 

@@ -3,7 +3,7 @@
 from .tools import new_id
 from .segnalazione_decodifica import SCHEMA, db, Field
 
-# from pydal.validators import *
+from pydal.validators import *
 
 db.define_table('segnalazione',
     Field('id', 'id', compute=lambda _: new_id(db['segnalazione'])),
@@ -18,7 +18,8 @@ db.define_table('segnalazione',
     Field('municipio_id', 'reference municipio', required=True, notnull=True, rname='id_municipio'),
     Field('operatore', label='Identificativo operatore',
         comment = 'fornire il numero di matricola o il codice fiscale',
-        required=True, notnull=True, rname='id_operatore'
+        required=True, notnull=True, requires=IS_NOT_EMPTY(),
+        rname='id_operatore'
     ),
     Field('note', label='Note utili alla localizzazione'),
     Field('uo_ins'),
