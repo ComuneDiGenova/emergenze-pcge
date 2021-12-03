@@ -178,7 +178,8 @@ def segnalazione():
             requires = IS_EMPTY_OR(IS_IN_DB(
                 db(db.tipo_oggetto_rischio),
                 db.tipo_oggetto_rischio.id,
-                label = db.tipo_oggetto_rischio.descrizione
+                label = db.tipo_oggetto_rischio.descrizione,
+                orderby = db.tipo_oggetto_rischio.descrizione
             ))
         ),
         Field('note_riservate',
