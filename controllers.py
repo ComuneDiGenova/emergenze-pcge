@@ -61,15 +61,23 @@ def evento():
 
 @action('civico', method=['GET', 'POST'])
 @action('civico.<format>', method=['GET', 'POST'])
+@action('RicercaCivico', method=['GET', 'POST'])
+@action('RicercaCivico.<format>', method=['GET', 'POST'])
 # @action.uses(query2forms())
 def civico(format=None):
+
     db.civico.desvia.comment = 'Cerca per toponimo'
     res = db(db.civico).select(
         db.civico.numero.min().with_alias('nummin'),
         db.civico.numero.max().with_alias('nummax'),
         db.civico.cap.min().with_alias('capmin'),
         db.civico.cap.max().with_alias('capmax'),
+        db.civico.codvia.min().with_alias('codmin'),
+        db.civico.codvia.max().with_alias('codmax'),
     ).first()
+
+    db.civico.codvia.requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(res.codmin), int(res.codmax)))
+
     # db.civico.colore.requires = IS_IN_DB(db(db.civico), db.civico.colore, distinct=True)
     db.civico.colore.requires = IS_EMPTY_OR(IS_IN_SET([
         ('','Nero'),
@@ -79,6 +87,7 @@ def civico(format=None):
     db.civico.lettera.requires = IS_LENGTH(1)
 
     form = Form([
+        db.civico.codvia,
         db.civico.desvia,
         Field(db.civico.numero.name, 'integer',
             label = db.civico.numero.label,

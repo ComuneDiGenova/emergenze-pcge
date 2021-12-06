@@ -42,10 +42,22 @@ from .common import db
 
 import geojson
 
+def valida_civico(form):
+    """ """
+    _, msg = IS_IN_DB(db(db.civico), db.civico.codvia)(form.vars['codvia'])
+    if msg:
+        form.errors['codvia'] = msg
+
+    _, msg = IS_EMPTY_OR(IS_IN_DB(db(db.civico), db.civico.cap))(form.vars['cap'])
+    if msg:
+        form.errors['cap'] = msg
+
 geometry_ = 'ST_AsText(ST_Transform(geom, 4326))'
 
 def render(row, as_geojson=False):
     rec = {k: v for k,v in row.items() if not k.startswith('_') and k!='civico'}
+    rec['indirizzo'] = '{desvia}, {civico.testo}'.format(**row)
+
     if as_geojson:
         return geojson.Feature(id=row.id, geometry=row.civico.geometry, properties=rec)
     else:
@@ -54,7 +66,7 @@ def render(row, as_geojson=False):
         return rec
 
 
-def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
+def fetch(codvia=None, desvia=None, numero=None, lettera=None, colore=None, cap=None,
     sounds_like=None, starts_with=None, near_by=None, page=0, paginate=None,
     epsg=4326, as_geojson=False
 ):
@@ -62,6 +74,8 @@ def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
 
     dbset = db(db.civico)
 
+    if not codvia is None:
+        dbset = dbset(db.civico.codvia == codvia)
     if not numero is None:
         dbset = dbset(db.civico.numero == f'{numero:04}')
     if not lettera is None:
@@ -105,7 +119,10 @@ def fetch(desvia=None, numero=None, lettera=None, colore=None, cap=None,
         db.civico.lettera.with_alias('lettera'),
         db.civico.colore.with_alias('colore'),
         db.civico.cap.with_alias('cap'),
-        db.civico.desmunicipio.with_alias('municipio'),
+        db.civico.municipio.with_alias('municipio'),
+        db.civico.circoscrizione.with_alias('circoscrizione'),
+        db.civico.unita_urbanistica.with_alias('unita_urbanistica'),
+        db.civico.testo, #.with_alias('testo'),
         # non rimuovere
         db.civico.geom,
         geometry_
