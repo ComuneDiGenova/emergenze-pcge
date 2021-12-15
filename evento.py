@@ -75,6 +75,7 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
     # Filter
 
     dbset = dbset(
+        # SOLO EVENTI VALIDI
         (f"{db.evento._rname}.valido is null" | (db.evento.valido == True)) & \
         (db.tipo_foc.valido==True) & \
         (db.tipo_allerta.valido==True)

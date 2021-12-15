@@ -31,6 +31,7 @@ from .common import session, T, cache, auth, logger, authenticated, unauthentica
 
 from py4web.utils.form import Form
 from pydal.validators import *
+from pydal.validators import Validator
 
 from . import evento as _evento
 from . import civico as _civico
@@ -38,7 +39,38 @@ from . import segnalazione as _segnalazione
 
 from mptools.frameworks.py4web import shampooform as sf
 
-import geojson
+import geojson, json
+
+class IS_BOOLEAN(Validator):
+    """docstring for IS_EMPTY_OR_BOOLEAN."""
+
+    @staticmethod
+    def validate(value, record_id=None, *other):
+        return value
+
+
+
+
+class NoDBIO(object):
+    """ TEST/DEBUG HELPER """
+
+    def __init__(self, form):
+        super(NoDBIO, self).__init__()
+        self.form = form
+        self.rollback = False
+
+
+    def __enter__(self):
+        if 'rollback' in self.form.vars:
+            self.rollback = True
+            self.form.vars.pop('rollback')
+        # return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.rollback:
+            # Modalità test del form. In questo modo il DB non viene aggiornato
+            db.rollback()
+
 
 # from py4web.core import Fixture
 #
@@ -61,6 +93,8 @@ def evento():
 
 @action('civico', method=['GET', 'POST'])
 @action('civico.<format>', method=['GET', 'POST'])
+@action('ricerca_civico', method=['GET', 'POST'])
+@action('ricerca_civico.<format>', method=['GET', 'POST'])
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
 # @action.uses(query2forms())
@@ -132,6 +166,7 @@ def civico(format=None):
         return {'result': result, 'form': sf.form2dict(form)}
 
 @action('segnalazione', method=['GET', 'POST'])
+@action('crea_segnalazione', method=['GET', 'POST'])
 @action('crea/segnalazione', method=['GET', 'POST'])
 @action('CreaSegnalazione', method=['GET', 'POST'])
 def segnalazione():
@@ -147,24 +182,39 @@ def segnalazione():
         db.civico.id.max().with_alias('idmax')
     ).first()
 
+    db.segnalante.tipo_segnalante_id.comment = f'Inserire un corretto id per tipo segnalante se diverso da: {db.tipo_segnalante[_segnalazione.DEFAULT_TIPO_SEGNALANTE].descrizione}'
+    db.segnalante.tipo_segnalante_id.default = _segnalazione.DEFAULT_TIPO_SEGNALANTE
+    db.segnalante.tipo_segnalante_id.requires = IS_EMPTY_OR(
+        db.segnalante.tipo_segnalante_id.requires,
+        null = db.segnalante.tipo_segnalante_id.default
+    )
+
+    db.segnalazione.criticita_id.requires = IS_IN_DB(
+        db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
+        db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
+        orderby=db.tipo_criticita.descrizione
+    )
+
     form = Form([
         Field('evento_id', 'integer', label='Id Evento', required=True,
             comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}',
-            requires = IS_INT_IN_RANGE(res.idmin, res.idmax)
+            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
         ),
         Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
         Field('descrizione', required=True),
         Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
         Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
-        Field('criticita_id', label='Id Criticità',
-            comment='Scegli il tipo di criticità da segnalare',
-            requires = IS_IN_DB(
-                db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
-                db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
-                orderby=db.tipo_criticita.descrizione
-            )
-        ),
+        db.segnalazione.criticita_id,
+        # Field('criticita_id', label='Id Criticità',
+        #     comment='Scegli il tipo di criticità da segnalare',
+        #     requires = IS_IN_DB(
+        #         db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
+        #         db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
+        #         orderby=db.tipo_criticita.descrizione
+        #     )
+        # ),
         db.segnalazione.operatore, # TODO: Introdurre validazione (CF valido o matricola in db)
+        db.segnalante.tipo_segnalante_id,
         db.segnalante.telefono,
         db.segnalante.note,
         db.segnalazione.nverde,
@@ -176,9 +226,9 @@ def segnalazione():
             label = 'Id civico',
             comment = f"Inserisci un Id civico valido compreso tra {civ_stats.idmin:d} e {civ_stats.idmax:d}",
             length = db.civico.id.length,
-            requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(civ_stats.idmin), int(civ_stats.idmax)))
+            requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(civ_stats.idmin), int(civ_stats.idmax)+1))
         ),
-        Field('persone_a_rischio',
+        Field('persone_a_rischio', 'boolean',
             label = db.segnalazione.rischio.label,
             comment = db.segnalazione.rischio.comment
         ),
@@ -195,6 +245,7 @@ def segnalazione():
             label=db.segnalazione_riservata.testo.label,
             comment=db.segnalazione_riservata.testo.comment,
         ),
+        db.segnalante.telefono,
     ],
         hidden = {'rollback': False},
         validation = _segnalazione.valida_segnalazione,
@@ -205,15 +256,76 @@ def segnalazione():
 
     result = None
     if form.accepted:
-        lon = form.vars.pop('lon')
-        lat = form.vars.pop('lat')
-        form.vars['lon_lat'] = (lon, lat,)
-        rollback = 'rollback' in form.vars
-        if rollback:
-            form.vars.pop('rollback')
-        result =_segnalazione.create(**form.vars)
-        if rollback:
-            # Modalità test del form
-            db.rollback()
+        with NoDBIO(form):
+            lon = form.vars.pop('lon')
+            lat = form.vars.pop('lat')
+            form.vars['lon_lat'] = (lon, lat,)
+            result =_segnalazione.create(**form.vars)
+
+    return {'result': result, 'form': sf.form2dict(form)}
+
+
+@action('modifica/segnalazione', method=['GET', 'POST'])
+@action('ModificaSegnalazione', method=['GET', 'POST'])
+@action('modifica_segnalazione', method=['GET', 'POST'])
+def modifica_segnalazione():
+
+    # TODO: Limitare la modifica alle segnalazioni di PM (in validazione di segnalazione_id??!!)
+
+    res = db(db.segnalazione).select(
+        db.segnalazione.id.min().with_alias('idmin'),
+        db.segnalazione.id.max().with_alias('idmax')
+    ).first()
+
+    db.segnalante.tipo_segnalante_id.comment = f'Inserire un corretto id per tipo segnalante se diverso da: {db.tipo_segnalante[_segnalazione.DEFAULT_TIPO_SEGNALANTE].descrizione}'
+    db.segnalante.tipo_segnalante_id.default = _segnalazione.DEFAULT_TIPO_SEGNALANTE
+    db.segnalante.tipo_segnalante_id.requires = IS_EMPTY_OR(
+        db.segnalante.tipo_segnalante_id.requires,
+        null = db.segnalante.tipo_segnalante_id.default
+    )
+
+    db.segnalazione.criticita_id.required = False
+    db.segnalazione.criticita_id.requires = IS_EMPTY_OR(IS_IN_DB(
+        db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
+        db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
+        orderby=db.tipo_criticita.descrizione
+    ))
+
+    form = Form([
+        Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
+            comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
+            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        ),
+        Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
+        db.segnalante.telefono,
+        db.segnalazione.operatore, # TODO: Introdurre validazione (CF valido o matricola in db ??? )
+        db.segnalante.note,
+        db.segnalante.tipo_segnalante_id,
+        Field('descrizione', required=False),
+        Field('note_geo',
+            label = db.segnalazione.note.label,
+            comment = db.segnalazione.note.comment
+        ),
+        db.segnalazione.criticita_id,
+        Field('persone_a_rischio', 'boolean',
+            label = db.segnalazione.rischio.label,
+            comment = db.segnalazione.rischio.comment,
+            requires = IS_BOOLEAN()
+        ),
+    ],
+    deletable = False, dbio=False,
+    hidden = {'rollback': False},
+    form_name = 'modifica_segnalazione',
+    csrf_protection = False
+    )
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            # Rimuovo le variabili non espresamente passate nella request
+            import pdb; pdb.set_trace()
+            for ff in form.table:
+                if not ff.required and form.vars[ff.name] is None:
+                    form.vars.pop(ff.name)
+            result = _segnalazione.update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}

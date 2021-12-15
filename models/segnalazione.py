@@ -6,11 +6,15 @@ from .segnalazione_decodifica import SCHEMA, db, Field
 from pydal.validators import *
 
 db.define_table('segnalazione',
-    Field('id', 'id', compute=lambda _: new_id(db['segnalazione'])),
+    Field('id', 'id', default=lambda: new_id(db['segnalazione'])),
     Field('inizio', 'datetime', rname='data_ora'),
     Field('segnalante_id', required=True, notnull=True, rname='id_segnalante'),
     Field('descrizione', required=True, notnull=True),
-    Field('criticita_id', 'integer', required=True, notnull=True, rname='id_criticita'),
+    Field('criticita_id', 'reference tipo_criticita', required=True, notnull=True,
+        label = 'Id tipo di criticità',
+        comment = 'Identificativo univoco del tipo di criticità segnalata',
+        rname='id_criticita'
+    ),
     Field('rischio', 'boolean', label='Segnalazione presenza persone a rischio'),
     Field('evento_id', 'reference evento', rname='id_evento'),
     Field('civico_id', 'reference civico', rname='id_civico'),
@@ -28,15 +32,26 @@ db.define_table('segnalazione',
 )
 
 db.define_table('segnalante',
-    Field('id', 'id', compute=lambda _: new_id(db['segnalante'])),
-    Field('tipo_segnalante_id', 'reference tipo_segnalante', rname='id_tipo_segnalante'),
+    Field('id', 'id', default=lambda: new_id(db['segnalante'])),
+    Field('tipo_segnalante_id', 'reference tipo_segnalante', label = 'Tipo segnalante',
+        required = True, requires = IS_IN_DB(
+            db(db.tipo_segnalante),
+            db.tipo_segnalante.id,
+            label = db.tipo_segnalante.descrizione,
+            orderby = db.tipo_segnalante.descrizione
+        ),
+        rname='id_tipo_segnalante'
+    ),
     Field('altro_tipo'),
     Field('nome', label='Nome segnalante',
-        comment='Fornire nome e cognome del segnalante', rname='nome_cognome'
+        comment='Fornire nome e cognome del segnalante',
+        required=True, notnull=True, requires=IS_NOT_EMPTY(),
+        rname='nome_cognome'
     ),
     Field('telefono', length=20,
         label='Telefono segnalante',
-        comment='Fornire il telefono del segnalante'
+        comment='Fornire il telefono del segnalante',
+        required=True, notnull=True, requires=IS_NOT_EMPTY()
     ),
     Field('note', label='Note', comment='Note del segnalante'),
     rname = f'{SCHEMA}.t_segnalanti'
@@ -63,7 +78,7 @@ db.define_table('segnalazione_riservata',
 )
 
 db.define_table('segnalazione_lavorazione',
-    Field('id', 'id', compute=lambda _: new_id(db['segnalazione_lavorazione'])),
+    Field('id', 'id', default=lambda: new_id(db['segnalazione_lavorazione'])),
     Field('in_lavorazione', 'boolean', notnull=True, default=True),
     Field('profilo_id', 'reference profilo_utilizatore', rname='id_profilo'),
     Field('invio_manutenzioni', 'boolean'),

@@ -22,12 +22,15 @@ def valida_segnalazione(form):
     if msg:
         form.errors['civico_id'] = msg
 
+# def valida_modifica_segnalazione(form):
+
+
 
 def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
-    tipo_segnalante=DEFAULT_TIPO_SEGNALANTE, municipio_id=None,
+    tipo_segnalante_id=DEFAULT_TIPO_SEGNALANTE, municipio_id=None,
     telefono=None, note=None, nverde=False, note_geo=None,
     civico_id=None, persone_a_rischio=None, tabella_oggetto_id=None,
-    note_riservate=None
+    note_riservate=None, assegna=True
 ):
     """
     Funzione dedicata alla creazione di una nuova Segnalazione.
@@ -46,16 +49,17 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     persone_a_rischio     @bool : Segnalazione presenza persone a rischio
     tabella_oggetto_id @integer : Id tabella oggetto a rischio (eg.: 'geodb.fiumi')
     note_riservate      @string : Note riservate
+    assegna            @boolean : Se vero esprime che l'operatore segnalante prende
+                                  in carico la stessa segnalazione
 
     Restituisce: Id nuova segnalazione
     """
-
 
     # Insert SEGNALANTE
 
     segnalante_id = db.segnalante.insert(
         # id = new_id(db.segnalante),
-        tipo_segnalante_id = tipo_segnalante,
+        tipo_segnalante_id = tipo_segnalante_id,
         nome = nome,
         telefono = telefono,
         note = note
@@ -143,22 +147,25 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
         operazione = f'Creazione segnalazione {segnalazione_id}'
     )
 
+    if assegna:
+        upgrade(segnalazione_id, operatore)
+
     return segnalazione_id
 
 
-def update_(segnalazione_id, segnalante_id, criticita=None, lon_lat=None,
-    persone_a_rischio=None, **kwargs):
+def update_(segnalazione_id, segnalante_id, lon_lat=None, persone_a_rischio=None,
+    **kwargs):
     """
 
     Funzione dedicata all'aggiornamento dei dati di Segnalazione
 
     """
 
-    if not criticita is None:
-        kwargs['id_criticita'] = db(
-            (db.tipo_criticita.descrizione.lower()==criticita.lower()) & \
-            (db.tipo_criticita.valido==True)
-        ).select(db.tipo_criticita.id).first().id
+    # if not criticita is None:
+    #     kwargs['id_criticita'] = db(
+    #         (db.tipo_criticita.descrizione.lower()==criticita.lower()) & \
+    #         (db.tipo_criticita.valido==True)
+    #     ).select(db.tipo_criticita.id).first().id
 
     if not lon_lat is None:
         kwargs['geom'] = geoPoint(*lon_lat)
@@ -174,16 +181,17 @@ def update_(segnalazione_id, segnalante_id, criticita=None, lon_lat=None,
 
 
 def update(segnalazione_id, nome, telefono, operatore, note=None,
-    tipo_segnalante=DEFAULT_TIPO_SEGNALANTE, **kwargs):
+    tipo_segnalante=DEFAULT_TIPO_SEGNALANTE, **kwargs
+):
     """
 
     Funzione dedicata alla procedura di aggiornamento dei dati di Segnalazione
 
     """
 
-    # Insert SEGNALANTE
-
     if kwargs:
+
+        # Insert SEGNALANTE
 
         segnalante_id = db.segnalante.insert(
             # id = new_id(db.segnalante),
@@ -194,7 +202,9 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
         )
         logger.debug(f'Nuovo segnalante: {db.segnalante[segnalante_id]}')
 
-        update_(segnalazione_id, segnalante_id, *kwargs)
+        update_(segnalazione_id, segnalante_id, **kwargs)
+        return 'Ok'
+
 
 
 def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
@@ -238,7 +248,7 @@ def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
 
     # Insert LOG
 
-    message =  f'Creazione segnalazione {segnalazione.id}'
+    message =  f'Aggiornato segnalazione {segnalazione.id}'
     _ = db.log.insert(
         schema = 'segnalazioni',
         operatore = operatore,
