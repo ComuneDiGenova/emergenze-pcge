@@ -27,7 +27,7 @@ LOGGERS = [
 I due file docker-compose-yml e Dockerfile devono stare una cartella sopra al progetto, da modificare la struttura (e questo readme)
 
 ```
-# -*- coding: utf-8 -*-
+# 
 emergenze_verbatel
 |     docker-compose.yml
 |     Dockerfile
