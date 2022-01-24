@@ -40,3 +40,4 @@ emergenze_verbatel
      ....
 
 ```
+Per accedere all'applicazione cerca da browser http://localhost:8000/emergenze/evento
