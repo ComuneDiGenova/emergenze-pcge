@@ -41,3 +41,12 @@ emergenze_verbatel
 
 ```
 Per accedere all'applicazione cerca da browser http://localhost:8000/emergenze/evento
+
+Per lanciare un comando da bash nel container
+```
+sudo docker exec <container_id/container_name> echo "I'm inside the container"
+```
+oppure
+```
+sudo docker exec -it <container_id/container_name> echo "I'm inside the container"
+```
