@@ -325,7 +325,6 @@ def modifica_segnalazione():
     if form.accepted:
         with NoDBIO(form):
             # Rimuovo le variabili non espresamente passate nella request
-            import pdb; pdb.set_trace()
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
