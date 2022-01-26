@@ -67,7 +67,7 @@ class NoDBIO(object):
         # return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.rollback:
+        if self.rollback or traceback:
             # Modalità test del form. In questo modo il DB non viene aggiornato
             db.rollback()
 
@@ -200,8 +200,11 @@ def segnalazione():
             comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}',
             requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
         ),
-        Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
-        Field('descrizione', required=True),
+        Field('nome', label='Nome segnalante',
+            comment='Inserire nome e cognome',
+            required=True, requires=IS_NOT_EMPTY()
+        ),
+        Field('descrizione', required=True, requires=IS_NOT_EMPTY()),
         Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
         Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
         db.segnalazione.criticita_id,
