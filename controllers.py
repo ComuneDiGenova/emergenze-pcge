@@ -271,7 +271,11 @@ def segnalazione():
 @action('modifica/segnalazione', method=['GET', 'POST'])
 @action('ModificaSegnalazione', method=['GET', 'POST'])
 @action('modifica_segnalazione', method=['GET', 'POST'])
-def modifica_segnalazione():
+@action('segnalazione/<segnalazione_id>', method=['GET', 'POST'])
+def modifica_segnalazione(segnalazione_id=None):
+
+    if not segnalazione_id is None:
+        request.POST['segnalazione_id'] = segnalazione_id
 
     # TODO: Limitare la modifica alle segnalazioni di PM (in validazione di segnalazione_id??!!)
 
@@ -321,6 +325,7 @@ def modifica_segnalazione():
     form_name = 'modifica_segnalazione',
     csrf_protection = False
     )
+
     result = None
     if form.accepted:
         with NoDBIO(form):
