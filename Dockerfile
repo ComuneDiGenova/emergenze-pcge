@@ -3,7 +3,7 @@
 # password_admin with your desire password admin
 # 8000 with your available port
 
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 ARG user=py4web
 ARG password=none
