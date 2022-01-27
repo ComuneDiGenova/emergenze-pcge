@@ -866,10 +866,13 @@ async def process_motivo(message: types.Message, state: FSMContext):
         else:
             query_notifica = "select telegram_id from users.utenti_sistema where id_profilo <= {} and telegram_id !='' and telegram_attivo='t';".format(incarico_assegnato2[0][5])
         notifica =  esegui_query(con,query_notifica,'s')
-        print(notifica)
+        #print(notifica)
         for tid in notifica:
-            print(tid[0])
-            await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato rifiutato con le seguenti note: {}'.format(emoji.emojize(":x:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text))
+            #print(tid[0])
+            try:
+                await bot.send_message(tid[0], '{} L\'incarico interno assegnato alla squadra {} sulla segnalazione {} è stato rifiutato con le seguenti note: {}'.format(emoji.emojize(":x:",use_aliases=True), incarico_assegnato2[0][2], incarico_assegnato2[0][6], message.text))
+            except:
+                print('Problema invio messaggio all\'utente con chat_id={}'.format(tid[0]))
         #notifica che l'incarico è stato rifiutato? a chi?
     await state.finish () 
 
