@@ -420,7 +420,7 @@ def comunicazione():
             result = _comunicazione.create(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}
-    if not _comunicazione.UPLOAD_CONFIGURED and "allegato" in form.vars:
+    if not _comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
         output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
 
     return output
