@@ -23,7 +23,7 @@ DB_FAKE_MIGRATE = False  # maybe?
 STATIC_FOLDER = required_folder(APP_FOLDER, "static")
 
 # location where to store uploaded files:
-# UPLOAD_FOLDER = required_folder(APP_FOLDER, "uploads")
+UPLOAD_FOLDER = required_folder(APP_FOLDER, "uploads")
 
 # send email on regstration
 VERIFY_EMAIL = True
@@ -90,6 +90,9 @@ T_FOLDER = required_folder(APP_FOLDER, "translations")
 # Celery settings
 USE_CELERY = False
 CELERY_BROKER = "redis://localhost:6379/0"
+
+EMERGENZE_UPLOAD = None
+MIGRATE_INTERVENTO = False
 
 # try import private settings
 try:

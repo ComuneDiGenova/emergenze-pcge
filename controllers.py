@@ -36,6 +36,7 @@ from pydal.validators import Validator
 from . import evento as _evento
 from . import civico as _civico
 from . import segnalazione as _segnalazione
+from . import comunicazione as _comunicazione
 
 from mptools.frameworks.py4web import shampooform as sf
 
@@ -49,8 +50,6 @@ class IS_BOOLEAN(Validator):
         return value
 
 
-
-
 class NoDBIO(object):
     """ TEST/DEBUG HELPER """
 
@@ -59,7 +58,6 @@ class NoDBIO(object):
         self.form = form
         self.rollback = False
 
-
     def __enter__(self):
         if 'rollback' in self.form.vars:
             self.rollback = True
@@ -67,10 +65,9 @@ class NoDBIO(object):
         # return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.rollback or traceback:
+        if self.rollback:
             # Modalità test del form. In questo modo il DB non viene aggiornato
             db.rollback()
-
 
 # from py4web.core import Fixture
 #
@@ -169,6 +166,7 @@ def civico(format=None):
 @action('crea_segnalazione', method=['GET', 'POST'])
 @action('crea/segnalazione', method=['GET', 'POST'])
 @action('CreaSegnalazione', method=['GET', 'POST'])
+@action.uses(db)
 def segnalazione():
     """ """
 
@@ -195,7 +193,13 @@ def segnalazione():
         orderby=db.tipo_criticita.descrizione
     )
 
+    db.intervento.intervento_id.requires = [IS_NOT_EMPTY(), IS_NOT_IN_DB(
+        db(db.intervento), db.intervento.intervento_id
+    )]
+    db.intervento.intervento_id.comment = "Inserire un nuovo identificativo di intervento Verbatel"
+
     form = Form([
+        db.intervento.intervento_id,
         Field('evento_id', 'integer', label='Id Evento', required=True,
             comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}',
             requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
@@ -251,7 +255,7 @@ def segnalazione():
         db.segnalante.telefono,
     ],
         hidden = {'rollback': False},
-        validation = _segnalazione.valida_segnalazione,
+        validation = _segnalazione.valida_nuova_segnalazione,
         deletable = False, dbio=False,
         form_name = 'civico',
         csrf_protection = False
@@ -263,26 +267,12 @@ def segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
-            result =_segnalazione.create(**form.vars)
+            result =_segnalazione.verbatel_create(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
 
 
-@action('modifica/segnalazione', method=['GET', 'POST'])
-@action('ModificaSegnalazione', method=['GET', 'POST'])
-@action('modifica_segnalazione', method=['GET', 'POST'])
-@action('segnalazione/<segnalazione_id>', method=['GET', 'POST'])
-def modifica_segnalazione(segnalazione_id=None):
-
-    if not segnalazione_id is None:
-        request.POST['segnalazione_id'] = segnalazione_id
-
-    # TODO: Limitare la modifica alle segnalazioni di PM (in validazione di segnalazione_id??!!)
-
-    res = db(db.segnalazione).select(
-        db.segnalazione.id.min().with_alias('idmin'),
-        db.segnalazione.id.max().with_alias('idmax')
-    ).first()
+def segnalazione_form():
 
     db.segnalante.tipo_segnalante_id.comment = f'Inserire un corretto id per tipo segnalante se diverso da: {db.tipo_segnalante[_segnalazione.DEFAULT_TIPO_SEGNALANTE].descrizione}'
     db.segnalante.tipo_segnalante_id.default = _segnalazione.DEFAULT_TIPO_SEGNALANTE
@@ -298,16 +288,12 @@ def modifica_segnalazione(segnalazione_id=None):
         orderby=db.tipo_criticita.descrizione
     ))
 
-    form = Form([
-        Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
-            comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
-            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
-        ),
+    return [
         Field('nome', label='Nome segnalante', comment='Inserire nome e cognome', required=True),
         db.segnalante.telefono,
         db.segnalazione.operatore, # TODO: Introdurre validazione (CF valido o matricola in db ??? )
         db.segnalante.note,
-        db.segnalante.tipo_segnalante_id,
+        # db.segnalante.tipo_segnalante_id,
         Field('descrizione', required=False),
         Field('note_geo',
             label = db.segnalazione.note.label,
@@ -319,11 +305,37 @@ def modifica_segnalazione(segnalazione_id=None):
             comment = db.segnalazione.rischio.comment,
             requires = IS_BOOLEAN()
         ),
-    ],
-    deletable = False, dbio=False,
-    hidden = {'rollback': False},
-    form_name = 'modifica_segnalazione',
-    csrf_protection = False
+    ]
+
+
+@action('modifica/segnalazione', method=['GET', 'POST'])
+@action('ModificaSegnalazione', method=['GET', 'POST'])
+@action('modifica_segnalazione', method=['GET', 'POST'])
+@action('segnalazione/<segnalazione_id>', method=['GET', 'POST'])
+@action.uses(db)
+def modifica_segnalazione(segnalazione_id=None):
+
+    if not segnalazione_id is None:
+        request.POST['segnalazione_id'] = segnalazione_id
+
+    # TODO: Limitare la modifica alle segnalazioni di PM
+    # (in validazione di segnalazione_id??!!)
+
+    res = db(db.segnalazione).select(
+        db.segnalazione.id.min().with_alias('idmin'),
+        db.segnalazione.id.max().with_alias('idmax')
+    ).first()
+
+    form = Form([
+        Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
+            comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
+            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        )] + segnalazione_form(),
+        deletable = False, dbio=False,
+        validation = _segnalazione.valida_segnalazione,
+        hidden = {'rollback': False},
+        form_name = 'modifica_segnalazione',
+        csrf_protection = False
     )
 
     result = None
@@ -336,3 +348,79 @@ def modifica_segnalazione(segnalazione_id=None):
             result = _segnalazione.update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
+
+
+@action('modifica/intervento', method=['GET', 'POST'])
+@action('ModificaIntervento', method=['GET', 'POST'])
+@action('modifica_intervento', method=['GET', 'POST'])
+@action('intervento/<intervento_id>', method=['GET', 'POST'])
+@action.uses(db)
+def modifica_intervento(intervento_id=None):
+
+    if not intervento_id is None:
+        request.POST['intervento_id'] = intervento_id
+
+    res = db(db.intervento).select(
+        db.intervento.intervento_id.min().with_alias('idmin'),
+        db.intervento.intervento_id.max().with_alias('idmax')
+    ).first()
+
+    db.intervento.intervento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+
+    form = Form([db.intervento.intervento_id] + segnalazione_form(),
+        deletable = False, dbio=False,
+        validation = _segnalazione.valida_intervento,
+        hidden = {'rollback': False},
+        form_name = 'modifica_segnalazione',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            # Rimuovo le variabili non espresamente passate nella request
+            for ff in form.table:
+                if not ff.required and form.vars[ff.name] is None:
+                    form.vars.pop(ff.name)
+            result = _segnalazione.verbatel_update(**form.vars)
+
+    return {'result': result, 'form': sf.form2dict(form)}
+
+@action('comunicazione', method=['GET', 'POST'])
+@action('crea_comunicazione', method=['GET', 'POST'])
+@action('crea/comunicazione', method=['GET', 'POST'])
+@action('CreaComunicazione', method=['GET', 'POST'])
+@action.uses(db)
+def comunicazione():
+    """"""
+
+    res = db(db.segnalazioni_utili).select(
+        db.segnalazioni_utili.id.min().with_alias('idmin'),
+        db.segnalazioni_utili.id.max().with_alias('idmax')
+    ).first()
+    db.comunicazione.mittente.requires = IS_NOT_EMPTY()
+
+    form = Form([
+        Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
+            comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
+            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        ),
+        db.comunicazione.mittente,
+        db.comunicazione.testo,
+        _comunicazione.fake_upload
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        form_name = 'crea_comunicazione',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = _comunicazione.create(**form.vars)
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+    if not _comunicazione.UPLOAD_CONFIGURED and "allegato" in form.vars:
+        output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
+
+    return output

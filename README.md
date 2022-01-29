@@ -8,7 +8,7 @@ the placeholders with the right values:
 
 from pydal._compat import urllib_quote
 
-UPLOAD_FOLDER = None
+# EMERGENZE_UPLOAD = '/local/absolute/path/to/emergenze_uploads'
 
 DB_PASSWORD = urllib_quote('<password>')
 DB_URI = f"postgres://<username>:{DB_PASSWORD}@<hostname or IP>/<db name>"

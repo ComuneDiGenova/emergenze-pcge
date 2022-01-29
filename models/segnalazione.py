@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .. import settings
 from .tools import new_id
 from .segnalazione_decodifica import SCHEMA, db, Field
 
@@ -8,7 +9,7 @@ from pydal.validators import *
 db.define_table('segnalazione',
     Field('id', 'id', default=lambda: new_id(db['segnalazione'])),
     Field('inizio', 'datetime', rname='data_ora'),
-    Field('segnalante_id', required=True, notnull=True, rname='id_segnalante'),
+    Field('segnalante_id', 'integer', required=True, notnull=True, rname='id_segnalante'),
     Field('descrizione', required=True, notnull=True),
     Field('criticita_id', 'reference tipo_criticita', required=True, notnull=True,
         label = 'Id tipo di criticità',
@@ -102,4 +103,38 @@ db.define_table('storico_segnalazione_lavorazione',
     Field('timeref', 'datetime', rname='data_ora'),
     primarykey = ['lavorazione_id', 'timeref'], # id_segnalazione_in_lavorazione, data_ora
     rname = f'{SCHEMA}.t_storico_segnalazioni_in_lavorazione'
+)
+
+db.define_table('segnalazioni_utili',
+    # ...
+    Field('segnalante_id', 'integer', rname='id_segnalante'),
+    Field('descrizione'),
+    # ...
+    Field('lavorazione_id', 'integer', rname='id_lavorazione'),
+    migrate = False,
+    rname = f'{SCHEMA}.v_segnalazioni' # <- VISTA!
+)
+
+db.define_table('comunicazione',
+    Field('lavorazione_id', 'integer', notnull=True, required=True,
+        rname='id_lavorazione'
+    ),
+    Field('mittente', required=True),
+    Field('testo', 'text'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['lavorazione_id', 'timeref'],
+    rname = f'{SCHEMA}.t_comunicazioni_segnalazioni'
+)
+
+db.define_table('intervento',
+    Field('intervento_id', 'integer',
+        label = 'Identificativo intevento Verbatel',
+        notnull=True, unique=True, required=True
+    ),
+    Field('segnalazione_id', 'integer',
+        notnull=True, unique=True, required=True
+    ),
+    migrate = settings.MIGRATE_INTERVENTO,
+    rname = 'verbatel.interventi'
 )

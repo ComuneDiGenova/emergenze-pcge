@@ -12,7 +12,7 @@ GEOM_SRID = 3003
 TABELLA_CIVICI = db.tipo_oggetto_rischio(descrizione='Civici')
 
 
-def valida_segnalazione(form):
+def valida_nuova_segnalazione(form):
     """ """
     _, msg = IS_IN_DB(db(db.evento), db.evento.id)(form.vars['evento_id'])
     if msg:
@@ -22,8 +22,24 @@ def valida_segnalazione(form):
     if msg:
         form.errors['civico_id'] = msg
 
-# def valida_modifica_segnalazione(form):
+def valida_segnalazione(form):
+    """ """
+    _, msg = IS_IN_DB(
+        db(db.segnalazione),
+        db.segnalazione.id
+    )(form.vars['segnalazione_id'])
 
+    if msg:
+        form.errors['segnalazione_id'] = msg
+
+def valida_intervento(form):
+    _, msg = IS_IN_DB(
+        db(db.intervento),
+        db.intervento.intervento_id
+    )(form.vars['intervento_id'])
+
+    if msg:
+        form.errors['intervento_id'] = msg
 
 
 def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
@@ -71,7 +87,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
             db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))
         ).select(db.municipio.codice).first().codice
 
-    # Insert DEGNALAZIONE
+    # Insert SEGNALAZIONE
 
     segnalazione_id = db.segnalazione.insert(
         # id = new_id(db.segnalazione),
@@ -88,7 +104,6 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
         civico_id = civico_id,
         note = note_geo
     )
-
 
     # Insert OGGETTO A RISCHIO
 
@@ -153,6 +168,17 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     return segnalazione_id
 
 
+def verbatel_create(intervento_id, *args, **kwargs):
+    segnalazione_id = create(*args, **kwargs)
+    # Registrazione intervento id di Verbatel
+
+    db.intervento.insert(
+        segnalazione_id = segnalazione_id,
+        intervento_id = intervento_id
+    )
+
+    return segnalazione_id
+
 def update_(segnalazione_id, segnalante_id, lon_lat=None, persone_a_rischio=None,
     **kwargs):
     """
@@ -205,6 +231,11 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
         update_(segnalazione_id, segnalante_id, **kwargs)
         return 'Ok'
 
+
+def verbatel_update(intervento_id, *args, **kwars):
+    """"""
+    segnalazione_id = db.intervento(intervento_id=intervento_id).segnalazione_id
+    return update(segnalazione_id, *args, **kwars)
 
 
 def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
