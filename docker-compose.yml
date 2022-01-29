@@ -10,3 +10,4 @@ services:
     tty: true
     volumes:
       - ./Emergenze-Verbatel:/home/py4web/apps/emergenze
+      - ../emergenze_uploads:/home/py4web/apps/emergenze/emergenze_uploads
