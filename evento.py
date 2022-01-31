@@ -44,6 +44,8 @@ def render(row):
         stato = 'chiusura'
     rec['stato'] = stato
 
+    rec['valido'] = not (row.valido==False)
+
     return rec
 
 def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
