@@ -56,5 +56,5 @@ py4web call apps emergenze.listener.setup
 ```
 E mettere il servizio in ascolto
 ```
-py4web call apps emergenze.listener.setup
+py4web call apps emergenze.listener.listen
 ```
