@@ -50,3 +50,11 @@ oppure
 ```
 sudo docker exec -it <container_id/container_name> echo "I'm inside the container"
 ```
+Per quanto riguarda listener.py, dopo essere entrati nel container eseguire il set up
+```
+py4web call apps emergenze.listener.setup
+```
+E mettere il servizio in ascolto
+```
+py4web call apps emergenze.listener.setup
+```
