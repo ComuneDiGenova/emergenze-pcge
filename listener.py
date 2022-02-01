@@ -12,7 +12,7 @@ declare
 begin
     if (tg_op = 'INSERT') then
 
-        perform pg_notify('new_item_added', 
+        perform pg_notify('new_item_added',
         json_build_object(
              'id', NEW.id,
              -- 'item_desc', NEW.item_description
@@ -29,9 +29,9 @@ TABLE = 't_segnalazioni'
 
 clear_trigger = f'DROP TRIGGER IF EXISTS {TRIGGER} on "{SCHEMA}"."{TABLE}"';
 
-create_trigger = """CREATE TRIGGER after_insert_item
+create_trigger = f"""CREATE TRIGGER after_insert_item
     AFTER INSERT
-    ON items
+    ON "{SCHEMA}"."{TABLE}"
     FOR EACH ROW
     EXECUTE PROCEDURE notify_new_item();"""
 
