@@ -94,6 +94,8 @@ CELERY_BROKER = "redis://localhost:6379/0"
 EMERGENZE_UPLOAD = None
 MIGRATE_INTERVENTO = False
 
+VERBATEL_URL = 'http://192.168.153.84/GestioneEmergenzeTest/api'
+
 # try import private settings
 try:
     from .settings_private import *

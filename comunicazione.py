@@ -5,6 +5,7 @@ from .common import db, logger
 import shutil, os
 from py4web import Field
 from pathlib import Path
+from pydal.validators import *
 
 fake_upload = Field('allegato', 'upload',
     uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
@@ -12,10 +13,22 @@ fake_upload = Field('allegato', 'upload',
 
 UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
 
+
+def valida_nuova_comunicazione(form):
+    """ """
+    fieldname = 'segnalazione_id'
+    _, msg = IS_IN_DB(
+        db(db.segnalazioni_utili),
+        db.segnalazioni_utili.id
+    )(form.vars[fieldname])
+    if msg:
+        form.errors[fieldname] = msg
+
+
 def create(segnalazione_id, mittente, testo=None, allegato=None):
     """ """
 
-    row = db.segnalazioni_utili(id=segnalazione_id)
+    segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
 
     rdest = None
     if UPLOAD_CONFIGURED and not allegato is None:
@@ -40,7 +53,7 @@ def create(segnalazione_id, mittente, testo=None, allegato=None):
         rdest = os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
 
     row = db.comunicazione.insert(
-        lavorazione_id = row.lavorazione_id,
+        lavorazione_id = segnalazione_utile.lavorazione_id,
         mittente = mittente,
         testo = testo,
         allegato = rdest

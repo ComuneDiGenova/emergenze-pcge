@@ -39,6 +39,7 @@ from . import segnalazione as _segnalazione
 from . import comunicazione as _comunicazione
 
 from mptools.frameworks.py4web import shampooform as sf
+from mptools.frameworks.py4web.controller import CORS
 
 import geojson, json
 
@@ -85,6 +86,7 @@ class NoDBIO(object):
 #     return dict(message=message)
 
 @action("evento")
+@action.uses(CORS())
 def evento():
     return {'result': _evento.fetch()}
 
@@ -95,6 +97,7 @@ def evento():
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
 # @action.uses(query2forms())
+@action.uses(CORS())
 def civico(format=None):
 
     db.civico.desvia.comment = 'Cerca per toponimo'
@@ -386,6 +389,7 @@ def modifica_intervento(intervento_id=None):
 
     return {'result': result, 'form': sf.form2dict(form)}
 
+
 @action('comunicazione', method=['GET', 'POST'])
 @action('crea_comunicazione', method=['GET', 'POST'])
 @action('crea/comunicazione', method=['GET', 'POST'])
@@ -410,6 +414,7 @@ def comunicazione():
         _comunicazione.fake_upload
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
+        validation = _comunicazione.valida_nuova_comunicazione,
         form_name = 'crea_comunicazione',
         csrf_protection = False
     )
