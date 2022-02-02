@@ -4,7 +4,7 @@ import argparse
 import select
 from .common import db, logger
 
-sql_notify_new_item = """CREATE or REPLACE FUNCTION notify_new_item()
+sql_notify_new_item = """CREATE or REPLACE FUNCTION segnalazioni.notify_new_item()
     RETURNS trigger
      LANGUAGE 'plpgsql'
 as $BODY$
@@ -14,8 +14,7 @@ begin
 
         perform pg_notify('new_item_added',
         json_build_object(
-             'id', NEW.id,
-             -- 'item_desc', NEW.item_description
+             'id', NEW.id
            )::text);
     end if;
 
@@ -33,34 +32,37 @@ create_trigger = f"""CREATE TRIGGER after_insert_item
     AFTER INSERT
     ON "{SCHEMA}"."{TABLE}"
     FOR EACH ROW
-    EXECUTE PROCEDURE notify_new_item();"""
-
+    EXECUTE PROCEDURE segnalazioni.notify_new_item();"""
 
 def setup():
-    """ """
+    """ Set up connection, run only one time"""
     db.executesql(sql_notify_new_item)
     db.executesql(clear_trigger)
     db.executesql(create_trigger)
+    db.commit()
 
 
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
-    db._adapter.cursor.execute("LISTEN new_item_added;")
+
+    db.executesql("LISTEN new_item_added;")
+    db.commit()
+
     while True:
         # sleep until there is some data
         select.select([db._adapter.connection],[],[])
-        # get the message
+
         db._adapter.connection.poll()
+
         while db._adapter.connection.notifies:
-            # pop notification from list
-            # now do anything needed!
-            notification = db._adapter.connection.notifies.pop()
+
+            notification = db._adapter.connection.notifies.pop(0)
+
+            # do whatever you want with the ID of the new row in segnalazioni.t_segnalazioni
             logger.debug(f"channel: {notification.channel }")
             logger.debug(f"message: {notification.payload}")
 
-def hello():
-    print('Hello!')
-
+            print(f"here we are {notification.channel} and {notification.payload}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DB event listener management.')
