@@ -94,11 +94,9 @@ CELERY_BROKER = "redis://localhost:6379/0"
 EMERGENZE_UPLOAD = None
 MIGRATE_INTERVENTO = False
 
-VERBATEL = {
-    'PROTOCOL': 'http',
-    'HOST': '192.168.153.84'
-    'BASE_PATH': 'GestioneEmergenzeTest/api'
-}
+VBT_PROT = 'http'
+VBT_HOST = '192.168.153.84'
+VBT_PATH = 'GestioneEmergenzeTest/api'
 
 # try import private settings
 try:

@@ -2,6 +2,7 @@
 
 import requests
 from . import settings
+from .common import logger
 
 class Verbatel(object):
     """docstring for Verbatel."""
@@ -11,18 +12,29 @@ class Verbatel(object):
 
     def _url(self, *endpoints):
         """ """
-        _port = '' if not 'PORT' in settings.VERBATEL else ":"+ settings.VERBATEL["PORT"]
-        url = f'{settings.VERBATEL["PROTOCOL"]}://{settings.VERBATEL["HOST"]}{port}/{settings.VERBATEL["BASE_PATH"]}'
-        return '/'.join((url.rstrip('/'),)+endpoints)
+
+        try:
+            _port = f":{settings.VBT_PORT}"
+        except AttributeError:
+            _port = ''
+
+        url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
+        return '/'.join((url.rstrip('/'), self.root)+endpoints)
 
     def _create(self, *endpoints, **payload):
         """ """
         response = requests.post(self._url(*endpoints), data=payload)
-        return response.json()
+        try:
+            assert response.status_code<300
+        except AssertionError:
+            logger.error(response.text)
+        else:
+            # import pdb; pdb.set_trace()
+            return response.json()
 
 class Intervento(Verbatel):
     """docstring for Intervento."""
-    endpoint = 'interventi'
+    root = 'interventi'
 
     def __init__(self):
         super(Intervento, self).__init__()
@@ -38,7 +50,19 @@ class Intervento(Verbatel):
         payload = vars()
         payload.pop('self')
 
-        return self._create(self.endpoint, **payload)
+        return self._create(**payload)
+
+
+class Evento(Verbatel):
+    """docstring for Evento."""
+    root = 'eventi'
+
+    def __init__(self):
+        super(Evento, self).__init__()
+
+    def create(self, *args, **kwargs):
+        return self._create(*args, **kwargs)
+
 
 
 def call_new_intervento():
@@ -62,5 +86,50 @@ def call_new_intervento():
     	'latitudine': '8.895533415673095'
     })
 
-if __name__ == '__main__':
+def call_new_evento():
+    evento = Evento()
+    return evento.create(**{
+	"id": 7,
+	"descrizione": "Idrologico",
+	"inizio": "2021-12-22T16:00:00",
+	"chiusura": "2021-12-21T16:00:00",
+	"fine": "2021-12-20T16:00:00",
+	"fine_sospensione": "2021-12-19T16:00:00",
+	"valido": "true",
+	"stato":"chiuso",
+	"note": [
+		{"nota": "Allerta gialla del 22.12.21"}
+	],
+	"allerte": [
+		{
+    		"colore": "#ffd800",
+    		"descrizione": "Gialla",
+    		"fine": "",
+    		"inizio": "2021-06-23T12:00:00"
+		}
+	],
+	"foc": [
+		{
+    		"colore": "#009aff",
+    		"descrizione": "Attenzione",
+    		"fine": "",
+    		"inizio": "2021-06-23T11:00:00"
+		},
+		{
+    		"colore": "#5945ff",
+    		"descrizione": "Pre-allarme",
+    		"fine": "2021-07-06T01:00:00",
+    		"inizio": "2021-07-06T01:00:00"
+       }
+    ],
+	"municipi": [
+		"Bassa Val Bisagno",
+		"Centro est",
+		"Centro Ovest",
+		"Levante"
+	]})
+
+def test():
+    # response = call_new_evento()
     response = call_new_intervento()
+    logger.debug(response)
