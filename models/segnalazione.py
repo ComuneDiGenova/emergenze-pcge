@@ -115,6 +115,34 @@ db.define_table('segnalazioni_utili',
     rname = f'{SCHEMA}.v_segnalazioni' # <- VISTA!
 )
 
+
+db.define_table('segnalazioni_lista',
+    Field('data_ora'),
+    Field('segnalante_id', 'integer', rname='id_segnalante'),
+    Field('descrizione'),
+    Field('criticita_id', 'reference tipo_criticita',
+        label = 'Id tipo di criticità',
+        comment = 'Identificativo univoco del tipo di criticità segnalata',
+        rname='id_criticita'
+    ),
+    Field('descrizione'),
+    Field('rischio', 'boolean', label='Segnalazione presenza persone a rischio'),
+    Field('evento_id', 'reference evento', rname='id_evento'),
+    Field('tipo_evento'),
+    Field('civico_id', 'reference civico', rname='id_civico'),
+    Field('localizzazione'),
+    Field('municipio_id', 'reference municipio', rname='id_municipio'),
+    Field('municipio', rname='nome_munic'),
+    Field('operatore', label='Identificativo operatore',
+        comment = 'Numero di matricola o il codice fiscale',
+        rname='id_operatore'
+    ),
+    Field('note', 'text'),
+    # ...
+    migrate = False,
+    rname = f'{SCHEMA}.v_segnalazioni_lista' # <- VISTA!
+)
+
 db.define_table('comunicazione',
     Field('lavorazione_id', 'integer', notnull=True, required=True,
         rname='id_lavorazione'

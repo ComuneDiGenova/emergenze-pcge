@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import requests
+from . import evento
 from . import settings
 from .common import logger
 
 class Verbatel(object):
     """docstring for Verbatel."""
 
-    def __init__(self):
-        super(Verbatel, self).__init__()
-
-    def _url(self, *endpoints):
+    @classmethod
+    def _url(cls, *endpoints):
         """ """
 
         try:
@@ -19,27 +18,29 @@ class Verbatel(object):
             _port = ''
 
         url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
-        return '/'.join((url.rstrip('/'), self.root)+endpoints)
+        return '/'.join((url.rstrip('/'), cls.root)+endpoints)
 
-    def _create(self, *endpoints, **payload):
+    @classmethod
+    def _create(cls, *endpoints, **payload):
         """ """
-        response = requests.post(self._url(*endpoints), data=payload)
+        response = requests.post(cls._url(*endpoints), data=payload)
         try:
             assert response.status_code<300
         except AssertionError:
             logger.error(response.text)
         else:
-            # import pdb; pdb.set_trace()
-            return response.json()
+            if response.headers['Content-Length']=='0':
+                pass
+            else:
+                import pdb; pdb.set_trace()
+                return response.json()
 
 class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
 
-    def __init__(self):
-        super(Intervento, self).__init__()
-
-    def create(self, eventoId, idSegnalazione, operatore, tipoIntervento,
+    @classmethod
+    def create(cls, eventoId, idSegnalazione, operatore, tipoIntervento,
         nomeStrada, codiceStrada, tipoLocalizzazione, stato, tipoRichiesta,
         nomeStrada2=None, codiceStrada2=None, civico=None, daSpecificare=None,
         datiPattuglia=None, motivoRifiuto=None, latitudine=None, longitudine=None,
@@ -48,21 +49,23 @@ class Intervento(Verbatel):
         dataRifiuto=None, dataRiapertura=None):
 
         payload = vars()
-        payload.pop('self')
+        payload.pop('cls')
 
-        return self._create(**payload)
+        return cls._create(**payload)
 
 
 class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
 
-    def __init__(self):
-        super(Evento, self).__init__()
+    @classmethod
+    def create(cls, *args, **kwargs):
+        return cls._create(*args, **kwargs)
 
-    def create(self, *args, **kwargs):
-        return self._create(*args, **kwargs)
 
+def evento2verbatel(id):
+    mio_evento = evento.fetch(id=id)
+    return Evento.create(**mio_evento)
 
 
 def call_new_intervento():
@@ -131,5 +134,6 @@ def call_new_evento():
 
 def test():
     # response = call_new_evento()
-    response = call_new_intervento()
+    # response = call_new_intervento()
+    response = evento2verbatel(110)
     logger.debug(response)

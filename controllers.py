@@ -164,6 +164,11 @@ def civico(format=None):
     else:
         return {'result': result, 'form': sf.form2dict(form)}
 
+@action("fetch/segnalazione/<id:int>")
+@action.uses(CORS())
+def get_segnalazione(id):
+    return {'result': _segnalazione.fetch(id)}
+
 @action('segnalazione', method=['GET', 'POST'])
 @action('crea_segnalazione', method=['GET', 'POST'])
 @action('crea/segnalazione', method=['GET', 'POST'])

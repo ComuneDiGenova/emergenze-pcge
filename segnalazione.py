@@ -286,3 +286,40 @@ def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
         operazione = message
     )
     logger.debug(f'{_}: {message}')
+
+
+def fetch(id):
+    # 'stato' : 1,
+    # 'idSegnalazione': 2000,
+    # 'eventoId': 4,
+    # 'operatore': 'Operatore PC',
+    # 'tipoIntervento': 1,
+    # 'nomeStrada' : 'VIA ALBISOLA',
+    # 'codiceStrada': 955,
+    # 'tipoLocalizzazione' : 1,
+    # 'civico': '2',
+    # 'noteOperative': 'note note note',
+    # 'reclamante' : 'commissione',
+    # 'telefonoReclamante': '3475208085',
+    # 'tipoRichiesta': 1,
+    # 'dataInserimento': '2021-06-23T11:00:00',
+    # 'longitudine': '44.47245435996428',
+    # 'latitudine': '8.895533415673095'
+    # 
+    # 
+    # "civico_id": null,
+    # "criticita_id": 6,
+    # "descrizione": "Su carreggiata",
+    # "evento_id": 82,
+    # "geom": "POINT(8.93179893493653 44.4304040419601)",
+    # "id": 417,
+    # "inizio": "2021-03-18 09:29:23.551215",
+    # "municipio_id": 1,
+    # "note": null,
+    # "nverde": false,
+    # "operatore": "21565",
+    # "rischio": null,
+    # "segnalante_id": 491,
+    # "uo_ins": "Emergenza Operatore PC"
+
+    return db.segnalazione[id]
