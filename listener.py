@@ -47,21 +47,21 @@ def listen():
 
     db.executesql("LISTEN new_item_added;")
     db.commit()
-    
+
     while True:
         # sleep until there is some data
         select.select([db._adapter.connection],[],[])
-        
+
         db._adapter.connection.poll()
-        
+
         while db._adapter.connection.notifies:
-            
+
             notification = db._adapter.connection.notifies.pop(0)
-            
+
             # do whatever you want with the ID of the new row in segnalazioni.t_segnalazioni
             logger.debug(f"channel: {notification.channel }")
             logger.debug(f"message: {notification.payload}")
-            
+
             print(f"here we are {notification.channel} and {notification.payload}")
 
 if __name__ == '__main__':
