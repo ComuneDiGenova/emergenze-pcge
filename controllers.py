@@ -39,7 +39,7 @@ from . import segnalazione as _segnalazione
 from . import comunicazione as _comunicazione
 
 from mptools.frameworks.py4web import shampooform as sf
-from mptools.frameworks.py4web.controller import CORS
+from mptools.frameworks.py4web.controller import CORS # , ApiForm
 
 import geojson, json
 
@@ -96,7 +96,6 @@ def evento():
 @action('ricerca_civico.<format>', method=['GET', 'POST'])
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
-# @action.uses(query2forms())
 @action.uses(CORS())
 def civico(format=None):
 

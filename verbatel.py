@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
-# from . import settings
-VERBATEL_URL = 'http://192.168.153.84/GestioneEmergenzeTest/api'
+from . import settings
 
 class Verbatel(object):
     """docstring for Verbatel."""
@@ -12,7 +11,9 @@ class Verbatel(object):
 
     def _url(self, *endpoints):
         """ """
-        return '/'.join((VERBATEL_URL.rstrip('/'),)+endpoints)
+        _port = '' if not 'PORT' in settings.VERBATEL else ":"+ settings.VERBATEL["PORT"]
+        url = f'{settings.VERBATEL["PROTOCOL"]}://{settings.VERBATEL["HOST"]}{port}/{settings.VERBATEL["BASE_PATH"]}'
+        return '/'.join((url.rstrip('/'),)+endpoints)
 
     def _create(self, *endpoints, **payload):
         """ """
@@ -28,7 +29,7 @@ class Intervento(Verbatel):
 
     def create(self, eventoId, idSegnalazione, operatore, tipoIntervento,
         nomeStrada, codiceStrada, tipoLocalizzazione, stato, tipoRichiesta,
-        nomeStrada2=None, codiceStrada2=None, civico=None, daSpecificare=None, 
+        nomeStrada2=None, codiceStrada2=None, civico=None, daSpecificare=None,
         datiPattuglia=None, motivoRifiuto=None, latitudine=None, longitudine=None,
         noteOperative=None, reclamante=None, telefonoReclamante=None,
         dataInserimento=None, dataInLavorazione=None, dataChiusura=None,
@@ -36,7 +37,7 @@ class Intervento(Verbatel):
 
         payload = vars()
         payload.pop('self')
-        
+
         return self._create(self.endpoint, **payload)
 
 

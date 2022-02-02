@@ -58,6 +58,9 @@ def listen():
             logger.debug(f"channel: {notification.channel }")
             logger.debug(f"message: {notification.payload}")
 
+def hello():
+    print('Hello!')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DB event listener management.')
