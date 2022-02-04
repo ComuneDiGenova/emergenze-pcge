@@ -115,7 +115,6 @@ db.define_table('segnalazioni_utili',
     rname = f'{SCHEMA}.v_segnalazioni' # <- VISTA!
 )
 
-
 db.define_table('segnalazioni_lista',
     Field('data_ora'),
     Field('segnalante_id', 'integer', rname='id_segnalante'),
@@ -138,7 +137,12 @@ db.define_table('segnalazioni_lista',
         rname='id_operatore'
     ),
     Field('note', 'text'),
-    # ...
+    Field('lavorazione_id', 'reference segnalazione_lavorazione', rname='id_lavorazione'),
+    Field('in_lavorazione', 'boolean'),
+    Field('id_profilo'),
+    Field('fine_sospensione', 'datetime'),
+    Field('id_man', 'integer'),
+    Field('geom', 'geometry()'),
     migrate = False,
     rname = f'{SCHEMA}.v_segnalazioni_lista' # <- VISTA!
 )

@@ -2,6 +2,7 @@
 
 import requests
 from . import evento
+from . import segnalazione
 from . import settings
 from .common import logger
 
@@ -27,12 +28,12 @@ class Verbatel(object):
         try:
             assert response.status_code<300
         except AssertionError:
+            logger.warning(response.status_code)
             logger.error(response.text)
         else:
             if response.headers['Content-Length']=='0':
-                pass
+                return
             else:
-                import pdb; pdb.set_trace()
                 return response.json()
 
 class Intervento(Verbatel):
@@ -66,6 +67,11 @@ class Evento(Verbatel):
 def evento2verbatel(id):
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
+
+def segnalazione2verbatel(id):
+    mia_segnalazione = segnalazione.fetch(id=id)
+    return Intervento.create(**mia_segnalazione)
+    
 
 
 def call_new_intervento():
@@ -135,5 +141,6 @@ def call_new_evento():
 def test():
     # response = call_new_evento()
     # response = call_new_intervento()
-    response = evento2verbatel(110)
+    # response = evento2verbatel(110)
+    response = segnalazione2verbatel(417)
     logger.debug(response)
