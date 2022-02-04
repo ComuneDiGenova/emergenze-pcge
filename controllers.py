@@ -43,13 +43,6 @@ from mptools.frameworks.py4web.controller import CORS # , ApiForm
 
 import geojson, json
 
-class IS_BOOLEAN(Validator):
-    """docstring for IS_EMPTY_OR_BOOLEAN."""
-
-    @staticmethod
-    def validate(value, record_id=None, *other):
-        return value
-
 
 class NoDBIO(object):
     """ TEST/DEBUG HELPER """
@@ -260,6 +253,9 @@ def segnalazione():
             comment=db.segnalazione_riservata.testo.comment,
         ),
         db.segnalante.telefono,
+        Field('libera', 'boolean',
+            label = 'Se non specificato la segnalazione viene assegnata come presa in carico da PM'
+        )
     ],
         hidden = {'rollback': False},
         validation = _segnalazione.valida_nuova_segnalazione,
@@ -274,6 +270,7 @@ def segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
+            form.vars['assegna'] = not form.vars.pop('libera')
             result =_segnalazione.verbatel_create(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
@@ -309,8 +306,7 @@ def segnalazione_form():
         db.segnalazione.criticita_id,
         Field('persone_a_rischio', 'boolean',
             label = db.segnalazione.rischio.label,
-            comment = db.segnalazione.rischio.comment,
-            requires = IS_BOOLEAN()
+            comment = db.segnalazione.rischio.comment
         ),
     ]
 

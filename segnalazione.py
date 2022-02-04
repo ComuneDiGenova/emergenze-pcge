@@ -3,6 +3,7 @@
 from .common import db, logger
 from pydal import geoPoint
 from pydal.validators import *
+import json
 
 DEFAULT_TIPO_SEGNALANTE = 1 # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = db(db.profilo_utilizatore.id==6).select(db.profilo_utilizatore.descrizione).first().descrizione
@@ -288,38 +289,135 @@ def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
     logger.debug(f'{_}: {message}')
 
 
-def fetch(id):
-    # 'stato' : 1,
-    # 'idSegnalazione': 2000,
-    # 'eventoId': 4,
-    # 'operatore': 'Operatore PC',
-    # 'tipoIntervento': 1,
-    # 'nomeStrada' : 'VIA ALBISOLA',
-    # 'codiceStrada': 955,
-    # 'tipoLocalizzazione' : 1,
-    # 'civico': '2',
-    # 'noteOperative': 'note note note',
-    # 'reclamante' : 'commissione',
-    # 'telefonoReclamante': '3475208085',
-    # 'tipoRichiesta': 1,
-    # 'dataInserimento': '2021-06-23T11:00:00',
-    # 'longitudine': '44.47245435996428',
-    # 'latitudine': '8.895533415673095'
-    # 
-    # 
-    # "civico_id": null,
-    # "criticita_id": 6,
-    # "descrizione": "Su carreggiata",
-    # "evento_id": 82,
-    # "geom": "POINT(8.93179893493653 44.4304040419601)",
-    # "id": 417,
-    # "inizio": "2021-03-18 09:29:23.551215",
-    # "municipio_id": 1,
-    # "note": null,
-    # "nverde": false,
-    # "operatore": "21565",
-    # "rischio": null,
-    # "segnalante_id": 491,
-    # "uo_ins": "Emergenza Operatore PC"
+def render(row):
 
-    return db.segnalazione[id]
+    if row.in_lavorazione is None:
+        stato = 1 # Da prendere in carico
+    elif row.in_lavorazione is True:
+        stato = 2 # In lavorazione
+    else:
+        stato = 3 # Chiusa
+
+    localizzazione = {}
+    indirizzo = f'{row.desvia}, {row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}'
+    if row.civico_id is None:
+        localizzazione['tipoLocalizzazione'] = 3
+        localizzazione['daSpecificare'] = indirizzo
+    else:
+        localizzazione['tipoLocalizzazione'] = 1
+        localizzazione['civico'] = indirizzo
+
+    # tipoRichiesta
+    #   1: Intervento da gestire dalla PL
+    #   2: Intervento gestito dalla PC su cui PL ha visibilità. In questo caso è
+    #       necessario notificare le modifiche della segnalazione a Verbatel.
+    #   3: Richiesta di ausilio su intervento gestito dalla PC
+    if row.profilo_utilizatore.id==6:
+        tipoRichiesta = 1
+    elif row.profilo_utilizatore.id==3:
+        tipoRichiesta = 2
+    else:
+        raise NotImplementedError()
+
+    geom = json.loads(row.geom)
+    lon, lat = geom['coordinates']
+
+    # datiPattuglia DA DEFINIRE
+    # motivoRifiuto
+    
+    # dataInLavorazione
+    # dataChiusura
+    
+    # dataRifiuto
+    # dataRiapertura
+
+    # return row
+
+    return dict(
+        tipoRichiesta = tipoRichiesta,
+        stato = stato,
+        idSegnalazione = row.id,
+        eventoId = row.evento_id,
+        operatore = row.operatore,
+
+        nomeStrada = row.desvia,
+        codiceStrada = row.codvia,
+
+        tipoIntervento = row.criticita_id,
+        noteOperative = row.note,
+        reclamante = row.reclamante,
+        telefonoReclamante = row.telefono,
+        # tipoRichiesta = 
+        dataInserimento = row.inizio,
+        longitudine = lon,
+        latitudine = lat,
+        **localizzazione
+    )
+
+
+def fetch(id):
+
+    result = db(
+        (db.segnalazione.id==id) & \
+        (db.segnalante.id == db.segnalazione.segnalante_id) & \
+        (db.segnalazione.evento_id == db.evento.id) & \
+        "eventi.t_eventi.valido is not false"
+    ).select(
+        db.segnalazione.id.with_alias('id'),
+        db.segnalazione.inizio.with_alias('inizio'),
+        db.segnalazione.evento_id.with_alias('evento_id'),
+        db.segnalazione.operatore.with_alias('operatore'),
+        db.segnalazione.criticita_id.with_alias('criticita_id'),
+        db.segnalazione.civico_id.with_alias('civico_id'),
+        db.segnalazione.note.with_alias('note'),
+        db.segnalazione_lavorazione.in_lavorazione.with_alias('in_lavorazione'),
+        db.civico.geom.st_distance(
+            db.segnalazione.geom.st_transform(3003)
+        ).with_alias('distanza'),
+        db.civico.codvia.with_alias('codvia'),
+        db.civico.desvia.with_alias('desvia'),
+        db.civico.testo.with_alias('civico_numero'),
+        db.civico.lettera.with_alias('civico_lettera'),
+        db.civico.colore.with_alias('civico_colore'),
+        db.segnalazione.geom.st_asgeojson().with_alias('geom'),
+        db.segnalante.nome.with_alias('reclamante'),
+        db.segnalante.telefono.with_alias('telefono'),
+        db.profilo_utilizatore.id,
+        distinct = 'segnalazioni.t_segnalazioni."id"',
+        orderby = (
+            db.segnalazione.id,
+            db.civico.geom.st_distance(db.segnalazione.geom.st_transform(3003)),
+            ~db.segnalazione_lavorazione.id,
+            ~db.segnalazione_lavorazione.in_lavorazione,
+        ),
+        left = (
+            db.segnalazione.on(db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione.id),
+            db.segnalazione_lavorazione.on(db.join_segnalazione_lavorazione.lavorazione_id==db.segnalazione_lavorazione.id),
+            db.civico.on(
+                (db.segnalazione.civico_id == db.civico.id) | \
+                db.civico.geom.st_dwithin(db.segnalazione.geom.st_transform(3003), 250)
+            ),
+            db.profilo_utilizatore.on(db.profilo_utilizatore.id==db.segnalazione_lavorazione.profilo_id),
+        )
+    ).first()
+    return render(result)
+
+    # return render(db(
+    #     (db.segnalazioni_lista.id == id) & \
+    #     (db.segnalante.id == db.segnalazioni_lista.segnalante_id) & \
+    #     (db.civico.id==db.segnalazioni_lista.civico_id) & \
+    #     (db.intervento.segnalazione_id != db.segnalazioni_lista.id)
+    # ).select(
+    #     db.segnalazioni_lista.id.with_alias('id'),
+    #     db.segnalazioni_lista.data_ora.with_alias('data_ora'),
+    #     db.segnalazioni_lista.in_lavorazione.with_alias('in_lavorazione'),
+    #     db.segnalazioni_lista.evento_id.with_alias('evento_id'),
+    #     db.segnalazioni_lista.operatore.with_alias('operatore'),
+    #     db.segnalazioni_lista.criticita_id.with_alias('criticita_id'),
+    #     db.segnalazioni_lista.localizzazione.with_alias('localizzazione'),
+    #     db.segnalazioni_lista.civico_id.with_alias('civico_id'),
+    #     db.segnalazioni_lista.geom.st_asgeojson().with_alias('geom'),
+    #     db.segnalante.nome.with_alias('reclamante'),
+    #     db.segnalante.telefono.with_alias('telefono'),
+    #     db.civico.ALL
+    # ).first())
