@@ -6,6 +6,12 @@ from . import segnalazione
 from . import settings
 from .common import logger
 
+
+import http.client
+http.client.HTTPConnection.debuglevel = 1
+logger.propagate = True
+import json
+
 class Verbatel(object):
     """docstring for Verbatel."""
 
@@ -21,13 +27,23 @@ class Verbatel(object):
         url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
         return '/'.join((url.rstrip('/'), cls.root)+endpoints)
 
-    @classmethod
-    def _create(cls, *endpoints, **payload):
+    @staticmethod
+    def _payload(**kwargs):
         """ """
-        response = requests.post(cls._url(*endpoints), data=payload)
+        # Useful preprocessing for preventing requests library to loop over and over
+        return json.loads(json.dumps(kwargs))
+
+    @classmethod
+    def create(cls, *endpoints, **payload):
+        """ """
+        _url = cls._url(*endpoints)
+        data = cls._payload(**payload)
+        logger.debug(f'"{_url}"')
+        logger.debug(data)
+        response = requests.post(_url, data=data) # <---
         try:
-            assert response.status_code<300
-        except AssertionError:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
             logger.warning(response.status_code)
             logger.error(response.text)
         else:
@@ -36,42 +52,35 @@ class Verbatel(object):
             else:
                 return response.json()
 
-class Intervento(Verbatel):
-    """docstring for Intervento."""
-    root = 'interventi'
-
-    @classmethod
-    def create(cls, eventoId, idSegnalazione, operatore, tipoIntervento,
-        nomeStrada, codiceStrada, tipoLocalizzazione, stato, tipoRichiesta,
-        nomeStrada2=None, codiceStrada2=None, civico=None, daSpecificare=None,
-        datiPattuglia=None, motivoRifiuto=None, latitudine=None, longitudine=None,
-        noteOperative=None, reclamante=None, telefonoReclamante=None,
-        dataInserimento=None, dataInLavorazione=None, dataChiusura=None,
-        dataRifiuto=None, dataRiapertura=None):
-
-        payload = vars()
-        payload.pop('cls')
-
-        return cls._create(**payload)
-
 
 class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
 
-    @classmethod
-    def create(cls, *args, **kwargs):
-        return cls._create(*args, **kwargs)
+
+class Intervento(Verbatel):
+    """docstring for Intervento."""
+    root = 'interventi'
+
+
+class Messaggio(Verbatel):
+    """docstring for Messaggio."""
+    root = 'messaggi'
 
 
 def evento2verbatel(id):
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
 
+
 def segnalazione2verbatel(id):
     mia_segnalazione = segnalazione.fetch(id=id)
     return Intervento.create(**mia_segnalazione)
-    
+
+
+def messaggio2verbatel(id):
+    """ """
+    TODO
 
 
 def call_new_intervento():
@@ -138,9 +147,10 @@ def call_new_evento():
 		"Levante"
 	]})
 
-def test():
-    # response = call_new_evento()
-    # response = call_new_intervento()
-    # response = evento2verbatel(110)
-    response = segnalazione2verbatel(417)
+def test1():
+    response = evento2verbatel(110)
+    logger.debug(response)
+
+def test2():
+    response = segnalazione2verbatel(398)
     logger.debug(response)

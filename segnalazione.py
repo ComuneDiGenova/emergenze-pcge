@@ -299,7 +299,7 @@ def render(row):
         stato = 3 # Chiusa
 
     localizzazione = {}
-    indirizzo = f'{row.desvia}, {row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}'
+    indirizzo = f'{row.desvia}, {row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}' #.encode()
     if row.civico_id is None:
         localizzazione['tipoLocalizzazione'] = 3
         localizzazione['daSpecificare'] = indirizzo
@@ -324,10 +324,10 @@ def render(row):
 
     # datiPattuglia DA DEFINIRE
     # motivoRifiuto
-    
+
     # dataInLavorazione
     # dataChiusura
-    
+
     # dataRifiuto
     # dataRiapertura
 
@@ -347,8 +347,8 @@ def render(row):
         noteOperative = row.note,
         reclamante = row.reclamante,
         telefonoReclamante = row.telefono,
-        # tipoRichiesta = 
-        dataInserimento = row.inizio,
+        # tipoRichiesta =
+        dataInserimento = row.inizio.isoformat(),
         longitudine = lon,
         latitudine = lat,
         **localizzazione
@@ -398,7 +398,8 @@ def fetch(id):
                 db.civico.geom.st_dwithin(db.segnalazione.geom.st_transform(3003), 250)
             ),
             db.profilo_utilizatore.on(db.profilo_utilizatore.id==db.segnalazione_lavorazione.profilo_id),
-        )
+        ),
+        limitby = (0,1,)
     ).first()
     return render(result)
 
