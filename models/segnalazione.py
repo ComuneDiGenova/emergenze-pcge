@@ -159,6 +159,23 @@ db.define_table('comunicazione',
     rname = f'{SCHEMA}.t_comunicazioni_segnalazioni'
 )
 
+db.define_table('incarico',
+    Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
+    Field('profilo_id', 'reference profilo_utilizatore',
+        notnull=True, required=True,
+        requires = IS_IN_DB(db(db.profilo_utilizatore), db.profilo_utilizatore.id),
+        rname='id_profilo'
+    ),
+    Field('descrizione', required=True, notnull=True),
+    Field('uo_id', rname='id_uo', required=True, notnull=True),
+    Field('preview', 'datetime', rname='time_preview'),
+    Field('start', 'datetime', rname='time_start'),
+    Field('stop', 'datetime', rname='time_stop'),
+    Field('note', rname='note_ente'),
+    Field('rifiuto', rname='note_rifiuto'),
+    rname = f'{SCHEMA}.t_incarichi'
+)
+
 db.define_table('intervento',
     Field('intervento_id', 'integer',
         label = 'Identificativo intevento Verbatel',

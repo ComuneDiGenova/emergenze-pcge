@@ -6,7 +6,6 @@ from . import segnalazione
 from . import settings
 from .common import logger
 
-
 import http.client
 http.client.HTTPConnection.debuglevel = 1
 logger.propagate = True
