@@ -159,6 +159,13 @@ db.define_table('comunicazione',
     rname = f'{SCHEMA}.t_comunicazioni_segnalazioni'
 )
 
+uo_value = "concat('com_','PO' || codice_mun::text)" # 'PO'::text || m.codice_mun::text AS cod,
+uo_label = "'Distretto ' || codice_mun::text"
+unita_operative = map(
+    lambda row: (row[uo_value], row[uo_label],),
+    db(db.municipio)(db.profilo_utilizatore.id==6).iterselect(uo_value, uo_label)
+)
+
 db.define_table('incarico',
     Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
     Field('profilo_id', 'reference profilo_utilizatore',
@@ -167,7 +174,9 @@ db.define_table('incarico',
         rname='id_profilo'
     ),
     Field('descrizione', required=True, notnull=True),
-    Field('uo_id', rname='id_uo', required=True, notnull=True),
+    Field('uo_id', rname='id_uo', required=True, notnull=True,
+        requires = IS_IN_SET(list(unita_operative))
+    ),
     Field('preview', 'datetime', rname='time_preview'),
     Field('start', 'datetime', rname='time_start'),
     Field('stop', 'datetime', rname='time_stop'),
@@ -176,14 +185,49 @@ db.define_table('incarico',
     rname = f'{SCHEMA}.t_incarichi'
 )
 
+db.define_table('stato_incarico',
+    Field('incarico_id', 'reference incarico',
+        required=True, notnull=True,
+        requires=IS_IN_DB(db(db.incarico), db.incarico.id),
+        rname='id_incarico'
+    ),
+    Field('stato_id', 'reference tipo_stato_incarico',
+        required=True, notnull=True,
+        requires = IS_IN_DB(
+            db(db.tipo_stato_incarico.valido!=False),
+            db.tipo_stato_incarico.id
+        ),
+        rname='id_stato_incarico'
+    ),
+    Field('timeref', 'datetime', notnull=True,
+        rname='data_ora_stato'
+    ),
+    Field('parziale', 'boolean', required=True, notnull=True),
+    primarykey = ['incarico_id', 'stato_id', 'timeref'],
+    rname = f'{SCHEMA}.stato_incarichi'
+)
+
+db.define_table('join_segnalazione_incarico',
+    Field('incarico_id', 'reference incarico', required=True, notnull=True, rname='id_incarico'),
+    Field('lavorazione_id', 'reference segnalazione_lavorazione',
+        required=True, notnull=True,
+        rname='id_segnalazione_in_lavorazione'
+    ),
+    rname = f'{SCHEMA}.join_segnalazioni_incarichi'
+)
+
 db.define_table('intervento',
     Field('intervento_id', 'integer',
         label = 'Identificativo intevento Verbatel',
         notnull=True, unique=True, required=True
     ),
-    Field('segnalazione_id', 'integer',
-        notnull=True, unique=True, required=True
+    Field('incarico_id', 'reference incarico',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.incarico), db.incarico.id)
     ),
+    # Field('segnalazione_id', 'integer',
+    #     notnull=True, unique=True, required=True
+    # ),
     migrate = settings.MIGRATE_INTERVENTO,
     rname = 'verbatel.interventi'
 )

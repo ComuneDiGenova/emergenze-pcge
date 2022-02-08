@@ -28,6 +28,6 @@ db.define_table('tipo_segnalante',
 
 db.define_table('tipo_stato_incarico',
     Field('descrizione'),
-    Field('valido', 'boolean')
+    Field('valido', 'boolean'),
     rname = f'{SCHEMA}.tipo_stato_incarichi'
 )

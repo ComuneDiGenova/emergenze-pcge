@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .common import db, logger
+from . import incarico
 from pydal import geoPoint
 from pydal.validators import *
 import json
@@ -164,19 +165,22 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     )
 
     if assegna:
-        upgrade(segnalazione_id, operatore)
+        incarico_id = upgrade(segnalazione_id, operatore, auto_assegnato=assegna)
+    else:
+        incarico_id = None
 
-    return segnalazione_id
+    return segnalazione_id, incarico_id,
 
 
 def verbatel_create(intervento_id, *args, **kwargs):
-    segnalazione_id = create(*args, **kwargs)
+    segnalazione_id, incarico_id = create(*args, **kwargs)
     # Registrazione intervento id di Verbatel
 
-    db.intervento.insert(
-        segnalazione_id = segnalazione_id,
-        intervento_id = intervento_id
-    )
+    if not incarico_id is None:
+        db.intervento.insert(
+            incarico_id = incarico_id,
+            intervento_id = intervento_id
+        )
 
     return segnalazione_id
 
@@ -239,14 +243,17 @@ def verbatel_update(intervento_id, *args, **kwars):
     return update(segnalazione_id, *args, **kwars)
 
 
-def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
+def upgrade(segnalazione_id, operatore,
+    # profilo_id=6,
+    sospeso=False, auto_assegnato=True
+):
     """
 
     Funzione dedicata alla presa in carico della Segnalazione
 
     segnalazione_id @integer : Id segnalazione
     operatore        @string : Identificativo operatore (matricola o CF)
-    profilo_id      @integer : Id del profilo utilizzatore assegnatario della
+    profilo_id      @integer : DEPRECATO Id del profilo utilizzatore assegnatario della
                                segnalazione (default: 'Emergenza Distretto PM')
     sospeso         @boolean : Sospendere la segnalazione?
 
@@ -255,6 +262,12 @@ def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
     """
 
     segnalazione = db.segnalazione[segnalazione_id]
+
+    if auto_assegnato:
+        profilo_id = 6 # PM
+    else:
+        profilo_id = 2 # PC Centrale
+
     profilo = db.profilo_utilizatore[profilo_id]
 
     lavorazione_id = db.segnalazione_lavorazione.insert(
@@ -288,6 +301,25 @@ def upgrade(segnalazione_id, operatore, profilo_id=6, sospeso=False):
     )
     logger.debug(f'{_}: {message}')
 
+    # Incarico
+
+    if not auto_assegnato:
+        descrizione_incarico = f'''Richiesta presa visione della segnalazione:
+{segnalazione.descrizione}.
+(Al momento non è richiesto alcun intervento da parte di PM)'''
+
+    else:
+        descrizione_incarico = segnalazione.descrizione
+
+    incarico_id = incarico.create(
+        segnalazione_id = segnalazione.id,
+        lavorazione_id = lavorazione_id,
+        profilo_id = profilo.id,
+        descrizione = descrizione_incarico,
+        municipio_id = segnalazione.municipio_id 
+    )
+
+    return incarico_id
 
 def render(row):
 
@@ -307,11 +339,13 @@ def render(row):
         localizzazione['tipoLocalizzazione'] = 1
         localizzazione['civico'] = indirizzo
 
-    # tipoRichiesta
+    # tipoRichiesta TODO
     #   1: Intervento da gestire dalla PL
     #   2: Intervento gestito dalla PC su cui PL ha visibilità. In questo caso è
     #       necessario notificare le modifiche della segnalazione a Verbatel.
     #   3: Richiesta di ausilio su intervento gestito dalla PC
+
+
     if row.profilo_utilizatore.id==6:
         tipoRichiesta = 1
     elif row.profilo_utilizatore.id==3:
@@ -330,8 +364,6 @@ def render(row):
 
     # dataRifiuto
     # dataRiapertura
-
-    # return row
 
     return dict(
         tipoRichiesta = tipoRichiesta,
