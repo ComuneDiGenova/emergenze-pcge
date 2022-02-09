@@ -70,11 +70,12 @@ class Messaggio(Verbatel):
 def evento2verbatel(id):
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
+    
 
-
-def segnalazione2verbatel(id):
-    mia_segnalazione = segnalazione.fetch(id=id)
-    return Intervento.create(**mia_segnalazione)
+# def segnalazione2verbatel(id):
+#     # DEPRECATED
+#     mia_segnalazione = segnalazione.fetch(id=id)
+#     return Intervento.create(**mia_segnalazione)
 
 
 def messaggio2verbatel(id):

@@ -167,6 +167,7 @@ unita_operative = map(
 )
 
 db.define_table('incarico',
+    Field('id', 'id', default=lambda: new_id(db['incarico'])),
     Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
     Field('profilo_id', 'reference profilo_utilizatore',
         notnull=True, required=True,
@@ -202,17 +203,21 @@ db.define_table('stato_incarico',
     Field('timeref', 'datetime', notnull=True,
         rname='data_ora_stato'
     ),
-    Field('parziale', 'boolean', required=True, notnull=True),
+    Field('parziale', 'boolean', default=False, notnull=True),
     primarykey = ['incarico_id', 'stato_id', 'timeref'],
     rname = f'{SCHEMA}.stato_incarichi'
 )
 
 db.define_table('join_segnalazione_incarico',
-    Field('incarico_id', 'reference incarico', required=True, notnull=True, rname='id_incarico'),
+    Field('incarico_id', 'reference incarico',
+        required=True, notnull=True, unique=True,
+        rname='id_incarico'
+    ),
     Field('lavorazione_id', 'reference segnalazione_lavorazione',
         required=True, notnull=True,
         rname='id_segnalazione_in_lavorazione'
     ),
+    primarykey = ['incarico_id'],
     rname = f'{SCHEMA}.join_segnalazioni_incarichi'
 )
 
