@@ -44,7 +44,25 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
 
     return incarico_id
 
-# TODO: update
+
+def update(id, stato=None, **values):
+    """ """
+
+    if not municipio_id is None:
+        values['uo_id'] = get_uo_id(municipio_id)
+
+    db.incarico.update(**db.incarico._filter_fields(values))
+
+    # TODO: 
+        
+
+
+    
+
+
+def upgrade(id):
+    """ """
+
 
 def render(row):
 
@@ -175,7 +193,13 @@ def after_insert_incarico(id):
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         mio_incarico = fetch(id)
-        Intervento.create(**mio_incarico)
+        # Invio info a PL
+        response = Intervento.create(**mio_incarico)
+        # Registro 
+        db.intervento.insert(
+            intervento_id = response['idIntervento'],
+            incarico_id = id
+        )
 
 after_update_incarico = after_insert_incarico
 

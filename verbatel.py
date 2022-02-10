@@ -61,7 +61,6 @@ class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
 
-
 class Messaggio(Verbatel):
     """docstring for Messaggio."""
     root = 'messaggi'

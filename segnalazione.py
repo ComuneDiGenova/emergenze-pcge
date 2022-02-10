@@ -323,13 +323,13 @@ def after_insert_lavorazione(id):
     """
 
     rec = db(
+        (db.segnalazione_lavorazione.id==id) & \
         (db.segnalazione_lavorazione.id==db.join_segnalazione_lavorazione.lavorazione_id) & \
         (db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione.id) & \
-        (db.segnalazione_lavorazione.id==id) & \
         # Segnalazione di intetresse di PL
+        ~db.tipo_criticita.id.belongs([7,12]) & \
         (db.segnalazione.criticita_id==db.tipo_criticita.id) & \
-        (db.tipo_criticita.valido==True) & \
-        ~db.tipo_criticita.id.belongs([7,12])
+        (db.tipo_criticita.valido==True)
     ).select(
         db.segnalazione.ALL,
         db.segnalazione_lavorazione.with_alias('lavorazione').ALL,

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .. import settings
 from .users_decodifica import SCHEMA, db, Field
 from pydal.validators import *
 
