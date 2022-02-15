@@ -85,8 +85,14 @@ class Messaggio(Verbatel):
     root = 'messaggi'
 
 
-def nuovoEvento(id):
+def nuovoEventoDaFoc(id):
     """ Segnala nuovo evento verso Verbatel """
+    mia_foc = db.join_tipo_foc[id]
+    mio_evento = evento.fetch(id=mia_foc.evento_id)
+    return Evento.create(**mio_evento)
+
+def nuovoEvento(id):
+    """ DEPRECATO Segnala nuovo evento verso Verbatel """
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
 
