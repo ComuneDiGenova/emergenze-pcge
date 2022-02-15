@@ -4,12 +4,15 @@ import requests
 from . import evento
 from . import segnalazione
 from . import settings
-from .common import logger
+from .common import logger, logging
 
-import http.client
-http.client.HTTPConnection.debuglevel = 1
-logger.propagate = True
+if logger.getEffectiveLevel()==logging.DEBUG:
+    import http.client
+    http.client.HTTPConnection.debuglevel = 1
+    logger.propagate = True
+
 import json
+from itertools import chain
 
 class Verbatel(object):
     """docstring for Verbatel."""
@@ -24,13 +27,27 @@ class Verbatel(object):
             _port = ''
 
         url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
-        return '/'.join((url.rstrip('/'), cls.root)+endpoints)
+        return '/'.join(chain((url.rstrip('/'), cls.root,), map(lambda ee: f'{ee}', endpoints)))
 
     @staticmethod
     def _payload(**kwargs):
         """ """
         # Useful preprocessing for preventing requests library to loop over and over
         return json.loads(json.dumps(kwargs))
+
+    @classmethod
+    def __nout(cls, response):
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            logger.warning(response.status_code)
+            logger.error(response.text)
+        else:
+            import pdb; pdb.set_trace()
+            if response.headers['Content-Length']=='0':
+                return
+            else:
+                return response.json()
 
     @classmethod
     def create(cls, *endpoints, **payload):
@@ -40,16 +57,17 @@ class Verbatel(object):
         logger.debug(f'"{_url}"')
         logger.debug(data)
         response = requests.post(_url, data=data) # <---
-        try:
-            response.raise_for_status()
-        except requests.exceptions.HTTPError:
-            logger.warning(response.status_code)
-            logger.error(response.text)
-        else:
-            if response.headers['Content-Length']=='0':
-                return
-            else:
-                return response.json()
+        return cls.__nout(response)
+
+    @classmethod
+    def update(cls, *endpoints, **payload):
+        """ """
+        _url = cls._url(*endpoints)
+        data = cls._payload(**payload)
+        logger.debug(f'"{_url}"')
+        logger.debug(data)
+        response = requests.put(_url, data=data) # <---
+        return cls.__nout(response)
 
 
 class Evento(Verbatel):
@@ -61,15 +79,23 @@ class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
 
+
 class Messaggio(Verbatel):
     """docstring for Messaggio."""
     root = 'messaggi'
 
 
-def evento2verbatel(id):
+def nuovoEvento(id):
+    """ Segnala nuovo evento verso Verbatel """
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
-    
+
+def aggiornaEvento(id):
+    """ Segnala aggiornamento evento verso Verbatel """
+    mio_evento = evento.fetch(id=id)
+    evento_id = mio_evento.pop('id')
+    return Evento.update(evento_id, **mio_evento)
+
 
 # def segnalazione2verbatel(id):
 #     # DEPRECATED
