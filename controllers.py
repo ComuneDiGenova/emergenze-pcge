@@ -253,8 +253,8 @@ def segnalazione():
             comment=db.segnalazione_riservata.testo.comment,
         ),
         db.segnalante.telefono,
-        Field('libera', 'boolean',
-            label = 'Se non specificato la segnalazione viene assegnata come presa in carico da PM'
+        Field('ceduta', 'boolean',
+            label = 'Indica la segnalazione come NON in carico a PM'
         )
     ],
         hidden = {'rollback': False},
@@ -270,7 +270,7 @@ def segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
-            form.vars['assegna'] = not form.vars.pop('libera')
+            form.vars['assegna'] = not form.vars.pop('ceduta')
             result =_segnalazione.verbatel_create(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}

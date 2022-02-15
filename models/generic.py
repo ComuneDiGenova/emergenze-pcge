@@ -148,3 +148,8 @@ db.define_table('log',
     Field('operazione'),
     rname = 'varie.t_log'
 )
+
+# TODO: 
+# db.define_table('',
+#     rname = 'varie.t_incarichi_comune'
+# )

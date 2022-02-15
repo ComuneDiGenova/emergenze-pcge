@@ -4,41 +4,56 @@ import argparse
 import select
 from .common import db, logger
 
-sql_notify_new_item = """CREATE or REPLACE FUNCTION segnalazioni.notify_new_item()
-    RETURNS trigger
-     LANGUAGE 'plpgsql'
-as $BODY$
-declare
-begin
-    if (tg_op = 'INSERT') then
+def create_sql_function(schema, table, function, trigger, notification):
 
-        perform pg_notify('new_item_added',
-        json_build_object(
-             'id', NEW.id
-           )::text);
-    end if;
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = 'INSERT') then
+            perform pg_notify('{notification}',
+            json_build_object(
+                 'id', NEW.id
+               )::text);
+        end if;
 
-    return null;
-end
-$BODY$;"""
+        return null;
+    end
+    $BODY$;"""
 
-TRIGGER = 'after_insert_item'
-SCHEMA = 'segnalazioni'
-TABLE = 't_segnalazioni'
+    db.executesql(sql_notify_new_item)
 
-clear_trigger = f'DROP TRIGGER IF EXISTS {TRIGGER} on "{SCHEMA}"."{TABLE}"';
+def create_sql_trigger(schema, table, function, trigger):
+    clear_trigger = f'DROP TRIGGER IF EXISTS {trigger} on "{schema}"."{table}"';
 
-create_trigger = f"""CREATE TRIGGER after_insert_item
-    AFTER INSERT
-    ON "{SCHEMA}"."{TABLE}"
-    FOR EACH ROW
-    EXECUTE PROCEDURE segnalazioni.notify_new_item();"""
+    create_trigger = f"""CREATE TRIGGER {trigger}
+        AFTER INSERT
+        ON "{schema}"."{table}"
+        FOR EACH ROW
+        EXECUTE PROCEDURE {schema}.{function}();"""
+
+    db.executesql(clear_trigger)
+    db.executesql(create_trigger)
+
+def trigger_setup(schema, table, function, trigger, notification):
+    """ """
+
+
+sqlloc = lambda tablename: db[tablename]._rname.split('.')
 
 def setup():
     """ Set up connection, run only one time"""
-    db.executesql(sql_notify_new_item)
-    db.executesql(clear_trigger)
-    db.executesql(create_trigger)
+
+    schema, table = sqlloc['segnalazione_lavorazione']
+    create_sql_function(schema, table,
+        'notify_new_lavorazione',
+        'after_lavorazione_create',
+        'new_lavorazione_added'
+    )
+    create_sql_trigger(schema, table, function, trigger)
+
     db.commit()
 
 

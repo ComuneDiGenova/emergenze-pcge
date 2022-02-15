@@ -67,3 +67,21 @@ def create(segnalazione_id, mittente, testo=None, allegato=None):
     ).first()
 
     return rec
+
+
+
+def fetch(lavorazione_id, timeref):
+
+    result = db(
+        (db.comunicazione.lavorazione_id==lavorazione_id) & \
+        (db.comunicazione.timeref==timeref) & \
+        (db.join_segnalazione_lavorazione.lavorazione_id==db.comunicazione.lavorazione_id) & \
+        (db.intervento.segnalazione_id==db.join_segnalazione_lavorazione.segnalazione_id)
+    ).select(
+        db.intervento.id.with_alias('idIntervento'),
+        db.comunicazione.mittente.with_alias('operatore'),
+        db.comunicazione.testo.with_alias('testo'),
+        db.comunicazione.allegato
+    ).first()
+
+    # TODO:
