@@ -57,12 +57,14 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
         (db.evento.id==db.join_tipo_evento.evento_id) & \
         (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id) & \
         (db.evento.id==db.join_municipio.evento_id) & \
-        (db.municipio.id==db.join_municipio.municipio_id) &\
-        (db.tipo_allerta.id==db.join_tipo_allerta.tipo_allerta_id)
+        (db.municipio.id==db.join_municipio.municipio_id)
     )
 
     left = (
-        db.join_tipo_allerta.on(db.evento.id==db.join_tipo_allerta.evento_id),
+        db.join_tipo_allerta.on(
+            (db.evento.id==db.join_tipo_allerta.evento_id) & 
+            (db.tipo_allerta.id==db.join_tipo_allerta.tipo_allerta_id)
+        ),
         db.nota_evento.on(db.evento.id==db.nota_evento.evento_id)
     )
 
