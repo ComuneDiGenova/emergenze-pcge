@@ -58,3 +58,11 @@ E mettere il servizio in ascolto
 ```
 py4web call apps emergenze.listener.listen
 ```
+
+A questo punto in maniera speditiva, una volta che il container è già attivo:
+
+```
+sudo docker exec -d <container_id/container_name> py4web call apps emergenze.listener.listen
+```
+
+Controllare comunque il docker-compose.
