@@ -2,3 +2,4 @@ geojson
 geomet
 mptools
 psycopg2-binary
+ujson

@@ -6,13 +6,17 @@ from . import segnalazione
 from . import settings
 from .common import logger, logging
 
-if logger.getEffectiveLevel()==logging.DEBUG:
-    import http.client
-    http.client.HTTPConnection.debuglevel = 1
-    logger.propagate = True
+# if logger.getEffectiveLevel()==logging.DEBUG:
+#     import http.client
+#     http.client.HTTPConnection.debuglevel = 1
+#     logger.propagate = True
 
 import json
 from itertools import chain
+
+class VerbatelError(requests.exceptions.HTTPError):
+    """ """
+
 
 class Verbatel(object):
     """docstring for Verbatel."""
@@ -42,8 +46,8 @@ class Verbatel(object):
         except requests.exceptions.HTTPError:
             logger.warning(response.status_code)
             logger.error(response.text)
+            raise
         else:
-            import pdb; pdb.set_trace()
             if response.headers['Content-Length']=='0':
                 return
             else:
@@ -85,8 +89,22 @@ class Messaggio(Verbatel):
     root = 'messaggi'
 
 
-def nuovoEvento(id):
+def nuovoEventoDaFoc(evento_id):
     """ Segnala nuovo evento verso Verbatel """
+    mio_evento = evento.fetch(id=evento_id)
+    try:
+        return Evento.create(**mio_evento)
+    except requests.exceptions.HTTPError as err:
+        #aa = err
+        #import pdb; pdb.set_trace()
+        if "Evento già inviata" in str(err.response.text):
+            evento_id = mio_evento.pop('id')
+            return Evento.update(evento_id, **mio_evento)
+
+
+
+def nuovoEvento(id):
+    """ DEPRECATO Segnala nuovo evento verso Verbatel """
     mio_evento = evento.fetch(id=id)
     return Evento.create(**mio_evento)
 

@@ -110,5 +110,6 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
         limitby = None if None in (page, paginate,) else (page, max(paginate, 1),),
         left = left
     ))
+    #import pdb; pdb.set_trace()
     return next(result) if not id is None or (not paginate is None and paginate<1) else result 
     # return result if not id is None or paginate is None or paginate>1 else next(result)
