@@ -299,8 +299,8 @@ def upgrade(segnalazione_id, operatore,
     # Incarico
 
     if profilo_id==6:
-        segnalazione = db.segnalazione[segnalazione_id]
-        assert segnalazione
+        # segnalazione = db.segnalazione[segnalazione_id]
+        # assert segnalazione
 
         descrizione_incarico = segnalazione.descrizione
 

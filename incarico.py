@@ -155,6 +155,7 @@ def fetch(id):
         db.segnalazione.civico_id.with_alias('civico_id'),
         db.incarico.descrizione.with_alias('note'),
         db.incarico.rifiuto.with_alias('motivo_rifiuto'),
+        db.segnalazione_lavorazione.profilo_id,
         db.segnalazione_lavorazione.in_lavorazione.with_alias('in_lavorazione'),
         db.civico.geom.st_distance(
             db.segnalazione.geom.st_transform(3003)
@@ -186,21 +187,34 @@ def fetch(id):
         ),
         limitby = (0,1,)
     ).first()
-    return render(result)
+    return result.segnalazione_lavorazione.profilo_id!=6, render(result)
     
 
 def after_insert_incarico(id):
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
-        mio_incarico = fetch(id)
-        # Invio info a PL
-        response = Intervento.create(**mio_incarico)
-        # Registro 
-        db.intervento.insert(
-            intervento_id = response['idIntervento'],
-            incarico_id = id
-        )
+        invia, mio_incarico = fetch(id)
+        if invia:
+            # Invio info a PL
+            response = Intervento.create(**mio_incarico)
+            # Registro 
+            db.intervento.insert(
+                intervento_id = response['idIntervento'],
+                incarico_id = id
+            )
 
-after_update_incarico = after_insert_incarico
+def after_update_incarico(id):
+    if db.intervento(incarico_id=id) is None:
+        # Chiamata servizio Verbatel
+        invia, mio_incarico = fetch(id)
+        if invia:
+            # Invio info a PL
+            incarico_id = mio_incarico.pop('idSegnalazione')
+            response = Intervento.update(incarico_id, **mio_incarico)
+            # Registro 
+            db.intervento.insert(
+                intervento_id = response['idIntervento'],
+                incarico_id = id
+            )
 
 
