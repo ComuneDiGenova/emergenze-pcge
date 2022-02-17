@@ -95,11 +95,13 @@ def nuovoEventoDaFoc(evento_id):
     try:
         return Evento.create(**mio_evento)
     except requests.exceptions.HTTPError as err:
-        aa = err
-        import pdb; pdb.set_trace()
-    except Exception as err:
-        bb = err
-        import pdb; pdb.set_trace()
+
+        #aa = err
+        #import pdb; pdb.set_trace()
+        if "Evento già inviata" in str(err.response.text):
+            evento_id = mio_evento.pop('id')
+            return Evento.update(evento_id, **mio_evento)
+
 
 
 def nuovoEvento(id):
