@@ -36,7 +36,8 @@ from pydal.validators import Validator
 from . import evento as _evento
 from . import civico as _civico
 from . import segnalazione as _segnalazione
-from . import comunicazione as _comunicazione
+# from .segnalazione import comunicazione as _comunicazione
+from . import segnalazione
 
 from mptools.frameworks.py4web import shampooform as sf
 from mptools.frameworks.py4web.controller import CORS # , ApiForm
@@ -159,7 +160,7 @@ def civico(format=None):
 
 @action("fetch/segnalazione/<id:int>")
 @action.uses(CORS())
-def get_segnalazione(id):
+def fetch_segnalazione(id):
     return {'result': _segnalazione.fetch(id)}
 
 @action('segnalazione', method=['GET', 'POST'])
@@ -167,7 +168,7 @@ def get_segnalazione(id):
 @action('crea/segnalazione', method=['GET', 'POST'])
 @action('CreaSegnalazione', method=['GET', 'POST'])
 @action.uses(db)
-def segnalazione():
+def ws_segnalazione():
     """ """
 
     res = db(db.evento).select(
@@ -394,27 +395,37 @@ def modifica_intervento(intervento_id=None):
 @action('crea_comunicazione', method=['GET', 'POST'])
 @action('crea/comunicazione', method=['GET', 'POST'])
 @action('CreaComunicazione', method=['GET', 'POST'])
+@action('segnalazione/incarico/comunicazione', method=['GET', 'POST'])
 @action.uses(db)
-def comunicazione():
-    """"""
+def segnalazione_comunicazione_da_incarico():
+    """ """
 
-    res = db(db.segnalazioni_utili).select(
-        db.segnalazioni_utili.id.min().with_alias('idmin'),
-        db.segnalazioni_utili.id.max().with_alias('idmax')
+    # res = db(db.segnalazioni_utili).select(
+    #     db.segnalazioni_utili.id.min().with_alias('idmin'),
+    #     db.segnalazioni_utili.id.max().with_alias('idmax')
+    # ).first()
+
+    stat_incarico = db(db.incarico).select(
+        db.incarico.id.min().with_alias('idmin'),
+        db.incarico.id.max().with_alias('idmax')
     ).first()
     db.comunicazione.mittente.requires = IS_NOT_EMPTY()
 
     form = Form([
-        Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
-            comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
-            requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        # Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
+        #     comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
+        #     requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        # ),
+        Field('incarico_id', 'integer',
+            label='Id Incarico', required=True,
+            comment = f'Inserisci un id Incarico valido compreso tra {stat_incarico.idmin} e {stat_incarico.idmax}',
         ),
         db.comunicazione.mittente,
         db.comunicazione.testo,
-        _comunicazione.fake_upload
+        segnalazione.comunicazione.fake_upload
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
-        validation = _comunicazione.valida_nuova_comunicazione,
+        validation = segnalazione.comunicazione.valida_nuova_comunicazione,
         form_name = 'crea_comunicazione',
         csrf_protection = False
     )
@@ -422,10 +433,52 @@ def comunicazione():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            result = _comunicazione.create(**form.vars)
+            result = segnalazione.comunicazione.create_by_incarico(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}
-    if not _comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
+    if not segnalazione.comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
+        output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
+
+    return output
+
+
+@action('segnalazione/intervento/comunicazione', method=['GET', 'POST'])
+@action.uses(db)
+def segnalazione_comunicazione_da_intervento():
+    """ """
+
+    stat_intervento = db(db.intervento).select(
+        db.intervento.id.min().with_alias('idmin'),
+        db.intervento.id.max().with_alias('idmax')
+    ).first()
+    db.comunicazione.mittente.requires = IS_NOT_EMPTY()
+
+    form = Form([
+        # Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
+        #     comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
+        #     requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+        # ),
+        Field('intervento_id', 'integer',
+            label='Id Incarico', required=True,
+            comment = f'Inserisci un id Incarico valido compreso tra {stat_intervento.idmin} e {stat_intervento.idmax}',
+        ),
+        db.comunicazione.mittente,
+        db.comunicazione.testo,
+        segnalazione.comunicazione.fake_upload
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        validation = segnalazione.comunicazione.valida_nuova_comunicazione_da_intervento,
+        form_name = 'crea_comunicazione',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = segnalazione.comunicazione.create_by_intervento(**form.vars)
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+    if not segnalazione.comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
         output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
 
     return output

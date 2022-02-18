@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .common import db, logger
-from . import incarico
+from ..common import db, logger
+from .. import incarico
 from pydal import geoPoint
 from pydal.validators import *
 import json

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from . import settings
-from .common import db, logger
+from .. import settings
+from ..common import db, logger
 import shutil, os
 from py4web import Field
 from pathlib import Path
@@ -16,19 +16,26 @@ UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
 
 def valida_nuova_comunicazione(form):
     """ """
-    fieldname = 'segnalazione_id'
-    _, msg = IS_IN_DB(
-        db(db.segnalazioni_utili),
-        db.segnalazioni_utili.id
-    )(form.vars[fieldname])
+    fieldname = 'incarico_id'
+    
+    _, msg = IS_IN_DB(db(db.incarico), db.incarico.id)(form.vars[fieldname])
+
     if msg:
         form.errors[fieldname] = msg
 
+def valida_nuova_comunicazione_da_intervento(form):
+    """ """
+    fieldname = 'intervento_id'
+    
+    _, msg = IS_IN_DB(db(db.intervento), db.intervento.intervento_id)(form.vars[fieldname])
 
-def create(segnalazione_id, mittente, testo=None, allegato=None):
+    if msg:
+        form.errors[fieldname] = msg
+
+def create(lavorazione_id, mittente, testo=None, allegato=None):
     """ """
 
-    segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
+    # segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
 
     rdest = None
     if UPLOAD_CONFIGURED and not allegato is None:
@@ -53,7 +60,7 @@ def create(segnalazione_id, mittente, testo=None, allegato=None):
         rdest = os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
 
     row = db.comunicazione.insert(
-        lavorazione_id = segnalazione_utile.lavorazione_id,
+        lavorazione_id = lavorazione_id,
         mittente = mittente,
         testo = testo,
         allegato = rdest
@@ -68,7 +75,42 @@ def create(segnalazione_id, mittente, testo=None, allegato=None):
 
     return rec
 
+def create_by_incarico(incarico_id, *args, **kwargs):
 
+    lavorazione_id = db(
+        (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        (db.join_segnalazione_incarico.incarico_id==incarico_id)
+    ).select(
+        db.join_segnalazione_incarico.lavorazione_id,
+        limitby = (0,1,)
+    ).first().lavorazione_id
+
+    return create(lavorazione_id, *args, **kwargs)
+
+def create_by_intervento(intervento_id, *args, **kwargs):
+
+    logger.debug(intervento_id)
+    lavorazione_id = db(
+        (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id) & \
+        (db.intervento.intervento_id==intervento_id)
+    ).select(
+        db.join_segnalazione_incarico.lavorazione_id,
+        limitby = (0,1,)
+    ).first().lavorazione_id
+
+    return create(lavorazione_id, *args, **kwargs)
+
+
+def create_by_segnalazione(segnalazione_id, *args, **kwargs):
+    """ NON IN USO """
+
+    lavorazione_id = db(db.segnalazioni_utili.id==segnalazione_id).select(
+        db.segnalazioni_utili.lavorazione_id,
+        limitby = (0,1,)
+    ).first().lavorazione_id
+
+    return create(lavorazione_id, *args, **kwargs)
 
 def fetch(lavorazione_id, timeref):
 

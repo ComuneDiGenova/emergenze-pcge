@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import json
-from .common import db, logger
-from .verbatel import Intervento
+from ..common import db, logger
+from ..verbatel import Intervento
 
 WARNING = '( Al momento NON è richiesto alcun intervento da parte di PM )'
 

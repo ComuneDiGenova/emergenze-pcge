@@ -6,7 +6,7 @@ from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
 import json
-from .verbatel import nuovoEventoDaFoc
+from .verbatel import syncEvento
 from . import evento
 import traceback
 
@@ -127,10 +127,11 @@ def do_stuff(channel, **payload):
         f"new_{elementi[0][1]}_added", 
         f"new_{elementi[0][1]}_updated"
     ]:
+        # Creazione/aggiornamento FOC
         
         logger.debug(payload)
 
-        # In caso di FOC mio_evento NON deve essere nullo
+        # In caso di FOC mio_evento NON deve poter essere nullo
         out = syncEvento(mio_evento)
         logger.debug(out)
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
@@ -144,6 +145,10 @@ def do_stuff(channel, **payload):
         f"new_{elementi[1][1]}_added",
         f"new_{elementi[1][1]}_updated"
     ]:
+        # Creazione/aggiornamento nota
+        # INFO: Questo evento di fatto potrebbe essere inutile.
+        # da interfaccia sembra che le note possano essere create solo in concomitanza
+        # del nuovo evento e mai modificate.
         out = syncEvento(mio_evento)
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
 
@@ -168,6 +173,8 @@ def listen():
             try:
                 do_stuff(notification.channel, **payload)
             except:
+                # così si evita che il questo script cada
+                # in caso di errori cercare il traceback nel log
                 db.rollback()
                 full_traceback = traceback.format_exc()
                 logger.critical(full_traceback)
