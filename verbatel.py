@@ -98,9 +98,13 @@ def nuovoEventoDaFoc(evento_id):
 
         #aa = err
         #import pdb; pdb.set_trace()
+        logger.debug(err.response.text)
         if "Evento già inviata" in str(err.response.text):
             evento_id = mio_evento.pop('id')
             return Evento.update(evento_id, **mio_evento)
+    else:
+        # TODO: 
+        pass
 
 
 

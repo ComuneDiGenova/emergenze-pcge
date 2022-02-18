@@ -9,6 +9,7 @@ import json
 from .verbatel import nuovoEventoDaFoc
 
 #def create_sql_function(schema, table, function, trigger, notification):
+
 def create_sql_function(schema, function_insert, notification_insert, function_update, notification_update):
 
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_insert}()
@@ -48,6 +49,7 @@ def create_sql_function(schema, function_insert, notification_insert, function_u
     $BODY$;"""
 
     db.executesql(sql_notify_updated_item)
+
 
 def create_sql_trigger(schema, table, function_insert, trigger_insert, function_update, trigger_update):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_insert} on "{schema}"."{table}"';
@@ -101,10 +103,9 @@ def ciao():
     """ test pourpouses"""
     print("hell-o")
     print(f"new_{elementi[0][0]}_added")
-    
-def listen():
-    """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
+def set_listen():
+    # db._adapter.reconnect()
     listen_n = f"LISTEN new_{elementi[0][1]}_added;"
     listen_u = f"LISTEN new_{elementi[0][1]}_updated;"
     listen_n_nota = f"LISTEN new_{elementi[1][1]}_added;"
@@ -116,9 +117,15 @@ def listen():
     db.executesql(listen_u_nota)
     db.commit()
 
+def listen():
+    """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
+
     while True:
+        set_listen()
         # sleep until there is some data
+        logger.debug('Waiting!')
         select.select([db._adapter.connection],[],[])
+        logger.debug('Catched!')
 
         db._adapter.connection.poll()
 
@@ -127,8 +134,8 @@ def listen():
             notification = db._adapter.connection.notifies.pop(0)
 
             # do whatever you want with the ID of the new row in segnalazioni.t_segnalazioni
-            #logger.debug(f"channel: {notification.channel }")
-            #logger.debug(f"message: {notification.payload}")
+            # logger.debug(f"channel: {notification.channel }")
+            # logger.debug(f"message: {notification.payload}")
             
             if notification.channel in [f"new_{elementi[0][1]}_added", 
                                         f"new_{elementi[0][1]}_updated",
@@ -138,9 +145,10 @@ def listen():
                 
                 id_actual = json.loads(notification.payload)
                 
-                #mio_evento = evento.fetch(id = id_actual["id"])
-                nuovoEventoDaFoc(id_actual["id"])
+                out = nuovoEventoDaFoc(id_actual["id"])
+                logger.debug(out)
                 logger.debug(f"NOTIFICATION CHANNEL: {notification.channel} PAYLOAD: {notification.payload}")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DB event listener management.')
