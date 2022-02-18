@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
-from . import evento
+
 from . import segnalazione
 from . import settings
 from .common import logger, logging
@@ -89,11 +89,11 @@ class Messaggio(Verbatel):
     root = 'messaggi'
 
 
-def nuovoEventoDaFoc(evento_id):
+def syncEvento(mio_evento):
     """ Segnala nuovo evento verso Verbatel """
-    mio_evento = evento.fetch(id=evento_id)
+    
     try:
-        return Evento.create(**mio_evento)
+        Evento.create(**mio_evento)
     except requests.exceptions.HTTPError as err:
 
         #aa = err
@@ -101,23 +101,23 @@ def nuovoEventoDaFoc(evento_id):
         logger.debug(err.response.text)
         if "Evento già inviata" in str(err.response.text):
             evento_id = mio_evento.pop('id')
-            return Evento.update(evento_id, **mio_evento)
+            Evento.update(evento_id, **mio_evento)
+            return 'SENT UPDATE'
     else:
-        # TODO: 
-        pass
+        return 'SENT NEW'
 
 
 
-def nuovoEvento(id):
-    """ DEPRECATO Segnala nuovo evento verso Verbatel """
-    mio_evento = evento.fetch(id=id)
-    return Evento.create(**mio_evento)
-
-def aggiornaEvento(id):
-    """ Segnala aggiornamento evento verso Verbatel """
-    mio_evento = evento.fetch(id=id)
-    evento_id = mio_evento.pop('id')
-    return Evento.update(evento_id, **mio_evento)
+# def nuovoEvento(id):
+#     """ DEPRECATO Segnala nuovo evento verso Verbatel """
+#     mio_evento = evento.fetch(id=id)
+#     return Evento.create(**mio_evento)
+# 
+# def aggiornaEvento(id):
+#     """ Segnala aggiornamento evento verso Verbatel """
+#     mio_evento = evento.fetch(id=id)
+#     evento_id = mio_evento.pop('id')
+#     return Evento.update(evento_id, **mio_evento)
 
 
 # def segnalazione2verbatel(id):
@@ -125,80 +125,76 @@ def aggiornaEvento(id):
 #     mia_segnalazione = segnalazione.fetch(id=id)
 #     return Intervento.create(**mia_segnalazione)
 
+if __name__=='__main__':
 
-def messaggio2verbatel(id):
-    """ """
-    TODO
+    def call_new_intervento():
+        intervento = Intervento()
+        return intervento.create(**{
+        	'stato' : 1,
+        	'idSegnalazione': 2000,
+        	'eventoId': 4,
+        	'operatore': 'Operatore PC',
+        	'tipoIntervento': 1,
+        	'nomeStrada' : 'VIA ALBISOLA',
+        	'codiceStrada': 955,
+        	'tipoLocalizzazione' : 1,
+        	'civico': '2',
+        	'noteOperative': 'note note note',
+        	'reclamante' : 'commissione',
+        	'telefonoReclamante': '3475208085',
+        	'tipoRichiesta': 1,
+        	'dataInserimento': '2021-06-23T11:00:00',
+        	'longitudine': '44.47245435996428',
+        	'latitudine': '8.895533415673095'
+        })
 
+    def call_new_evento():
+        evento = Evento()
+        return evento.create(**{
+    	"id": 7,
+    	"descrizione": "Idrologico",
+    	"inizio": "2021-12-22T16:00:00",
+    	"chiusura": "2021-12-21T16:00:00",
+    	"fine": "2021-12-20T16:00:00",
+    	"fine_sospensione": "2021-12-19T16:00:00",
+    	"valido": "true",
+    	"stato":"chiuso",
+    	"note": [
+    		{"nota": "Allerta gialla del 22.12.21"}
+    	],
+    	"allerte": [
+    		{
+        		"colore": "#ffd800",
+        		"descrizione": "Gialla",
+        		"fine": "",
+        		"inizio": "2021-06-23T12:00:00"
+    		}
+    	],
+    	"foc": [
+    		{
+        		"colore": "#009aff",
+        		"descrizione": "Attenzione",
+        		"fine": "",
+        		"inizio": "2021-06-23T11:00:00"
+    		},
+    		{
+        		"colore": "#5945ff",
+        		"descrizione": "Pre-allarme",
+        		"fine": "2021-07-06T01:00:00",
+        		"inizio": "2021-07-06T01:00:00"
+           }
+        ],
+    	"municipi": [
+    		"Bassa Val Bisagno",
+    		"Centro est",
+    		"Centro Ovest",
+    		"Levante"
+    	]})
 
-def call_new_intervento():
-    intervento = Intervento()
-    return intervento.create(**{
-    	'stato' : 1,
-    	'idSegnalazione': 2000,
-    	'eventoId': 4,
-    	'operatore': 'Operatore PC',
-    	'tipoIntervento': 1,
-    	'nomeStrada' : 'VIA ALBISOLA',
-    	'codiceStrada': 955,
-    	'tipoLocalizzazione' : 1,
-    	'civico': '2',
-    	'noteOperative': 'note note note',
-    	'reclamante' : 'commissione',
-    	'telefonoReclamante': '3475208085',
-    	'tipoRichiesta': 1,
-    	'dataInserimento': '2021-06-23T11:00:00',
-    	'longitudine': '44.47245435996428',
-    	'latitudine': '8.895533415673095'
-    })
+    def test1():
+        response = evento2verbatel(110)
+        logger.debug(response)
 
-def call_new_evento():
-    evento = Evento()
-    return evento.create(**{
-	"id": 7,
-	"descrizione": "Idrologico",
-	"inizio": "2021-12-22T16:00:00",
-	"chiusura": "2021-12-21T16:00:00",
-	"fine": "2021-12-20T16:00:00",
-	"fine_sospensione": "2021-12-19T16:00:00",
-	"valido": "true",
-	"stato":"chiuso",
-	"note": [
-		{"nota": "Allerta gialla del 22.12.21"}
-	],
-	"allerte": [
-		{
-    		"colore": "#ffd800",
-    		"descrizione": "Gialla",
-    		"fine": "",
-    		"inizio": "2021-06-23T12:00:00"
-		}
-	],
-	"foc": [
-		{
-    		"colore": "#009aff",
-    		"descrizione": "Attenzione",
-    		"fine": "",
-    		"inizio": "2021-06-23T11:00:00"
-		},
-		{
-    		"colore": "#5945ff",
-    		"descrizione": "Pre-allarme",
-    		"fine": "2021-07-06T01:00:00",
-    		"inizio": "2021-07-06T01:00:00"
-       }
-    ],
-	"municipi": [
-		"Bassa Val Bisagno",
-		"Centro est",
-		"Centro Ovest",
-		"Levante"
-	]})
-
-def test1():
-    response = evento2verbatel(110)
-    logger.debug(response)
-
-def test2():
-    response = segnalazione2verbatel(398)
-    logger.debug(response)
+    def test2():
+        response = segnalazione2verbatel(398)
+        logger.debug(response)

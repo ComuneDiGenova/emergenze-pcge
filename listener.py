@@ -7,6 +7,8 @@ from .common import db, logger
 #from .verbatel import evento, Evento
 import json
 from .verbatel import nuovoEventoDaFoc
+from . import evento
+import traceback
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
@@ -117,6 +119,34 @@ def set_listen():
     db.executesql(listen_u_nota)
     db.commit()
 
+def do_stuff(channel, **payload):
+
+    mio_evento = evento.fetch(id=payload["id"])
+
+    if channel in [
+        f"new_{elementi[0][1]}_added", 
+        f"new_{elementi[0][1]}_updated"
+    ]:
+        
+        logger.debug(payload)
+
+        # In caso di FOC mio_evento NON deve essere nullo
+        out = syncEvento(mio_evento)
+        logger.debug(out)
+        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+        if out == 'SENT NEW':
+            # nuovoEventoDaFoc restituisce None solo incaso di UPDATE
+            newid = db.evento_inviato.insert(
+                evento_id = payload["id"]
+            )
+            logger.debug(f"Segnato! {newid}")
+    elif not mio_evento is None and channel in [
+        f"new_{elementi[1][1]}_added",
+        f"new_{elementi[1][1]}_updated"
+    ]:
+        out = syncEvento(mio_evento)
+        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
@@ -133,24 +163,20 @@ def listen():
 
             notification = db._adapter.connection.notifies.pop(0)
 
-            # do whatever you want with the ID of the new row in segnalazioni.t_segnalazioni
-            # logger.debug(f"channel: {notification.channel }")
-            # logger.debug(f"message: {notification.payload}")
-            
-            if notification.channel in [f"new_{elementi[0][1]}_added", 
-                                        f"new_{elementi[0][1]}_updated",
-                                        f"new_{elementi[1][1]}_added",
-                                        f"new_{elementi[1][1]}_updated"
-                                        ]:
-                
-                id_actual = json.loads(notification.payload)
-                
-                out = nuovoEventoDaFoc(id_actual["id"])
-                logger.debug(out)
-                logger.debug(f"NOTIFICATION CHANNEL: {notification.channel} PAYLOAD: {notification.payload}")
+            payload = json.loads(notification.payload)
+
+            try:
+                do_stuff(notification.channel, **payload)
+            except:
+                db.rollback()
+                full_traceback = traceback.format_exc()
+                logger.critical(full_traceback)
+            else:
+                db.commit()
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser(description='DB event listener management.')
     parser.add_argument_group('-s', '--set-up', dest='setup',
         action='store_true', default=False

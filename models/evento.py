@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .. import settings
+
 from .evento_decodifica import SCHEMA, Field, db
 
 from pydal.validators import *
@@ -54,4 +56,18 @@ db.define_table('join_tipo_foc',
     primarykey=['evento_id', 'tipo_foc_id', 'inizio'],
     # Field('allegato')
     rname=f'{SCHEMA}.join_tipo_foc'
+)
+
+db.define_table('evento_inviato',
+    Field('evento_id', 'reference evento',
+        label = 'Identificativo intevento Verbatel',
+        notnull=True, unique=True, required=True,
+        requires = IS_IN_DB(db(db.evento), db.evento.id)
+    ),
+    Field('inviato', 'boolean',
+        label = 'Identificativo intevento Verbatel',
+        notnull=True, required=False, default=True
+    ),
+    migrate = settings.MIGRATE_EVENTO,
+    rname = 'verbatel.eventi_inviati'
 )
