@@ -6,13 +6,13 @@ from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
 import json
-from .verbatel import nuovoEventoDaFoc
+from .verbatel import syncEvento
 from . import evento
 import traceback
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
-def create_sql_function(schema, function_insert, notification_insert, function_update, notification_update):
+def create_sql_function(schema, function_insert, notification_insert, function_update, notification_update, payload):
 
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_insert}()
         RETURNS trigger
@@ -23,7 +23,7 @@ def create_sql_function(schema, function_insert, notification_insert, function_u
         if (tg_op = 'INSERT') then
             perform pg_notify('{notification_insert}',
             json_build_object(
-                 'id', NEW.id_evento
+                 'id', NEW.{payload}
                )::text);
         end if;
 
@@ -42,7 +42,7 @@ def create_sql_function(schema, function_insert, notification_insert, function_u
         if (tg_op = 'UPDATE') then
             perform pg_notify('{notification_update}',
             json_build_object(
-                 'id', NEW.id_evento
+                 'id', NEW.{payload}
                )::text);
         end if;
 
@@ -78,7 +78,8 @@ def create_sql_trigger(schema, table, function_insert, trigger_insert, function_
     db.commit()
     db.executesql(create_trigger_update)
 
-elementi = [['eventi','join_tipo_foc'],['eventi','t_note_eventi']]
+# list of list, the inner list contains [schema, tabella, payload in a form of string]
+elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento'],['segnalazioni','t_incarichi','id']]
 
 def setup():
     """ Set up connection, run only one time"""
@@ -96,7 +97,7 @@ def setup():
         notification_name_update = f"new_{el[1]}_updated"
         trigger_name_update = f"after_updated_{el[1]}"
         
-        create_sql_function( el[0], function_name_insert, notification_name_insert , function_name_update , notification_name_update)
+        create_sql_function( el[0], function_name_insert, notification_name_insert , function_name_update , notification_name_update, el[2])
         create_sql_trigger( el[0], el[1], function_name_insert, trigger_name_insert, function_name_update, trigger_name_update)
         
     db.commit()
@@ -108,15 +109,23 @@ def ciao():
 
 def set_listen():
     # db._adapter.reconnect()
-    listen_n = f"LISTEN new_{elementi[0][1]}_added;"
-    listen_u = f"LISTEN new_{elementi[0][1]}_updated;"
+    listen_n_foc = f"LISTEN new_{elementi[0][1]}_added;"
+    listen_u_foc = f"LISTEN new_{elementi[0][1]}_updated;"
     listen_n_nota = f"LISTEN new_{elementi[1][1]}_added;"
     listen_u_nota = f"LISTEN new_{elementi[1][1]}_updated;"
+        #interventi
+    listen_n_interventi = f"LISTEN new_{elementi[2][1]}_added;"
+    listen_u_interventi = f"LISTEN new_{elementi[2][1]}_updated;"
+    
     #db.executesql("LISTEN new_item_added;")
-    db.executesql(listen_n)
-    db.executesql(listen_u)
+    db.executesql(listen_n_foc)
+    db.executesql(listen_u_foc)
     db.executesql(listen_n_nota)
     db.executesql(listen_u_nota)
+        #interventi
+    db.executesql(listen_n_interventi)
+    db.executesql(listen_u_interventi)
+    
     db.commit()
 
 def do_stuff(channel, **payload):
@@ -146,7 +155,12 @@ def do_stuff(channel, **payload):
     ]:
         out = syncEvento(mio_evento)
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
-
+    elif channel in [
+        f"new_{elementi[2][1]}_added",
+        f"new_{elementi[2][1]}_updated"
+    ]:
+        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+        
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
