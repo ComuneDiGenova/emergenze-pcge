@@ -11,6 +11,13 @@ fake_upload = Field('allegato', 'upload',
     uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
 )
 
+comunicazione_fields = [
+    db.comunicazione.mittente,
+    db.log.operatore,
+    db.comunicazione.testo,
+    fake_upload
+]
+
 UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
 
 
@@ -32,7 +39,7 @@ def valida_nuova_comunicazione_da_intervento(form):
     if msg:
         form.errors[fieldname] = msg
 
-def create(lavorazione_id, mittente, testo=None, allegato=None):
+def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
     """ """
 
     # segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
@@ -72,6 +79,12 @@ def create(lavorazione_id, mittente, testo=None, allegato=None):
         limitby = (0,1,),
         orderby = ~db.comunicazione.timeref
     ).first()
+
+    db.log.insert(
+        schema = 'segnalazioni',
+        operatore = operatore,
+        operazione = f'Inviata comunicazione a PC (relativa a Lavorazione "{lavorazione_id}")'
+    )
 
     return rec
 

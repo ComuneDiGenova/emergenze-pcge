@@ -412,17 +412,11 @@ def segnalazione_comunicazione_da_incarico():
     db.comunicazione.mittente.requires = IS_NOT_EMPTY()
 
     form = Form([
-        # Field('segnalazione_id', 'integer', label='Id Segnalazione', required=True,
-        #     comment = f'Inserisci un id Segnalazione valido compreso tra {res.idmin} e {res.idmax}',
-        #     requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
-        # ),
         Field('incarico_id', 'integer',
             label='Id Incarico', required=True,
             comment = f'Inserisci un id Incarico valido compreso tra {stat_incarico.idmin} e {stat_incarico.idmax}',
         ),
-        db.comunicazione.mittente,
-        db.comunicazione.testo,
-        segnalazione.comunicazione.fake_upload
+        *segnalazione.comunicazione.comunicazione_fields
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
         validation = segnalazione.comunicazione.valida_nuova_comunicazione,
@@ -462,9 +456,7 @@ def segnalazione_comunicazione_da_intervento():
             label='Id Incarico', required=True,
             comment = f'Inserisci un id Incarico valido compreso tra {stat_intervento.idmin} e {stat_intervento.idmax}',
         ),
-        db.comunicazione.mittente,
-        db.comunicazione.testo,
-        segnalazione.comunicazione.fake_upload
+        *segnalazione.comunicazione.comunicazione_fields
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
         validation = segnalazione.comunicazione.valida_nuova_comunicazione_da_intervento,
