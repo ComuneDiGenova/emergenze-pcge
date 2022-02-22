@@ -57,7 +57,11 @@ def create(lavorazione_id, mittente, testo=None, allegato=None):
             filepath,
             dest
         )
-        rdest = os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        #rdest = os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        rdest = os.path.join(
+            settings.EMERGENZE_UPLOAD,
+            os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        )
 
     row = db.comunicazione.insert(
         lavorazione_id = lavorazione_id,

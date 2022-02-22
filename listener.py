@@ -9,10 +9,32 @@ import json
 from .verbatel import syncEvento
 from . import evento
 import traceback
-
+from .incarico import after_insert_incarico, after_update_incarico
 #def create_sql_function(schema, table, function, trigger, notification):
 
-def create_sql_function(schema, function_insert, notification_insert, function_update, notification_update, payload):
+def create_sql_function(schema, function_name, notification_name, payload, action):
+    
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id', NEW.{payload}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
+
+
+def create_sql_function_true(schema, function_insert, notification_insert, function_update, notification_update, payload):
 
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_insert}()
         RETURNS trigger
@@ -52,8 +74,21 @@ def create_sql_function(schema, function_insert, notification_insert, function_u
 
     db.executesql(sql_notify_updated_item)
 
+def create_sql_trigger(schema, table, function_name, trigger_name, action):
+    clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
 
-def create_sql_trigger(schema, table, function_insert, trigger_insert, function_update, trigger_update):
+    create_trigger_insert = f"""CREATE TRIGGER {trigger_name}
+        AFTER {action}
+        ON "{schema}"."{table}"
+        FOR EACH ROW
+        EXECUTE PROCEDURE {schema}.{function_name}();"""
+
+    db.executesql(clear_trigger_insert)
+    db.commit()
+    db.executesql(create_trigger_insert)
+
+
+def create_sql_trigger_true(schema, table, function_insert, trigger_insert, function_update, trigger_update):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_insert} on "{schema}"."{table}"';
 
     create_trigger_insert = f"""CREATE TRIGGER {trigger_insert}
@@ -78,8 +113,9 @@ def create_sql_trigger(schema, table, function_insert, trigger_insert, function_
     db.commit()
     db.executesql(create_trigger_update)
 
-# list of list, the inner list contains [schema, tabella, payload in a form of string]
-elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento'],['segnalazioni','t_incarichi','id']]
+# list of list, the inner list contains [schema, tabella, payload in a form of string] 
+# # terzo elemento old ['segnalazioni','t_incarichi','id']
+elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento']]#,['segnalazioni','join_segnalazioni_incarichi','id_incarico']]
 
 def setup():
     """ Set up connection, run only one time"""
@@ -130,13 +166,16 @@ def set_listen():
 
 def do_stuff(channel, **payload):
 
-    mio_evento = evento.fetch(id=payload["id"])
+    #scrivere do_stuff in maniera che evento.fetch venga chiamata solo per gli eventi??
+    #mio_evento = evento.fetch(id=payload["id"])
 
     if channel in [
         f"new_{elementi[0][1]}_added", 
         f"new_{elementi[0][1]}_updated"
     ]:
         # Creazione/aggiornamento FOC
+        
+        mio_evento = evento.fetch(id=payload["id"])
         
         logger.debug(payload)
 
@@ -150,21 +189,31 @@ def do_stuff(channel, **payload):
                 evento_id = payload["id"]
             )
             logger.debug(f"Segnato! {newid}")
-    elif not mio_evento is None and channel in [
+    #elif not mio_evento is None and channel in [
+    elif channel in [
         f"new_{elementi[1][1]}_added",
         f"new_{elementi[1][1]}_updated"
     ]:
+        
         # Creazione/aggiornamento nota
         # INFO: Questo evento di fatto potrebbe essere inutile.
         # da interfaccia sembra che le note possano essere create solo in concomitanza
         # del nuovo evento e mai modificate.
-        out = syncEvento(mio_evento)
+        
+        mio_evento = evento.fetch(id=payload["id"])
+        
+        if not mio_evento is None:
+            out = syncEvento(mio_evento)
+            logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+            
+    elif channel in f"new_{elementi[2][1]}_updated":
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
-    elif channel in [
-        f"new_{elementi[2][1]}_added",
-        f"new_{elementi[2][1]}_updated"
-    ]:
+        after_update_incarico(payload["id"])
+        
+    elif channel in f"new_{elementi[2][1]}_added":   
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+        after_insert_incarico(payload["id"])
+        
         
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """

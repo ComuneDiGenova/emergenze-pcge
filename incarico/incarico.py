@@ -191,9 +191,11 @@ def fetch(id):
     
 
 def after_insert_incarico(id):
+    logger.debug(f"after insert incarico")
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
+        logger.debug(mio_incarico)
         if invia:
             # Invio info a PL
             response = Intervento.create(**mio_incarico)
@@ -204,9 +206,11 @@ def after_insert_incarico(id):
             )
 
 def after_update_incarico(id):
+    logger.debug(f"after update incarico")
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
+        logger.debug(f"{invia}")
         if invia:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
