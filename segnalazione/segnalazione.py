@@ -239,7 +239,20 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
 
 def verbatel_update(intervento_id, *args, **kwars):
     """ """
-    segnalazione_id = db.intervento(intervento_id=intervento_id).segnalazione_id
+    # segnalazione_id = db.intervento(intervento_id=intervento_id).segnalazione_id
+
+    segnalazione_id = db(
+        (db.intervento.incarico_id==db.incarico.id) & \
+        (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
+        (db.intervento.intervento_id==intervento_id)
+    ).select(
+        # db.intervento.ALL,
+        db.join_segnalazione_lavorazione.segnalazione_id,
+        limitby = (0,1,)
+    ).first().segnalazione_id
+
+
+
     return update(segnalazione_id, *args, **kwars)
 
 
@@ -309,7 +322,7 @@ def upgrade(segnalazione_id, operatore,
             lavorazione_id = lavorazione_id,
             profilo_id = profilo.id,
             descrizione = descrizione_incarico,
-            municipio_id = segnalazione.municipio_id 
+            municipio_id = segnalazione.municipio_id
         )
         logger.debug(f'Creato incarico: {incarico_id}')
         return lavorazione_id, incarico_id
@@ -347,22 +360,22 @@ def after_insert_lavorazione(id):
                 lavorazione_id = id,
                 profilo_id = 6,
                 descrizione = descrizione_incarico,
-                municipio_id = rec.segnalazione.municipio_id 
+                municipio_id = rec.segnalazione.municipio_id
             )
             logger.debug(f'Creato incarico: {incarico_id}')
-        
+
             return incarico_id
 
 
 # def render(row):
-# 
+#
 #     if row.in_lavorazione is None:
 #         stato = 1 # Da prendere in carico
 #     elif row.in_lavorazione is True:
 #         stato = 2 # In lavorazione
 #     else:
 #         stato = 3 # Chiusa
-# 
+#
 #     localizzazione = {}
 #     indirizzo = f'{row.desvia}, {row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}' #.encode()
 #     if row.civico_id is None:
@@ -371,43 +384,43 @@ def after_insert_lavorazione(id):
 #     else:
 #         localizzazione['tipoLocalizzazione'] = 1
 #         localizzazione['civico'] = indirizzo
-# 
+#
 #     # tipoRichiesta TODO
 #     #   1: Intervento da gestire dalla PL
 #     #   2: Intervento gestito dalla PC su cui PL ha visibilità. In questo caso è
 #     #       necessario notificare le modifiche della segnalazione a Verbatel.
 #     #   3: Richiesta di ausilio su intervento gestito dalla PC
-# 
-# 
+#
+#
 #     if row.profilo_utilizatore.id==6:
 #         tipoRichiesta = 1
 #     elif row.profilo_utilizatore.id==3:
 #         tipoRichiesta = 2
 #     else:
 #         raise NotImplementedError()
-# 
+#
 #     geom = json.loads(row.geom)
 #     lon, lat = geom['coordinates']
-# 
+#
 #     # datiPattuglia DA DEFINIRE
 #     # motivoRifiuto
-# 
+#
 #     # dataInLavorazione
 #     # dataChiusura
-# 
+#
 #     # dataRifiuto
 #     # dataRiapertura
-# 
+#
 #     return dict(
 #         tipoRichiesta = tipoRichiesta,
 #         stato = stato,
 #         idSegnalazione = row.id,
 #         eventoId = row.evento_id,
 #         operatore = row.operatore,
-# 
+#
 #         nomeStrada = row.desvia,
 #         codiceStrada = row.codvia,
-# 
+#
 #         tipoIntervento = row.criticita_id,
 #         noteOperative = row.note,
 #         reclamante = row.reclamante,
@@ -421,7 +434,7 @@ def after_insert_lavorazione(id):
 
 
 # def fetch(id):
-# 
+#
 #     result = db(
 #         (db.segnalazione.id==id) & \
 #         (db.segnalante.id == db.segnalazione.segnalante_id) & \
@@ -467,4 +480,3 @@ def after_insert_lavorazione(id):
 #         limitby = (0,1,)
 #     ).first()
 #     return render(result)
-

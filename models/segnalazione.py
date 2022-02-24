@@ -182,7 +182,7 @@ db.define_table('incarico',
     Field('start', 'datetime', rname='time_start'),
     Field('stop', 'datetime', rname='time_stop'),
     Field('note', rname='note_ente'),
-    Field('rifiuto', rname='note_rifiuto'),
+    Field('rifiuto', label='Note di rifiuto', rname='note_rifiuto'),
     rname = f'{SCHEMA}.t_incarichi'
 )
 

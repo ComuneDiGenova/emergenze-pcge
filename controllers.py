@@ -386,6 +386,7 @@ def modifica_intervento(intervento_id=None):
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
+            # import pdb; pdb.set_trace()
             result = _segnalazione.verbatel_update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
