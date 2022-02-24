@@ -24,7 +24,7 @@ UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
 def valida_nuova_comunicazione(form):
     """ """
     fieldname = 'incarico_id'
-    
+
     _, msg = IS_IN_DB(db(db.incarico), db.incarico.id)(form.vars[fieldname])
 
     if msg:
@@ -33,14 +33,20 @@ def valida_nuova_comunicazione(form):
 def valida_nuova_comunicazione_da_intervento(form):
     """ """
     fieldname = 'intervento_id'
-    
+
     _, msg = IS_IN_DB(db(db.intervento), db.intervento.intervento_id)(form.vars[fieldname])
 
     if msg:
         form.errors[fieldname] = msg
 
 def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
-    """ """
+    """
+    lavorazione_id @integer :
+    mittente        @string :
+    operatore       @string :
+    testo           @string :
+    allegato        @string :
+    """
 
     # segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
 
@@ -64,7 +70,11 @@ def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
             filepath,
             dest
         )
-        rdest = os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        rdest = os.path.join(
+            os.path.basename(settings.EMERGENZE_UPLOAD),
+            os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        )
+
 
     row = db.comunicazione.insert(
         lavorazione_id = lavorazione_id,
