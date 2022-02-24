@@ -311,6 +311,12 @@ def segnalazione_form():
         ),
     ]
 
+def incarico_form():
+
+    return [
+        
+    ]
+
 
 @action('modifica/segnalazione', method=['GET', 'POST'])
 @action('ModificaSegnalazione', method=['GET', 'POST'])

@@ -45,7 +45,7 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
     return incarico_id
 
 
-def update(id, stato=None, **values):
+def update(id, profilo_id, descrizione, stop, note, rifiuto, stato):
     """ """
 
     if not municipio_id is None:
@@ -53,11 +53,11 @@ def update(id, stato=None, **values):
 
     db.incarico.update(**db.incarico._filter_fields(values))
 
-    # TODO: 
-        
+    # TODO:
 
 
-    
+
+
 
 
 def upgrade(id):
@@ -188,7 +188,7 @@ def fetch(id):
         limitby = (0,1,)
     ).first()
     return result.segnalazione_lavorazione.profilo_id!=6, render(result)
-    
+
 
 def after_insert_incarico(id):
     if db.intervento(incarico_id=id) is None:
@@ -197,7 +197,7 @@ def after_insert_incarico(id):
         if invia:
             # Invio info a PL
             response = Intervento.create(**mio_incarico)
-            # Registro 
+            # Registro
             db.intervento.insert(
                 intervento_id = response['idIntervento'],
                 incarico_id = id
@@ -211,10 +211,8 @@ def after_update_incarico(id):
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = Intervento.update(incarico_id, **mio_incarico)
-            # Registro 
+            # Registro
             db.intervento.insert(
                 intervento_id = response['idIntervento'],
                 incarico_id = id
             )
-
-

@@ -6,6 +6,8 @@ from pydal import geoPoint
 from pydal.validators import *
 import json
 
+from inspect import signature
+
 DEFAULT_TIPO_SEGNALANTE = 1 # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = db(db.profilo_utilizatore.id==6).select(db.profilo_utilizatore.descrizione).first().descrizione
 
@@ -237,9 +239,8 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
         return 'Ok'
 
 
-def verbatel_update(intervento_id, *args, **kwars):
+def verbatel_update(intervento_id, **kwars):
     """ """
-    # segnalazione_id = db.intervento(intervento_id=intervento_id).segnalazione_id
 
     segnalazione_id = db(
         (db.intervento.incarico_id==db.incarico.id) & \
@@ -251,9 +252,11 @@ def verbatel_update(intervento_id, *args, **kwars):
         limitby = (0,1,)
     ).first().segnalazione_id
 
+    # Aggiornamento dati di Segnalazione
+
+    update(segnalazione_id, **kwars)
 
 
-    return update(segnalazione_id, *args, **kwars)
 
 
 def upgrade(segnalazione_id, operatore,
