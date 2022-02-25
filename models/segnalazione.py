@@ -171,17 +171,29 @@ db.define_table('incarico',
     Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
     Field('profilo_id', 'reference profilo_utilizatore',
         notnull=True, required=True,
-        requires = IS_IN_DB(db(db.profilo_utilizatore), db.profilo_utilizatore.id),
+        requires = IS_IN_DB(
+            db(db.profilo_utilizatore),
+            db.profilo_utilizatore.id,
+            
+        ),
         rname='id_profilo'
     ),
     Field('descrizione', required=True, notnull=True),
     Field('uo_id', rname='id_uo', required=True, notnull=True,
         requires = IS_IN_SET(list(unita_operative))
     ),
-    Field('preview', 'datetime', rname='time_preview'),
-    Field('start', 'datetime', rname='time_start'),
-    Field('stop', 'datetime', rname='time_stop'),
-    Field('note', rname='note_ente'),
+    Field('preview', 'datetime', label='Inizio incarico previsto',
+        rname='time_preview'
+    ),
+    Field('start', 'datetime', label='Inizio incarico',
+        comment = 'Inizio incarico effettivo',
+        rname='time_start'
+    ),
+    Field('stop', 'datetime', label='Fine incarico',
+        comment = 'Fine incarico',
+        rname='time_stop'
+    ),
+    Field('note', rname='note_ente', label='Note di incarico/intervento'),
     Field('rifiuto', label='Note di rifiuto', rname='note_rifiuto'),
     rname = f'{SCHEMA}.t_incarichi'
 )
@@ -193,10 +205,12 @@ db.define_table('stato_incarico',
         rname='id_incarico'
     ),
     Field('stato_id', 'reference tipo_stato_incarico',
+        label = "Stato dell'incarico o intervento",
         required=True, notnull=True,
         requires = IS_IN_DB(
             db(db.tipo_stato_incarico.valido!=False),
-            db.tipo_stato_incarico.id
+            db.tipo_stato_incarico.id,
+            db.tipo_stato_incarico.descrizione
         ),
         rname='id_stato_incarico'
     ),
@@ -206,6 +220,15 @@ db.define_table('stato_incarico',
     Field('parziale', 'boolean', default=False, notnull=True),
     primarykey = ['incarico_id', 'stato_id', 'timeref'],
     rname = f'{SCHEMA}.stato_incarichi'
+)
+
+db.define_table('comunicazione_incarico',
+    Field('incarico_id', 'reference incarico', rname='id_incarico'),
+    Field('testo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['incarico_id', 'timeref'],
+    rname=f'{SCHEMA}.t_comunicazioni_incarichi'
 )
 
 db.define_table('join_segnalazione_incarico',

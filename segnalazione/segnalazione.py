@@ -5,8 +5,7 @@ from .. import incarico
 from pydal import geoPoint
 from pydal.validators import *
 import json
-
-from inspect import signature
+import datetime
 
 DEFAULT_TIPO_SEGNALANTE = 1 # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = db(db.profilo_utilizatore.id==6).select(db.profilo_utilizatore.descrizione).first().descrizione
@@ -50,7 +49,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     tipo_segnalante_id=DEFAULT_TIPO_SEGNALANTE, municipio_id=None,
     telefono=None, note=None, nverde=False, note_geo=None,
     civico_id=None, persone_a_rischio=None, tabella_oggetto_id=None,
-    note_riservate=None, assegna=True
+    note_riservate=None, assegna=True, **kwargs
 ):
     """
     Funzione dedicata alla creazione di una nuova Segnalazione.
@@ -167,7 +166,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     )
 
     if assegna:
-        lavorazione_id, incarico_id = upgrade(segnalazione_id, operatore, profilo_id=6)
+        lavorazione_id, incarico_id = upgrade(segnalazione_id, operatore, profilo_id=6, **kwargs)
         return segnalazione_id, lavorazione_id, incarico_id,
     else:
         return segnalazione_id, None, None,
@@ -186,11 +185,9 @@ def verbatel_create(intervento_id, *args, **kwargs):
 
     return incarico_id
 
-def update_(segnalazione_id, segnalante_id, lon_lat=None, persone_a_rischio=None,
+def update_(segnalazione_id, segnalante_id, persone_a_rischio=None,
     **kwargs):
-    """
-
-    Funzione dedicata all'aggiornamento dei dati di Segnalazione
+    """ Funzione dedicata all'aggiornamento dei dati di Segnalazione
 
     """
 
@@ -200,16 +197,12 @@ def update_(segnalazione_id, segnalante_id, lon_lat=None, persone_a_rischio=None
     #         (db.tipo_criticita.valido==True)
     #     ).select(db.tipo_criticita.id).first().id
 
-    if not lon_lat is None:
-        kwargs['geom'] = geoPoint(*lon_lat)
-        kwargs['municipio_id'] = db(db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))).select(db.municipio.codice).first().codice
-
     if not persone_a_rischio is None:
         kwargs['rischio'] = persone_a_rischio
 
     db(db.segnalazione.id==segnalazione_id).update(
         segnalante_id = segnalante_id,
-        **kwargs
+        **db.segnalazione._filter_fields(kwargs)
     )
 
 
@@ -239,28 +232,34 @@ def update(segnalazione_id, nome, telefono, operatore, note=None,
         return 'Ok'
 
 
-def verbatel_update(intervento_id, **kwars):
+def verbatel_update(intervento_id, lon_lat=None, **kwargs):
     """ """
 
-    segnalazione_id = db(
+    segnalazione = db(
         (db.intervento.incarico_id==db.incarico.id) & \
         (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
         (db.intervento.intervento_id==intervento_id)
     ).select(
         # db.intervento.ALL,
-        db.join_segnalazione_lavorazione.segnalazione_id,
+        db.intervento.incarico_id.with_alias('incarico_id'),
+        db.join_segnalazione_lavorazione.segnalazione_id.with_alias('segnalazione_id'),
         limitby = (0,1,)
-    ).first().segnalazione_id
+    ).first()
+
+    if not lon_lat is None:
+        kwargs['geom'] = geoPoint(*lon_lat)
+        kwargs['municipio_id'] = db(db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))).select(db.municipio.codice).first().codice
+        kwargs['uo_id'] = incarico.get_uo_id(kwargs['municipio_id'])
 
     # Aggiornamento dati di Segnalazione
+    update(segnalazione.segnalazione_id, **kwargs)
 
-    update(segnalazione_id, **kwars)
-
-
+    # Aggiornamento dati di incarico
+    return incarico.upgrade(segnalazione.incarico_id, **kwargs)
 
 
 def upgrade(segnalazione_id, operatore,
-    sospeso=False, profilo_id=6
+    sospeso=False, profilo_id=6, preview=None, stato_id=incarico.DEFAULT_TIPO_STATO
 ):
     """
 
@@ -271,6 +270,9 @@ def upgrade(segnalazione_id, operatore,
     profilo_id      @integer : Id del profilo utilizzatore assegnatario della
                                segnalazione (default: 'Emergenza Distretto PM')
     sospeso         @boolean : Sospendere la segnalazione?
+    preview        @datetime : Inizio previsto incarico
+    stato_id        @integer : Id stato incarico
+                               (Default: 'Inviato ma non ancora preso in carico')
 
     Cosa restiuisce:
         lavorazione_id, incarico_id
@@ -325,7 +327,9 @@ def upgrade(segnalazione_id, operatore,
             lavorazione_id = lavorazione_id,
             profilo_id = profilo.id,
             descrizione = descrizione_incarico,
-            municipio_id = segnalazione.municipio_id
+            municipio_id = segnalazione.municipio_id,
+            stato_id = stato_id,
+            preview = preview
         )
         logger.debug(f'Creato incarico: {incarico_id}')
         return lavorazione_id, incarico_id

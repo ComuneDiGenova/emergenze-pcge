@@ -39,6 +39,8 @@ from . import segnalazione as _segnalazione
 # from .segnalazione import comunicazione as _comunicazione
 from . import segnalazione
 
+from .incarico import incarico
+
 from mptools.frameworks.py4web import shampooform as sf
 from mptools.frameworks.py4web.controller import CORS # , ApiForm
 
@@ -167,6 +169,7 @@ def fetch_segnalazione(id):
 @action('crea_segnalazione', method=['GET', 'POST'])
 @action('crea/segnalazione', method=['GET', 'POST'])
 @action('CreaSegnalazione', method=['GET', 'POST'])
+@action('intervento', method=['GET', 'POST'])
 @action.uses(db)
 def ws_segnalazione():
     """ """
@@ -198,6 +201,21 @@ def ws_segnalazione():
         db(db.intervento), db.intervento.intervento_id
     )]
     db.intervento.intervento_id.comment = "Inserire un nuovo identificativo di intervento Verbatel"
+
+    db.stato_incarico.stato_id.default = incarico.DEFAULT_TIPO_STATO
+
+    db.stato_incarico.stato_id.requires = IS_EMPTY_OR(IS_IN_DB(
+        db(
+            (db.tipo_stato_incarico.valido!=False) & \
+            db.tipo_stato_incarico.id.belongs([1, 2])
+        ),
+        db.tipo_stato_incarico.id,
+        db.tipo_stato_incarico.descrizione,
+        zero = None
+    ))
+
+    if not 'stato_id' in request.POST:
+        request.POST['stato_id'] = incarico.DEFAULT_TIPO_STATO
 
     form = Form([
         db.intervento.intervento_id,
@@ -254,6 +272,8 @@ def ws_segnalazione():
             comment=db.segnalazione_riservata.testo.comment,
         ),
         db.segnalante.telefono,
+        db.stato_incarico.stato_id,
+        db.incarico.preview,
         Field('ceduta', 'boolean',
             label = 'Indica la segnalazione come NON in carico a PM'
         )
@@ -273,6 +293,8 @@ def ws_segnalazione():
             form.vars['lon_lat'] = (lon, lat,)
             form.vars['assegna'] = not form.vars.pop('ceduta')
             result =_segnalazione.verbatel_create(**form.vars)
+    # else:
+    #     import pdb; pdb.set_trace()
 
     return {'result': result, 'form': sf.form2dict(form)}
 
@@ -298,6 +320,8 @@ def segnalazione_form():
         db.segnalante.telefono,
         db.segnalazione.operatore, # TODO: Introdurre validazione (CF valido o matricola in db ??? )
         db.segnalante.note,
+        Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
+        Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
         # db.segnalante.tipo_segnalante_id,
         Field('descrizione', required=False),
         Field('note_geo',
@@ -314,16 +338,24 @@ def segnalazione_form():
 def incarico_form():
 
     return [
-        
+        # db.incarico.uo_id,
+        db.incarico.preview,
+        db.incarico.start,
+        db.incarico.stop,
+        # db.incarico.note,
+        db.incarico.rifiuto,
+        db.stato_incarico.stato_id,
+        db.stato_incarico.parziale
     ]
 
 
 @action('modifica/segnalazione', method=['GET', 'POST'])
 @action('ModificaSegnalazione', method=['GET', 'POST'])
 @action('modifica_segnalazione', method=['GET', 'POST'])
-@action('segnalazione/<segnalazione_id>', method=['GET', 'POST'])
+@action('segnalazione/<segnalazione_id:int>', method=['GET', 'POST'])
 @action.uses(db)
 def modifica_segnalazione(segnalazione_id=None):
+    """ DEPRECATO ?!? """
 
     if not segnalazione_id is None:
         request.POST['segnalazione_id'] = segnalazione_id
@@ -355,6 +387,9 @@ def modifica_segnalazione(segnalazione_id=None):
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
+            lon = form.vars.pop('lon')
+            lat = form.vars.pop('lat')
+            form.vars['lon_lat'] = (lon, lat,)
             result = _segnalazione.update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
@@ -363,7 +398,7 @@ def modifica_segnalazione(segnalazione_id=None):
 @action('modifica/intervento', method=['GET', 'POST'])
 @action('ModificaIntervento', method=['GET', 'POST'])
 @action('modifica_intervento', method=['GET', 'POST'])
-@action('intervento/<intervento_id>', method=['GET', 'POST'])
+@action('intervento/<intervento_id:int>', method=['GET', 'POST'])
 @action.uses(db)
 def modifica_intervento(intervento_id=None):
 
@@ -377,11 +412,11 @@ def modifica_intervento(intervento_id=None):
 
     db.intervento.intervento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
 
-    form = Form([db.intervento.intervento_id] + segnalazione_form(),
+    form = Form([db.intervento.intervento_id] + segnalazione_form() + incarico_form(),
         deletable = False, dbio=False,
         validation = _segnalazione.valida_intervento,
         hidden = {'rollback': False},
-        form_name = 'modifica_segnalazione',
+        form_name = 'modifica_intervento',
         csrf_protection = False
     )
 
@@ -392,7 +427,9 @@ def modifica_intervento(intervento_id=None):
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
-            # import pdb; pdb.set_trace()
+            lon = form.vars.pop('lon')
+            lat = form.vars.pop('lat')
+            form.vars['lon_lat'] = (lon, lat,)
             result = _segnalazione.verbatel_update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
@@ -403,9 +440,14 @@ def modifica_intervento(intervento_id=None):
 @action('crea/comunicazione', method=['GET', 'POST'])
 @action('CreaComunicazione', method=['GET', 'POST'])
 @action('segnalazione/incarico/comunicazione', method=['GET', 'POST'])
+@action('incarico/comunicazione', method=['GET', 'POST'])
+@action('comunicazione/incarico/<incarico_id:int>', method=['GET', 'POST'])
 @action.uses(db)
-def segnalazione_comunicazione_da_incarico():
+def segnalazione_comunicazione_da_incarico(incarico_id=None):
     """ """
+
+    if not incarico_id is None:
+        request.POST['incarico_id'] = incarico_id
 
     # res = db(db.segnalazioni_utili).select(
     #     db.segnalazioni_utili.id.min().with_alias('idmin'),
@@ -444,9 +486,14 @@ def segnalazione_comunicazione_da_incarico():
 
 
 @action('segnalazione/intervento/comunicazione', method=['GET', 'POST'])
+@action('intervento/comunicazione', method=['GET', 'POST'])
+@action('comunicazione/intervento/<intervento_id:int>', method=['GET', 'POST'])
 @action.uses(db)
-def segnalazione_comunicazione_da_intervento():
+def segnalazione_comunicazione_da_intervento(intervento_id=None):
     """ """
+
+    if not intervento_id is None:
+        request.POST['intervento_id'] = intervento_id
 
     stat_intervento = db(db.intervento).select(
         db.intervento.id.min().with_alias('idmin'),

@@ -3,6 +3,9 @@
 import json
 from ..common import db, logger
 from ..verbatel import Intervento
+import datetime
+
+DEFAULT_TIPO_STATO = 1
 
 WARNING = '( Al momento NON è richiesto alcun intervento da parte di PM )'
 
@@ -16,8 +19,9 @@ get_uo_id = lambda id: db(db.municipio)(
     limitby = (0,1,)
 ).first()[uo_value]
 
+
 def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_id,
-    preview=None, start=None, stop=None, note=None, stato=2
+    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO
 ):
 
     uo_id = get_uo_id(municipio_id)
@@ -26,15 +30,14 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
         profilo_id = profilo_id,
         descrizione = descrizione,
         uo_id = uo_id,
-        preview = preview,
-        start = start,
-        stop = stop,
+        preview = preview if stato_id==1 else datetime.datetime.now(),
+        start = datetime.datetime.now() if stato_id==2 else None,
         note = note
     )
 
     stato_id = db.stato_incarico.insert(
         incarico_id = incarico_id,
-        stato_id = stato
+        stato_id = stato_id
     )
 
     join_id = db.join_segnalazione_incarico.insert(
@@ -45,23 +48,74 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
     return incarico_id
 
 
-def update(id, profilo_id, descrizione, stop, note, rifiuto, stato):
-    """ """
+def update(id, descrizione, municipio_id,
+    profilo_id=6, preview=None, start=None, stop=None, note=None, rifiuto=None,
+    **_
+):
+    """ Funzione dedicata all'aggiornamento dei dati di Incarico
 
-    if not municipio_id is None:
-        values['uo_id'] = get_uo_id(municipio_id)
+    id          @string : Id incarico
+    descrizione @string : Descrizione
+    uo_id       @string :
+    profilo_id @integer : Id del profilo mittente (Default: 6 - Emergenza Distretto PM (Tutti i distretti di Polizia Municipale))
+    stop      @datetime :
+    note      @datetime :
+    rifiuto     @string :
 
-    db.incarico.update(**db.incarico._filter_fields(values))
+    """
 
-    # TODO:
+    uo_id = get_uo_id(municipio_id)
+
+    return db(db.incarico.id==id).update(
+        profilo_id = profilo_id,
+        descrizione = descrizione,
+        uo_id = uo_id,
+        preview = preview,
+        start = start,
+        stop = stop,
+        note = note,
+        rifiuto = rifiuto
+    )
 
 
+def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
+    """ Funzione dedicata all'aggiornamento dell'Incarico
 
+    """
 
+    lavorazione_id = db.join_segnalazione_incarico(incarico_id=id).lavorazione_id
 
+    db.stato_incarico.insert(
+        incarico_id = id,
+        stato_id = stato_id,
+        parziale = parziale
+    )
 
-def upgrade(id):
-    """ """
+    if not note is None:
+        db.comunicazione_incarico.insert(
+            incarico_id = id,
+            testo = note
+        )
+
+    parzialmente = '(parzialmente) ' if parziale else ''
+    messaggio = f'Incarico "{id}" preso in carico{parzialmente} dalla seguente U.O.: "{uo_id}" - <a class="btn btn-info" href="dettagli_incarico.php?id="{id}"> Visualizza dettagli </a>'
+
+    db.storico_segnalazione_lavorazione.insert(
+        lavorazione_id = lavorazione_id,
+        aggiornamento = messaggio
+    )
+
+    # if (stato_id==3 and not 'stop' in kwargs) and not db.stato_incarico(incarico_id=id, stato_id=stato_id):
+    #     kwargs['stop'] = datetime.datetime.now()
+
+    if stato_id==2:
+        kwargs['start'] = datetime.datetime.now()
+        # if not kwargs.get(preview):
+        #     kwargs['preview'] = kwargs['start']
+    elif stato_id==3:
+        kwargs['stop'] = datetime.datetime.now()
+
+    return update(id, uo_id=uo_id, **kwargs)
 
 
 def render(row):
