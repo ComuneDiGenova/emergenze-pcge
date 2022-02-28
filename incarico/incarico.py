@@ -90,12 +90,12 @@ def render(row):
     #   2: Intervento gestito dalla PC su cui PL ha visibilità. In questo caso è
     #       necessario notificare le modifiche della segnalazione a Verbatel.
     #   3: Richiesta di ausilio su intervento gestito dalla PC
-
+    
     if row.profilo_utilizatore.id==6 and row.incarico.profilo_id==6:
         tipoRichiesta = 1
-    elif row.incarico.profilo_id==6 and row.note.contains(WARNING):
+    elif row.incarico.profilo_id==3 and WARNING in row.note:
         tipoRichiesta = 2
-    elif row.incarico.profilo_id==6:
+    elif row.incarico.profilo_id==3:
         tipoRichiesta = 3
     else:
         logger.error(f'Situazione non prevista: {row}')
@@ -117,14 +117,14 @@ def render(row):
         motivoRifiuto = row.motivo_rifiuto,
         nomeStrada = row.desvia,
         codiceStrada = row.codvia,
-        dataInLavorazione = row.inizio.isoformat(),
-        dataChiusura = row.fine.isoformat(),
+        dataInLavorazione = row.inizio and row.inizio.isoformat(),
+        dataChiusura =  row.fine and row.fine.isoformat(),
         tipoIntervento = row.criticita_id,
         noteOperative = row.note,
         reclamante = row.reclamante,
         telefonoReclamante = row.telefono,
         # tipoRichiesta =
-        dataInserimento = row.inizio.isoformat(),
+        dataInserimento =  row.inizio and row.inizio.isoformat(),
         longitudine = lon,
         latitudine = lat,
         **localizzazione
@@ -142,6 +142,7 @@ def fetch(id):
         (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
         (db.segnalante.id == db.segnalazione.segnalante_id) & \
         (db.segnalazione.evento_id == db.evento.id) & \
+        (db.incarico.id==id) & \
         "eventi.t_eventi.valido is not false"
     ).select(
         db.incarico.id.with_alias('id'),
