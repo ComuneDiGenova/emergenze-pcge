@@ -174,7 +174,7 @@ db.define_table('incarico',
         requires = IS_IN_DB(
             db(db.profilo_utilizatore),
             db.profilo_utilizatore.id,
-            
+
         ),
         rname='id_profilo'
     ),

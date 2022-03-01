@@ -14,7 +14,7 @@ from .incarico import after_insert_incarico, after_update_incarico
 #def create_sql_function(schema, table, function, trigger, notification):
 
 def create_sql_function(schema, function_name, notification_name, payload, action):
-    
+
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
         RETURNS trigger
          LANGUAGE 'plpgsql'
@@ -55,7 +55,7 @@ def create_sql_function_true(schema, function_insert, notification_insert, funct
     $BODY$;"""
 
     db.executesql(sql_notify_new_item)
-    
+
     sql_notify_updated_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_update}()
         RETURNS trigger
          LANGUAGE 'plpgsql'
@@ -101,7 +101,7 @@ def create_sql_trigger_true(schema, table, function_insert, trigger_insert, func
     db.executesql(clear_trigger_insert)
     db.commit()
     db.executesql(create_trigger_insert)
-    
+
     clear_trigger_update = f'DROP TRIGGER IF EXISTS {trigger_update} on "{schema}"."{table}"';
 
     create_trigger_update = f"""CREATE TRIGGER {trigger_update}
@@ -114,10 +114,18 @@ def create_sql_trigger_true(schema, table, function_insert, trigger_insert, func
     db.commit()
     db.executesql(create_trigger_update)
 
-# list of list, the inner list contains [schema, tabella, payload in a form of string] 
+# list of list, the inner list contains [schema, tabella, payload in a form of string]
 # # terzo elemento old ['segnalazioni','t_incarichi','id']
-elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento']]#,['segnalazioni','join_segnalazioni_incarichi','id_incarico']]
-segnalaz = [['segnalazioni','join_segnalazioni_incarichi','id_incarico'], ['segnalazioni','t_incarichi','id'],['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione']]
+elementi = [
+    ['eventi','join_tipo_foc', 'id_evento'],
+    ['eventi','t_note_eventi','id_evento']
+    #,['segnalazioni','join_segnalazioni_incarichi','id_incarico']
+]
+segnalaz = [
+    ['segnalazioni','join_segnalazioni_incarichi','id_incarico'],
+    ['segnalazioni','t_incarichi','id'],
+    ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione']
+]
 
 def setup():
     """ Set up connection, run only one time"""
@@ -126,42 +134,42 @@ def setup():
     #elementi = [['segnalazioni','t_segnalazioni']]
     # per quanto  concerne gli eventi
     for el in elementi:
-        
+
         function_name_insert = f"notify_new_{el[1]}"
         notification_name_insert = f"new_{el[1]}_added"
         trigger_name_insert = f"after_insert_{el[1]}"
-        
+
         function_name_update = f"notify_updated_{el[1]}"
         notification_name_update = f"new_{el[1]}_updated"
         trigger_name_update = f"after_updated_{el[1]}"
-        
+
         create_sql_function_true( el[0], function_name_insert, notification_name_insert , function_name_update , notification_name_update, el[2])
         create_sql_trigger_true( el[0], el[1], function_name_insert, trigger_name_insert, function_name_update, trigger_name_update)
-         
+
     db.commit()
-    
+
 def setup_segn():
     """ setup segnalaz"""
-    # per quanto concerne le segnalaz 
+    # per quanto concerne le segnalaz
     function_name_n = f"notify_new_{segnalaz[0][1]}"
     notification_name_n = f"new_{segnalaz[0][1]}_added"
     trigger_name_n = f"after_insert_{segnalaz[0][1]}"
     create_sql_function(segnalaz[0][0], function_name_n, notification_name_n, segnalaz[0][2], "INSERT")
     create_sql_trigger(segnalaz[0][0], segnalaz[0][1], function_name_n, trigger_name_n, "INSERT")
-    
+
     function_name_u = f"notify_updated_{segnalaz[1][1]}"
     notification_name_u = f"new_{segnalaz[1][1]}_updated"
     trigger_name_u = f"after_updated_{segnalaz[1][1]}"
     create_sql_function(segnalaz[1][0], function_name_u, notification_name_u, segnalaz[1][2], "UPDATE")
-    create_sql_trigger(segnalaz[1][0], segnalaz[1][1], function_name_u, trigger_name_u, "UPDATE")   
-    
+    create_sql_trigger(segnalaz[1][0], segnalaz[1][1], function_name_u, trigger_name_u, "UPDATE")
+
     function_name_n = f"notify_new_{segnalaz[2][1]}"
     notification_name_n = f"new_{segnalaz[2][1]}_added"
     trigger_name_n = f"after_insert_{segnalaz[2][1]}"
     create_sql_function(segnalaz[2][0], function_name_n, notification_name_n, segnalaz[2][2], "INSERT")
     create_sql_trigger(segnalaz[2][0], segnalaz[2][1], function_name_n, trigger_name_n, "INSERT")
     db.commit()
-    
+
 def ciao():
     """ test pourpouses"""
     print("hell-o")
@@ -178,7 +186,7 @@ def set_listen():
     listen_u_interventi = f"LISTEN new_{segnalaz[1][1]}_updated;"
             #segnalaz
     listen_n_interventi_lav = f"LISTEN new_{segnalaz[2][1]}_updated;"
-    
+
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
     db.executesql(listen_u_foc)
@@ -187,9 +195,9 @@ def set_listen():
         #interventi
     db.executesql(listen_n_interventi)
     db.executesql(listen_u_interventi)
-    
+
     db.executesql(listen_n_interventi_lav)
-    
+
     db.commit()
 
 def do_stuff(channel, **payload):
@@ -198,13 +206,13 @@ def do_stuff(channel, **payload):
     #mio_evento = evento.fetch(id=payload["id"])
 
     if channel in [
-        f"new_{elementi[0][1]}_added", 
+        f"new_{elementi[0][1]}_added",
         f"new_{elementi[0][1]}_updated"
     ]:
         # Creazione/aggiornamento FOC
-        
+
         mio_evento = evento.fetch(id=payload["id"])
-        
+
         logger.debug(payload)
 
         # In caso di FOC mio_evento NON deve poter essere nullo
@@ -222,32 +230,32 @@ def do_stuff(channel, **payload):
         f"new_{elementi[1][1]}_added",
         f"new_{elementi[1][1]}_updated"
     ]:
-        
+
         # Creazione/aggiornamento nota
         # INFO: Questo evento di fatto potrebbe essere inutile.
         # da interfaccia sembra che le note possano essere create solo in concomitanza
         # del nuovo evento e mai modificate.
-        
+
         mio_evento = evento.fetch(id=payload["id"])
-        
+
         if not mio_evento is None:
             out = syncEvento(mio_evento)
             logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
-    
+
     #listen_n_interventi = f"LISTEN new_{segnalaz[0][1]}_added;"
-    #listen_u_interventi = f"LISTEN new_{segnalaz[1][1]}_updated;"      
+    #listen_u_interventi = f"LISTEN new_{segnalaz[1][1]}_updated;"
     elif channel in f"new_{segnalaz[1][1]}_updated":
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_update_incarico(payload["id"])
-        
-    elif channel in f"new_{segnalaz[0][1]}_added":   
+
+    elif channel in f"new_{segnalaz[0][1]}_added":
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_incarico(payload["id"])
-    elif channel in f"new_{segnalaz[2][1]}_added":   
+    elif channel in f"new_{segnalaz[2][1]}_added":
         logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_lavorazione(payload["id"])
-       
-        
+
+
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
@@ -286,10 +294,8 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    
+
     if args.setup:
         setup()
 
     listen()
-    
-

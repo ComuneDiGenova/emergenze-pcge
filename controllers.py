@@ -528,3 +528,54 @@ def segnalazione_comunicazione_da_intervento(intervento_id=None):
         output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
 
     return output
+
+# TODO: Parte work in progress
+
+# PREFIX = 'c'
+#
+# componente_form = lambda num=0: [
+#     # Field('{}')
+# ]
+
+uo_value = "concat('com_','PO' || codice_mun::text)" # 'PO'::text || m.codice_mun::text AS cod,
+uo_label = "'Distretto ' || codice_mun::text"
+
+@action('presidio', method=['GET', 'POST'])
+@action('pattuglia', method=['GET', 'POST'])
+@action.uses(db)
+def ws_presidio():
+    """ """
+
+    res = db(db.evento).select(
+        db.evento.id.min().with_alias('idmin'),
+        db.evento.id.max().with_alias('idmax')
+    ).first()
+
+    db.squadra.evento_id.comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}'
+    db.squadra.evento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+
+    unita_operative = map(
+        lambda row: (row[uo_value], row[uo_label],),
+        db(db.municipio)(db.profilo_utilizatore.id==6).iterselect(uo_value, uo_label)
+    )
+    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
+
+    form = Form([
+        Field('componenti', 'json', default='[]'),
+        db.squadra.nome,
+        db.squadra.evento_id,
+        db.squadra.stato_id,
+        db.squadra.afferenza
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        form_name = 'crea_presidio',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            pass
+    output = {'result': result, 'form': sf.form2dict(form)}
+
+    return output
