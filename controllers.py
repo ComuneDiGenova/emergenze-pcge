@@ -38,6 +38,7 @@ from . import civico as _civico
 from . import segnalazione as _segnalazione
 # from .segnalazione import comunicazione as _comunicazione
 from . import segnalazione
+from . import squadra
 
 from .incarico import incarico
 
@@ -561,13 +562,14 @@ def ws_presidio():
     db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
 
     form = Form([
-        Field('componenti', 'json', default='[]'),
+        Field('componenti', 'json', default='[]', requires=IS_JSON()),
         db.squadra.nome,
         db.squadra.evento_id,
         db.squadra.stato_id,
         db.squadra.afferenza
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
+        validation = squadra.componente_form_validation,
         form_name = 'crea_presidio',
         csrf_protection = False
     )
@@ -576,6 +578,7 @@ def ws_presidio():
     if form.accepted:
         with NoDBIO(form):
             pass
+
     output = {'result': result, 'form': sf.form2dict(form)}
 
     return output

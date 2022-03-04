@@ -8,10 +8,12 @@ from pydal.validators import *
 db.define_table('squadra',
     Field('nome', required=True, notnull=True),
     Field('evento_id', 'reference evento',
+        required = True,
         requires = IS_IN_DB(db(db.evento.valido==True), db.evento.id),
         rname='id_evento'
     ),
     Field('stato_id', 'reference stato_squadra',
+        required = True,
         requires = IS_IN_DB(db(db.stato_squadra.valido==True), db.stato_squadra.id, db.stato_squadra.descrizione),
         rname='id_stato'
     ),
