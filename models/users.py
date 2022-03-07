@@ -6,6 +6,7 @@ from .users_decodifica import SCHEMA, db, Field
 from pydal.validators import *
 
 db.define_table('squadra',
+    Field('id', 'id', default=lambda: new_id(db['squadra'])),
     Field('nome', required=True, notnull=True),
     Field('evento_id', 'reference evento',
         required = True,
@@ -72,21 +73,24 @@ db.define_table('telefono',
 )
 
 db.define_table('email',
-    Field('codice', required=True, notnull=True,
+    Field('codice', label='Identificativo squadra',
+        required=True, notnull=True,
         requires = IS_IN_DB(db(db.squadra), db.squadra.id),
         rname='cod'
     ),
-    Field('address',
+    Field('email',
         label = 'Indirizzo email',
-        required=True, notnull=True, rname='mail'
+        required=True, notnull=True, rname='mail',
+        requires = IS_EMAIL()
     ),
     Field('matricola', required=True, notnull=True, rname='matricola_cf'),
-    primarykey = ['codice', 'address', 'matricola'],
+    primarykey = ['codice', 'email', 'matricola'],
     rname = f'{SCHEMA}.t_mail_squadre'
 )
 
 db.define_table('agente',
-    Field('matricola', required=True, notnull=True, unique=True,
+    Field('matricola', label='Matricola/CF',
+        required=True, notnull=True, unique=True,
         rname='matricola_cf'
     ),
     Field('cognome', required=True, notnull=True),
@@ -99,7 +103,7 @@ db.define_table('agente',
 )
 
 db.define_table('personale',
-    Field('matricola', rname='matricola_cf'),
+    Field('matricola', label='Matricola/CF', rname='matricola_cf'),
     Field('cognome'),
     Field('nome'),
     Field('livello1'),

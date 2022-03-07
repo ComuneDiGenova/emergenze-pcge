@@ -562,14 +562,20 @@ def ws_presidio():
     db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
 
     form = Form([
-        Field('componenti', 'json', default='[]', requires=IS_JSON()),
+        Field('componenti', 'json', label='Componenti squadra', default='[]',
+            comment = 'Es.: [{"matricola": "MRARSS80A01H501T", "nome": "Mario", "cognome": "Rossi", "telefono": "1234", "email": "mario.rossi@foo.it"}]',
+            requires = squadra.IS_JSON_LIST_OF_COMPONENTI()
+        ),
+        Field('percorso', label='Percorso', comment='Scegliere un percorso',
+            required = True,
+            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso),
+        ),
         db.squadra.nome,
         db.squadra.evento_id,
         db.squadra.stato_id,
         db.squadra.afferenza
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
-        validation = squadra.componente_form_validation,
         form_name = 'crea_presidio',
         csrf_protection = False
     )

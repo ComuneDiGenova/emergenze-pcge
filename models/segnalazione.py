@@ -259,3 +259,19 @@ db.define_table('intervento',
     migrate = settings.MIGRATE_INTERVENTO,
     rname = 'verbatel.interventi'
 )
+
+db.define_table('presidio',
+    Field('id', 'id', default=lambda: new_id(db['presidio'])),
+    Field('timeref', 'datetime', rname='data_ora_invio'),
+    Field('profilo_id', 'reference profilo_utilizatore',
+        required=True, notnull=True, rname='id_profilo'
+    ),
+    Field('descrizione'),
+    Field('preview', 'datetime', rname='time_preview'),
+    Field('start', 'datetime', rname='time_preview'),
+    Field('stop', 'datetime', rname='time_preview'),
+    Field('note', rname='note_ente'),
+    Field('geom', 'geometry()', required=True, notnull=True),
+    Field('evento_id', 'reference evento', rname='id_evento'),
+    rname = f'{SCHEMA}.t_sopralluoghi_mobili'
+)

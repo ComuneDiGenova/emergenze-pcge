@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from pydal.validators import IS_JSON, ValidationError
+
 from .common import db
 
 agente_form = (
@@ -9,83 +11,61 @@ agente_form = (
     db.agente.livello2,
     #
     db.telefono.telefono,
-    db.email.address,
+    db.email.email,
 )
-
-class IS_JSON(Validator):
-    """
-    Example:
-        Used as::
-            INPUT(_type='text', _name='name',
-                requires=IS_JSON(error_message="This is not a valid json input")
-            >>> IS_JSON()('{"a": 100}')
-            ({u'a': 100}, None)
-            >>> IS_JSON()('spam1234')
-            ('spam1234', 'invalid json')
-    """
-
-    def __init__(self, error_message="Invalid json", native_json=False):
-        self.native_json = native_json
-        self.error_message = error_message
-
-    def validate(self, value, record_id=None):
-        if isinstance(value, (str, bytes)):
-            try:
-                if self.native_json:
-                    json.loads(value)  # raises error in case of malformed json
-                    return value  # the serialized value is not passed
-                else:
-                    return json.loads(value)
-            except JSONErrors:
-                raise ValidationError(self.translator(self.error_message))
-        else:
-            return value
-
-    def formatter(self, value):
-        if value is None:
-            return None
-        if self.native_json:
-            return value
-        else:
-            return json.dumps(value)
 
 class IS_JSON_LIST_OF_COMPONENTI(IS_JSON):
     """docstring for IS_JSON_LIST_OF_COMPONENTI."""
 
     def validate(self, value, record_id=None):
-        value = IS_JSON.validate(self, value, record_id)
+        componenti = IS_JSON.validate(self, value, record_id)
         try:
-            assert isinstance(value, list)
+            assert isinstance(componenti, list)
         except AssertionError:
-            raise ValidationError(self.translator('A list of object is required'))
+            raise ValidationError(self.translator('Richiesta una lista di oggetti'))
         else:
-            pass
+            validators = {field.name: field for field in agente_form}
+            for componente in componenti:
+                for fieldName, field in validators.items():
+                    param = componente.get(fieldName)
+
+                    try:
+                        assert not (field.required and param is None)
+                    except AssertionError:
+                        raise ValidationError(f'Parametro "{fieldName}" per ogni componente non può essere nullo')
+
+                    try:
+                        field.validate(param, record_id=None)
+                    except KeyError:
+                        # In questo caso ci sarebbe un parametro non previsto
+                        raise ValidationError(f'Parametro {param} non previsto')
+
+
+def create(nome, evento_id, stato_id, afferenza, componenti):
+    """
+    nome            @string : Nome della squadra;
+    evento_id      @integer : Id evento di riferimento;
+    stato_id       @integer :
+    afferenza       @string :
+    componenti @list(@dict) :
+    """
+
+    # 1. Creazione sqaudra
+
+    squadra_id = db.sqaudra.insert(
+        nome = nome,
+        evento_id = evento_id,
+        stato_id = stato_id,
+        afferenza = afferenza
+    )
+
+    # 2. Creazione del presidio
 
 
 
 
-class ParameterError(KeyError):
-    """ """
+    for componente in componenti:
+        agente = db.agente(matricola=componente[matricola])
+        if agente is None:
 
-def componente_form_validation(rec):
-    """ """
-
-    validators = {field.name: field for field in agente_form}
-
-    errors = {}
-    for key, value in rec.items():
-        try:
-            val, msg = validators[key](value)
-        except KeyError:
-            # In questo caso ci sarebbe un parametro non previsto
-            raise ParameterError(f'Parametro {key} non previsto')
-        else:
-            if not msg is None:
-                errors[key] = msg
-
-    return errors
-
-def componenti_validation(recs):
-    """ """
-
-    return [err for err in map(componente_form_validation, recs)]
+            db.agente.insert(db.agente._filter_fields(**componente))
