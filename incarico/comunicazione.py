@@ -4,21 +4,28 @@ import os
 from ..common import db, logger
 from ..verbatel import Intervento
 
+from .. import settings
+from py4web import Field
+
+import base64
+
 def render(row):
     """ """
 
-    # TODO:
-    # import pdb; pdb.set_trace()
-    # allegato = {
-    #     'fileName': os.path.basename(row.comunicazione.allegato),
-    #     'file': '' 
-    # }
+    with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
+        encoded_string = base64.b64encode(ff.read())
+        
+
+    allegato = {
+        'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
+        'file': encoded_string 
+    }
 
     return {
         # 'idIntervento': row.idIntervento,
         'operatore': 'anonimo',
         'testo': row.testo,
-        'files': []
+        'files': [allegato]
     }
     
 
@@ -32,22 +39,23 @@ def fetch(incarico_id, timeref=None):
     #     (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id)
     # )
 
-    dbset = db(
-        (db.comunicazione_incarico_inviate.incarico_id==incarico_id) & \
-        (db.comunicazione_incarico_inviate.incarico_id==db.intervento.incarico_id) & \
-        (db.incarico.id==db.comunicazione_incarico_inviate.incarico_id) & \
-        (db.presidio.profilo_id==6)
+    dbset = db(db.presidio)(
+        (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
+        (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) # & \
+        # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
+        # "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
+        # (db.presidio.profilo_id=='6')
     )
 
     if not timeref is None:
-        dbset = dbset(db.comunicazione_incarico_inviate.timeref==timeref)
+        dbset = dbset(db.comunicazione_incarico_inviata.timeref==timeref)
 
     rec = dbset.select(
         db.intervento.id.with_alias('idIntervento'),
         # .with_alias('operatore'),
-        db.intervento.testo.testo.with_alias('testo'),
-        db.intervento.allegato,
-        orderby = ~db.comunicazione_incarico_inviate.timeref
+        db.comunicazione_incarico_inviata.testo.with_alias('testo'),
+        db.comunicazione_incarico_inviata.allegato,
+        orderby = ~db.comunicazione_incarico_inviata.timeref
     ).first()
 
     # rec = dbset.select(
