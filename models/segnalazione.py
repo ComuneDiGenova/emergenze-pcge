@@ -275,3 +275,12 @@ db.define_table('presidio',
     Field('evento_id', 'reference evento', rname='id_evento'),
     rname = f'{SCHEMA}.t_sopralluoghi_mobili'
 )
+
+db.define_table('comunicazione_presidio',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('testo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['presidio_id', 'timeref'],
+    rname = f'{SCHEMA}.t_comunicazioni_sopralluoghi_mobili_inviate'
+)

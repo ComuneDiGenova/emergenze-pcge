@@ -2,7 +2,7 @@
 
 from pydal.validators import IS_JSON, ValidationError
 
-from .common import db
+from ..common import db
 
 agente_form = (
     db.agente.matricola,

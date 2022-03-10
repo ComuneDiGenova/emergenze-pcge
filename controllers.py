@@ -38,7 +38,7 @@ from . import civico as _civico
 from . import segnalazione as _segnalazione
 # from .segnalazione import comunicazione as _comunicazione
 from . import segnalazione
-from . import squadra
+from . import presidio_mobile as squadra
 
 from .incarico import incarico
 
