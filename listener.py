@@ -75,6 +75,30 @@ def create_sql_function_true(schema, function_insert, notification_insert, funct
 
     db.executesql(sql_notify_updated_item)
 
+
+def create_sql_function_comunicazione(schema, function_name, notification_name, payload, action):
+    
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id', NEW.{payload[0]},
+                 'data', NEW.{payload[1]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
+
+
 def create_sql_trigger(schema, table, function_name, trigger_name, action):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
 
@@ -121,8 +145,8 @@ segnalaz = [
     ['segnalazioni','join_segnalazioni_incarichi','id_incarico'], 
     ['segnalazioni','t_incarichi','id'],
     ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione'],
-    ['segnalazioni','t_comunicazioni_incarichi_inviate','id_incarico'],
-    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate','id_sopralluogo']
+    ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
+    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']]
     ]
 
 def setup():
@@ -167,18 +191,18 @@ def setup_segn():
     create_sql_function(segnalaz[2][0], function_name_n_lav, notification_name_n_lav, segnalaz[2][2], "INSERT")
     create_sql_trigger(segnalaz[2][0], segnalaz[2][1], function_name_n_lav, trigger_name_n_lav, "INSERT")
     
-    #elemento 4 ovver [3]
+    #elemento 4 ovver [3] comunicazioni
     function_name_n_com = f"notify_new_{segnalaz[3][1]}"
     notification_name_n_com = f"new_{segnalaz[3][1]}_added"
     trigger_name_n_com = f"after_insert_{segnalaz[3][1]}"
-    create_sql_function(segnalaz[3][0], function_name_n_com, notification_name_n_com, segnalaz[3][2], "INSERT")
+    create_sql_function_comunicazione(segnalaz[3][0], function_name_n_com, notification_name_n_com, segnalaz[3][2], "INSERT")
     create_sql_trigger(segnalaz[3][0], segnalaz[3][1], function_name_n_com, trigger_name_n_com, "INSERT")
     
-    #elemento 5 ovver [4]
+    #elemento 5 ovver [4] comunicazioni
     function_name_n_comsopr = f"notify_new_{segnalaz[4][1]}"
     notification_name_n_comsopr = f"new_{segnalaz[4][1]}_added"
     trigger_name_n_comsopr = f"after_insert_{segnalaz[4][1]}"
-    create_sql_function(segnalaz[4][0], function_name_n_comsopr, notification_name_n_comsopr, segnalaz[4][2], "INSERT")
+    create_sql_function_comunicazione(segnalaz[4][0], function_name_n_comsopr, notification_name_n_comsopr, segnalaz[4][2], "INSERT")
     create_sql_trigger(segnalaz[4][0], segnalaz[4][1], function_name_n_comsopr, trigger_name_n_comsopr, "INSERT")
     db.commit()
     
