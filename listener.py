@@ -13,7 +13,7 @@ from .segnalazione import after_insert_lavorazione
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
-from presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
+from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
