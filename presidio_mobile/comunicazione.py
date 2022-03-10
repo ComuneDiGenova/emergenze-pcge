@@ -2,6 +2,7 @@
 
 import os
 from ..common import db, logger
+from ..verbatel import Presidio
 
 def render(row):
     """ """
@@ -14,8 +15,8 @@ def render(row):
     # }
 
     return {
-        'idSquadra': row.idSquadra,
-        # 'operatore': row.operatore,
+        # 'idSquadra': row.idSquadra,
+        'operatore': 'anonimo',
         'testo': row.testo,
         'files': []
     }
@@ -23,7 +24,11 @@ def render(row):
 
 def fetch(presidio_id, timeref=None):
     """ """
-    dbset = db(db.comunicazione_presidio.presidio_id==presidio_id)
+    dbset = db(
+        (db.comunicazione_presidio.presidio_id==presidio_id) & \
+        (db.squadra.id==db.componente.squadra_id) & \
+        (db.componente.matricola==db.agente.matricola)
+    )
     
     if not timeref is None:
         dbset = dbset(db.comunicazione_presidio.timeref==timeref)
@@ -35,8 +40,16 @@ def fetch(presidio_id, timeref=None):
         db.comunicazione_presidio.allegato,
         orderby = ~db.comunicazione_presidio.timeref
     ).first()
-    
-    return render(rec)
 
-after_insert_comunicazione = fetch
+    if rec is None:
+        logger.debug('Comunicazione non diretta a PL.')
+
+    return rec and (rec.idSquadra, render(rec),)
+
+def after_insert_comunicazione():
+    
+    result = fetch(*args, **kwargs)
+    if not result is None:
+        idSquadra, payload = result
+        Presidio.message(idIntervento, payload)
 

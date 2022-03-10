@@ -2,6 +2,7 @@
 
 import os
 from ..common import db, logger
+from ..verbatel import Intervento
 
 def render(row):
     """ """
@@ -14,7 +15,7 @@ def render(row):
     # }
 
     return {
-        'idIntervento': row.idIntervento,
+        # 'idIntervento': row.idIntervento,
         'operatore': 'anonimo',
         'testo': row.testo,
         'files': []
@@ -33,7 +34,9 @@ def fetch(incarico_id, timeref=None):
 
     dbset = db(
         (db.comunicazione_incarico_inviate.incarico_id==incarico_id) & \
-        (db.comunicazione_incarico_inviate.incarico_id==db.intervento.incarico_id)
+        (db.comunicazione_incarico_inviate.incarico_id==db.intervento.incarico_id) & \
+        (db.incarico.id==db.comunicazione_incarico_inviate.incarico_id) & \
+        (db.presidio.profilo_id==6)
     )
 
     if not timeref is None:
@@ -43,8 +46,9 @@ def fetch(incarico_id, timeref=None):
         db.intervento.id.with_alias('idIntervento'),
         # .with_alias('operatore'),
         db.intervento.testo.testo.with_alias('testo'),
-        db.intervento.allegato
-    )
+        db.intervento.allegato,
+        orderby = ~db.comunicazione_incarico_inviate.timeref
+    ).first()
 
     # rec = dbset.select(
     #     db.intervento.id.with_alias('idIntervento'),
@@ -54,9 +58,14 @@ def fetch(incarico_id, timeref=None):
     #     orderby = ~db.comunicazione.timeref
     # ).first()
 
-    return render(rec)
+    return rec and (rec.idIntervento, render(rec),)
 
-after_insert_comunicazione = fetch
+def after_insert_comunicazione(*args, **kwargs):
+    """ """
+    result = fetch(*args, **kwargs)
+    if not result is None:
+        idIntervento, payload = result
+        Intervento.message(idIntervento, payload)
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):
 #     """ """
