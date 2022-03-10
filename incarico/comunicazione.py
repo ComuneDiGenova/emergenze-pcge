@@ -41,9 +41,9 @@ def fetch(incarico_id, timeref=None):
 
     dbset = db(db.presidio)(
         (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
-        (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) # & \
+        (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) & \
         # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
-        # "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
+        "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
         # (db.presidio.profilo_id=='6')
     )
 
