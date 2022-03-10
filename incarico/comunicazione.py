@@ -32,19 +32,10 @@ def render(row):
 def fetch(incarico_id, timeref=None):
     """ """
 
-    # dbset = db(
-    #     (db.comunicazione.lavorazione_id==lavorazione_id) & \
-    #     (db.join_segnalazione_lavorazione.lavorazione_id==db.comunicazione.lavorazione_id) & \
-    #     (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
-    #     (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id)
-    # )
-
     dbset = db(db.presidio)(
         (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
         (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) & \
-        # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
         "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
-        # (db.presidio.profilo_id=='6')
     )
 
     if not timeref is None:
@@ -57,14 +48,6 @@ def fetch(incarico_id, timeref=None):
         db.comunicazione_incarico_inviata.allegato,
         orderby = ~db.comunicazione_incarico_inviata.timeref
     ).first()
-
-    # rec = dbset.select(
-    #     db.intervento.id.with_alias('idIntervento'),
-    #     db.comunicazione.mittente.with_alias('operatore'),
-    #     db.comunicazione.testo.with_alias('testo'),
-    #     db.comunicazione.allegato,
-    #     orderby = ~db.comunicazione.timeref
-    # ).first()
 
     return rec and (rec.idIntervento, render(rec),)
 
