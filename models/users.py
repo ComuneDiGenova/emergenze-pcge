@@ -2,6 +2,7 @@
 
 from .. import settings
 from .users_decodifica import SCHEMA, db, Field
+from .tools import new_id
 
 from pydal.validators import *
 

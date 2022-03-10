@@ -29,10 +29,12 @@ def render(row):
 
 def fetch(presidio_id, timeref=None):
     """ """
-    dbset = db(
+    dbset = db(db.presidio)(
         (db.comunicazione_presidio.presidio_id==presidio_id) & \
         (db.squadra.id==db.componente.squadra_id) & \
-        (db.componente.matricola==db.agente.matricola)
+        (db.comunicazione_presidio.presidio_id==db.presidio.id) & \
+        "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
+        # (db.componente.matricola==db.agente.matricola)
     )
     
     if not timeref is None:

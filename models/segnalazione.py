@@ -285,6 +285,27 @@ db.define_table('presidio',
     rname = f'{SCHEMA}.t_sopralluoghi_mobili'
 )
 
+db.define_table('stato_presidio',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('stato_presidio_id', 'reference tipo_stato_sopralluogo', rname='id_stato_sopralluogo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('parziale', 'boolean'),
+    # id_sopralluogo, id_stato_sopralluogo, data_ora_stato
+    primarykey = ['presidio_id', 'stato_presidio_id', 'timeref'],
+    rname = f'{SCHEMA}.stato_sopralluoghi_mobili'
+)
+
+db.define_table('join_presidio_squadra',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('squadra_id', 'rederence squadra', rname='id_squadra'),
+    Field('valido', 'boolean'),
+    Field('timeref', 'datetime', rname='data_ora'),
+    Field('cambio', 'datetime', rname='data_ora_cambio'),
+    # id_sopralluogo, id_squadra, data_ora
+    primarykey = ['presidio_id', 'squadra_id', 'timeref'],
+    rname = f'{SCHEMA}.join_sopralluoghi_mobili_squadra'
+)
+
 db.define_table('comunicazione_presidio',
     Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
     Field('testo'),

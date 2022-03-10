@@ -21,5 +21,6 @@ db.define_table('livello2',
     Field('id2', 'integer'),
     Field('descrizione'),
     Field('valido', 'boolean'),
+    primarykey = ['id1', 'id2'],
     rname = f'{SCHEMA}.uo_2_livello'
 )
