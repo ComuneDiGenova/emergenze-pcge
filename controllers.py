@@ -38,6 +38,7 @@ from . import civico as _civico
 from . import segnalazione as _segnalazione
 # from .segnalazione import comunicazione as _comunicazione
 from . import segnalazione
+from . import presidio_mobile as squadra
 
 from .incarico import incarico
 
@@ -526,5 +527,64 @@ def segnalazione_comunicazione_da_intervento(intervento_id=None):
     output = {'result': result, 'form': sf.form2dict(form)}
     if not segnalazione.comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
         output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
+
+    return output
+
+# TODO: Parte work in progress
+
+# PREFIX = 'c'
+#
+# componente_form = lambda num=0: [
+#     # Field('{}')
+# ]
+
+uo_value = "concat('com_','PO' || codice_mun::text)" # 'PO'::text || m.codice_mun::text AS cod,
+uo_label = "'Distretto ' || codice_mun::text"
+
+@action('presidio', method=['GET', 'POST'])
+@action('pattuglia', method=['GET', 'POST'])
+@action.uses(db)
+def ws_presidio():
+    """ """
+
+    res = db(db.evento).select(
+        db.evento.id.min().with_alias('idmin'),
+        db.evento.id.max().with_alias('idmax')
+    ).first()
+
+    db.squadra.evento_id.comment = f'Inserisci un id Evento valido compreso tra {res.idmin} e {res.idmax}'
+    db.squadra.evento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+
+    unita_operative = map(
+        lambda row: (row[uo_value], row[uo_label],),
+        db(db.municipio)(db.profilo_utilizatore.id==6).iterselect(uo_value, uo_label)
+    )
+    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
+
+    form = Form([
+        Field('componenti', 'json', label='Componenti squadra', default='[]',
+            comment = 'Es.: [{"matricola": "MRARSS80A01H501T", "nome": "Mario", "cognome": "Rossi", "telefono": "1234", "email": "mario.rossi@foo.it"}]',
+            requires = squadra.IS_JSON_LIST_OF_COMPONENTI()
+        ),
+        Field('percorso', label='Percorso', comment='Scegliere un percorso',
+            required = True,
+            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso),
+        ),
+        db.squadra.nome,
+        db.squadra.evento_id,
+        db.squadra.stato_id,
+        db.squadra.afferenza
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        form_name = 'crea_presidio',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            pass
+
+    output = {'result': result, 'form': sf.form2dict(form)}
 
     return output

@@ -131,20 +131,23 @@ def render(row):
         stato = 4 # Rifiutato
 
     localizzazione = {}
-    indirizzo = f'{row.desvia}, {row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}' #.encode()
+
+    civico = f'{row.civico_numero}{(row.civico_lettera and row.civico_lettera.upper()) or ""}{row.civico_colore or ""}'
+    indirizzo = f'{row.desvia}, {civico}' #.encode()
+
     if row.civico_id is None:
         localizzazione['tipoLocalizzazione'] = 3
         localizzazione['daSpecificare'] = indirizzo
     else:
         localizzazione['tipoLocalizzazione'] = 1
-        localizzazione['civico'] = indirizzo
+        localizzazione['civico'] = civico
 
     # tipoRichiesta TODO
     #   1: Intervento da gestire dalla PL
     #   2: Intervento gestito dalla PC su cui PL ha visibilità. In questo caso è
     #       necessario notificare le modifiche della segnalazione a Verbatel.
     #   3: Richiesta di ausilio su intervento gestito dalla PC
-    
+
     if row.profilo_utilizatore.id==6 and row.incarico.profilo_id==6:
         tipoRichiesta = 1
     elif row.incarico.profilo_id==3 and WARNING in row.note:

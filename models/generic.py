@@ -149,7 +149,14 @@ db.define_table('log',
     rname = 'varie.t_log'
 )
 
-# TODO: 
+db.define_table('presidi_mobili',
+    Field('percorso'),
+    Field('geom', 'geometry()'),
+    primarykey = ['percorso'],
+    rname = f'{SCHEMA}.v_presidi_mobili' # <- VISTA
+)
+
+# TODO:
 # db.define_table('',
 #     rname = 'varie.t_incarichi_comune'
 # )
