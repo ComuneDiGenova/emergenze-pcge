@@ -231,6 +231,15 @@ db.define_table('comunicazione_incarico',
     rname=f'{SCHEMA}.t_comunicazioni_incarichi'
 )
 
+db.define_table('comunicazione_incarico_inviata',
+    Field('incarico_id', 'reference incarico', rname='id_incarico'),
+    Field('testo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['incarico_id', 'timeref'],
+    rname=f'{SCHEMA}.t_comunicazioni_incarichi_inviate'
+)
+
 db.define_table('join_segnalazione_incarico',
     Field('incarico_id', 'reference incarico',
         required=True, notnull=True, unique=True,
