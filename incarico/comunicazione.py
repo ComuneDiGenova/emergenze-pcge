@@ -15,32 +15,44 @@ def render(row):
 
     return {
         'idIntervento': row.idIntervento,
-        'operatore': row.operatore,
+        'operatore': 'anonimo',
         'testo': row.testo,
         'files': []
     }
     
 
-def fetch(lavorazione_id, timeref=None):
+def fetch(incarico_id, timeref=None):
     """ """
 
+    # dbset = db(
+    #     (db.comunicazione.lavorazione_id==lavorazione_id) & \
+    #     (db.join_segnalazione_lavorazione.lavorazione_id==db.comunicazione.lavorazione_id) & \
+    #     (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
+    #     (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id)
+    # )
+
     dbset = db(
-        (db.comunicazione.lavorazione_id==lavorazione_id) & \
-        (db.join_segnalazione_lavorazione.lavorazione_id==db.comunicazione.lavorazione_id) & \
-        (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
-        (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id)
+        (db.comunicazione_incarico_inviate.incarico_id==incarico_id) & \
+        (db.comunicazione_incarico_inviate.incarico_id==db.intervento.incarico_id)
     )
 
     if not timeref is None:
-        dbset = dbset(db.comunicazione.timeref==timeref)
+        dbset = dbset(db.comunicazione_incarico_inviate.timeref==timeref)
 
     rec = dbset.select(
         db.intervento.id.with_alias('idIntervento'),
-        db.comunicazione.mittente.with_alias('operatore'),
-        db.comunicazione.testo.with_alias('testo'),
-        db.comunicazione.allegato,
-        orderby = ~db.comunicazione.timeref
-    ).first()
+        # .with_alias('operatore'),
+        db.intervento.testo.testo.with_alias('testo'),
+        db.intervento.allegato
+    )
+
+    # rec = dbset.select(
+    #     db.intervento.id.with_alias('idIntervento'),
+    #     db.comunicazione.mittente.with_alias('operatore'),
+    #     db.comunicazione.testo.with_alias('testo'),
+    #     db.comunicazione.allegato,
+    #     orderby = ~db.comunicazione.timeref
+    # ).first()
 
     return render(rec)
 
