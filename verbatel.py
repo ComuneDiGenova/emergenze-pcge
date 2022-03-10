@@ -83,6 +83,18 @@ class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
 
+    @classmethod
+    def message(cls, id, **payload):
+        return cls.create(id, 'comunicazione', **payload)
+
+class Presidio(Verbatel):
+    """docstring for Intervento."""
+    root = 'squadre' # <- guess (manca ancora la doc da Verbatel)
+
+    @classmethod
+    def message(cls, id, **payload):
+        return cls.create(id, 'comunicazione', **payload)
+
 
 class Messaggio(Verbatel):
     """docstring for Messaggio."""
