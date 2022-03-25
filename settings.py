@@ -100,6 +100,9 @@ VBT_PROT = 'http'
 VBT_HOST = '192.168.153.84'
 VBT_PATH = 'GestioneEmergenzeTest/api'
 
+PM_PROFILO_ID = 6
+PC_PROFILO_ID = 3
+
 # try import private settings
 try:
     from .settings_private import *

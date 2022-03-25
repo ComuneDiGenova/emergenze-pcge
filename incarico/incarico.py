@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from ..common import db, logger
+from ..common import settings, db, logger
 from ..verbatel import Intervento
 import datetime
 
@@ -148,11 +148,12 @@ def render(row):
     #       necessario notificare le modifiche della segnalazione a Verbatel.
     #   3: Richiesta di ausilio su intervento gestito dalla PC
 
-    if row.profilo_utilizatore.id==6 and row.incarico.profilo_id==6:
+    if (row.segnalazione_lavorazione.profilo_id==settings.PM_PROFILO_ID) and (row.incarico.profilo_id==settings.PM_PROFILO_ID):
         tipoRichiesta = 1
-    elif row.incarico.profilo_id==3 and WARNING in row.note:
+    elif row.incarico.profilo_id==settings.PM_PROFILO_ID and (WARNING in row.note):
         tipoRichiesta = 2
-    elif row.incarico.profilo_id==3:
+    elif row.incarico.uo_id.startswith('com_PO'):
+    # elif row.incarico.profilo_id==settings.PM_PROFILO_ID:
         tipoRichiesta = 3
     else:
         logger.error(f'Situazione non prevista: {row}')
@@ -180,7 +181,6 @@ def render(row):
         noteOperative = row.note,
         reclamante = row.reclamante,
         telefonoReclamante = row.telefono,
-        # tipoRichiesta =
         dataInserimento =  row.inizio and row.inizio.isoformat(),
         longitudine = lon,
         latitudine = lat,
@@ -213,6 +213,7 @@ def fetch(id):
         db.segnalazione.civico_id.with_alias('civico_id'),
         db.incarico.descrizione.with_alias('note'),
         db.incarico.rifiuto.with_alias('motivo_rifiuto'),
+        db.incarico.uo_id,
         db.segnalazione_lavorazione.profilo_id,
         db.segnalazione_lavorazione.in_lavorazione.with_alias('in_lavorazione'),
         db.civico.geom.st_distance(
@@ -226,7 +227,7 @@ def fetch(id):
         db.segnalazione.geom.st_asgeojson().with_alias('geom'),
         db.segnalante.nome.with_alias('reclamante'),
         db.segnalante.telefono.with_alias('telefono'),
-        db.profilo_utilizatore.id,
+        # db.profilo_utilizatore.id,
         distinct = 'segnalazioni.t_segnalazioni."id"',
         orderby = (
             db.segnalazione.id,
@@ -245,7 +246,9 @@ def fetch(id):
         ),
         limitby = (0,1,)
     ).first()
-    return result.segnalazione_lavorazione.profilo_id!=6, render(result)
+    return result.incarico.uo_id.startswith('com_PO'), render(result)
+    # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
+    # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
 
 
 def after_insert_incarico(id):
@@ -265,7 +268,7 @@ def after_insert_incarico(id):
 
 def after_update_incarico(id):
     logger.debug(f"after update incarico")
-    if db.intervento(incarico_id=id) is None:
+    if not db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
         logger.debug(f"{invia}")

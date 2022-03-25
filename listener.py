@@ -210,10 +210,10 @@ def setup_segn():
     create_sql_trigger(segnalaz[4][0], segnalaz[4][1], function_name_n_comsopr, trigger_name_n_comsopr, "INSERT")
     db.commit()
 
-def ciao():
-    """ test pourpouses"""
-    print("hell-o")
-    print(f"new_{elementi[0][0]}_added")
+# def ciao():
+#     """ test pourpouses"""
+#     print("hell-o")
+#     print(f"new_{elementi[0][0]}_added")
 
 def set_listen():
     # db._adapter.reconnect()
@@ -251,6 +251,8 @@ def do_stuff(channel, **payload):
     #scrivere do_stuff in maniera che evento.fetch venga chiamata solo per gli eventi??
     #mio_evento = evento.fetch(id=payload["id"])
 
+    logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+
     if channel in [
         f"new_{elementi[0][1]}_added",
         f"new_{elementi[0][1]}_updated"
@@ -259,18 +261,17 @@ def do_stuff(channel, **payload):
 
         mio_evento = evento.fetch(id=payload["id"])
 
-        logger.debug(payload)
-
         # In caso di FOC mio_evento NON deve poter essere nullo
         out = syncEvento(mio_evento)
         logger.debug(out)
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+
         if out == 'SENT NEW':
             # nuovoEventoDaFoc restituisce None solo incaso di UPDATE
             newid = db.evento_inviato.insert(
                 evento_id = payload["id"]
             )
             logger.debug(f"Segnato! {newid}")
+
     #elif not mio_evento is None and channel in [
     elif channel in [
         f"new_{elementi[1][1]}_added",
@@ -286,27 +287,21 @@ def do_stuff(channel, **payload):
 
         if not mio_evento is None:
             out = syncEvento(mio_evento)
-            logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
 
     #listen_n_interventi = f"LISTEN new_{segnalaz[0][1]}_added;"
     #listen_u_interventi = f"LISTEN new_{segnalaz[1][1]}_updated;"
     elif channel in f"new_{segnalaz[1][1]}_updated":
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_update_incarico(payload["id"])
 
     elif channel in f"new_{segnalaz[0][1]}_added":
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_incarico(payload["id"])
     elif channel in f"new_{segnalaz[2][1]}_added":
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_lavorazione(payload["id"])
 
     elif channel in f"new_{segnalaz[3][1]}_added":
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_comunicazione_incarico(payload["id"], payload["data"])
         #after_insert_com(payload["id"])
     elif channel in f"new_{segnalaz[4][1]}_added":
-        logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
         after_insert_comunicazione_presidio_mobile(payload["id"], payload["data"])
         #after_insert_comsopr(payload["id"])
 
@@ -332,7 +327,7 @@ def listen():
             try:
                 do_stuff(notification.channel, **payload)
             except:
-                # così si evita che il questo script cada
+                # così si evita che questo script cada
                 # in caso di errori cercare il traceback nel log
                 db.rollback()
                 full_traceback = traceback.format_exc()
