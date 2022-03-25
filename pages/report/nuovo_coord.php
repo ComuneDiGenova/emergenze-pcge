@@ -18,9 +18,9 @@ $d1 =  strtotime($data_inizio);
 $d2 =  strtotime($data_fine);
 
 
-if ($d1 > $d2) {
-	echo 'La data finale deve essere posteriore alla data iniziale. ';
-	echo '<br><a href="../reportistica.php"> Torna alla pagina precedente';
+if ($d1 >= $d2) {
+	echo 'La data/ora di fine ('.$data_fine.') deve essere posteriore alla data/ora di inizio ('.$data_inizio.'). ';
+	echo '<br><a href="../attivita_sala_emergenze.php"> Torna alla pagina precedente';
 	exit;
 }
 
@@ -36,7 +36,7 @@ echo $d1;
 echo "<br>";
 echo $d2;
 echo "<br>";
-if ($d1 > $d2) {
+if ($d1 >= $d2) {
 	echo "Errore: la data di inizio (".$data_inizio.") deve essere antecedente la fine (".$data_fine.")";
 	exit;
 }
