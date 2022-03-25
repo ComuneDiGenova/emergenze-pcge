@@ -61,10 +61,13 @@ class Verbatel(object):
                     return out
 
     @classmethod
-    def create(cls, *endpoints, **payload):
+    def create(cls, *endpoints, encode=True, **payload):
         """ POST """
         _url = cls._url(*endpoints)
-        data = cls._payload(**payload)
+        if encode is True:
+            data = cls._payload(**payload)
+        else:
+            data = payload
         logger.debug(f'"{_url}"')
         logger.debug(data)
         response = requests.post(_url, data=data) # <---
@@ -93,7 +96,7 @@ class Intervento(Verbatel):
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', **payload)
+        return cls.create(id, 'comunicazione', encode=False, **payload)
 
 class Presidio(Verbatel):
     """docstring for Intervento."""
@@ -219,3 +222,4 @@ if __name__=='__main__':
     def test2():
         response = segnalazione2verbatel(398)
         logger.debug(response)
+
