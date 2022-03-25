@@ -265,6 +265,7 @@ db.define_table('intervento',
     # Field('segnalazione_id', 'integer',
     #     notnull=True, unique=True, required=True
     # ),
+    # TODO: Aggiungere data creazione, ultimo aggiornamento e log di risposta
     migrate = settings.MIGRATE_INTERVENTO,
     rname = 'verbatel.interventi'
 )

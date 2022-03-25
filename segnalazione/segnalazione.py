@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..common import db, logger
+from ..common import settings, db, logger
 from .. import incarico
 from pydal import geoPoint
 from pydal.validators import *
@@ -294,7 +294,7 @@ def upgrade(segnalazione_id, operatore,
         sospeso = sospeso
     )
 
-    if sospeso and profilo_id==3:
+    if sospeso and profilo_id==settings.PM_PROFILO_ID:
         raise NotImplementedError()
 
     message = f'La segnalazione n. {lavorazione_id} è stata presa in carico come profilo {profilo.descrizione}'
@@ -316,7 +316,7 @@ def upgrade(segnalazione_id, operatore,
 
     # Incarico
 
-    if profilo_id==6:
+    if profilo_id==settings.PC_PROFILO_ID:
         # segnalazione = db.segnalazione[segnalazione_id]
         # assert segnalazione
 
@@ -357,7 +357,7 @@ def after_insert_lavorazione(id):
         orderby = (db.segnalazione.id,~db.segnalazione_lavorazione.id,)
     ).first()
 
-    if not rec is None and rec.lavorazione.profilo_id!=6:
+    if not rec is None and rec.lavorazione.profilo_id!=settings.PM_PROFILO_ID:
             descrizione_incarico = f'''Richiesta sola presa visione della segnalazione:
 {rec.segnalazione.descrizione}.
 {incarico.WARNING}'''
@@ -365,11 +365,16 @@ def after_insert_lavorazione(id):
             incarico_id = incarico.create(
                 segnalazione_id = rec.segnalazione.id,
                 lavorazione_id = id,
-                profilo_id = 6,
+                profilo_id = settings.PM_PROFILO_ID,
                 descrizione = descrizione_incarico,
                 municipio_id = rec.segnalazione.municipio_id
             )
             logger.debug(f'Creato incarico: {incarico_id}')
+
+            # a quanto pare l'evento insert lanciato al passo precedente
+            # all'interno dello stesso trigger non viene intercettato
+            # per cui lancio a mano la callback seguente.
+            incarico.after_insert_incarico(incarico_id)
 
             return incarico_id
 
