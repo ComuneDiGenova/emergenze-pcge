@@ -23,7 +23,7 @@ def render(row):
 
     return {
         # 'idIntervento': row.idIntervento,
-        'operatore': 'anonimo',
+        'operatore': 'operatore di PC',
         'testo': row.testo,
         'files': [allegato]
     }
@@ -42,7 +42,7 @@ def fetch(incarico_id, timeref=None):
         dbset = dbset(db.comunicazione_incarico_inviata.timeref==timeref)
 
     rec = dbset.select(
-        db.intervento.id.with_alias('idIntervento'),
+        db.intervento.intervento_id.with_alias('idIntervento'),
         # .with_alias('operatore'),
         db.comunicazione_incarico_inviata.testo.with_alias('testo'),
         db.comunicazione_incarico_inviata.allegato,
@@ -56,7 +56,7 @@ def after_insert_comunicazione(*args, **kwargs):
     result = fetch(*args, **kwargs)
     if not result is None:
         idIntervento, payload = result
-        Intervento.message(idIntervento, payload)
+        Intervento.message(idIntervento, **payload)
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):
 #     """ """
