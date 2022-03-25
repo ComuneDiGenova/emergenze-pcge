@@ -58,5 +58,5 @@ def after_insert_comunicazione():
     result = fetch(*args, **kwargs)
     if not result is None:
         idSquadra, payload = result
-        Presidio.message(idIntervento, payload)
+        Presidio.message(idIntervento, **payload)
 
