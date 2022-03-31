@@ -51,11 +51,18 @@ class Verbatel(object):
             if response.headers['Content-Length']=='0':
                 return
             else:
-                return response.json()
+                try:
+                    out=json.loads(response.json())
+                except TypeError:
+                    logger.info("Single decode")
+                    return response.json()
+                else:
+                    logger.info("Double decode")
+                    return out
 
     @classmethod
     def create(cls, *endpoints, **payload):
-        """ """
+        """ POST """
         _url = cls._url(*endpoints)
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
@@ -65,7 +72,7 @@ class Verbatel(object):
 
     @classmethod
     def update(cls, *endpoints, **payload):
-        """ """
+        """ PUT """
         _url = cls._url(*endpoints)
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
@@ -82,6 +89,20 @@ class Evento(Verbatel):
 class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
+
+    @classmethod
+    def message(cls, id, **payload):
+        """ POST """
+        return cls.create(id, 'comunicazione', **payload)
+
+class Presidio(Verbatel):
+    """docstring for Intervento."""
+    root = 'squadre' # <- guess (manca ancora la doc da Verbatel)
+
+    @classmethod
+    def message(cls, id, **payload):
+        """ POST """
+        return cls.create(id, 'comunicazione', **payload)
 
 
 class Messaggio(Verbatel):

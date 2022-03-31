@@ -231,6 +231,15 @@ db.define_table('comunicazione_incarico',
     rname=f'{SCHEMA}.t_comunicazioni_incarichi'
 )
 
+db.define_table('comunicazione_incarico_inviata',
+    Field('incarico_id', 'reference incarico', rname='id_incarico'),
+    Field('testo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['incarico_id', 'timeref'],
+    rname=f'{SCHEMA}.t_comunicazioni_incarichi_inviate'
+)
+
 db.define_table('join_segnalazione_incarico',
     Field('incarico_id', 'reference incarico',
         required=True, notnull=True, unique=True,
@@ -256,6 +265,7 @@ db.define_table('intervento',
     # Field('segnalazione_id', 'integer',
     #     notnull=True, unique=True, required=True
     # ),
+    # TODO: Aggiungere data creazione, ultimo aggiornamento e log di risposta
     migrate = settings.MIGRATE_INTERVENTO,
     rname = 'verbatel.interventi'
 )
@@ -274,4 +284,34 @@ db.define_table('presidio',
     Field('geom', 'geometry()', required=True, notnull=True),
     Field('evento_id', 'reference evento', rname='id_evento'),
     rname = f'{SCHEMA}.t_sopralluoghi_mobili'
+)
+
+db.define_table('stato_presidio',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('stato_presidio_id', 'reference tipo_stato_sopralluogo', rname='id_stato_sopralluogo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('parziale', 'boolean'),
+    # id_sopralluogo, id_stato_sopralluogo, data_ora_stato
+    primarykey = ['presidio_id', 'stato_presidio_id', 'timeref'],
+    rname = f'{SCHEMA}.stato_sopralluoghi_mobili'
+)
+
+db.define_table('join_presidio_squadra',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('squadra_id', 'rederence squadra', rname='id_squadra'),
+    Field('valido', 'boolean'),
+    Field('timeref', 'datetime', rname='data_ora'),
+    Field('cambio', 'datetime', rname='data_ora_cambio'),
+    # id_sopralluogo, id_squadra, data_ora
+    primarykey = ['presidio_id', 'squadra_id', 'timeref'],
+    rname = f'{SCHEMA}.join_sopralluoghi_mobili_squadra'
+)
+
+db.define_table('comunicazione_presidio',
+    Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
+    Field('testo'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('allegato'),
+    primarykey = ['presidio_id', 'timeref'],
+    rname = f'{SCHEMA}.t_comunicazioni_sopralluoghi_mobili_inviate'
 )
