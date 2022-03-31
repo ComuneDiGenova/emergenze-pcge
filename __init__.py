@@ -9,6 +9,8 @@ from .models import db
 # by importing controllers you expose the actions defined in it
 from . import controllers
 
+from .chiamate import controllers
+
 # optional parameters
 __version__ = "0.0.0"
 __author__ = "Gter s.r.l. <assistenzagis@gter.it>"

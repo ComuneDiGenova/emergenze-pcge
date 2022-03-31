@@ -131,3 +131,4 @@ dmypy.json
 # Framework specific
 settings_private.py
 uploads
+databases
