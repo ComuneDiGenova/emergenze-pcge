@@ -34,7 +34,7 @@ from py4web.utils.cors import CORS
 from pydal.validators import *
 from pydal.validators import Validator
 
-# TODO: Limitare all'indirizzo effettivo di chiamata da parte di WSO2
+# TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
 cors = CORS()
 
 @action("utente", method=['POST'])
