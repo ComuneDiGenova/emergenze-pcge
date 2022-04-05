@@ -9,10 +9,13 @@ from pydal.validators import Validator
 
 from codicefiscale import codicefiscale
 import phonenumbers
+import datetime
+
+from ..chiamate.tools import iscrizione_optons
 
 SCHEMA = 'chiamate'
 
-iscrizione_optons = []
+now = lambda: datetime.datetime.utcnow()
 
 class isValidCf(Validator):
     """docstring for isValidCf"""
@@ -40,13 +43,26 @@ class isValidPhoneNumber(Validator):
 
 db.define_table('utente',
     # TODO: CF validator
-    Field('cf', length=16, required=True, notnull=True, unique=True, requires=isValidCf()),
-    Field('nome', required=True, notnull=True),
-    Field('cognome', required=True, notnull=True),
+    Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, requires=isValidCf(), rname='cf'),
+    Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
+    Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
+    Field('dataRegistrazione', 'datetime', defaul=now, rname='dataregistrazione'),
     Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_optons)),
-    Field('disabilita', 'boolean', default=False, required=True, notnull=True),
+    Field('vulnerabilitaPersonale', length=2, default='NO', notnull=True,
+        label = 'Vulnerabilità personale',
+        comment = 'Indica se la persona possiede una vulnerabilità personale',
+        requires=IS_IN_SET(['SI', 'NO', None], zero='NO'),
+        rname = 'vulnerabilitapersonale'
+    ),
+    # Field('disabilita', 'boolean', default=False, required=True, notnull=True, requires=IS_IN_SET()),
+    Field('eMail',
+        label = 'Indirizzo email',
+        comment = 'Email di contatto alternativo ai numeri telefonici',
+        requires = IS_EMAIL(),
+        rname = 'email'
+    ),
     # ...
-    migrate = True,
+    migrate = False,
     rname=f'{SCHEMA}.utente'
 )
 
@@ -58,17 +74,20 @@ db.define_table('contatto',
 )
 
 db.define_table('civico_fc',
-    Field('codvia', length=5, label='Codice strada', required=True, notnull=True),
+    Field('topon_id'),
     Field('desvia', length=150, label='Nome strada/piazza', required=True, notnull=True),
+    Field('cod_strada', length=5, label='Codice strada', required=True, notnull=True, rname='codvia'),
     Field('numero', length=4, required=True, notnull=True),
     Field('lettera', length=1),
     Field('colore', length=1),
-    Field('cap', length=5),
-    Field('scala', 'decimal(2,0)'),
-    # Field('codmunicipio'),
-    # Field('municipio', rname='desmunicipio'),
-    # Field('circoscrizione', rname='descircoscrizione'),
-    # Field('unita_urbanistica', rname='desunitaurbanistica'),
-    migrate = True,
+    Field('testo'),
+    Field('codmunicipio', 'integer', length=2),
+    Field('codcircoscrizione', 'integer', length=2),
+    migrate = False,
     rname=f'{SCHEMA}.civico'
 )
+
+# db.define_table('componente',
+#     Field('civico_id', 'reference civico_fc'),
+#     Field('')
+# )
