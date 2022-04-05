@@ -69,7 +69,7 @@ db.define_table('utente',
 db.define_table('contatto',
     Field('telefono', required=True, notnull=True, unique=True, requires=isValidPhoneNumber()),
     # ...
-    migrate = True,
+    migrate = False,
     rname=f'{SCHEMA}.contatto'
 )
 
