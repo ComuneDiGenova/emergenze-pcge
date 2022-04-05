@@ -88,9 +88,9 @@ def evento():
     return {'result': _evento.fetch()}
 
 @action('civico', method=['GET', 'POST'])
-@action('civico.<format>', method=['GET', 'POST'])
-@action('ricerca_civico', method=['GET', 'POST'])
-@action('ricerca_civico.<format>', method=['GET', 'POST'])
+@action('indirizzo.<format>', method=['GET', 'POST'])
+@action('ricerca_indirizzo', method=['GET', 'POST'])
+@action('ricerca_indirizzo.<format>', method=['GET', 'POST'])
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
 @action.uses(CORS())

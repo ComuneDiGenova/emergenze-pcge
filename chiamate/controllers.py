@@ -43,6 +43,14 @@ from .tools import iscrizione_optons
 cors = CORS()
 
 
+@action("utente/<codice_fiscale>", method=['GET'])
+@action("allerte/utente/<codice_fiscale>", method=['GET'])
+@action.uses(cors)
+def info(codice_fiscale):
+    """ Recap informazioni utente """
+    # TODO: Codice fiscale obbligatorio
+    return {'result': db.utente(codiceFiscale=codice_fiscale)}
+
 @action("utente", method=['POST', 'GET'])
 @action("allerte/utente", method=['POST', 'GET'])
 @action.uses(cors, db)
@@ -67,14 +75,6 @@ def utente():
         result['idUtente'] = form.vars['id']
 
     return {'result': result, 'form': sf.form2dict(form)}
-
-@action("utente/<codice_fiscale>", method=['GET'])
-@action("allerte/utente/<codice_fiscale>", method=['GET'])
-@action.uses(cors)
-def info(codice_fiscale):
-    """ Recap informazioni utente """
-    # TODO: Codice fiscale obbligatorio
-    return {'result': db.utente(codiceFiscale=codice_fiscale)}
 
 
 @action("telefono", method=['POST'])
