@@ -43,7 +43,7 @@ class isValidPhoneNumber(Validator):
 
 db.define_table('utente',
     # TODO: CF validator
-    Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, requires=isValidCf(), rname='cf'),
+    Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
     Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
     Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
     Field('dataRegistrazione', 'datetime', defaul=now, rname='dataregistrazione'),
@@ -65,6 +65,8 @@ db.define_table('utente',
     migrate = False,
     rname=f'{SCHEMA}.utente'
 )
+
+db.utente.codiceFiscale.requires = requires=[IS_NOT_EMPTY(), isValidCf(), IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale)]
 
 db.define_table('contatto',
     Field('telefono', required=True, notnull=True, unique=True, requires=isValidPhoneNumber()),
