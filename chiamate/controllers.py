@@ -25,7 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-# from py4web.core import Fixture
+from py4web.core import Fixture
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
 from ..common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db
@@ -42,17 +42,16 @@ from .tools import iscrizione_optons
 # TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
 cors = CORS()
 
-
 @action("utente/<codice_fiscale>", method=['GET'])
 @action("allerte/utente/<codice_fiscale>", method=['GET'])
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
     # TODO: Codice fiscale obbligatorio
-    return {'result': db.utente(codiceFiscale=codice_fiscale)}
+    return db.utente(codiceFiscale=codice_fiscale)
 
 @action("utente", method=['POST', 'GET'])
-@action("allerte/utente", method=['POST', 'GET'])
+# @action("allerte/utente", method=['POST', 'GET'])
 @action.uses(cors, db)
 def utente():
     """ Registrazione utente """
@@ -72,9 +71,39 @@ def utente():
 
     result = {}
     if form.accepted:
-        result['idUtente'] = form.vars['id']
+        # result['idUtente'] = form.vars['id']
 
-    return {'result': result, 'form': sf.form2dict(form)}
+        if not form.errors:
+            # 200
+            # {
+            #   "id": 1234,
+            #   "dataRegistrazione": "2021-04-20",
+            #   "nome": "Alberto",
+            #   "cognome": "Alloisio",
+            #   "codiceFiscale": "RCCLNI88R60C351O",
+            #   "eMail": "utente@gmail.com",
+            #   "vulnerabilitaPersonale": "NO"
+            # }
+            # if form.vars['dataRegistrazione'] is None:
+            #     form.vars['dataRegistrazione'] = db.utente[form.vars['id']].dataRegistrazione
+            # row = db.utente[form.vars['id']]
+            
+            # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
+            # in base a quanto definito nei validatori
+            form.vars['dataRegistrazione'] = db.utente.dataRegistrazione.requires.formatter(form.vars['dataRegistrazione'])
+            return form.vars
+
+    elif form.errors:
+        # 400
+        return {
+            "detail": form.errors,
+            # "instance": "string",
+            "status": 200,
+            "title": "Validation error",
+            "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"
+        }
+
+    return sf.form2dict(form)
 
 
 @action("telefono", method=['POST'])

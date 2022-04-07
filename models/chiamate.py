@@ -5,7 +5,7 @@ from .. import settings
 from ..common import db, Field
 
 from pydal.validators import *
-from pydal.validators import Validator
+from pydal.validators import Validator, ValidationError
 
 from codicefiscale import codicefiscale
 import phonenumbers
@@ -16,6 +16,10 @@ from ..chiamate.tools import iscrizione_optons
 SCHEMA = 'chiamate'
 
 now = lambda: datetime.datetime.utcnow()
+
+# def now():
+#     import pdb; pdb.set_trace()
+#     return datetime.datetime.utcnow()
 
 class isValidCf(Validator):
     """docstring for isValidCf"""
@@ -41,12 +45,20 @@ class isValidPhoneNumber(Validator):
         else:
             return value
 
+def foo(row):
+    # dd = row.dataRegistrazione or now()
+    import pdb; pdb.set_trace()
+    return now()
+
 db.define_table('utente',
     # TODO: CF validator
     Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
     Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
     Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
-    Field('dataRegistrazione', 'datetime', defaul=now, rname='dataregistrazione'),
+    Field('dataRegistrazione', 'date', required=True, notnull=True,
+        requires=IS_DATE(format="%d-%m-%Y"),
+        rname='dataregistrazione'
+    ),
     Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_optons)),
     Field('vulnerabilitaPersonale', length=2, default='NO', notnull=True,
         label = 'Vulnerabilità personale',
@@ -62,6 +74,23 @@ db.define_table('utente',
         rname = 'email'
     ),
     # ...
+    Field(
+        "created_on",
+        "datetime",
+        default=now,
+        writable=False,
+        readable=True,
+        # label=self.param.messages["labels"].get("created_on"),
+    ),
+    Field(
+        "modified_on",
+        "datetime",
+        update=now,
+        default=now,
+        writable=False,
+        readable=True,
+        # label=self.param.messages["labels"].get("modified_on"),
+    ),
     migrate = False,
     rname=f'{SCHEMA}.utente'
 )
