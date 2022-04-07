@@ -48,15 +48,17 @@ def error_message(**errors):
 
 def validation_error(**errors):
 
+    status = 400
+
     body = {
         "detail": error_message(**errors),
         "instance": "string",
-        "status": 200,
+        "status": status,
         "title": "Errore di convalida",
         "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"
     }
 
-    raise HTTP(400, body=dumps(body), headers={'Content-Type': 'application/json'})
+    raise HTTP(status, body=dumps(body), headers={'Content-Type': 'application/json'})
 
 not_accepted = {
     "detail": "Il servizio è stato invocato senza i dati necessari.",
