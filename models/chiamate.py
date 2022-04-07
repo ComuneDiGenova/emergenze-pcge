@@ -16,6 +16,7 @@ from ..chiamate.tools import iscrizione_optons
 SCHEMA = 'chiamate'
 
 now = lambda: datetime.datetime.utcnow()
+today = lambda: datetime.date.today()
 
 # def now():
 #     import pdb; pdb.set_trace()
@@ -45,10 +46,6 @@ class isValidPhoneNumber(Validator):
         else:
             return value
 
-def foo(row):
-    # dd = row.dataRegistrazione or now()
-    import pdb; pdb.set_trace()
-    return now()
 
 db.define_table('utente',
     # TODO: CF validator
@@ -56,7 +53,8 @@ db.define_table('utente',
     Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
     Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
     Field('dataRegistrazione', 'date', required=True, notnull=True,
-        requires=IS_DATE(format="%d-%m-%Y"),
+        default = today,
+        requires=IS_DATE(format="%Y-%m-%d", error_message="Inserire un formato data del tipo: %(format)s"),
         rname='dataregistrazione'
     ),
     Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_optons)),
@@ -95,10 +93,24 @@ db.define_table('utente',
     rname=f'{SCHEMA}.utente'
 )
 
-db.utente.codiceFiscale.requires = requires=[IS_NOT_EMPTY(), isValidCf(), IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale)]
+db.utente.codiceFiscale.requires = requires=[
+    IS_NOT_EMPTY(),
+    isValidCf(),
+    IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
+]
+
+# {
+#   "idUtente": 100,
+#   "idContatto": 1234,
+#   "numero": "010123456",
+#   "tipo": "FISSO",
+#   "lingua": "BUONA",
+#   "linguaNoItalia": "francese"
+# }
 
 db.define_table('contatto',
     Field('telefono', required=True, notnull=True, unique=True, requires=isValidPhoneNumber()),
+    # Field('idUtente')
     # ...
     migrate = False,
     rname=f'{SCHEMA}.contatto'
