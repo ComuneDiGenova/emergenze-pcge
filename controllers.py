@@ -87,7 +87,7 @@ class NoDBIO(object):
 def evento():
     return {'result': _evento.fetch()}
 
-@action('civico', method=['GET', 'POST'])
+@action('indirizzo', method=['GET', 'POST'])
 @action('indirizzo.<format>', method=['GET', 'POST'])
 @action('ricerca_indirizzo', method=['GET', 'POST'])
 @action('ricerca_indirizzo.<format>', method=['GET', 'POST'])
