@@ -109,8 +109,27 @@ db.utente.codiceFiscale.requires = requires=[
 # }
 
 db.define_table('contatto',
-    Field('telefono', required=True, notnull=True, unique=True, requires=isValidPhoneNumber()),
-    # Field('idUtente')
+    Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
+    Field('idUtente', 'reference utente', required=True, notnull=True,
+        requires=IS_IN_DB(db(db.utente), db.utente.id),
+        rname = 'idutente'
+    ),
+    Field('tipo',
+        requires=IS_IN_SET(
+            ['FISSO', 'CELLULARE'],
+            error_message='Valore non permesso, scegliere tra: FISSO, CELLULARE'
+        )
+    ),
+    Field('lingua',
+        requires = IS_IN_SET(
+            ['BUONA', 'BUONA SOLO SE', 'AUDIOLESO o NON UDENTE'],
+            error_message = 'Valore non permesso, scegliere tra: BUONA, BUONA SOLO SE, AUDIOLESO o NON UDENTE'
+        )
+    ),
+    Field('linguaNoItalia',
+        comment = 'Lingua preferita a quella italiana per il messaggio vocale',
+        rname = 'linguanoitalia'
+    ),
     # ...
     migrate = False,
     rname=f'{SCHEMA}.contatto'

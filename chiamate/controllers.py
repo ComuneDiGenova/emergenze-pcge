@@ -60,6 +60,39 @@ def validation_error(**errors):
 
     raise HTTP(status, body=dumps(body), headers={'Content-Type': 'application/json'})
 
+def file_not_found():
+    
+    status = 404
+    
+    body = {
+        "detail": "I dati forniti non hanno restituito nessun risultato",
+        "instance": "string",
+        "status": 404,
+        "title": "Nessun risultato",
+        "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4"
+    }
+
+    raise HTTP(status, body=dumps(body), headers={'Content-Type': 'application/json'})
+
+def no_content():
+    """ https://datatracker.ietf.org/doc/html/rfc7231#section-6.3.5 """
+    
+    status = 204
+
+    raise HTTP(status, body='')
+
+def generic_message(detail='Successo', title='Ok'):
+
+    body = {
+        "detail": f'{detail}',
+        "instance": "string",
+        "status": 200,
+        "title": f'{title}',
+        "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.3.1"
+    }
+
+    return body
+
 not_accepted = {
     "detail": "Il servizio è stato invocato senza i dati necessari.",
     "instance": "string",
@@ -76,13 +109,18 @@ not_yet_implemented = {
     "type": "https://datatracker.ietf.org/doc/html/rfc7231#section-6.3.1"
 }
 
+
 @action("utente/<codice_fiscale>", method=['GET'])
 @action("allerte/utente/<codice_fiscale>", method=['GET'])
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
     # TODO: Codice fiscale obbligatorio
-    return db.utente(codiceFiscale=codice_fiscale)
+    info = db.utente(codiceFiscale=codice_fiscale)
+    if info is None:
+        return no_content()
+    else:
+        return info.as_dict()
 
 @action("utente", method=['POST', 'GET'])
 # @action("allerte/utente", method=['POST', 'GET'])
@@ -108,7 +146,7 @@ def utente():
         csrf_protection = False
     )
 
-    result = {}
+    # result = {}
     if form.accepted:
         # result['idUtente'] = form.vars['id']
 
@@ -125,23 +163,61 @@ def utente():
     else:
         return not_accepted
 
-    return not_accepted
+    # return not_accepted
 
 
 @action("telefono", method=['POST'])
-@action("allerte/telefono", method=['POST'])
-@action.uses(cors)
+# @action("allerte/telefono", method=['POST'])
+@action.uses(cors, db)
 def telefono():
     """ Registrazione contatto telefonico """
-    return not_yet_implemented
+    
+    form = Form(db.contatto,
+        deletable = False, # dbio=False,
+        form_name = 'telefono',
+        csrf_protection = False
+    )
+
+    if form.accepted:
+        if not form.errors:
+            # 200
+            # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
+            # in base a quanto definito nei validatori
+            return form.vars
+    elif form.errors:
+        # 400
+        return validation_error(**form.errors)
+    else:
+        # 200
+        return not_accepted
+
+    # return not_yet_implemented
 
 @action("telefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
 @action("cancellaTelefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
 @action("allerte/telefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
-@action.uses(cors)
-def telefono2(utente_id=None, contatto_id=None, telefono=None):
+@action.uses(cors, db)
+def telefono2(utente_id, contatto_id, telefono=None):
     """ Rimozione contatto telefonico """
     # TODO: utente_id, contatto_id e telefono campi obbligatori
+
+    dbset = db(db.contatto.id==contatto_id)
+    dbset = dbset(db.contatto.idUtente==utente_id)
+    if not telefono is None:
+        dbset = dbset(db.contatto.numero==telefono)
+
+    count = dbset.delete()
+    if count==0:
+        return no_content()
+        # return file_not_found()
+    elif count==1:
+        return generic_message(detail='Contatto rimosso correttamente')
+    else:
+        # Questo non deve maisuccedere
+        return validation_error(
+            telefono = 'Le chiavi corrispondono a troppi valori'
+        )
+
     return not_yet_implemented
 
 
