@@ -77,7 +77,7 @@ db.define_table('utente',
         "datetime",
         default=now,
         writable=False,
-        readable=True,
+        readable=False,
         # label=self.param.messages["labels"].get("created_on"),
     ),
     Field(
@@ -86,7 +86,7 @@ db.define_table('utente',
         update=now,
         default=now,
         writable=False,
-        readable=True,
+        readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
     migrate = False,
@@ -131,7 +131,24 @@ db.define_table('contatto',
         rname = 'linguanoitalia'
     ),
     # ...
-    migrate = False,
+    Field(
+        "created_on",
+        "datetime",
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("created_on"),
+    ),
+    Field(
+        "modified_on",
+        "datetime",
+        update=now,
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("modified_on"),
+    ),
+    migrate = True,
     rname=f'{SCHEMA}.contatto'
 )
 
