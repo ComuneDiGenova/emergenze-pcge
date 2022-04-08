@@ -148,7 +148,7 @@ db.define_table('contatto',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = True,
+    migrate = False,
     rname=f'{SCHEMA}.contatto'
 )
 
