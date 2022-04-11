@@ -10,8 +10,9 @@ from pydal.validators import Validator, ValidationError
 from codicefiscale import codicefiscale
 import phonenumbers
 import datetime
+import string
 
-from ..chiamate.tools import iscrizione_optons
+from ..chiamate.tools import iscrizione_options, LANGUAGES
 
 SCHEMA = 'chiamate'
 
@@ -50,14 +51,24 @@ class isValidPhoneNumber(Validator):
 db.define_table('utente',
     # TODO: CF validator
     Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
-    Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
-    Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
+    Field('nome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(), 
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('cognome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
     Field('dataRegistrazione', 'date', required=True, notnull=True,
         default = today,
         requires=IS_DATE(format="%Y-%m-%d", error_message="Inserire un formato data del tipo: %(format)s"),
         rname='dataregistrazione'
     ),
-    Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_optons)),
+    Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_options)),
     Field('vulnerabilitaPersonale', length=2, default='NO', notnull=True,
         label = 'Vulnerabilità personale',
         comment = 'Indica se la persona possiede una vulnerabilità personale',
@@ -99,15 +110,6 @@ db.utente.codiceFiscale.requires = requires=[
     IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
 ]
 
-# {
-#   "idUtente": 100,
-#   "idContatto": 1234,
-#   "numero": "010123456",
-#   "tipo": "FISSO",
-#   "lingua": "BUONA",
-#   "linguaNoItalia": "francese"
-# }
-
 db.define_table('contatto',
     Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
     Field('idUtente', 'reference utente', required=True, notnull=True,
@@ -128,6 +130,7 @@ db.define_table('contatto',
     ),
     Field('linguaNoItalia',
         comment = 'Lingua preferita a quella italiana per il messaggio vocale',
+        requires = IS_EMPTY_OR(IS_IN_SET(LANGUAGES)),
         rname = 'linguanoitalia'
     ),
     # ...
@@ -152,21 +155,129 @@ db.define_table('contatto',
     rname=f'{SCHEMA}.contatto'
 )
 
-db.define_table('civico_fc',
-    Field('topon_id'),
-    Field('desvia', length=150, label='Nome strada/piazza', required=True, notnull=True),
-    Field('cod_strada', length=5, label='Codice strada', required=True, notnull=True, rname='codvia'),
-    Field('numero', length=4, required=True, notnull=True),
-    Field('lettera', length=1),
-    Field('colore', length=1),
-    Field('testo'),
-    Field('codmunicipio', 'integer', length=2),
-    Field('codcircoscrizione', 'integer', length=2),
+db.define_table('recapito',
+    Field('indirizzoCompleto', required=True, notnull=True,
+        label = 'Indirizzo completo', comment = 'Indirizzo completo',
+        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
+        rname = 'indirizzocompleto'
+    ),
+    Field('idVia', required=True, notnull=True,
+        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
+        rname = 'idvia'
+    ),
+    Field('numeroCivico', length = 6, required=True, notnull=True,
+        label='Civico', comment='Numero civico',
+        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
+        rname = 'numerocivico'
+    ),
+    Field('esponente', length=1,
+        label='Esponente', comment='Esponente del civico',
+        requires = IS_EMPTY_OR(IS_IN_SET(string.ascii_uppercase))
+    ),
+    Field('colore', length=1,
+        label='Colore', comment='Colore del civico',
+        requires = IS_EMPTY_OR(IS_IN_SET('NR'))
+    ),
+    Field('interno', length=3,
+        label='Interno', comment='Interno',
+    ),
+    Field('internoLettera', length=1,
+        label='Lettera', comment="Lettera dell'interno",
+        equires = IS_IN_SET(string.ascii_uppercase),
+        rname = 'internolettera'
+    ),
+    Field('scala', label='Scala', comment="Scala",),
+    Field('posizione',
+        label='posizione', comment='Posizione della abitazione rispetto al piano stradale di riferimento',
+        requires = IS_EMPTY_OR(IS_IN_SET(['STRADA', 'SOTTOSTRADA']))
+    ),
+    Field('vulnerabilita',
+        label='Vulnerabilità', comment='Grado di vulnerabilità',
+        requires = IS_EMPTY_OR(IS_IN_SET(['SOSTENIBILE', 'MATERIALE', 'PERSONALE']))
+    ),
+    Field('amministratore', label='Amministratore', comment="Recapito dell'amministratore condominiale"),
+    Field('proprietario', label='Proprietario', comment='Recapito del proprietario'),
+    Field(
+        "created_on",
+        "datetime",
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("created_on"),
+    ),
+    Field(
+        "modified_on",
+        "datetime",
+        update=now,
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("modified_on"),
+    ),
     migrate = False,
-    rname=f'{SCHEMA}.civico'
+    rname=f'{SCHEMA}.recapito'
 )
 
-# db.define_table('componente',
-#     Field('civico_id', 'reference civico_fc'),
-#     Field('')
+db.define_table('nucleo',
+    Field('idUtente', 'reference utente', required=True, notnull=True,
+        requires=IS_IN_DB(db(db.utente), db.utente.id),
+        rname = 'idutente'
+    ),
+    Field('idCivico', 'reference recapito', required=True, notnull=True,
+        requires=IS_IN_DB(db(db.recapito), db.recapito.id),
+        rname = 'idcivico'
+    ),
+    Field('tipo', required=True, notnull=True,
+        label = 'Ruolo',
+        comment = "Indica che ruolo ha la persona all'interno del nucleo abitativo",
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_IN_SET(["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"])
+        ]
+    ),
+    Field(
+        "created_on",
+        "datetime",
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("created_on"),
+    ),
+    Field(
+        "modified_on",
+        "datetime",
+        update=now,
+        default=now,
+        writable=False,
+        readable=False,
+        # label=self.param.messages["labels"].get("modified_on"),
+    ),
+    migrate = False,
+    rname=f'{SCHEMA}.componente'
+)
+
+# db.define_table('componente_log',
+#     Field('utente', 'json'),
+#     Field('recapito', 'json'),
+#     Field('azione'),
+#     Field('messagio'),
+#     Field(
+#         "created_on",
+#         "datetime",
+#         default=now,
+#         writable=False,
+#         readable=False,
+#         # label=self.param.messages["labels"].get("created_on"),
+#     ),
+#     Field(
+#         "modified_on",
+#         "datetime",
+#         update=now,
+#         default=now,
+#         writable=False,
+#         readable=False,
+#         # label=self.param.messages["labels"].get("modified_on"),
+#     ),
+#     migrate = False,
+#     rname=f'{SCHEMA}.log'
 # )
