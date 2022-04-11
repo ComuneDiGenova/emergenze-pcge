@@ -241,6 +241,7 @@ def civico():
     """ Registrazione nuovo civico """
 
     form = Form(db.recapito,
+        record = request.POST.get('id'),
         deletable = False, # dbio=False,
         form_name = 'civico',
         csrf_protection = False
@@ -251,7 +252,7 @@ def civico():
             # 200
             # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
             # in base a quanto definito nei validatori
-            return form.vars
+            return {k: v for k,v in form.vars.items() if db.recapito[k].readable}
     elif form.errors:
         # 400
         return validation_error(**form.errors)
@@ -261,16 +262,17 @@ def civico():
 
     return not_yet_implemented
 
-@action("civico", method=['PUT'])
-@action("allerte/civico", method=['PUT'])
-@action.uses(cors)
-def civico():
-    """ Aggiornamento civico """
-    return not_yet_implemented
+# @action("civico", method=['PUT'])
+# @action("allerte/civico", method=['PUT'])
+# @action.uses(cors)
+# def civico():
+#     """ Aggiornamento civico """
+#     import pdb; pdb.set_trace()
+#     return not_yet_implemented
 
 @action("componente", method=['POST'])
 @action("allerte/componente", method=['POST'])
-@action.uses(cors)
+@action.uses(cors, db)
 def componente():
     """ Registrazione nuovo componente nucleo famigliare """
 
@@ -293,13 +295,25 @@ def componente():
         # 200
         return not_accepted
 
-    return not_yet_implemented
-
 @action("componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
-@action("cancellaComponente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
+@action("cancellaComponente/<utente_id>/<civico_id>", method=['DELETE'])
+@action("cancellaComponente/<utente_id>/<civico_id>/motivo", method=['DELETE'])
 @action("allerte/componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
-@action.uses(cors)
+@action.uses(cors, db)
 def componente(utente_id=None, civico_id=None, motivo=None):
     """ Rimozione componente nucleo famigliare """
-    # TODO: utente_id e civico_id campi obbligatori
-    return not_yet_implemented
+
+    dbset = db(db.nucleo.idUtente==utente_id)
+    dbset = dbset(db.nucleo.idCivico==civico_id)
+
+    count = dbset.delete()
+    if count==0:
+        return no_content()
+        # return file_not_found()
+    elif count>0:
+        return generic_message(detail='Componente rimosso correttamente')
+    else:
+        # Questo non deve maisuccedere
+        return validation_error(
+            telefono = 'Le chiavi corrispondono a troppi valori'
+        )

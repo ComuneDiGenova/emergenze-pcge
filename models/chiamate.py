@@ -51,8 +51,18 @@ class isValidPhoneNumber(Validator):
 db.define_table('utente',
     # TODO: CF validator
     Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
-    Field('nome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
-    Field('cognome', required=True, notnull=True, requires=IS_NOT_EMPTY()),
+    Field('nome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(), 
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('cognome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
     Field('dataRegistrazione', 'date', required=True, notnull=True,
         default = today,
         requires=IS_DATE(format="%Y-%m-%d", error_message="Inserire un formato data del tipo: %(format)s"),
@@ -204,17 +214,26 @@ db.define_table('recapito',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = True,
+    migrate = False,
     rname=f'{SCHEMA}.recapito'
 )
 
 db.define_table('nucleo',
-    Field('idUtente', 'reference utente', requires=IS_IN_DB(db(db.utente), db.utente.id)),
-    Field('idCivico', 'reference recapito' requires=IS_IN_DB(db(db.utente), db.utente.id)),
+    Field('idUtente', 'reference utente', required=True, notnull=True,
+        requires=IS_IN_DB(db(db.utente), db.utente.id),
+        rname = 'idutente'
+    ),
+    Field('idCivico', 'reference recapito', required=True, notnull=True,
+        requires=IS_IN_DB(db(db.recapito), db.recapito.id),
+        rname = 'idcivico'
+    ),
     Field('tipo', required=True, notnull=True,
         label = 'Ruolo',
         comment = "Indica che ruolo ha la persona all'interno del nucleo abitativo",
-        requires = IS_IN_SET(["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"])
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_IN_SET(["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"])
+        ]
     ),
     Field(
         "created_on",
@@ -233,7 +252,7 @@ db.define_table('nucleo',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = True,
+    migrate = False,
     rname=f'{SCHEMA}.componente'
 )
 
