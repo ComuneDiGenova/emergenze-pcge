@@ -2,4 +2,10 @@
 
 import requests
 
-iscrizione_optons = ['Fascicolo del cittadino']
+iscrizione_options = ['Fascicolo del cittadino']
+
+LANGUAGES = [
+    ('INGLESE', 'Inglese',),
+    ('FRANCESE', 'Francese',),
+    ('SPAGNOLO', 'Spagnolo',)
+]

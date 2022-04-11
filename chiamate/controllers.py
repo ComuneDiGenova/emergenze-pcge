@@ -37,7 +37,7 @@ from pydal.validators import Validator
 
 from mptools.frameworks.py4web import shampooform as sf
 
-from .tools import iscrizione_optons
+from .tools import iscrizione_options, LANGUAGES
 
 # TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
 cors = CORS()
@@ -61,9 +61,9 @@ def validation_error(**errors):
     raise HTTP(status, body=dumps(body), headers={'Content-Type': 'application/json'})
 
 def file_not_found():
-    
+
     status = 404
-    
+
     body = {
         "detail": "I dati forniti non hanno restituito nessun risultato",
         "instance": "string",
@@ -76,7 +76,7 @@ def file_not_found():
 
 def no_content():
     """ https://datatracker.ietf.org/doc/html/rfc7231#section-6.3.5 """
-    
+
     status = 204
 
     raise HTTP(status, body='')
@@ -110,6 +110,19 @@ not_yet_implemented = {
 }
 
 
+@action("lingue", method=['GET'])
+def lingue():
+    """ Restituisce le lingue accettate """
+    raise HTTP(200,
+        body=dumps([
+            {
+                "idLingua": f"{cc[0]}",
+                "descrizione": f"{cc[1]}"
+            }
+        for cc in LANGUAGES]),
+        headers={'Content-Type': 'application/json'}
+    )
+
 @action("utente/<codice_fiscale>", method=['GET'])
 @action("allerte/utente/<codice_fiscale>", method=['GET'])
 @action.uses(cors)
@@ -128,7 +141,7 @@ def info(codice_fiscale):
 def utente():
     """ Registrazione utente """
 
-    db.utente.iscrizione.default = iscrizione_optons[0]
+    db.utente.iscrizione.default = iscrizione_options[0]
     if not 'iscrizione' in request.POST:
         request.POST['iscrizione'] = db.utente.iscrizione.default
 
@@ -152,7 +165,7 @@ def utente():
 
         if not form.errors:
             # 200
-            
+
             # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
             # in base a quanto definito nei validatori
             return form.vars
@@ -171,7 +184,7 @@ def utente():
 @action.uses(cors, db)
 def telefono():
     """ Registrazione contatto telefonico """
-    
+
     form = Form(db.contatto,
         deletable = False, # dbio=False,
         form_name = 'telefono',
@@ -221,11 +234,65 @@ def telefono2(utente_id, contatto_id, telefono=None):
     return not_yet_implemented
 
 
+@action("civico", method=['POST'])
+@action("allerte/civico", method=['POST'])
+@action.uses(cors, db)
+def civico():
+    """ Registrazione nuovo civico """
+
+    form = Form(db.recapito,
+        deletable = False, # dbio=False,
+        form_name = 'civico',
+        csrf_protection = False
+    )
+
+    if form.accepted:
+        if not form.errors:
+            # 200
+            # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
+            # in base a quanto definito nei validatori
+            return form.vars
+    elif form.errors:
+        # 400
+        return validation_error(**form.errors)
+    else:
+        # 200
+        return not_accepted
+
+    return not_yet_implemented
+
+@action("civico", method=['PUT'])
+@action("allerte/civico", method=['PUT'])
+@action.uses(cors)
+def civico():
+    """ Aggiornamento civico """
+    return not_yet_implemented
+
 @action("componente", method=['POST'])
 @action("allerte/componente", method=['POST'])
 @action.uses(cors)
 def componente():
     """ Registrazione nuovo componente nucleo famigliare """
+
+    form = Form(db.nucleo,
+        deletable = False, # dbio=False,
+        form_name = 'componente',
+        csrf_protection = False
+    )
+
+    if form.accepted:
+        if not form.errors:
+            # 200
+            # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
+            # in base a quanto definito nei validatori
+            return form.vars
+    elif form.errors:
+        # 400
+        return validation_error(**form.errors)
+    else:
+        # 200
+        return not_accepted
+
     return not_yet_implemented
 
 @action("componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
@@ -235,19 +302,4 @@ def componente():
 def componente(utente_id=None, civico_id=None, motivo=None):
     """ Rimozione componente nucleo famigliare """
     # TODO: utente_id e civico_id campi obbligatori
-    return not_yet_implemented
-
-
-@action("civico", method=['POST'])
-@action("allerte/civico", method=['POST'])
-@action.uses(cors)
-def civico():
-    """ Registrazione nuovo civico """
-    return not_yet_implemented
-
-@action("civico", method=['PUT'])
-@action("allerte/civico", method=['PUT'])
-@action.uses(cors)
-def civico():
-    """ Aggiornamento civico """
     return not_yet_implemented
