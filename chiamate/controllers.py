@@ -128,7 +128,6 @@ def lingue():
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
-    # TODO: Codice fiscale obbligatorio
     info = db.utente(codiceFiscale=codice_fiscale)
     if info is None:
         return no_content()
