@@ -129,10 +129,18 @@ def lingue():
 def info(codice_fiscale):
     """ Recap informazioni utente """
     info = db.utente(codiceFiscale=codice_fiscale)
+
+    # TODO: 
+    # dbset = db(db.utente.codiceFiscale==codice_fiscale)
+    # dbset = dbset(db.utente.id==db.contatto.idUtente)
+    # dbset.select(
+    #
+    # )
+
     if info is None:
         return no_content()
     else:
-        return info.as_dict()
+        return {k: v for k,v in info.as_dict().items() if db.utente[k].readable}
 
 @action("utente", method=['POST', 'GET'])
 # @action("allerte/utente", method=['POST', 'GET'])
