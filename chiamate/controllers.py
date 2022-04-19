@@ -36,6 +36,7 @@ from pydal.validators import *
 from pydal.validators import Validator
 
 from mptools.frameworks.py4web import shampooform as sf
+import functools
 
 from .tools import iscrizione_options, LANGUAGES
 
@@ -130,17 +131,29 @@ def info(codice_fiscale):
     """ Recap informazioni utente """
     info = db.utente(codiceFiscale=codice_fiscale)
 
+    foo = {ff.name: f"ARRAY_AGG({db.contatto._rname}.{ff._rname})" for ff in db.contatto}
+
     # TODO: 
-    # dbset = db(db.utente.codiceFiscale==codice_fiscale)
-    # dbset = dbset(db.utente.id==db.contatto.idUtente)
-    # dbset.select(
-    #
-    # )
+    dbset = db(db.utente.codiceFiscale==codice_fiscale)
+    dbset = dbset(db.utente.id==db.contatto.idUtente)
+    res_ = dbset.select(
+        db.utente.ALL,
+        *foo.values(),
+        # db.utente.codiceFiscale,
+        groupby = [f for f in db.utente],
+    ).first()
+
+    res = {ff.name: res_.utente[ff.name] for ff in db.utente if ff.readable}
+    # import pdb; pdb.set_trace()
+    # res['listaContattiTelefonici'] = [
+    #     {}
+    # for ii in range(len(res_[foo.keys().next()]))]
 
     if info is None:
         return no_content()
     else:
-        return {k: v for k,v in info.as_dict().items() if db.utente[k].readable}
+        return res
+        # return {k: v for k,v in info.as_dict().items() if db.utente[k].readable}
 
 @action("utente", method=['POST', 'GET'])
 # @action("allerte/utente", method=['POST', 'GET'])
