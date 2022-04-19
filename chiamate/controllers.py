@@ -129,25 +129,58 @@ def lingue():
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
-    info = db.utente(codiceFiscale=codice_fiscale)
+    # info = db.utente(codiceFiscale=codice_fiscale)
 
-    foo = {ff.name: f"ARRAY_AGG({db.contatto._rname}.{ff._rname})" for ff in db.contatto}
+    # res = db(
+    #     (db.utente.codiceFiscale==codice_fiscale) & \
+    #     (db.utente.id==db.nucleo.idUtente) & \
+    #     (db.nucleo.idCivico==db.recapito.id)
+    # )
 
-    # TODO: 
-    dbset = db(db.utente.codiceFiscale==codice_fiscale)
-    dbset = dbset(db.utente.id==db.contatto.idUtente)
+
+    contatti = {ff.name: f"ARRAY_AGG({db.contatto._rname}.{ff._rname} ORDER BY {db.contatto._rname}.idUtente, {db.contatto._rname}.id)" for ff in db.contatto if ff.readable}
+
+    altri_componenti = db.nucleo.with_alias('altri_componenti')
+    altri_utenti = db.utente.with_alias('altri_utenti')
+    componenti = {ff.name: f"ARRAY_AGG({altri_utenti._tablename}.{ff._rname} ORDER BY {altri_utenti._tablename}.id)" for ff in altri_utenti if ff.readable}
+
+    recapiti = {ff.name: f"ARRAY_AGG({db.recapito._rname}.{ff._rname} ORDER BY {db.recapito._rname}.id)" for ff in db.recapito if ff.readable}
+
+    # TODO:
+    dbset = db(
+        (db.utente.codiceFiscale==codice_fiscale) & \
+        (db.utente.id==db.nucleo.idUtente) & \
+        (db.nucleo.idCivico==db.recapito.id) & \
+        (db.recapito.id==altri_componenti.idCivico) & \
+        (altri_utenti.id==db.contatto.idUtente) # & \
+        # (altri_utenti.codiceFiscale!=codice_fiscale)
+        # (altri_componenti.idUtente==altri_utenti.id)
+    )
+
     res_ = dbset.select(
         db.utente.ALL,
-        *foo.values(),
+        *contatti.values(),
+        # *componenti.values(),
+        *recapiti.values(),
         # db.utente.codiceFiscale,
-        groupby = [f for f in db.utente],
+        distinct = db.utente.id,
+        groupby = [db.utente.id]+[f for f in db.recapito], #+[f for f in altri_utenti],
+        left = altri_componenti.on(
+            (altri_componenti.idUtente==altri_utenti.id)
+        )
     ).first()
+
+    import pdb; pdb.set_trace()
 
     res = {ff.name: res_.utente[ff.name] for ff in db.utente if ff.readable}
     # import pdb; pdb.set_trace()
     # res['listaContattiTelefonici'] = [
-    #     {}
-    # for ii in range(len(res_[foo.keys().next()]))]
+    #     {k: res_[v][ii] for k,v in contatti.items()}
+    # for ii in range(len(res_['_extra'][contatti['id']]))]
+
+    res['listaCiviciRegistrati'] = [
+        {k: res_[v][ii] for k,v in recapiti.items()}
+    for ii in range(len(res_['_extra'][recapiti['id']]))]
 
     if info is None:
         return no_content()
