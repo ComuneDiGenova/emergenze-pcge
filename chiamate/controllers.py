@@ -36,7 +36,7 @@ from pydal.validators import *
 from pydal.validators import Validator
 
 from mptools.frameworks.py4web import shampooform as sf
-import functools
+import functools, itertools
 
 from .tools import iscrizione_options, LANGUAGES
 
@@ -103,7 +103,7 @@ not_accepted = {
 }
 
 not_yet_implemented = {
-    "detail": "Il servizio non conforme",
+    "detail": "Servizio non conforme",
     "instance": "string",
     "status": 200,
     "title": "Servizio dummy",
@@ -129,64 +129,71 @@ def lingue():
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
-    # info = db.utente(codiceFiscale=codice_fiscale)
 
-    # res = db(
-    #     (db.utente.codiceFiscale==codice_fiscale) & \
-    #     (db.utente.id==db.nucleo.idUtente) & \
-    #     (db.nucleo.idCivico==db.recapito.id)
-    # )
+    contatti = f"json_agg(DISTINCT {db.contatto})"
+    recapiti = f"json_agg(DISTINCT {db.recapito})"
+    ruolo = f"json_agg({db.nucleo._rname.split('.')[1]})"
 
-
-    contatti = {ff.name: f"ARRAY_AGG({db.contatto._rname}.{ff._rname} ORDER BY {db.contatto._rname}.idUtente, {db.contatto._rname}.id)" for ff in db.contatto if ff.readable}
-
-    altri_componenti = db.nucleo.with_alias('altri_componenti')
-    altri_utenti = db.utente.with_alias('altri_utenti')
-    componenti = {ff.name: f"ARRAY_AGG({altri_utenti._tablename}.{ff._rname} ORDER BY {altri_utenti._tablename}.id)" for ff in altri_utenti if ff.readable}
-
-    recapiti = {ff.name: f"ARRAY_AGG({db.recapito._rname}.{ff._rname} ORDER BY {db.recapito._rname}.id)" for ff in db.recapito if ff.readable}
-
-    # TODO:
-    dbset = db(
-        (db.utente.codiceFiscale==codice_fiscale) & \
-        (db.utente.id==db.nucleo.idUtente) & \
+    join = db((db.utente.id==db.nucleo.idUtente) & \
         (db.nucleo.idCivico==db.recapito.id) & \
-        (db.recapito.id==altri_componenti.idCivico) & \
-        (altri_utenti.id==db.contatto.idUtente) # & \
-        # (altri_utenti.codiceFiscale!=codice_fiscale)
-        # (altri_componenti.idUtente==altri_utenti.id)
-    )
+        (db.utente.id==db.contatto.idUtente))
+
+    dbset = join((db.utente.codiceFiscale==codice_fiscale))
 
     res_ = dbset.select(
         db.utente.ALL,
-        *contatti.values(),
-        # *componenti.values(),
-        *recapiti.values(),
-        # db.utente.codiceFiscale,
+        contatti,
+        recapiti,
+        ruolo,
         distinct = db.utente.id,
-        groupby = [db.utente.id]+[f for f in db.recapito], #+[f for f in altri_utenti],
-        left = altri_componenti.on(
-            (altri_componenti.idUtente==altri_utenti.id)
-        )
+        groupby = db.utente.id,
+        limitby = (0,1,)
     ).first()
 
-    import pdb; pdb.set_trace()
+    if res_ is None: no_content()
 
     res = {ff.name: res_.utente[ff.name] for ff in db.utente if ff.readable}
-    # import pdb; pdb.set_trace()
-    # res['listaContattiTelefonici'] = [
-    #     {k: res_[v][ii] for k,v in contatti.items()}
-    # for ii in range(len(res_['_extra'][contatti['id']]))]
+
+    ruoli = {vv['idcivico']: vv['tipo'] for vv in res_[ruolo]}
 
     res['listaCiviciRegistrati'] = [
-        {k: res_[v][ii] for k,v in recapiti.items()}
-    for ii in range(len(res_['_extra'][recapiti['id']]))]
+        {f.name: recapito[f._rname.strip('"')] for f in db.recapito if f.readable}
+    for recapito in res_[recapiti]]
+    # if ruoli[recapito['id']]=="CAPO FAMIGLIA"
+    
+    res['listaContattiTelefonici'] = [
+        {f.name: contatto[f._rname.strip('"')] for f in db.contatto if f.readable}
+    for contatto in res_[contatti]]
 
-    if info is None:
-        return no_content()
-    else:
-        return res
-        # return {k: v for k,v in info.as_dict().items() if db.utente[k].readable}
+    componenti = f"json_agg({db.utente} ORDER BY {db.utente}.id)"
+
+    res1_ = join(
+        (db.utente.codiceFiscale!=codice_fiscale) & \
+        db.recapito.id.belongs([recapito['id'] for recapito in res_[recapiti]])
+    ).select(
+        db.recapito.id,
+        db.nucleo.tipo.with_alias('tipo'),
+        contatti,
+        componenti,
+        groupby = [db.nucleo.tipo]+[ff for ff in db.recapito],
+        orderby = db.recapito.id
+    )
+
+    for el in res['listaCiviciRegistrati']:
+        if ruoli[el['id']] == "CAPO FAMIGLIA":
+            el['listaComponentiNucleo'] = [
+                dict(
+                    {f.name: comp[f._rname.strip('"')] for f in db.utente if f.readable},
+                    tipo = componentiByCivico['tipo'],
+                    listaContattiTelefonici = [{f.name: dd[f._rname.strip('"')] for f in db.contatto if f.readable}
+                        for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
+                )
+            for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id'])
+            for comp in itertools.chain(componentiByCivico[componenti])]
+        else:
+            el['listaComponentiNucleo'] = []
+
+    return res
 
 @action("utente", method=['POST', 'GET'])
 # @action("allerte/utente", method=['POST', 'GET'])
