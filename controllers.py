@@ -27,7 +27,7 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
-from .common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db
+from .common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db, cors
 
 from py4web.utils.form import Form
 from pydal.validators import *
@@ -43,7 +43,6 @@ from . import presidio_mobile as squadra
 from .incarico import incarico
 
 from mptools.frameworks.py4web import shampooform as sf
-from mptools.frameworks.py4web.controller import CORS # , ApiForm
 
 import geojson, json
 
@@ -83,7 +82,7 @@ class NoDBIO(object):
 #     return dict(message=message)
 
 @action("evento")
-@action.uses(CORS())
+@action.uses(cors)
 def evento():
     return {'result': _evento.fetch()}
 
@@ -93,7 +92,7 @@ def evento():
 @action('ricerca_indirizzo.<format>', method=['GET', 'POST'])
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
-@action.uses(CORS())
+@action.uses(cors)
 def civico(format=None):
 
     db.civico.desvia.comment = 'Cerca per toponimo'
@@ -162,7 +161,7 @@ def civico(format=None):
         return {'result': result, 'form': sf.form2dict(form)}
 
 @action("fetch/segnalazione/<id:int>")
-@action.uses(CORS())
+@action.uses(cors)
 def fetch_segnalazione(id):
     return {'result': _segnalazione.fetch(id)}
 

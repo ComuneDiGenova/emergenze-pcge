@@ -28,19 +28,16 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 from py4web.core import Fixture, HTTP, dumps
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
-from ..common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db
+from ..common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db, cors
 
 from py4web.utils.form import Form
-from py4web.utils.cors import CORS
 from pydal.validators import *
 from pydal.validators import Validator
 
 from mptools.frameworks.py4web import shampooform as sf
+import functools, itertools
 
 from .tools import iscrizione_options, LANGUAGES
-
-# TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
-cors = CORS()
 
 def error_message(**errors):
     base_message = "Sono stati riscontrati i seguenti valori nella compilazione del form:\n"
@@ -102,7 +99,7 @@ not_accepted = {
 }
 
 not_yet_implemented = {
-    "detail": "Il servizio non conforme",
+    "detail": "Servizio non conforme",
     "instance": "string",
     "status": 200,
     "title": "Servizio dummy",
@@ -128,12 +125,71 @@ def lingue():
 @action.uses(cors)
 def info(codice_fiscale):
     """ Recap informazioni utente """
-    # TODO: Codice fiscale obbligatorio
-    info = db.utente(codiceFiscale=codice_fiscale)
-    if info is None:
-        return no_content()
-    else:
-        return info.as_dict()
+
+    contatti = f"json_agg(DISTINCT {db.contatto})"
+    recapiti = f"json_agg(DISTINCT {db.recapito})"
+    ruolo = f"json_agg({db.nucleo._rname.split('.')[1]})"
+
+    join = db((db.utente.id==db.nucleo.idUtente) & \
+        (db.nucleo.idCivico==db.recapito.id) & \
+        (db.utente.id==db.contatto.idUtente))
+
+    dbset = join((db.utente.codiceFiscale==codice_fiscale))
+
+    res_ = dbset.select(
+        db.utente.ALL,
+        contatti,
+        recapiti,
+        ruolo,
+        distinct = db.utente.id,
+        groupby = db.utente.id,
+        limitby = (0,1,)
+    ).first()
+
+    if res_ is None: no_content()
+
+    res = {ff.name: res_.utente[ff.name] for ff in db.utente if ff.readable}
+
+    ruoli = {vv['idcivico']: vv['tipo'] for vv in res_[ruolo]}
+
+    res['listaCiviciRegistrati'] = [
+        {f.name: recapito[f._rname.strip('"')] for f in db.recapito if f.readable}
+    for recapito in res_[recapiti]]
+    # if ruoli[recapito['id']]=="CAPO FAMIGLIA"
+    
+    res['listaContattiTelefonici'] = [
+        {f.name: contatto[f._rname.strip('"')] for f in db.contatto if f.readable}
+    for contatto in res_[contatti]]
+
+    componenti = f"json_agg({db.utente} ORDER BY {db.utente}.id)"
+
+    res1_ = join(
+        (db.utente.codiceFiscale!=codice_fiscale) & \
+        db.recapito.id.belongs([recapito['id'] for recapito in res_[recapiti]])
+    ).select(
+        db.recapito.id,
+        db.nucleo.tipo.with_alias('tipo'),
+        contatti,
+        componenti,
+        groupby = [db.nucleo.tipo]+[ff for ff in db.recapito],
+        orderby = db.recapito.id
+    )
+
+    for el in res['listaCiviciRegistrati']:
+        if ruoli[el['id']] == "CAPO FAMIGLIA":
+            el['listaComponentiNucleo'] = [
+                dict(
+                    {f.name: comp[f._rname.strip('"')] for f in db.utente if f.readable},
+                    tipo = componentiByCivico['tipo'],
+                    listaContattiTelefonici = [{f.name: dd[f._rname.strip('"')] for f in db.contatto if f.readable}
+                        for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
+                )
+            for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id'])
+            for comp in itertools.chain(componentiByCivico[componenti])]
+        else:
+            el['listaComponentiNucleo'] = []
+
+    return res
 
 @action("utente", method=['POST', 'GET'])
 # @action("allerte/utente", method=['POST', 'GET'])

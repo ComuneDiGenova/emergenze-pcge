@@ -12,6 +12,7 @@ from py4web.utils.downloader import downloader
 from pydal.tools.tags import Tags
 from py4web.utils.factories import ActionFactory
 from . import settings
+from py4web.utils.cors import CORS
 
 # #######################################################
 # implement custom loggers form settings.LOGGERS
@@ -191,3 +192,6 @@ auth.enable(uses=(session, T, db), env=dict(T=T))
 # #######################################################
 unauthenticated = ActionFactory(db, session, T, flash, auth)
 authenticated = ActionFactory(db, session, T, flash, auth.user)
+
+# TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
+cors = CORS()
