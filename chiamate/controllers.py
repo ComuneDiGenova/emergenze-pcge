@@ -28,10 +28,9 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 from py4web.core import Fixture, HTTP, dumps
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
-from ..common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db
+from ..common import session, T, cache, auth, logger, authenticated, unauthenticated, flash, db, cors
 
 from py4web.utils.form import Form
-from py4web.utils.cors import CORS
 from pydal.validators import *
 from pydal.validators import Validator
 
@@ -39,9 +38,6 @@ from mptools.frameworks.py4web import shampooform as sf
 import functools, itertools
 
 from .tools import iscrizione_options, LANGUAGES
-
-# TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
-cors = CORS()
 
 def error_message(**errors):
     base_message = "Sono stati riscontrati i seguenti valori nella compilazione del form:\n"
