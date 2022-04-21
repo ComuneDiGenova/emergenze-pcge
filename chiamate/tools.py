@@ -2,7 +2,10 @@
 
 import requests
 
-iscrizione_options = ['Fascicolo del cittadino']
+FDC = 'Fascicolo del cittadino'
+PC = 'Protezione civile'
+
+iscrizione_options = [FDC, PC]
 
 LANGUAGES = [
     ('INGLESE', 'Inglese',),

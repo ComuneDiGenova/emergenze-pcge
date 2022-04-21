@@ -53,7 +53,7 @@ db.define_table('utente',
     Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
     Field('nome', required=True, notnull=True,
         requires = [
-            IS_NOT_EMPTY(), 
+            IS_NOT_EMPTY(),
             IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
         ]
     ),
@@ -255,6 +255,39 @@ db.define_table('nucleo',
     migrate = False,
     rname=f'{SCHEMA}.componente'
 )
+
+db.define_table('recupero',
+    Field('nome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('cognome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
+    Field('indirizzoCompleto'),
+    Field('numeroCivico', length = 20, required=True, notnull=True,
+        label='Civico', comment='Numero civico',
+        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
+        rname = 'numerocivico'
+    ),
+    Field('gruppo', length=1, required=True, notnull=True,
+        requires = IS_IN_SET(['1', '2', '3'])
+    ),
+    migrate = False,
+    rname=f'{SCHEMA}.recupero'
+)
+
+# TODO: Attivare il versionamento della tabella recupero
+
+# TODO: callback su inserimento numero telefonico che verifichi l'esistenza del
+#       numero inserito nella tabella recupero, in caso affermativo il record
+#       corrispondente della tabella recuper va rimosso
 
 # db.define_table('componente_log',
 #     Field('utente', 'json'),
