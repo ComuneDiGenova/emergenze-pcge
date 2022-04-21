@@ -77,7 +77,7 @@ if ($_POST['telefono2']!=null){
 if ($_POST['fax']!=null){
     $query=$query.",fax";
 }
-if ($_POST['numero_gg']!=null){
+if ($_POST['num_GG']!=null){
     $query=$query.",numero_gg";
 }
 
@@ -107,8 +107,8 @@ if ($_POST['telefono2']!=null){
 if ($_POST['fax']!=null){
     $query=$query.",'".$_POST['fax']."'";
 }
-if ($_POST['numero_gg']!=null){
-    $query=$query.",'".$_POST['numero_gg']."'";
+if ($_POST['num_GG']!=null){
+    $query=$query.",'".$_POST['num_GG']."'";
 }
 $query=$query.");";
 
