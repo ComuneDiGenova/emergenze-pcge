@@ -2,7 +2,7 @@
 
 from .. import settings
 
-from ..common import db, Field
+from ..common import db, Field, logger
 
 from pydal.validators import *
 from pydal.validators import Validator, ValidationError
@@ -41,11 +41,16 @@ class isValidPhoneNumber(Validator):
     def validate(self, value, record_id=None):
         """ """
         try:
-            assert phonenumbers.is_valid_number(phonenumbers.parse(value, None))
+            pn = phonenumbers.parse(value, None)
+        except phonenumbers.phonenumberutil.NumberParseException:
+            pn = phonenumbers.parse(value, 'IT')
+        
+        try:
+            assert phonenumbers.is_valid_number(pn)
         except AssertionError:
             raise ValidationError("Formato numero telefonico non valido")
         else:
-            return value
+            return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
 
 
 db.define_table('utente',
@@ -53,7 +58,7 @@ db.define_table('utente',
     Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
     Field('nome', required=True, notnull=True,
         requires = [
-            IS_NOT_EMPTY(), 
+            IS_NOT_EMPTY(),
             IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
         ]
     ),
@@ -255,6 +260,55 @@ db.define_table('nucleo',
     migrate = False,
     rname=f'{SCHEMA}.componente'
 )
+
+db.define_table('recupero',
+    Field('nome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('cognome', required=True, notnull=True,
+        requires = [
+            IS_NOT_EMPTY(),
+            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
+        ]
+    ),
+    Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
+    Field('indirizzoCompleto', rname='indirizzocompleto'),
+    Field('numeroCivico', length = 20, required=True, notnull=True,
+        label='Civico', comment='Numero civico',
+        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
+        rname = 'numerocivico'
+    ),
+    Field('gruppo', length=1, required=True, notnull=True,
+        requires = IS_IN_SET(['1', '2', '3'])
+    ),
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True
+    ),
+    migrate = False,
+    rname = f'{SCHEMA}.recupero'
+)
+
+db.recupero._enable_record_versioning()
+
+# DONE: callback su inserimento numero telefonico che verifichi l'esistenza del
+#       numero inserito nella tabella recupero, in caso affermativo il record
+#       corrispondente della tabella recupero va rimosso
+def foo(f, i):
+    """
+    Nel caso in cui attraverso le API venga registrato un telefono della tabella
+    recupero questo viene disattivato dalla stessa tabella e gestito normalmente
+    """
+    def bar(numero, **__):
+        tel, err = db.recupero.numero.requires(numero)
+        nn = db(db.recupero.numero==tel).delete()
+        logger.debug(f'Removed records: {nn}')
+    return bar(**f)
+
+db.contatto._after_insert.append(foo)
+
 
 # db.define_table('componente_log',
 #     Field('utente', 'json'),
