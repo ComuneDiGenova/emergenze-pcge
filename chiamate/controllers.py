@@ -148,17 +148,21 @@ def info(codice_fiscale):
 
     if res_ is None: no_content()
 
-    res = {ff.name: res_.utente[ff.name] for ff in db.utente if ff.readable}
+    # WARNING! Mantenere questo controllo, la proprietà readable non sembra sempre
+    #          affidabile, talvolta è nulla
+    field_is_readable = lambda field: field.readable or not field.name in ('modified_on', 'created_on',)
+
+    res = {ff.name: res_.utente[ff.name] for ff in db.utente if field_is_readable(ff)}
 
     ruoli = {vv['idcivico']: vv['tipo'] for vv in res_[ruolo]}
 
     res['listaCiviciRegistrati'] = [
-        {f.name: recapito[f._rname.strip('"')] for f in db.recapito if f.readable}
+        {ff.name: recapito[ff._rname.strip('"')] for ff in db.recapito if field_is_readable(ff)}
     for recapito in res_[recapiti]]
     # if ruoli[recapito['id']]=="CAPO FAMIGLIA"
-    
+
     res['listaContattiTelefonici'] = [
-        {f.name: contatto[f._rname.strip('"')] for f in db.contatto if f.readable}
+        {ff.name: contatto[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
     for contatto in res_[contatti]]
 
     componenti = f"json_agg({db.utente} ORDER BY {db.utente}.id)"
@@ -179,9 +183,9 @@ def info(codice_fiscale):
         if ruoli[el['id']] == "CAPO FAMIGLIA":
             el['listaComponentiNucleo'] = [
                 dict(
-                    {f.name: comp[f._rname.strip('"')] for f in db.utente if f.readable},
+                    {ff.name: comp[ff._rname.strip('"')] for ff in db.utente if field_is_readable(ff)},
                     tipo = componentiByCivico['tipo'],
-                    listaContattiTelefonici = [{f.name: dd[f._rname.strip('"')] for f in db.contatto if f.readable}
+                    listaContattiTelefonici = [{ff.name: dd[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
                         for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
                 )
             for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id'])
