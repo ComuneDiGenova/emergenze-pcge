@@ -205,15 +205,17 @@ def utente():
     if not 'iscrizione' in request.POST:
         request.POST['iscrizione'] = db.utente.iscrizione.default
 
-    db.utente.vulnerabilitaPersonale.required = False
-    if not 'vulnerabilitaPersonale' in request.POST:
-        request.POST['vulnerabilitaPersonale'] = db.utente.vulnerabilitaPersonale.default
+    # db.utente.vulnerabilitaPersonale.required = False
+    # if not 'vulnerabilitaPersonale' in request.POST:
+    #     request.POST['vulnerabilitaPersonale'] = db.utente.vulnerabilitaPersonale.default
 
     db.utente.dataRegistrazione.required = False
     if not 'dataRegistrazione' in request.POST:
         request.POST['dataRegistrazione'] = db.utente.dataRegistrazione.default()
 
+    record = db.utente(codiceFiscale=request.POST.get('codiceFiscale'))
     form = Form(db.utente,
+        record = record,
         deletable = False, # dbio=False,
         form_name = 'utente',
         csrf_protection = False
