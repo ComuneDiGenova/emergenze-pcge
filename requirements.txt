@@ -6,4 +6,5 @@ ujson
 # chimate #
 python-codicefiscale
 phonenumbers
+openpyxl
 ###########

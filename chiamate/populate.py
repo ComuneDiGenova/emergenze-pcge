@@ -13,18 +13,18 @@ def populate(df, ref_date=None):
         db.recupero.validate_and_insert(
             nome = row.NOME.strip(),
             cognome = row.COGNOME.strip(),
-            numero = row.NUMERO.strip(),
-            indirizzoCompleto = f'{row['VIA/PIAZZA'].strip()} {row.INDIRIZZO.strip()}',
+            numero = row.TELEFONO.strip(),
+            indirizzoCompleto = f"{row['VIA/PIAZZA'].strip()} {row.INDIRIZZO.strip()}",
             numeroCivico = row.CIVICO.strip(),
             gruppo = row.GRUPPO.strip()
         )
 
 
 def load(path=FILEPATH):
-
     last_modified = datetime.fromtimestamp(pathlib.Path(FILEPATH).stat().st_mtime).date()
     df = pandas.read_excel(FILEPATH, engine='openpyxl', dtype=str)
     populate(df, ref_date=last_modified)
+    db.commit()
 
 # if __name__ == '__main__':
 #     df = pandas.read_excel(FILEPATH, engine='openpyxl')
