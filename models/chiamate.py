@@ -77,7 +77,7 @@ db.define_table('utente',
     Field('vulnerabilitaPersonale', length=2, default='NO', notnull=True,
         label = 'Vulnerabilità personale',
         comment = 'Indica se la persona possiede una vulnerabilità personale',
-        requires=IS_IN_SET(['SI', 'NO', None], zero='NO'),
+        requires=IS_IN_SET(['SI', 'NO']),
         rname = 'vulnerabilitapersonale'
     ),
     # Field('disabilita', 'boolean', default=False, required=True, notnull=True, requires=IS_IN_SET()),
@@ -112,7 +112,7 @@ db.define_table('utente',
 db.utente.codiceFiscale.requires = requires=[
     IS_NOT_EMPTY(),
     isValidCf(),
-    IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
+    # IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
 ]
 
 db.define_table('contatto',

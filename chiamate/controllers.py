@@ -130,7 +130,8 @@ def info(codice_fiscale):
     recapiti = f"json_agg(DISTINCT {db.recapito})"
     ruolo = f"json_agg({db.nucleo._rname.split('.')[1]})"
 
-    join = db((db.utente.id==db.nucleo.idUtente) & \
+    join = db(
+        (db.utente.id==db.nucleo.idUtente) & \
         (db.nucleo.idCivico==db.recapito.id) & \
         (db.utente.id==db.contatto.idUtente))
 
@@ -211,15 +212,17 @@ def utente():
     if not 'iscrizione' in request.POST:
         request.POST['iscrizione'] = db.utente.iscrizione.default
 
-    db.utente.vulnerabilitaPersonale.required = False
-    if not 'vulnerabilitaPersonale' in request.POST:
-        request.POST['vulnerabilitaPersonale'] = db.utente.vulnerabilitaPersonale.default
+    # db.utente.vulnerabilitaPersonale.required = False
+    # if not 'vulnerabilitaPersonale' in request.POST:
+    #     request.POST['vulnerabilitaPersonale'] = db.utente.vulnerabilitaPersonale.default
 
     db.utente.dataRegistrazione.required = False
     if not 'dataRegistrazione' in request.POST:
         request.POST['dataRegistrazione'] = db.utente.dataRegistrazione.default()
 
+    record = db.utente(codiceFiscale=request.POST.get('codiceFiscale'))
     form = Form(db.utente,
+        record = record,
         deletable = False, # dbio=False,
         form_name = 'utente',
         csrf_protection = False
@@ -272,18 +275,23 @@ def telefono():
 
     # return not_yet_implemented
 
-@action("telefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
-@action("cancellaTelefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
-@action("allerte/telefono/<utente_id>/<contatto_id>/<telefono>", method=['DELETE'])
+
+# @action("telefono/<contatto_id>/<utente_id>/<telefono>", method=['DELETE'])
+# @action("cancellaTelefono/<contatto_id>/<utente_id>/<telefono>", method=['DELETE'])
+# @action("allerte/telefono/<contatto_id>/<utente_id>/<telefono>", method=['DELETE'])
+@action("telefono/<contatto_id>", method=['DELETE'])
+@action("cancellaTelefono/<contatto_id>", method=['DELETE'])
+@action("allerte/telefono/<contatto_id>", method=['DELETE'])
 @action.uses(cors, db)
-def telefono2(utente_id, contatto_id, telefono=None):
+def telefono2(contatto_id, utente_id=None, telefono=None):
     """ Rimozione contatto telefonico """
     # TODO: utente_id, contatto_id e telefono campi obbligatori
 
     dbset = db(db.contatto.id==contatto_id)
-    dbset = dbset(db.contatto.idUtente==utente_id)
-    if not telefono is None:
-        dbset = dbset(db.contatto.numero==telefono)
+    # if not utente_id is None:
+    #     dbset = dbset(db.contatto.idUtente==utente_id)
+    # if not telefono is None:
+    #     dbset = dbset(db.contatto.numero==telefono)
 
     count = dbset.delete()
     if count==0:
@@ -292,7 +300,7 @@ def telefono2(utente_id, contatto_id, telefono=None):
     elif count==1:
         return generic_message(detail='Contatto rimosso correttamente')
     else:
-        # Questo non deve maisuccedere
+        # Questo non deve mai succedere
         return validation_error(
             telefono = 'Le chiavi corrispondono a troppi valori'
         )
