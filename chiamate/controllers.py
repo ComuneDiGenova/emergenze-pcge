@@ -180,18 +180,24 @@ def info(codice_fiscale):
     )
 
     for el in res['listaCiviciRegistrati']:
+        nucleocf = set()
+        el['listaComponentiNucleo'] = []
         if ruoli[el['id']] == "CAPO FAMIGLIA":
-            el['listaComponentiNucleo'] = [
-                dict(
-                    {ff.name: comp[ff._rname.strip('"')] for ff in db.utente if field_is_readable(ff)},
-                    tipo = componentiByCivico['tipo'],
-                    listaContattiTelefonici = [{ff.name: dd[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
-                        for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
-                )
-            for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id'])
-            for comp in itertools.chain(componentiByCivico[componenti])]
-        else:
-            el['listaComponentiNucleo'] = []
+            for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id']):
+                for comp in itertools.chain(componentiByCivico[componenti]):
+                    info = dict(
+                        {ff.name: comp[ff._rname.strip('"')] for ff in db.utente if field_is_readable(ff)},
+                        tipo = componentiByCivico['tipo'],
+                        listaContattiTelefonici = [{ff.name: dd[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
+                            for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
+                    )
+                    # TODO: gli utenti doppi sovrebbero poter essere evitati direttamente
+                    # nella definizione dei loop invece che rimossi a posteriori 
+                    # come qui di seguito (soluzione quick&dirty)
+                    if not info['codiceFiscale'] in nucleocf:
+                        nucleocf.add(info['codiceFiscale'])
+                        el['listaComponentiNucleo'].append(info)
+
 
     return res
 
