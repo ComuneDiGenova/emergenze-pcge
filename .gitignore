@@ -132,3 +132,5 @@ dmypy.json
 settings_private.py
 uploads
 databases
+
+*.pyc
