@@ -168,7 +168,13 @@ def info(codice_fiscale):
 
     componenti = f"json_agg({db.utente} ORDER BY {db.utente}.id)"
 
-    res1_ = join(
+    join1 = db(
+        (db.utente.id==db.nucleo.idUtente) & \
+        (db.nucleo.idCivico==db.recapito.id) #& \
+        # (db.utente.id==db.contatto.idUtente)
+    )
+
+    res1_ = join1(
         (db.utente.codiceFiscale!=codice_fiscale) & \
         db.recapito.id.belongs([recapito['id'] for recapito in res_[recapiti]])
     ).select(
@@ -176,6 +182,7 @@ def info(codice_fiscale):
         db.nucleo.tipo.with_alias('tipo'),
         contatti,
         componenti,
+        left = db.contatto.on(db.utente.id==db.contatto.idUtente),
         groupby = [db.nucleo.tipo]+[ff for ff in db.recapito],
         orderby = db.recapito.id
     )
@@ -186,11 +193,12 @@ def info(codice_fiscale):
         if ruoli[el['id']] == "CAPO FAMIGLIA":
             for componentiByCivico in res1_.find(lambda row: row.recapito.id==el['id']):
                 for comp in itertools.chain(componentiByCivico[componenti]):
+
                     info = dict(
                         {ff.name: comp[ff._rname.strip('"')] for ff in db.utente if field_is_readable(ff)},
                         tipo = componentiByCivico['tipo'],
                         listaContattiTelefonici = [{ff.name: dd[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
-                            for dd in componentiByCivico[contatti] if dd['idutente']==comp['id']]
+                            for dd in componentiByCivico[contatti] if dd and dd['idutente']==comp['id']]
                     )
                     # TODO: gli utenti doppi sovrebbero poter essere evitati direttamente
                     # nella definizione dei loop invece che rimossi a posteriori 
