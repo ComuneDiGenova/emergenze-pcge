@@ -377,12 +377,16 @@ def componente():
         # 200
         return not_accepted
 
-@action("componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
+@action("pippo", method=['DELETE'])
+def pippo():
+    import pdb; pdb.set_trace()
+
+# @action("componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
+# @action("allerte/componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
 @action("cancellaComponente/<utente_id>/<civico_id>", method=['DELETE'])
-@action("cancellaComponente/<utente_id>/<civico_id>/motivo", method=['DELETE'])
-@action("allerte/componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
+@action("cancellaComponente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
 @action.uses(cors, db)
-def componente(utente_id=None, civico_id=None, motivo=None):
+def cancellaComponente(utente_id=None, civico_id=None, motivo=None):
     """ Rimozione componente nucleo famigliare """
 
     dbset = db(db.nucleo.idUtente==utente_id)
