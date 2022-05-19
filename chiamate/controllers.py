@@ -132,8 +132,9 @@ def info(codice_fiscale):
 
     join = db(
         (db.utente.id==db.nucleo.idUtente) & \
-        (db.nucleo.idCivico==db.recapito.id) & \
-        (db.utente.id==db.contatto.idUtente))
+        (db.nucleo.idCivico==db.recapito.id) # & \
+        # (db.utente.id==db.contatto.idUtente)
+    )
 
     dbset = join((db.utente.codiceFiscale==codice_fiscale))
 
@@ -142,6 +143,7 @@ def info(codice_fiscale):
         contatti,
         recapiti,
         ruolo,
+        left = db.contatto.on(db.utente.id==db.contatto.idUtente),
         distinct = db.utente.id,
         groupby = db.utente.id,
         limitby = (0,1,)
@@ -164,7 +166,7 @@ def info(codice_fiscale):
 
     res['listaContattiTelefonici'] = [
         {ff.name: contatto[ff._rname.strip('"')] for ff in db.contatto if field_is_readable(ff)}
-    for contatto in res_[contatti]]
+    for contatto in res_[contatti] if not contatto is None]
 
     componenti = f"json_agg({db.utente} ORDER BY {db.utente}.id)"
 
@@ -201,7 +203,7 @@ def info(codice_fiscale):
                             for dd in componentiByCivico[contatti] if dd and dd['idutente']==comp['id']]
                     )
                     # TODO: gli utenti doppi sovrebbero poter essere evitati direttamente
-                    # nella definizione dei loop invece che rimossi a posteriori 
+                    # nella definizione dei loop invece che rimossi a posteriori
                     # come qui di seguito (soluzione quick&dirty)
                     if not info['codiceFiscale'] in nucleocf:
                         nucleocf.add(info['codiceFiscale'])
@@ -377,9 +379,9 @@ def componente():
         # 200
         return not_accepted
 
-@action("pippo", method=['DELETE'])
-def pippo():
-    import pdb; pdb.set_trace()
+# @action("pippo", method=['DELETE'])
+# def pippo():
+#     import pdb; pdb.set_trace()
 
 # @action("componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
 # @action("allerte/componente/<utente_id>/<civico_id>/<motivo>", method=['DELETE'])
