@@ -177,7 +177,7 @@ def info(codice_fiscale):
     )
 
     res1_ = join1(
-        (db.utente.codiceFiscale!=codice_fiscale) & \
+        # (db.utente.codiceFiscale!=codice_fiscale) & \
         db.recapito.id.belongs([recapito['id'] for recapito in res_[recapiti]])
     ).select(
         db.recapito.id,
