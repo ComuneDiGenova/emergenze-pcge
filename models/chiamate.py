@@ -129,8 +129,8 @@ db.define_table('contatto',
     ),
     Field('lingua',
         requires = IS_IN_SET(
-            ['BUONA', 'BUONA SOLO SE', 'AUDIOLESO o NON UDENTE'],
-            error_message = 'Valore non permesso, scegliere tra: BUONA, BUONA SOLO SE, AUDIOLESO o NON UDENTE'
+            ["BUONA SE IN LINGUA ITALIANA", "BUONA SOLO SE IN LINGUA STRANIERA", "AUDIOLESO o NON UDENTE"],
+            error_message = 'Valore non permesso, scegliere tra: "BUONA SE IN LINGUA ITALIANA", "BUONA SOLO SE IN LINGUA STRANIERA", "AUDIOLESO o NON UDENTE"'
         )
     ),
     Field('linguaNoItalia',
