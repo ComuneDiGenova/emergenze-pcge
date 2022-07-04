@@ -279,14 +279,16 @@ require('navbar_up.php');
 											//$image = true;
 											$testo= $testo. '<br><img src="../../'.$allegati[$j].'" alt="'.$allegati[$j].'" width="30%"> 
 											<a target="_new" title="Visualizza immagine in nuova scheda" href="../../'.$allegati[$j].'"> Apri immagine'.$n_a.'</a>';
+											echo $testo;
 										} else {
 											//$image = false;
 											$testo= $testo. '<br><a target="_new" href="../../'.$allegati[$j].'"> Apri allegato '.$n_a.' in nuova scheda</a>';
+											echo $testo;
 										}
 									}
 								}
 							}
-							echo $testo;
+							//echo $testo;
 							echo "</li>";
 						}
 						echo "</ul><hr>";
