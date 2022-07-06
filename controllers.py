@@ -405,12 +405,12 @@ def modifica_intervento(intervento_id=None):
     if not intervento_id is None:
         request.POST['intervento_id'] = intervento_id
 
-    res = db(db.intervento).select(
+    intervento_info = db(db.intervento).select(
         db.intervento.intervento_id.min().with_alias('idmin'),
         db.intervento.intervento_id.max().with_alias('idmax')
     ).first()
 
-    db.intervento.intervento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+    db.intervento.intervento_id.requires = IS_INT_IN_RANGE(intervento_info.idmin, intervento_info.idmax+1)
 
     form = Form([db.intervento.intervento_id] + segnalazione_form() + incarico_form(),
         deletable = False, dbio=False,

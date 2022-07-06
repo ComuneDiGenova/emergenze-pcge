@@ -236,13 +236,12 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
     """ """
 
     segnalazione = db(
-        (db.intervento.incarico_id==db.incarico.id) & \
-        (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
-        (db.intervento.intervento_id==intervento_id)
+        (db.intervento.intervento_id==intervento_id) & \
+        (db.intervento.incarico_id==db.incarichi_utili.id)
     ).select(
-        # db.intervento.ALL,
         db.intervento.incarico_id.with_alias('incarico_id'),
-        db.join_segnalazione_lavorazione.segnalazione_id.with_alias('segnalazione_id'),
+        db.incarichi_utili.segnalazione_id.with_alias('segnalazione_id'),
+        distinct = f'{db.incarichi_utili._rname}.id',
         limitby = (0,1,)
     ).first()
 
@@ -250,6 +249,11 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
         kwargs['geom'] = geoPoint(*lon_lat)
         kwargs['municipio_id'] = db(db.municipio.geom.st_transform(4326).st_intersects(geoPoint(*lon_lat))).select(db.municipio.codice).first().codice
         kwargs['uo_id'] = incarico.get_uo_id(kwargs['municipio_id'])
+
+    # Così supporto la chiamata anche con parametro segnalazione_id anche se non
+    # servirebbe, a questo punto lo uso come check di robustezza
+    if 'segnalazione_id' in kwargs:
+        assert kwargs.pop('segnalazione_id') == segnalazione.segnalazione_id
 
     # Aggiornamento dati di Segnalazione
     update(segnalazione.segnalazione_id, **kwargs)

@@ -253,6 +253,23 @@ db.define_table('join_segnalazione_incarico',
     rname = f'{SCHEMA}.join_segnalazioni_incarichi'
 )
 
+db.define_table('incarichi_utili',
+    Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
+    Field('profilo_id', 'reference profilo_utilizatore',
+        notnull=True, required=True,
+        rname='id_profilo'
+    ),
+    Field('descrizione', required=True, notnull=True),
+    Field('uo_id', rname='id_uo', required=True, notnull=True),
+    # ...
+    Field('segnalazione_id', rname='id_segnalazione'),
+    # ...
+    Field('descrizione_segnalazione'),
+    # ...
+    rname = f'{SCHEMA}.v_incarichi',
+    migrate = False
+)
+
 db.define_table('intervento',
     Field('intervento_id', 'integer',
         label = 'Identificativo intevento Verbatel',
