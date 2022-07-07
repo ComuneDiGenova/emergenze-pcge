@@ -202,7 +202,7 @@ def ws_segnalazione():
     )]
     db.intervento.intervento_id.comment = "Inserire un nuovo identificativo di intervento Verbatel"
 
-    db.stato_incarico.stato_id.default = incarico.DEFAULT_TIPO_STATO
+    db.stato_incarico.stato_id.default = 2 # Preso in carico
 
     db.stato_incarico.stato_id.requires = IS_EMPTY_OR(IS_IN_DB(
         db(
@@ -215,7 +215,7 @@ def ws_segnalazione():
     ))
 
     if not 'stato_id' in request.POST:
-        request.POST['stato_id'] = incarico.DEFAULT_TIPO_STATO
+        request.POST['stato_id'] = db.stato_incarico.stato_id.default
 
     form = Form([
         db.intervento.intervento_id,
@@ -275,7 +275,11 @@ def ws_segnalazione():
         db.stato_incarico.stato_id,
         db.incarico.preview,
         Field('ceduta', 'boolean',
-            label = 'Indica la segnalazione come NON in carico a PM'
+            label = """Se presente indica la segnalazione come NON in carico a PM,
+            in questo caso non viene associato nessun incarico/intervento,
+            quindi nessun id incarico verrà restituito.
+            Sarà quindi cura dell'ente che prenderà la lavorazione assegnare gli incarichi.
+            """
         )
     ],
         hidden = {'rollback': False},
@@ -412,6 +416,16 @@ def modifica_intervento(intervento_id=None):
 
     db.intervento.intervento_id.requires = IS_INT_IN_RANGE(intervento_info.idmin, intervento_info.idmax+1)
 
+    db.stato_incarico.stato_id.requires = IS_EMPTY_OR(IS_IN_DB(
+        db(
+            (db.tipo_stato_incarico.valido!=False) & \
+            db.tipo_stato_incarico.id.belongs([1, 2, 3, 4])
+        ),
+        db.tipo_stato_incarico.id,
+        db.tipo_stato_incarico.descrizione,
+        zero = None
+    ))
+
     form = Form([db.intervento.intervento_id] + segnalazione_form() + incarico_form(),
         deletable = False, dbio=False,
         validation = _segnalazione.valida_intervento,
@@ -432,7 +446,7 @@ def modifica_intervento(intervento_id=None):
             form.vars['lon_lat'] = (lon, lat,)
             result = _segnalazione.verbatel_update(**form.vars)
 
-    return {'result': result, 'form': sf.form2dict(form)}
+    return {'result': result and 'Ok', 'form': sf.form2dict(form)}
 
 
 @action('comunicazione', method=['GET', 'POST'])

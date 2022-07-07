@@ -165,8 +165,12 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
         operazione = f'Creazione segnalazione {segnalazione_id}'
     )
 
+    #
     if assegna:
-        lavorazione_id, incarico_id = upgrade(segnalazione_id, operatore, profilo_id=6, **kwargs)
+        lavorazione_id, incarico_id = upgrade(segnalazione_id, operatore,
+            profilo_id=settings.PM_PROFILO_ID,
+            **kwargs
+        )
         return segnalazione_id, lavorazione_id, incarico_id,
     else:
         return segnalazione_id, None, None,
@@ -262,8 +266,9 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
     return incarico.upgrade(segnalazione.incarico_id, **kwargs)
 
 
-def upgrade(segnalazione_id, operatore,
-    sospeso=False, profilo_id=6, preview=None, stato_id=incarico.DEFAULT_TIPO_STATO
+def upgrade(segnalazione_id, operatore, profilo_id,
+    sospeso=False, preview=None,
+    stato_id = incarico.DEFAULT_TIPO_STATO
 ):
     """
 
@@ -272,7 +277,7 @@ def upgrade(segnalazione_id, operatore,
     segnalazione_id @integer : Id segnalazione
     operatore        @string : Identificativo operatore (matricola o CF)
     profilo_id      @integer : Id del profilo utilizzatore assegnatario della
-                               segnalazione (default: 'Emergenza Distretto PM')
+                               segnalazione
     sospeso         @boolean : Sospendere la segnalazione?
     preview        @datetime : Inizio previsto incarico
     stato_id        @integer : Id stato incarico
@@ -319,10 +324,7 @@ def upgrade(segnalazione_id, operatore,
     logger.debug(f'{_}: {message}')
 
     # Incarico
-
-    if profilo_id==settings.PC_PROFILO_ID:
-        # segnalazione = db.segnalazione[segnalazione_id]
-        # assert segnalazione
+    if not stato_id is None:
 
         descrizione_incarico = segnalazione.descrizione
 
@@ -336,8 +338,11 @@ def upgrade(segnalazione_id, operatore,
             preview = preview
         )
         logger.debug(f'Creato incarico: {incarico_id}')
+
         return lavorazione_id, incarico_id
+
     else:
+
         return lavorazione_id, None
 
 
