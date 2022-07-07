@@ -39,7 +39,8 @@ db.define_table('segnalante',
             db(db.tipo_segnalante),
             db.tipo_segnalante.id,
             label = db.tipo_segnalante.descrizione,
-            orderby = db.tipo_segnalante.descrizione
+            orderby = db.tipo_segnalante.descrizione,
+            zero = None
         ),
         rname='id_tipo_segnalante'
     ),

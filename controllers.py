@@ -194,7 +194,8 @@ def ws_segnalazione():
     db.segnalazione.criticita_id.requires = IS_IN_DB(
         db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
         db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
-        orderby=db.tipo_criticita.descrizione
+        orderby=db.tipo_criticita.descrizione,
+        zero = None
     )
 
     db.intervento.intervento_id.requires = [IS_NOT_EMPTY(), IS_NOT_IN_DB(
@@ -243,7 +244,13 @@ def ws_segnalazione():
         db.segnalante.tipo_segnalante_id,
         db.segnalante.telefono,
         db.segnalante.note,
-        db.segnalazione.nverde,
+        # db.segnalazione.nverde,
+        Field('nverde',
+            label = db.segnalazione.nverde.label,
+            comment = db.segnalazione.nverde.comment,
+            required = True,
+            requres = IS_IN_SET(['True', 'False'], zero=None)
+        ),
         Field('note_geo',
             label = db.segnalazione.note.label,
             comment = db.segnalazione.note.comment
@@ -254,9 +261,15 @@ def ws_segnalazione():
             length = db.civico.id.length,
             requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(civ_stats.idmin), int(civ_stats.idmax)+1))
         ),
-        Field('persone_a_rischio', 'boolean',
+        # Field('persone_a_rischio', 'boolean',
+        #     label = db.segnalazione.rischio.label,
+        #     comment = db.segnalazione.rischio.comment
+        # ),
+        Field('persone_a_rischio',
             label = db.segnalazione.rischio.label,
-            comment = db.segnalazione.rischio.comment
+            comment = db.segnalazione.rischio.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         ),
         Field('tabella_oggetto_id',
             label = 'Seleziona la tabella degli oggetti a rischio',
@@ -274,13 +287,18 @@ def ws_segnalazione():
         db.segnalante.telefono,
         db.stato_incarico.stato_id,
         db.incarico.preview,
-        Field('ceduta', 'boolean',
-            label = """Se presente indica la segnalazione come NON in carico a PM,
-            in questo caso non viene associato nessun incarico/intervento,
-            quindi nessun id incarico verrà restituito.
-            Sarà quindi cura dell'ente che prenderà la lavorazione assegnare gli incarichi.
-            """
+        Field('ceduta',
+            label = "Se presente indica la segnalazione come NON in carico a PM",
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         )
+        # Field('ceduta', 'boolean',
+        #     label = """Se presente indica la segnalazione come NON in carico a PM,
+        #     in questo caso non viene associato nessun incarico/intervento,
+        #     quindi nessun id incarico verrà restituito.
+        #     Sarà quindi cura dell'ente che prenderà la lavorazione assegnare gli incarichi.
+        #     """
+        # )
     ],
         hidden = {'rollback': False},
         validation = _segnalazione.valida_nuova_segnalazione,
@@ -295,10 +313,10 @@ def ws_segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
-            form.vars['assegna'] = not form.vars.pop('ceduta')
+            form.vars['assegna'] = form.vars.pop('ceduta')=='True'
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
+            form.vars['nverde'] = form.vars.pop('nverde')=='True'
             result =_segnalazione.verbatel_create(**form.vars)
-    # else:
-    #     import pdb; pdb.set_trace()
 
     return {'result': result, 'form': sf.form2dict(form)}
 
@@ -333,10 +351,16 @@ def segnalazione_form():
             comment = db.segnalazione.note.comment
         ),
         db.segnalazione.criticita_id,
-        Field('persone_a_rischio', 'boolean',
+        Field('persone_a_rischio',
             label = db.segnalazione.rischio.label,
-            comment = db.segnalazione.rischio.comment
+            comment = db.segnalazione.rischio.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         ),
+        # Field('persone_a_rischio', 'boolean',
+        #     label = db.segnalazione.rischio.label,
+        #     comment = db.segnalazione.rischio.comment
+        # ),
     ]
 
 def incarico_form():
@@ -349,7 +373,13 @@ def incarico_form():
         # db.incarico.note,
         db.incarico.rifiuto,
         db.stato_incarico.stato_id,
-        db.stato_incarico.parziale
+        # db.stato_incarico.parziale
+        Field('parziale',
+            label = db.stato_incarico.parziale.label,
+            comment = db.stato_incarico.parziale.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
+        )
     ]
 
 
@@ -394,6 +424,7 @@ def modifica_segnalazione(segnalazione_id=None):
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
             result = _segnalazione.update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
@@ -444,6 +475,8 @@ def modifica_intervento(intervento_id=None):
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
+            form.vars['parziale'] = form.vars.pop('parziale')=='True'
             result = _segnalazione.verbatel_update(**form.vars)
 
     return {'result': result and 'Ok', 'form': sf.form2dict(form)}
