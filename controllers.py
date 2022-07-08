@@ -345,7 +345,7 @@ def segnalazione_form():
         Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
         Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
         # db.segnalante.tipo_segnalante_id,
-        Field('descrizione', required=False),
+        Field('descrizione', required=True, requires=IS_NOT_EMPTY()),
         Field('note_geo',
             label = db.segnalazione.note.label,
             comment = db.segnalazione.note.comment
