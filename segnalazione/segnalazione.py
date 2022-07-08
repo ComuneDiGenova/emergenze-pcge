@@ -268,7 +268,7 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
 
 def upgrade(segnalazione_id, operatore, profilo_id,
     sospeso=False, preview=None,
-    stato_id = incarico.DEFAULT_TIPO_STATO
+    stato_id = incarico.DEFAULT_TIPO_STATO, parziale=False
 ):
     """
 
@@ -335,7 +335,8 @@ def upgrade(segnalazione_id, operatore, profilo_id,
             descrizione = descrizione_incarico,
             municipio_id = segnalazione.municipio_id,
             stato_id = stato_id,
-            preview = preview
+            preview = preview,
+            parziale = parziale
         )
         logger.debug(f'Creato incarico: {incarico_id}')
 

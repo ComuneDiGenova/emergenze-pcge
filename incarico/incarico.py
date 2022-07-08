@@ -21,7 +21,7 @@ get_uo_id = lambda id: db(db.municipio)(
 
 
 def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_id,
-    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO
+    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False
 ):
 
     uo_id = get_uo_id(municipio_id)
@@ -37,7 +37,8 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
 
     stato_id = db.stato_incarico.insert(
         incarico_id = incarico_id,
-        stato_id = stato_id
+        stato_id = stato_id,
+        parziale = parziale
     )
 
     join_id = db.join_segnalazione_incarico.insert(

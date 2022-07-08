@@ -291,6 +291,12 @@ def ws_segnalazione():
             label = "Se presente indica la segnalazione come NON in carico a PM",
             required = True,
             requires = IS_IN_SET(['True', 'False'], zero=None)
+        ),
+        Field('parziale',
+            label = db.stato_incarico.parziale.label,
+            comment = db.stato_incarico.parziale.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         )
         # Field('ceduta', 'boolean',
         #     label = """Se presente indica la segnalazione come NON in carico a PM,
@@ -316,6 +322,7 @@ def ws_segnalazione():
             form.vars['assegna'] = form.vars.pop('ceduta')=='True'
             form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
             form.vars['nverde'] = form.vars.pop('nverde')=='True'
+            form.vars['parziale'] = form.vars.pop('parziale')=='True'
             result =_segnalazione.verbatel_create(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
