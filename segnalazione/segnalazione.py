@@ -256,8 +256,9 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
 
     # Così supporto la chiamata anche con parametro segnalazione_id anche se non
     # servirebbe, a questo punto lo uso come check di robustezza
-    if 'segnalazione_id' in kwargs:
-        assert kwargs.pop('segnalazione_id') == segnalazione.segnalazione_id
+    # if 'segnalazione_id' in kwargs:
+        # assert kwargs.pop('segnalazione_id') == segnalazione.segnalazione_id
+    # RImosso perché il valore passato come segnalazione_id era l'incarico_id
 
     # Aggiornamento dati di Segnalazione
     update(segnalazione.segnalazione_id, **kwargs)
