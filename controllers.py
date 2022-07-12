@@ -636,7 +636,7 @@ def ws_presidio():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            squadra.create(**form.vars)
+            result = squadra.create(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}
 
