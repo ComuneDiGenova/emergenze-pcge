@@ -258,7 +258,8 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
     # servirebbe, a questo punto lo uso come check di robustezza
     # if 'segnalazione_id' in kwargs:
         # assert kwargs.pop('segnalazione_id') == segnalazione.segnalazione_id
-    # RImosso perché il valore passato come segnalazione_id era l'incarico_id
+    # Rimosso perché il valore passato come segnalazione_id era l'incarico_id
+    # per incomprensione con Verbatel
 
     # Aggiornamento dati di Segnalazione
     update(segnalazione.segnalazione_id, **kwargs)

@@ -12,21 +12,27 @@ import base64
 def render(row):
     """ """
 
-    with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
-        encoded_string = base64.b64encode(ff.read())
-
-    allegato = {
-        'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
-        'file': encoded_string 
-    }
-
-    return {
+    out = {
         # 'idIntervento': row.idIntervento,
         'operatore': 'operatore di PC',
         'testo': row.testo,
-        'files': [allegato]
+        # 'files': [allegato]
     }
-    
+
+    if not row.comunicazione_incarico_inviata.allegato is None:
+
+        with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
+            encoded_string = base64.b64encode(ff.read())
+
+        allegato = {
+            'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
+            'file': encoded_string
+        }
+
+        out['files'] = [allegato]
+
+    return out
+
 
 def fetch(incarico_id, timeref=None):
     """ """
@@ -76,4 +82,4 @@ def after_insert_comunicazione(*args, **kwargs):
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):
 #     """ """
-#     return 
+#     return
