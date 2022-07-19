@@ -72,6 +72,34 @@
 <span class="c3 c1">Gli interessati, ricorrendone i presupposti, hanno altres&igrave; il diritto di proporre RECLAMO al Garante quale autorit&agrave; di controllo secondo le procedure previste ed indicate sul sito del Garante per la protezione dei dati personali (www.garanteprivacy.it). &nbsp;</span></p>
 
 <hr>
+<h3>
+<span class="c10 c1">Utilizzo dei cookies</span>
+</h3>
+<p class="c4 c13"><span class="c3 c1">Il sito utilizza cookies tecnici per migliorare il servizio. In particolare l’uso di c.d. cookies di sessione è strettamente limitato alla trasmissione di identificativi di sessione (costituiti da numeri casuali generati dal server) necessari per consentire l’esplorazione sicura ed efficiente del sito.</span>
+<span class="c3 c1">I c.d. cookies di sessione utilizzati in questo sito evitano il ricorso ad altre tecniche informatiche potenzialmente pregiudizievoli per la riservatezza della navigazione degli utenti e non consentono l’acquisizione di dati personali identificativi dell’utente.</span></p>
+
+<p class="c4 c13"><span class="c3 c1">I cookie sono brevi frammenti di testo (lettere e/o numeri) che permettono al server web di memorizzare sul client (il browser) informazioni da riutilizzare nel corso della medesima visita al sito (cookie di sessione) o in seguito, anche a distanza di giorni (cookie persistenti). I cookie vengono memorizzati, in base alle preferenze dell'utente, dal singolo browser sullo specifico dispositivo utilizzato (computer, tablet, smartphone). Tecnologie similari, come, ad esempio, web beacon, GIF trasparenti e tutte le forme di storage locale introdotte con HTML5, sono utilizzabili per raccogliere informazioni sul comportamento dell'utente e sull'utilizzo dei servizi.</span>
+<br><br><span class="c3 c1">Nel seguito di questo documento faremo riferimento ai cookie e a tutte le tecnologie similari utilizzando semplicemente il termine "cookie".</span></p>
+
+<h3>
+<span class="c10 c1">Tipologie di cookie</span>
+</h3>
+<p class="c4 c13"><span class="c3 c1">In base alle caratteristiche e all'utilizzo dei cookie possiamo distinguere diverse categorie: </span></p>
+<ul>
+    <li><span class="c3 c1">Cookie tecnici: sono quelli utilizzati al solo fine di "effettuare la trasmissione di una comunicazione su una rete di comunicazione elettronica, o nella misura strettamente necessaria al fornitore di un servizio della società di informazione esplicitamente richiesto dall’abbonato o dall’utente a erogare tale servizio" (art. 122, I comma, Codice della Privacy). Possono essere suddivisi in cookie di navigazione o di sessione, che garantiscono la normale navigazione e fruizione del sito web (permettendo, ad esempio, di realizzare un acquisto o autenticarsi per accedere ad aree riservate).</span>
+    <li><span class="c3 c1">Cookie analitici: sono assimilati ai cookie tecnici e sono quelli utilizzati direttamente dal gestore del sito per raccogliere informazioni, in forma aggregata, sugli accessi e numero di utenti e su come questi utilizzano il sito. Perseguono esclusivamente scopi statistici.</span>
+    <li><span class="c3 c1">Cookie funzionali: sono quelli che permettono all’utente la navigazione in funzione di una serie di criteri selezionati, quali ad esempio la lingua, i prodotti selezionati per l’acquisto, al fine di migliorare il servizio.</span>
+    <li><span class="c3 c1">Cookie di profilazione: sono quelli volti a creare profili relativi all’utente e sono utilizzati al fine di inviare messaggi pubblicitari in linea con le preferenze manifestate dallo stesso nell’ambito della navigazione in rete.</span>
+    <li><span class="c3 c1">Cookie di terze parti: nel corso della navigazione sul sito, l’utente potrebbe ricevere sul suo terminale anche cookie di siti o di web server diversi, che sono impostati direttamente da gestori di siti web o servers diversi dal sito. Questi cookie possono essere inviati al broswer dell’utente da società terze direttamente dai loro siti web, cui è possibile accedere navigando dal sito. In tali casi, il gestore di questo sito è estraneo alla operatività di tali cookie, il cui invio rientra nella responsabilità di tali società terze.</span>
+</ul>
+
+<h3>
+<span class="c10 c1">Cookie di terze parti</span>
+</h3>
+<p class="c4 c13"><span class="c3 c1">Visitando un sito web si possono ricevere cookie sia dal sito visitato ("proprietari"), sia da siti gestiti da altre organizzazioni ("terze parti"). Un esempio notevole è rappresentato dalla presenza dei "social plugin" per esempio Facebook, Twitter, Google+ e LinkedIn. Si tratta di parti della pagina visitata generate direttamente dai suddetti siti ed integrati nella pagina del sito ospitante. L'utilizzo più comune dei social plugin è finalizzato alla condivisione dei contenuti sui social network.</span><br>
+<span class="c3 c1">La presenza di questi plugin comporta la trasmissione di cookie da e verso tutti i siti gestiti da terze parti. La gestione delle informazioni raccolte da "terze parti" è disciplinata dalle relative informative cui si prega di fare riferimento.</span></p>
+
+<hr>
 Salvo modifiche al regolamento sui dati, il presente messaggio, una volta accettato, non sarà più mostrato all'utente.
 <hr>
 
