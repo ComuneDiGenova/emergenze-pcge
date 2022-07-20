@@ -26,3 +26,6 @@ pages/eventi/crash.log
 conn.php
 pages/eventi/bot.pid
 pages/eventi/bot_photos/*
+pages/eventi/bot_sistema_emergenze.pid
+pages/eventi/avvio_bot.sh
+pages/eventi/avvio_bot_coc.sh
