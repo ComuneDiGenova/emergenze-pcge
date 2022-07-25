@@ -346,3 +346,20 @@ db.define_table('comunicazione_presidio',
     primarykey = ['presidio_id', 'timeref'],
     rname = f'{SCHEMA}.t_comunicazioni_sopralluoghi_mobili_inviate'
 )
+
+db.define_table('pattuglia_pm',
+    Field('pattuglia_id', 'integer',
+        label = 'Identificativo pattuglia Verbatel',
+        notnull=True, unique=True, required=True
+    ),
+    Field('squadra_id', 'reference squadra',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.squadra), db.squadra.id)
+    ),
+    Field('presidio_id', 'reference presidio',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.presidio), db.presidio.id)
+    ),
+    migrate = settings.MIGRATE_PATTUGLIA_PM,
+    rname = 'verbatel.pattuglia_pm'
+)
