@@ -61,7 +61,7 @@ class Verbatel(object):
                     return out
 
     @classmethod
-    def create(cls, *endpoints, encode=True, **payload):
+    def create(cls, *endpoints, encode=True, json=False, **payload):
         """ POST """
         _url = cls._url(*endpoints)
         if encode is True:
@@ -70,7 +70,10 @@ class Verbatel(object):
             data = payload
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.post(_url, data=data) # <---
+        if json is True:
+            response = requests.post(_url, json=data) # <---
+        else:
+            response = requests.post(_url, data=data) # <---
         return cls.__nout(response)
 
     @classmethod
@@ -96,7 +99,7 @@ class Intervento(Verbatel):
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', encode=False, **payload)
+        return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
 
 class Presidio(Verbatel):
     """docstring for Intervento."""
@@ -105,7 +108,7 @@ class Presidio(Verbatel):
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', **payload)
+        return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
 
 
 class Messaggio(Verbatel):
@@ -115,7 +118,7 @@ class Messaggio(Verbatel):
 
 def syncEvento(mio_evento):
     """ Segnala nuovo evento verso Verbatel """
-    
+
     try:
         Evento.create(**mio_evento)
     except requests.exceptions.HTTPError as err:
@@ -136,7 +139,7 @@ def syncEvento(mio_evento):
 #     """ DEPRECATO Segnala nuovo evento verso Verbatel """
 #     mio_evento = evento.fetch(id=id)
 #     return Evento.create(**mio_evento)
-# 
+#
 # def aggiornaEvento(id):
 #     """ Segnala aggiornamento evento verso Verbatel """
 #     mio_evento = evento.fetch(id=id)
@@ -222,4 +225,3 @@ if __name__=='__main__':
     def test2():
         response = segnalazione2verbatel(398)
         logger.debug(response)
-
