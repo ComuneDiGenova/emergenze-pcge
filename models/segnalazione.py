@@ -295,9 +295,22 @@ db.define_table('presidio',
         required=True, notnull=True, rname='id_profilo'
     ),
     Field('descrizione'),
-    Field('preview', 'datetime', rname='time_preview'),
-    Field('start', 'datetime', rname='time_preview'),
-    Field('stop', 'datetime', rname='time_preview'),
+    Field('preview', 'datetime', rname='time_preview',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))
+    ),
+    Field('start', 'datetime', rname='time_start',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))),
+    Field('stop', 'datetime', rname='time_stop',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))),
     Field('note', rname='note_ente'),
     Field('geom', 'geometry()', required=True, notnull=True),
     Field('evento_id', 'reference evento', rname='id_evento'),

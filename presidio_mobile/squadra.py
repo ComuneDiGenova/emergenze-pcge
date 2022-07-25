@@ -51,9 +51,12 @@ class IS_JSON_LIST_OF_COMPONENTI(IS_JSON):
     #     else:
     #         return json.loads(value)
 
+DEFAULT_STATO_SQUADRA_ID = 2 # A disposizione
+# 1 # In azione
 
-def create(nome, evento_id, afferenza, percorso, componenti,
-    stato_id=1, profilo_id=6, note=''
+def create(nome, evento_id, afferenza, componenti, pattuglia_id=None, percorso='A1',
+    stato_id=DEFAULT_STATO_SQUADRA_ID, profilo_id=6, note='',
+    preview=None, start=None, stop=None
 ):
     """
     nome            @string : Nome della squadra;
@@ -61,7 +64,16 @@ def create(nome, evento_id, afferenza, percorso, componenti,
     stato_id       @integer : Id stato squadra (default 1: In azione)
     afferenza       @string :
     componenti @list(@dict) :
+    pattuglia_id   @integer : Identificativo pattuglia Verbatel
+    preview       @datetime :
+    start         @datetime :
+    stop          @datetime :
     """
+
+
+    DEFAULT_STATO_PRESIDIO_ID = 1
+    # 2 # Preso in carico
+    # 1 # Inviato ma non ancora preso in carico
 
     # 1. Creazione sqaudra
 
@@ -81,25 +93,36 @@ def create(nome, evento_id, afferenza, percorso, componenti,
         descrizione = percorso,
         evento_id = evento_id,
         note = note,
-        geom = percorso_presidio.geom
+        geom = percorso_presidio.geom,
+        preview = preview,
+        start = start,
+        stop = stop
     )
 
     # 3. Assegnazione dello stato al presidio
-    
+
     stato_presidio_id = db.stato_presidio.insert(
         presidio_id = presidio_id,
-        stato_presidio_id = 2 # 2: Preso in carico
+        stato_presidio_id = 2 if stato_id==1 else 1
+    )
+
+    # 3.1 Registrazione squadra PM
+
+    db.pattuglia_pm.insert(
+        squadra_id = squadra_id,
+        pattuglia_id = pattuglia_id,
+        presidio_id = presidio_id
     )
 
     # 4. Assegno la squadra al presidio mobile
-    
+
     db.join_presidio_squadra.insert(
         presidio_id = presidio_id,
         squadra_id = squadra_id,
     )
 
     # 5. Log dell'evento
-    
+
     db.log.insert(
         schema = 'segnalazioni',
         operatore = None,
@@ -118,7 +141,7 @@ def create(nome, evento_id, afferenza, percorso, componenti,
         if agente is None:
             agente_id = db.agente.insert(livello2=livello2, **db.agente._filter_fields(componente))
             agente = db.agente[agente_id]
-        
+
         db.telefono.update_or_insert(
             {'codice': squadra_id, 'matricola': componente['matricola']},
             codice = squadra_id,
@@ -134,3 +157,29 @@ def create(nome, evento_id, afferenza, percorso, componenti,
         )
 
     return squadra_id
+
+def update_by_pattuglia_pm_id(pattuglia_id, preview=None, start=None, end=None):
+    """ """
+    pattuglia_pm = db.pattuglia_pm(pattuglia_id=pattuglia_id)
+    db(db.presidio.id==pattuglia_pm.presidio_id).update(
+        preview = preview,
+        start = start,
+        end = end
+    )
+    if not end is None:
+        db(db.stato_presidio.presidio_id==pattuglia_pm.presidio_id).update(
+            stato_presidio_id = 3 # Chiuso
+        )
+    elif not start is None:
+        db(db.stato_presidio.presidio_id==pattuglia_pm.presidio_id).update(
+            stato_presidio_id = 2 # Preso in carico
+        )
+    return 'Ok'
+
+
+def delete_by_pattuglia_pm_id(squadra_id):
+    """ """
+    pattuglia_pm = db.pattuglia_pm(pattuglia_id=pattuglia_id)
+    db(db.presidio.id==pattuglia_pm.presidio_id).delete()
+    db(db.squadra.id==pattuglia_pm.squadra_id)
+    return 'Ok'
