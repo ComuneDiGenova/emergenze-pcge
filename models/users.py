@@ -16,6 +16,7 @@ db.define_table('squadra',
     ),
     Field('stato_id', 'reference stato_squadra',
         required = True,
+        default = 2,
         requires = IS_IN_DB(db(db.stato_squadra.valido==True), db.stato_squadra.id, db.stato_squadra.descrizione, zero=None),
         rname='id_stato'
     ),

@@ -612,7 +612,10 @@ def ws_presidio():
         lambda row: (row[uo_value], row[uo_label],),
         db(db.municipio)(db.profilo_utilizatore.id==6).iterselect(uo_value, uo_label)
     )
-    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
+    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative), zero=None)
+
+    db.squadra.stato_id.required = False
+    db.squadra.stato_id.requires = IS_EMPTY_OR(db.squadra.stato_id.requires)
 
     form = Form([
         db.pattuglia_pm.pattuglia_id,
@@ -622,7 +625,7 @@ def ws_presidio():
         ),
         Field('percorso', label='Percorso', comment='Scegliere un percorso',
             required = True,
-            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso),
+            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso, zero=None),
         ),
         db.squadra.nome,
         db.squadra.evento_id,
@@ -632,6 +635,7 @@ def ws_presidio():
         db.presidio.start,
         # db.presidio.stop
     ], deletable = False, dbio=False,
+        validation = squadra.squadra.valida_nuova_pattuglia,
         hidden = {'rollback': False},
         form_name = 'crea_presidio',
         csrf_protection = False
@@ -640,7 +644,58 @@ def ws_presidio():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            result = squadra.create(**form.vars)
+            # if form.vars['percorso'] is None:
+            #     form.vars['percorso'] = 'A1'
+            # else:
+            #     form.vars['descrizione'] =  form.vars['percorso']
+            if form.vars['stato_id'] is None:
+                form.vars['stato_id'] = db.squadra.stato_id.default
+            result = squadra.squadra.create(**form.vars)
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+
+    return output
+
+
+@action('pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica/pattuglia/', method=['GET', 'POST'])
+@action('modifica/pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('ModificaPattuglia', method=['GET', 'POST'])
+@action('ModificaPattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica_pattuglia', method=['GET', 'POST'])
+@action('modifica_pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action.uses(db)
+def ws_presidio_update(pattuglia_id=None):
+
+    db.pattuglia_pm.pattuglia_id.requires = None
+
+    stat_pattuglia = db(db.pattuglia_pm).select(
+        db.pattuglia_pm.pattuglia_id.min().with_alias('idmin'),
+        db.pattuglia_pm.pattuglia_id.max().with_alias('idmax')
+    ).first()
+
+    db.pattuglia_pm.pattuglia_id.comment = f'Inserisci un id pattuglia valido compreso tra {stat_pattuglia.idmin or 0} e {stat_pattuglia.idmax or 0}'
+
+    if not pattuglia_id is None:
+        request.POST['pattuglia_id'] = pattuglia_id
+
+    form = Form([
+        db.pattuglia_pm.pattuglia_id,
+        db.presidio.preview,
+        db.presidio.start,
+        db.presidio.stop
+    ],
+        deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        form_name = 'aggiorna_presidio',
+        validation = squadra.squadra.valida_pattuglia,
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = squadra.squadra.update_by_pattuglia_pm_id(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}
 

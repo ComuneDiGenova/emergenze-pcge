@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pydal.validators import IS_JSON, ValidationError
+from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB
 
 from ..common import db
 
@@ -51,12 +51,13 @@ class IS_JSON_LIST_OF_COMPONENTI(IS_JSON):
     #     else:
     #         return json.loads(value)
 
+
 DEFAULT_STATO_SQUADRA_ID = 2 # A disposizione
 # 1 # In azione
 
-def create(nome, evento_id, afferenza, componenti, pattuglia_id=None, percorso='A1',
-    stato_id=DEFAULT_STATO_SQUADRA_ID, profilo_id=6, note='',
-    preview=None, start=None, stop=None
+def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
+    percorso='A1', stato_id=DEFAULT_STATO_SQUADRA_ID, profilo_id=6, note='',
+    preview=None, start=None, stop=None, descrizione='Percorso da riassegnare'
 ):
     """
     nome            @string : Nome della squadra;
@@ -90,7 +91,7 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None, percorso='
 
     presidio_id = db.presidio.insert(
         profilo_id = profilo_id,
-        descrizione = percorso,
+        descrizione = descrizione,
         evento_id = evento_id,
         note = note,
         geom = percorso_presidio.geom,
@@ -158,28 +159,69 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None, percorso='
 
     return squadra_id
 
-def update_by_pattuglia_pm_id(pattuglia_id, preview=None, start=None, end=None):
+def update_by_pattuglia_pm_id(pattuglia_id, preview=None, start=None, stop=None):
     """ """
     pattuglia_pm = db.pattuglia_pm(pattuglia_id=pattuglia_id)
     db(db.presidio.id==pattuglia_pm.presidio_id).update(
         preview = preview,
         start = start,
-        end = end
+        stop = stop
     )
-    if not end is None:
-        db(db.stato_presidio.presidio_id==pattuglia_pm.presidio_id).update(
+    if not stop is None:
+        db.stato_presidio.insert(
+            presidio_id = pattuglia_pm.presidio_id,
             stato_presidio_id = 3 # Chiuso
         )
+
+        db.log.insert(
+            schema = 'segnalazioni',
+            operatore = None,
+            operazione = f'presidio mobile (o sopralluogo) "{pattuglia_pm.presidio_id}" chiuso'
+        )
+
+        db(db.squadra.id==pattuglia_pm.squadra_id).update(
+            stato_id = 3 # A riposo
+        )
     elif not start is None:
-        db(db.stato_presidio.presidio_id==pattuglia_pm.presidio_id).update(
+        db.stato_presidio.insert(
+            presidio_id = pattuglia_pm.presidio_id,
             stato_presidio_id = 2 # Preso in carico
+        )
+
+        db.log.insert(
+            schema = 'segnalazioni',
+            operatore = None,
+            operazione = f'presidio mobile (o sopralluogo) "{pattuglia_pm.presidio_id}" preso in carico'
+        )
+
+        db(db.squadra.id==pattuglia_pm.squadra_id).update(
+            stato_id = 1 # In azione
         )
     return 'Ok'
 
 
-def delete_by_pattuglia_pm_id(squadra_id):
+# def delete_by_pattuglia_pm_id(squadra_id):
+#     """ """
+#     pattuglia_pm = db.pattuglia_pm(pattuglia_id=pattuglia_id)
+#     db(db.presidio.id==pattuglia_pm.presidio_id).delete()
+#     db(db.squadra.id==pattuglia_pm.squadra_id)
+#     return 'Ok'
+
+
+def valida_pattuglia(form):
     """ """
-    pattuglia_pm = db.pattuglia_pm(pattuglia_id=pattuglia_id)
-    db(db.presidio.id==pattuglia_pm.presidio_id).delete()
-    db(db.squadra.id==pattuglia_pm.squadra_id)
-    return 'Ok'
+    fieldname = 'pattuglia_id'
+
+    _, msg = IS_IN_DB(db(db.pattuglia_pm), db.pattuglia_pm[fieldname])(form.vars[fieldname])
+
+    if msg:
+        form.errors[fieldname] = msg
+
+def valida_nuova_pattuglia(form):
+    """ """
+    fieldname = 'pattuglia_id'
+
+    _, msg = IS_NOT_IN_DB(db(db.pattuglia_pm), db.pattuglia_pm[fieldname])(form.vars[fieldname])
+
+    if msg:
+        form.errors[fieldname] = msg
