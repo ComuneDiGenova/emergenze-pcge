@@ -22,12 +22,14 @@ def render(row):
     if not row.comunicazione_incarico_inviata.allegato is None:
 
         with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
-            encoded_string = base64.b64encode(ff.read())
+            encoded_string = base64.b64encode(ff.read()).decode()
 
         allegato = {
             'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
             'file': encoded_string
         }
+
+	
 
         out['files'] = [allegato]
 
