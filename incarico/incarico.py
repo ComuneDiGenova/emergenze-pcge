@@ -121,7 +121,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
 def render(row):
 
-    # Pr caso gli identificativi coincidono
+    # Per caso gli identificativi coincidono
     if row.stato_id==1:
         stato = 1 # Da prendere in carico
     elif row.stato_id==2:
@@ -138,7 +138,7 @@ def render(row):
 
     if row.civico_id is None:
         localizzazione['tipoLocalizzazione'] = 3
-        localizzazione['daSpecificare'] = indirizzo
+        localizzazione['daSpecificare'] = civico
     else:
         localizzazione['tipoLocalizzazione'] = 1
         localizzazione['civico'] = civico
