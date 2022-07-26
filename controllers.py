@@ -319,7 +319,7 @@ def ws_segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
-            form.vars['assegna'] = form.vars.pop('ceduta')=='True'
+            form.vars['assegna'] = form.vars.pop('ceduta')=='False'
             form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
             form.vars['nverde'] = form.vars.pop('nverde')=='True'
             form.vars['parziale'] = form.vars.pop('parziale')=='True'
