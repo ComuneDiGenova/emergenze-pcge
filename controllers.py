@@ -648,8 +648,8 @@ def ws_presidio():
                 form.vars['percorso'] = 'A1'
             else:
                 form.vars['descrizione'] =  form.vars['percorso']
-            if form.vars['stato_id'] is None:
-                form.vars['stato_id'] = db.squadra.stato_id.default
+            # if form.vars['stato_id'] is None:
+            #     form.vars['stato_id'] = db.squadra.stato_id.default
             result = squadra.squadra.create(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}

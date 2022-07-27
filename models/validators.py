@@ -14,7 +14,10 @@ class isValidPhoneNumber(Validator):
         try:
             pn = phonenumbers.parse(value, None)
         except phonenumbers.phonenumberutil.NumberParseException:
-            pn = phonenumbers.parse(value, 'IT')
+            try:
+                pn = phonenumbers.parse(value, 'IT')
+            except phonenumbers.phonenumberutil.NumberParseException:
+                raise ValidationError("Formato numero telefonico non valido")
 
         try:
             assert phonenumbers.is_valid_number(pn)

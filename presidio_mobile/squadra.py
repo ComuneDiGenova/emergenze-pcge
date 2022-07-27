@@ -58,7 +58,7 @@ DEFAULT_STATO_SQUADRA_ID = 2 # A disposizione
 # 1 # In azione
 
 def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
-    percorso='A1', stato_id=DEFAULT_STATO_SQUADRA_ID, profilo_id=6, note='',
+    percorso='A1', stato_id=None, profilo_id=6, note='',
     preview=None, start=None, stop=None, descrizione="Percorso assegnato d'ufficio"
 ):
     """
@@ -77,6 +77,25 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
     DEFAULT_STATO_PRESIDIO_ID = 1
     # 2 # Preso in carico
     # 1 # Inviato ma non ancora preso in carico
+
+    if stato_id==1:
+        stato_presidio_id = 2
+    elif stato_id ==2:
+        stato_presidio_id = 1
+    elif stato_id ==3:
+        stato_presidio_id = 3
+    elif stato_id is None and not stop is None:
+        stato_presidio_id = 3
+        stato_id = 3
+    elif stato_id is None and not start is None:
+        stato_presidio_id = 2
+        stato_id = 1
+    elif stato_id is None and not preview is None:
+        stato_presidio_id = 1
+        stato_id = 2
+    else:
+        stato_id = DEFAULT_STATO_SQUADRA_ID
+        stato_presidio_id = DEFAULT_STATO_PRESIDIO_ID
 
     # 1. Creazione sqaudra
 
@@ -104,11 +123,9 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
 
     # 3. Assegnazione dello stato al presidio
 
-    # Se presente lo start forzare lo stato a "In azione" (1)
-
     stato_presidio_id = db.stato_presidio.insert(
         presidio_id = presidio_id,
-        stato_presidio_id = 2 if stato_id==1 else 1
+        stato_presidio_id = stato_presidio_id
     )
 
     # 3.1 Registrazione squadra PM
