@@ -103,6 +103,28 @@ def create_sql_function_comunicazione(schema, function_name, notification_name, 
 
     db.executesql(sql_notify_new_item)
 
+def create_sql_function_stato_presidio(schema, function_name, notification_name, payload, action):
+
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id_sopralluogo', NEW.{payload[0]},
+                 'id_stato_sopralluogo', NEW.{payload[1]},
+                 'data_ora_stato', NEW.{payload[2]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
 
 def create_sql_trigger(schema, table, function_name, trigger_name, action):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
@@ -157,7 +179,7 @@ segnalaz = [
     ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione'],
     ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
     ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']],
-    ['segnalazioni', 'stato_sopralluoghi_mobili', 'id'],
+    ['segnalazioni', 'stato_sopralluoghi_mobili', ['id_sopralluogo', 'id_stato_sopralluogo', 'data_ora_stato']],
     ['eventi', 't_eventi', 'id']
     ]
 
@@ -220,13 +242,13 @@ def setup_segn():
     function_name_n_stato_presidio = f"notify_new_{segnalaz[5][1]}"
     notification_name_n_stato_presidio = f"new_{segnalaz[5][1]}_added"
     trigger_name_n_stato_presidio = f"after_insert_{segnalaz[5][1]}"
-    create_sql_function(segnalaz[5][0], function_name_n_stato_presidio, notification_name_n_stato_presidio, segnalaz[5][2], "INSERT")
+    create_sql_function_stato_presidio(segnalaz[5][0], function_name_n_stato_presidio, notification_name_n_stato_presidio, segnalaz[5][2], "INSERT")
     create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_n_stato_presidio, trigger_name_n_stato_presidio, "INSERT")
 
     function_name_u_stato_presidio = f"notify_updated_{segnalaz[5][1]}"
     notification_name_u_stato_presidio = f"new_{segnalaz[5][1]}_updated"
     trigger_name_u_stato_presidio = f"after_updated_{segnalaz[5][1]}"
-    create_sql_function(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
+    create_sql_function_stato_presidio(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
     create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
 
     function_name_u_evento = f"notify_updated_{segnalaz[6][1]}"
@@ -345,7 +367,11 @@ def do_stuff(channel, **payload):
         f"new_{segnalaz[5][1]}_added",
         f"new_{segnalaz[5][1]}_updated"
     ]:
-        after_insert_stato_presidio(payload["id"])
+         # 'presidio_id', NEW.{payload[0]},
+         # 'stato_presidio_id', NEW.{payload[1]},
+         # 'timeref', NEW.{payload[2]}
+
+        after_insert_stato_presidio(payload['id_sopralluogo'], payload['id_stato_sopralluogo'], payload['data_ora_stato'])
     elif channel in f"new_{segnalaz[6][1]}_updated":
         mio_evento = evento.fetch(id=payload["id"])
 
