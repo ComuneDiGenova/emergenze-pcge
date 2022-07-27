@@ -3,6 +3,7 @@
 from .. import settings
 from .users_decodifica import SCHEMA, db, Field
 from .tools import new_id
+from .validators import isValidPhoneNumber
 
 from pydal.validators import *
 
@@ -67,7 +68,8 @@ db.define_table('telefono',
     ),
     Field('telefono',
         label = 'Numero di telefono',
-        required=True, notnull=True
+        required=True, notnull=True,
+        requires = isValidPhoneNumber()
     ),
     Field('matricola', required=True, notnull=True, rname='matricola_cf'),
     primarykey = ['codice', 'telefono', 'matricola'],

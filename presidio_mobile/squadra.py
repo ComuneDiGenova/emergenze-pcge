@@ -137,25 +137,33 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
     else:
         livello2 = None
 
+    emails = []
     for componente in componenti:
         agente = db.agente(matricola=componente['matricola'])
         if agente is None:
             agente_id = db.agente.insert(livello2=livello2, **db.agente._filter_fields(componente))
             agente = db.agente[agente_id]
 
-        db.telefono.update_or_insert(
-            {'codice': squadra_id, 'matricola': componente['matricola']},
-            codice = squadra_id,
-            matricola = componente['matricola'],
-            telefono = componente['telefono']
-        )
+        if componente['telefono']:
 
-        db.email.update_or_insert(
-            {'codice': squadra_id, 'matricola': componente['matricola']},
-            codice = squadra_id,
-            matricola = componente['matricola'],
-            email = componente['email']
-        )
+            db.telefono.update_or_insert(
+                {'codice': squadra_id, 'matricola': componente['matricola']},
+                codice = squadra_id,
+                matricola = componente['matricola'],
+                telefono = componente['telefono']
+            )
+
+        # Rispetto al telefono la mail non può essere ripetuta all'interno della
+        # stessa squadra a causa del vincolo differente di chiave primaria
+        if componente['email'] and not componente['email'] in emails:
+            emails.append(componente['email'])
+
+            db.email.update_or_insert(
+                {'codice': squadra_id, 'matricola': componente['matricola']},
+                codice = squadra_id,
+                matricola = componente['matricola'],
+                email = componente['email']
+            )
 
     return squadra_id
 
