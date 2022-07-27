@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB
+from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB, IS_EMPTY_OR
 from ..verbatel import Presidio
 from ..common import db
+
+db.telefono.telefono.requires = IS_EMPTY_OR(db.telefono.telefono.requires)
 
 agente_form = (
     db.agente.matricola,
@@ -101,6 +103,8 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
     )
 
     # 3. Assegnazione dello stato al presidio
+
+    # Se presente lo start forzare lo stato a "In azione" (1)
 
     stato_presidio_id = db.stato_presidio.insert(
         presidio_id = presidio_id,
@@ -205,6 +209,22 @@ def update_by_pattuglia_pm_id(pattuglia_id, preview=None, start=None, stop=None)
         db(db.squadra.id==pattuglia_pm.squadra_id).update(
             stato_id = 1 # In azione
         )
+    elif not preview is None:
+        db.stato_presidio.insert(
+            presidio_id = pattuglia_pm.presidio_id,
+            stato_presidio_id = 1 # Inviato ma non ancora preso in carico
+        )
+
+        db.log.insert(
+            schema = 'segnalazioni',
+            operatore = None,
+            operazione = f'presidio mobile (o sopralluogo) "{pattuglia_pm.presidio_id}" inviato ma non ancora preso in carico'
+        )
+
+        db(db.squadra.id==pattuglia_pm.squadra_id).update(
+            stato_id = 2 # A disposizione
+        )
+
     return 'Ok'
 
 
@@ -234,13 +254,16 @@ def valida_nuova_pattuglia(form):
     if msg:
         form.errors[fieldname] = msg
 
-def after_insert_stato_presidio(id):
-    """ """
+def after_insert_stato_presidio(id_sopralluogo, id_stato_sopralluogo, data_ora_stato):
+    """ payload['presidio_id'], payload['stato_presidio_id'], payload['timeref']
+    """
     logger.debug(f"after insert stato_presidio")
 
     pattuglia = db(
         (db.stato_presidio.presidio_id==db.pattuglia_pm.presidio_id) & \
-        (db.stato_presidio.id==id) &
+        (db.stato_presidio.id_sopralluogo==id_sopralluogo) &
+        (db.stato_presidio.id_stato_sopralluogo==id_stato_sopralluogo) &
+        (db.stato_presidio.data_ora_stato==data_ora_stato) &
         (db.stato_presidio.stato_presidio_id==3) # <- al momento comunico SOLO la chiusura
     ).select(
         db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
