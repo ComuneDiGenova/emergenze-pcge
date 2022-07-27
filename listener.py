@@ -145,14 +145,20 @@ def create_sql_trigger_true(schema, table, function_insert, trigger_insert, func
 
 # list of list, the inner list contains [schema, tabella, payload in a form of string]
 # # terzo elemento old ['segnalazioni','t_incarichi','id']
-elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento']]#,['segnalazioni','join_segnalazioni_incarichi','id_incarico']]
+elementi = [
+    ['eventi','join_tipo_foc', 'id_evento'],
+    ['eventi','t_note_eventi','id_evento'],
+    #,['segnalazioni','join_segnalazioni_incarichi','id_incarico']
+]
+
 segnalaz = [
     ['segnalazioni','join_segnalazioni_incarichi','id_incarico'],
     ['segnalazioni','t_incarichi','id'],
     ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione'],
     ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
     ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']],
-    ['segnalazioni', 'stato_sopralluoghi_mobili', 'id']
+    ['segnalazioni', 'stato_sopralluoghi_mobili', 'id'],
+    ['eventi', 't_eventi', 'id']
     ]
 
 def setup():
@@ -223,6 +229,12 @@ def setup_segn():
     create_sql_function(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
     create_sql_trigger(segnalaz[5][0], segnalaz[5][1], trigger_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
 
+    function_name_u_evento = f"notify_updated_{segnalaz[6][1]}"
+    notification_name_u_evento = f"new_{segnalaz[6][1]}_updated"
+    trigger_name_u_evento = f"after_updated_{segnalaz[6][1]}"
+    create_sql_function(segnalaz[6][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[6][2], "UPDATE")
+    create_sql_trigger(segnalaz[6][0], segnalaz[6][1], trigger_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
+
     db.commit()
 
 # def ciao():
@@ -246,13 +258,16 @@ def set_listen():
     listen_n_interventi_comsopr = f"LISTEN new_{segnalaz[4][1]}_added;"
 
     listen_n_stato_presidio = f"LISTEN new_{segnalaz[5][1]}_added;"
+    listen_u_stato_presidio = f"LISTEN new_{segnalaz[5][1]}_updated;"
+
+    listen_u_evento = f"LISTEN new_{segnalaz[6][1]}_updated;"
 
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
     db.executesql(listen_u_foc)
     db.executesql(listen_n_nota)
     db.executesql(listen_u_nota)
-        #interventi
+    #interventi
     db.executesql(listen_n_interventi)
     db.executesql(listen_u_interventi)
 
@@ -262,6 +277,9 @@ def set_listen():
     db.executesql(listen_n_interventi_comsopr)
 
     db.executesql(listen_n_stato_presidio)
+    db.executesql(listen_u_stato_presidio)
+
+    db.executesql(listen_u_evento)
 
     db.commit()
 
@@ -328,6 +346,11 @@ def do_stuff(channel, **payload):
         f"new_{segnalaz[5][1]}_updated"
     ]:
         after_insert_stato_presidio(payload["id"])
+    elif channel in f"new_{segnalaz[6][1]}_updated":
+        mio_evento = evento.fetch(id=payload["id"])
+
+        if not mio_evento is None:
+            out = syncEvento(mio_evento)
 
 
 def listen():
