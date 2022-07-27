@@ -86,7 +86,7 @@ db.define_table('email',
         requires = IS_EMAIL()
     ),
     Field('matricola', required=True, notnull=True, rname='matricola_cf'),
-    primarykey = ['codice', 'email', 'matricola'],
+    primarykey = ['codice', 'email'],
     rname = f'{SCHEMA}.t_mail_squadre'
 )
 

@@ -664,6 +664,12 @@ def ws_presidio():
 @action('ModificaPattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
 @action('modifica_pattuglia', method=['GET', 'POST'])
 @action('modifica_pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica/presidio/', method=['GET', 'POST'])
+@action('modifica/presidio/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('ModificaPresidio', method=['GET', 'POST'])
+@action('ModificaPresidio/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica_presidio', method=['GET', 'POST'])
+@action('modifica_presidio/<pattuglia_id:int>', method=['GET', 'POST'])
 @action.uses(db)
 def ws_presidio_update(pattuglia_id=None):
 
