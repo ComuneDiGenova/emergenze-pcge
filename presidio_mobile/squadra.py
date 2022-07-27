@@ -3,7 +3,7 @@
 from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB, IS_EMPTY_OR
 from ..verbatel import Presidio
 from ..common import db
-
+from ..common import logger
 db.telefono.telefono.requires = IS_EMPTY_OR(db.telefono.telefono.requires)
 
 agente_form = (
