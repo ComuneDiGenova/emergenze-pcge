@@ -271,20 +271,21 @@ def valida_nuova_pattuglia(form):
     if msg:
         form.errors[fieldname] = msg
 
-def after_insert_stato_presidio(id_sopralluogo, id_stato_sopralluogo, data_ora_stato):
+def after_insert_stato_presidio(presidio_id, stato_presidio_id, timeref):
     """ payload['presidio_id'], payload['stato_presidio_id'], payload['timeref']
     """
     logger.debug(f"after insert stato_presidio")
 
-    pattuglia = db(
-        (db.stato_presidio.presidio_id==db.pattuglia_pm.presidio_id) & \
-        (db.stato_presidio.id_sopralluogo==id_sopralluogo) &
-        (db.stato_presidio.id_stato_sopralluogo==id_stato_sopralluogo) &
-        (db.stato_presidio.data_ora_stato==data_ora_stato) &
-        (db.stato_presidio.stato_presidio_id==3) # <- al momento comunico SOLO la chiusura
-    ).select(
-        db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
-    ).first()
+    if stato_presidio_id==3:
 
-    if not pattuglia is None:
-        Presidio.end()
+        pattuglia = db(
+            (db.stato_presidio.presidio_id==db.pattuglia_pm.presidio_id) & \
+            (db.stato_presidio.presidio_id==presidio_id) &
+            (db.stato_presidio.stato_presidio_id==stato_presidio_id) &
+            (db.stato_presidio.timeref==timeref)
+        ).select(
+            db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
+        ).first()
+
+        if not pattuglia is None:
+            Presidio.end()
