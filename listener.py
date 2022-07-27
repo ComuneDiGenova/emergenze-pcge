@@ -227,13 +227,13 @@ def setup_segn():
     notification_name_u_stato_presidio = f"new_{segnalaz[5][1]}_updated"
     trigger_name_u_stato_presidio = f"after_updated_{segnalaz[5][1]}"
     create_sql_function(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
-    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], trigger_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
+    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
 
     function_name_u_evento = f"notify_updated_{segnalaz[6][1]}"
     notification_name_u_evento = f"new_{segnalaz[6][1]}_updated"
     trigger_name_u_evento = f"after_updated_{segnalaz[6][1]}"
-    create_sql_function(segnalaz[6][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[6][2], "UPDATE")
-    create_sql_trigger(segnalaz[6][0], segnalaz[6][1], trigger_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
+    create_sql_function(segnalaz[6][0], function_name_u_evento, notification_name_u_evento, segnalaz[6][2], "UPDATE")
+    create_sql_trigger(segnalaz[6][0], segnalaz[6][1], function_name_u_evento, trigger_name_u_evento, "UPDATE")
 
     db.commit()
 

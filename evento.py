@@ -35,6 +35,7 @@ def render(row):
 
     rec['inizio'] = row.inizio.isoformat(timespec='seconds')
     rec['fine'] = row.fine and row.fine.isoformat()
+    rec['chiusura'] = row.chiusura and row.chiusura.isoformat()
 
     if not row.fine is None:
         stato = 'chiuso'
@@ -62,7 +63,7 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
 
     left = (
         db.join_tipo_allerta.on(
-            (db.evento.id==db.join_tipo_allerta.evento_id) & 
+            (db.evento.id==db.join_tipo_allerta.evento_id) &
             (db.tipo_allerta.id==db.join_tipo_allerta.tipo_allerta_id)
         ),
         db.nota_evento.on(db.evento.id==db.nota_evento.evento_id)
@@ -78,12 +79,12 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
 
     # Filter
 
-    dbset = dbset(
-        # SOLO EVENTI VALIDI
-        (f"{db.evento._rname}.valido is null" | (db.evento.valido == True)) & \
-        (db.tipo_foc.valido==True) # & \
-        # (db.tipo_allerta.valido==True)
-    )
+    # dbset = dbset(
+    #     # SOLO EVENTI VALIDI
+    #     (f"{db.evento._rname}.valido is null" | (db.evento.valido == True)) & \
+    #     (db.tipo_foc.valido==True) # & \
+    #     # (db.tipo_allerta.valido==True)
+    # )
 
     if not id is None:
         dbset = dbset(db.evento.id==id)
@@ -113,6 +114,6 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
         left = left
     ))
     try:
-        return next(result) if not id is None or (not paginate is None and paginate<1) else result 
+        return next(result) if not id is None or (not paginate is None and paginate<1) else result
     except StopIteration:
         return
