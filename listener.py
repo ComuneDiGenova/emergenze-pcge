@@ -14,6 +14,7 @@ from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
 from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
+from .presidio_mobile.squadra import after_insert_stato_presidio
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
@@ -81,7 +82,7 @@ def create_sql_function_true(schema, function_insert, notification_insert, funct
 
 
 def create_sql_function_comunicazione(schema, function_name, notification_name, payload, action):
-    
+
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
         RETURNS trigger
          LANGUAGE 'plpgsql'
@@ -150,7 +151,8 @@ segnalaz = [
     ['segnalazioni','t_incarichi','id'],
     ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione'],
     ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
-    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']]
+    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']],
+    ['segnalazioni', 'stato_sopralluoghi_mobili', 'id']
     ]
 
 def setup():
@@ -194,20 +196,33 @@ def setup_segn():
     trigger_name_n_lav = f"after_insert_{segnalaz[2][1]}"
     create_sql_function(segnalaz[2][0], function_name_n_lav, notification_name_n_lav, segnalaz[2][2], "INSERT")
     create_sql_trigger(segnalaz[2][0], segnalaz[2][1], function_name_n_lav, trigger_name_n_lav, "INSERT")
-    
+
     #elemento 4 ovver [3] comunicazioni
     function_name_n_com = f"notify_new_{segnalaz[3][1]}"
     notification_name_n_com = f"new_{segnalaz[3][1]}_added"
     trigger_name_n_com = f"after_insert_{segnalaz[3][1]}"
     create_sql_function_comunicazione(segnalaz[3][0], function_name_n_com, notification_name_n_com, segnalaz[3][2], "INSERT")
     create_sql_trigger(segnalaz[3][0], segnalaz[3][1], function_name_n_com, trigger_name_n_com, "INSERT")
-    
+
     #elemento 5 ovver [4] comunicazioni
     function_name_n_comsopr = f"notify_new_{segnalaz[4][1]}"
     notification_name_n_comsopr = f"new_{segnalaz[4][1]}_added"
     trigger_name_n_comsopr = f"after_insert_{segnalaz[4][1]}"
     create_sql_function_comunicazione(segnalaz[4][0], function_name_n_comsopr, notification_name_n_comsopr, segnalaz[4][2], "INSERT")
     create_sql_trigger(segnalaz[4][0], segnalaz[4][1], function_name_n_comsopr, trigger_name_n_comsopr, "INSERT")
+
+    function_name_n_stato_presidio = f"notify_new_{segnalaz[5][1]}"
+    notification_name_n_stato_presidio = f"new_{segnalaz[5][1]}_added"
+    trigger_name_n_stato_presidio = f"after_insert_{segnalaz[5][1]}"
+    create_sql_function(segnalaz[5][0], function_name_n_stato_presidio, notification_name_n_stato_presidio, segnalaz[5][2], "INSERT")
+    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_n_stato_presidio, trigger_name_n_stato_presidio, "INSERT")
+
+    function_name_u_stato_presidio = f"notify_updated_{segnalaz[5][1]}"
+    notification_name_u_stato_presidio = f"new_{segnalaz[5][1]}_updated"
+    trigger_name_u_stato_presidio = f"after_updated_{segnalaz[5][1]}"
+    create_sql_function(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
+    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], trigger_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
+
     db.commit()
 
 # def ciao():
@@ -230,6 +245,8 @@ def set_listen():
     listen_n_interventi_com = f"LISTEN new_{segnalaz[3][1]}_added;"
     listen_n_interventi_comsopr = f"LISTEN new_{segnalaz[4][1]}_added;"
 
+    listen_n_stato_presidio = f"LISTEN new_{segnalaz[5][1]}_added;"
+
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
     db.executesql(listen_u_foc)
@@ -243,6 +260,8 @@ def set_listen():
 
     db.executesql(listen_n_interventi_com)
     db.executesql(listen_n_interventi_comsopr)
+
+    db.executesql(listen_n_stato_presidio)
 
     db.commit()
 
@@ -304,6 +323,11 @@ def do_stuff(channel, **payload):
     elif channel in f"new_{segnalaz[4][1]}_added":
         after_insert_comunicazione_presidio_mobile(payload["id"], payload["data"])
         #after_insert_comsopr(payload["id"])
+    elif channel in [
+        f"new_{segnalaz[5][1]}_added",
+        f"new_{segnalaz[5][1]}_updated"
+    ]:
+        after_insert_stato_presidio(payload["id"])
 
 
 def listen():
@@ -312,7 +336,7 @@ def listen():
     while True:
         set_listen()
         # sleep until there is some data
-        logger.debug('Waiting!')
+        logger.debug('Waiting for notifications!')
         select.select([db._adapter.connection],[],[])
         logger.debug('Catched!')
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB
-
+from ..verbatel import Presidio
 from ..common import db
 
 agente_form = (
@@ -57,7 +57,7 @@ DEFAULT_STATO_SQUADRA_ID = 2 # A disposizione
 
 def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
     percorso='A1', stato_id=DEFAULT_STATO_SQUADRA_ID, profilo_id=6, note='',
-    preview=None, start=None, stop=None, descrizione='Percorso da riassegnare'
+    preview=None, start=None, stop=None, descrizione="Percorso assegnato d'ufficio"
 ):
     """
     nome            @string : Nome della squadra;
@@ -225,3 +225,18 @@ def valida_nuova_pattuglia(form):
 
     if msg:
         form.errors[fieldname] = msg
+
+def after_insert_stato_presidio(id):
+    """ """
+    logger.debug(f"after insert stato_presidio")
+
+    pattuglia = db(
+        (db.stato_presidio.presidio_id==db.pattuglia_pm.presidio_id) & \
+        (db.stato_presidio.id==id) &
+        (db.stato_presidio.stato_presidio_id==3) # <- al momento comunico SOLO la chiusura
+    ).select(
+        db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
+    ).first()
+
+    if not pattuglia is None:
+        Presidio.end()

@@ -37,6 +37,7 @@ def fetch(presidio_id, timeref=None):
         (db.comunicazione_presidio.presidio_id==presidio_id) & \
         (db.squadra.id==db.componente.squadra_id) & \
         (db.comunicazione_presidio.presidio_id==db.presidio.id) & \
+        (db.squadra.id==db.pattuglia_pm.squadra_id) & \
         "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
         # (db.componente.matricola==db.agente.matricola)
     )
@@ -46,7 +47,8 @@ def fetch(presidio_id, timeref=None):
 
     rec = dbset.select(
         # db.intervento.id.with_alias('idIntervento'),
-        db.comunicazione_presidio.presidio_id.with_alias('idSquadra'),
+        # db.comunicazione_presidio.presidio_id.with_alias('idSquadra'),
+        db.pattuglia_pm.pattuglia_id.with_alias('idSquadra'), # <- Id Verbatel
         db.comunicazione_presidio.testo.with_alias('testo'),
         db.comunicazione_presidio.allegato,
         orderby = ~db.comunicazione_presidio.timeref

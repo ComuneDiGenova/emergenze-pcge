@@ -103,12 +103,16 @@ class Intervento(Verbatel):
 
 class Presidio(Verbatel):
     """docstring for Intervento."""
-    root = 'squadre' # <- guess (manca ancora la doc da Verbatel)
+    root = 'servizi' # <- guess (manca ancora la doc da Verbatel)
 
     @classmethod
     def message(cls, id, **payload):
         """ POST """
         return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
+
+    @classmethod
+    def end(cls, id):
+        return cls.create(id, 'termina', encode=False, json=False)
 
 
 class Messaggio(Verbatel):

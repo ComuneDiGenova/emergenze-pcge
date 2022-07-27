@@ -624,8 +624,8 @@ def ws_presidio():
             requires = squadra.IS_JSON_LIST_OF_COMPONENTI()
         ),
         Field('percorso', label='Percorso', comment='Scegliere un percorso',
-            required = True,
-            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso, zero=None),
+            required = False,
+            requires = IS_EMPTY_OR(IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso, zero=None)),
         ),
         db.squadra.nome,
         db.squadra.evento_id,
@@ -644,10 +644,10 @@ def ws_presidio():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            # if form.vars['percorso'] is None:
-            #     form.vars['percorso'] = 'A1'
-            # else:
-            #     form.vars['descrizione'] =  form.vars['percorso']
+            if form.vars['percorso'] is None:
+                form.vars['percorso'] = 'A1'
+            else:
+                form.vars['descrizione'] =  form.vars['percorso']
             if form.vars['stato_id'] is None:
                 form.vars['stato_id'] = db.squadra.stato_id.default
             result = squadra.squadra.create(**form.vars)
