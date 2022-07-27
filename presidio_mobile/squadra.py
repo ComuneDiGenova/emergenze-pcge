@@ -288,4 +288,4 @@ def after_insert_stato_presidio(presidio_id, stato_presidio_id, timeref):
         ).first()
 
         if not pattuglia is None:
-            Presidio.end()
+            Presidio.end(pattuglia.idSquadra)
