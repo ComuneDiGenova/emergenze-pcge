@@ -101,7 +101,7 @@ def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
 def create_by_incarico(incarico_id, *args, **kwargs):
 
     lavorazione_id = db(
-        (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        # (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
         (db.join_segnalazione_incarico.incarico_id==incarico_id)
     ).select(
         db.join_segnalazione_incarico.lavorazione_id,
