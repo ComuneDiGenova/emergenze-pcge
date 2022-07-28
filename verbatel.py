@@ -111,8 +111,8 @@ class Presidio(Verbatel):
         return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
 
     @classmethod
-    def end(cls, id):
-        return cls.create(id, 'termina', encode=False, json=False)
+    def end(cls, id, **payload):
+        return cls.create(id, 'termina', encode=False, json=False, **payload)
 
 
 class Messaggio(Verbatel):

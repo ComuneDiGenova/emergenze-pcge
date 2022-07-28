@@ -35,15 +35,16 @@ def fetch(presidio_id, timeref=None):
     """ """
     dbset = db(db.presidio)(
         (db.comunicazione_presidio.presidio_id==presidio_id) & \
-        (db.squadra.id==db.componente.squadra_id) & \
-        (db.comunicazione_presidio.presidio_id==db.presidio.id) & \
-        (db.squadra.id==db.pattuglia_pm.squadra_id) & \
-        "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
+        (db.pattuglia_pm.presidio_id==db.comunicazione_presidio.presidio_id)
+        # (db.comunicazione_presidio.presidio_id==db.presidio.id) & \
+        # (db.squadra.id==db.componente.squadra_id) & \
+        # (db.squadra.id==db.pattuglia_pm.squadra_id) # & \
+        # "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
         # (db.componente.matricola==db.agente.matricola)
     )
 
-    if not timeref is None:
-        dbset = dbset(db.comunicazione_presidio.timeref==timeref)
+    #if not timeref is None:
+    #    dbset = dbset(db.comunicazione_presidio.timeref==timeref)
 
     rec = dbset.select(
         # db.intervento.id.with_alias('idIntervento'),
@@ -56,6 +57,7 @@ def fetch(presidio_id, timeref=None):
 
     if rec is None:
         logger.debug('Comunicazione non diretta a PL.')
+        logger.debug(f'{timeref}, {presidio_id}')
 
     return rec and (rec.idSquadra, render(rec),)
 
