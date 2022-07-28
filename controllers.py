@@ -706,3 +706,43 @@ def ws_presidio_update(pattuglia_id=None):
     output = {'result': result, 'form': sf.form2dict(form)}
 
     return output
+
+@action('comunicazione/presidio', method=['GET', 'POST'])
+@action('comunicazione/presidio/<presidio_id:int>', method=['GET', 'POST'])
+@action.uses(db)
+def segnalazione_comunicazione_a_presidio(presidio_id=None):
+    """ """
+
+    if not presidio_id is None:
+        request.POST['presidio_id'] = presidio_id
+
+    # stat_presidio = db(db.intervento).select(
+    #     db.intervento.id.min().with_alias('idmin'),
+    #     db.intervento.id.max().with_alias('idmax')
+    # ).first()
+
+    form = Form([
+        Field('pattuglia_id', 'integer',
+            label='Id Presidio', required=True,
+            comment = 'Inserisci un id Presidio valido'
+            # comment = f'Inserisci un id Incarico valido compreso tra {stat_presidio.idmin} e {stat_presidio.idmax}',
+        ),
+        *squadra.comunicazione.comunicazione_fields
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        # validation = segnalazione.comunicazione.valida_nuova_comunicazione_da_intervento,
+        form_name = 'crea_comunicazione_a_presidio',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = squadra.comunicazione.create(**form.vars)
+            pass
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+    if not segnalazione.comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
+        output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
+
+    return output

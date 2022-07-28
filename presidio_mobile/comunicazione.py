@@ -8,6 +8,38 @@ from .. import settings
 from py4web import Field
 import base64
 
+from ..segnalazione.comunicazione import fake_upload, _upload
+
+
+comunicazione_fields = [
+    db.log.operatore,
+    db.comunicazione_presidio.testo,
+    fake_upload
+]
+
+UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
+
+def create(pattuglia_id, testo=None, allegato=None, operatore=None):
+    """ """
+    rdest = _upload(allegato)
+
+    presidio_id = db.pattuglia_pm(pattuglia_id=pattuglia_id).presidio_id
+
+    row = db.comunicazione_presidio.insert(
+        presidio_id = presidio_id,
+        testo = testo,
+        allegato = rdest
+    )
+
+    db.log.insert(
+        schema = 'segnalazioni',
+        operatore = operatore,
+        operazione = f'Inviata comunicazione a PC (presidio mobile "{presidio_id}")'
+    )
+
+    return row
+
+
 def render(row):
     """ """
 
