@@ -86,6 +86,15 @@ class Verbatel(object):
         response = requests.put(_url, data=data) # <---
         return cls.__nout(response)
 
+    @classmethod
+    def get(cls, *endpoints, **payload):
+        """ GET """
+        _url = cls._url(*endpoints)
+        data = cls._payload(**payload)
+        logger.debug(f'"{_url}"')
+        logger.debug(data)
+        response = requests.get(_url, params=data) # <---
+        return cls.__nout(response)
 
 class Evento(Verbatel):
     """docstring for Evento."""
