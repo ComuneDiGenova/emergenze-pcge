@@ -7,6 +7,7 @@ from ..verbatel import Presidio
 from .. import settings
 from py4web import Field
 import base64
+from pydal.validators import IS_IN_DB
 
 from ..segnalazione.comunicazione import fake_upload, _upload
 
@@ -18,6 +19,15 @@ comunicazione_fields = [
 ]
 
 UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
+
+def valida_nuova_comunicazione(form):
+    """ """
+    fieldname = 'pattuglia_id'
+
+    _, msg = IS_IN_DB(db(db.pattuglia_pm), db.pattuglia_pm[fieldname])(form.vars[fieldname])
+
+    if msg:
+        form.errors[fieldname] = msg
 
 def create(pattuglia_id, testo=None, allegato=None, operatore=None):
     """ """
@@ -31,13 +41,20 @@ def create(pattuglia_id, testo=None, allegato=None, operatore=None):
         allegato = rdest
     )
 
+    rec = db(db.comunicazione_presidio.presidio_id==row["presidio_id"]).select(
+        db.comunicazione_presidio.presidio_id,
+        db.comunicazione_presidio.timeref,
+        limitby = (0,1,),
+        orderby = ~db.comunicazione_presidio.timeref
+    ).first()
+
     db.log.insert(
         schema = 'segnalazioni',
         operatore = operatore,
         operazione = f'Inviata comunicazione a PC (presidio mobile "{presidio_id}")'
     )
 
-    return row
+    return rec
 
 
 def render(row):

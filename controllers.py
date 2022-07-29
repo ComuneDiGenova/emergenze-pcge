@@ -730,7 +730,7 @@ def segnalazione_comunicazione_a_presidio(presidio_id=None):
         *squadra.comunicazione.comunicazione_fields
     ], deletable = False, dbio=False,
         hidden = {'rollback': False},
-        # validation = segnalazione.comunicazione.valida_nuova_comunicazione_da_intervento,
+        validation = squadra.comunicazione.valida_nuova_comunicazione,
         form_name = 'crea_comunicazione_a_presidio',
         csrf_protection = False
     )
