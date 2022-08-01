@@ -148,6 +148,15 @@ db.define_table('segnalazioni_lista',
     rname = f'{SCHEMA}.v_segnalazioni_lista' # <- VISTA!
 )
 
+db.define_table("incarichi_lista",
+    Field('data_ora', rname='data_ora_invio'),
+    Field('segnalazione_id', rname='id_segnalazione'),
+    Field('stato_id', rname='id_stato_incarico'),
+    Field('stato', rname='descrizione_stato'),
+    migrate = False,
+    rname = f'{SCHEMA}.v_incarichi_last_update'
+)
+
 db.define_table('comunicazione',
     Field('lavorazione_id', 'integer', notnull=True, required=True,
         rname='id_lavorazione'
