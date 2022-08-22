@@ -41,6 +41,7 @@ from . import segnalazione
 from . import presidio_mobile as squadra
 
 from .incarico import incarico
+from . import mire
 
 from mptools.frameworks.py4web import shampooform as sf
 
@@ -765,7 +766,31 @@ def segnalazioni():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            result = segnalazione.fetch(**form.vars)
+            result = mire.fetch(**form.vars)
+
+    return {
+        'result': result,
+        'results': result and len(result),
+        'form': sf.form2dict(form)
+    }
+
+@action('lista/mire', method=['GET', 'POST'])
+def lista_mire():
+
+    form = Form([
+        # Field('start', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        # Field('end', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        Field('page', 'integer', requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, None))),
+        Field('paginate', 'integer', requires=IS_EMPTY_OR(IS_IN_SET([5, 10, 20, 50, 100], zero=None))),
+    ], deletable = False, dbio=False,
+        form_name = 'mire',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = mire.fetch(**form.vars)
 
     return {
         'result': result,
