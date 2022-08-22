@@ -780,7 +780,7 @@ def lista_mire():
     form = Form([
         # Field('start', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
         # Field('end', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
-        Field('page', 'integer', requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, None))),
+        Field('page', 'integer', requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, None))),
         Field('paginate', 'integer', requires=IS_EMPTY_OR(IS_IN_SET([5, 10, 20, 50, 100], zero=None))),
     ], deletable = False, dbio=False,
         form_name = 'mire',
@@ -790,6 +790,8 @@ def lista_mire():
     result = None
     if form.accepted:
         with NoDBIO(form):
+            if not form.vars.get('paginate'):
+                form.vars['paginate'] = mire.DEFAULT_PAGINATION
             result = mire.fetch(**form.vars)
 
     return {
