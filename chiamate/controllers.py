@@ -405,3 +405,22 @@ def cancellaComponente(utente_id=None, civico_id=None, motivo=None):
         return validation_error(
             telefono = 'Le chiavi corrispondono a troppi valori'
         )
+
+
+@action("soggettiVulnerabili/<page:int>/<paginate:int>/", method=['GET'])
+@action("soggettiVulnerabili/<page:int>/", method=['GET'])
+@action("soggettiVulnerabili/", method=['GET'])
+@action.uses(cors)
+def soggetti_vulnerabili(page=None, paginate=10):
+
+    if page is None:
+        limitby = None
+    else:
+        limitby = tuple(map(lambda ee: ee*int(paginate), (page, page+1)))
+
+    result = db(db.soggetti_vulnerabili).select(limitby=limitby)
+
+    return {
+        'result': result.as_list(),
+        'results': len(result)
+    }
