@@ -152,7 +152,7 @@ def render(row):
     if (row.segnalazione_lavorazione.profilo_id==settings.PM_PROFILO_ID) and (row.incarico.profilo_id==settings.PM_PROFILO_ID):
         tipoRichiesta = 1
     elif row.incarico.profilo_id==settings.PM_PROFILO_ID and (WARNING in row.note):
-        tipoRichiesta = 2
+        tipoRichiesta = 1
     elif row.incarico.uo_id.startswith('com_PO'):
     # elif row.incarico.profilo_id==settings.PM_PROFILO_ID:
         tipoRichiesta = 3

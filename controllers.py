@@ -766,7 +766,7 @@ def segnalazioni():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            result = mire.fetch(**form.vars)
+            result = segnalazione.fetch(**form.vars)
 
     return {
         'result': result,
@@ -789,10 +789,9 @@ def lista_mire():
 
     result = None
     if form.accepted:
-        with NoDBIO(form):
-            if not form.vars.get('paginate'):
-                form.vars['paginate'] = mire.DEFAULT_PAGINATION
-            result = mire.fetch(**form.vars)
+        if not form.vars.get('paginate'):
+            form.vars['paginate'] = mire.DEFAULT_PAGINATION
+        result = mire.fetch(**form.vars)
 
     return {
         'result': result,
