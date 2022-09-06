@@ -27,7 +27,7 @@ from alertsystem import config
 # #######################################################
 # implement custom loggers form settings.LOGGERS
 # #######################################################
-logger = logging.getLogger("py4web:" + settings.APP_NAME)
+logger = logging.getLogger("py4web:" + settings.APP_NAME + "")
 formatter = logging.Formatter(
     "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 )
