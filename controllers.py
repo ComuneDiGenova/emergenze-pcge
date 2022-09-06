@@ -25,6 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+from datetime import datetime
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
 from .common import (
@@ -38,6 +39,7 @@ from .common import (
     flash,
     db,
     cors,
+    alertsystem_config,
 )
 
 from py4web.utils.form import Form
@@ -48,16 +50,23 @@ from . import evento as _evento
 from . import civico as _civico
 from . import segnalazione as _segnalazione
 
+from mptools.frameworks.py4web import shampooform as sf
+
+import geojson, json
+
 # from .segnalazione import comunicazione as _comunicazione
 from . import segnalazione
 from . import presidio_mobile as squadra
 
 from .incarico import incarico
 from . import mire
+from . import settings
 
-from mptools.frameworks.py4web import shampooform as sf
+from alertsystem import config
+from alertsystem.azioni import do as alert_do
 
-import geojson, json
+# To be checked
+# ? from alertsystem.azioni import do, config
 
 
 class NoDBIO(object):
@@ -80,6 +89,8 @@ class NoDBIO(object):
             db.rollback()
 
 
+# ? variable to pass ID
+id_message_global: int = -1
 # from py4web.core import Fixture
 #
 # class query2forms(Fixture):
@@ -1138,17 +1149,13 @@ def lista_mire():
 
     result = None
     if form.accepted:
-<<<<<<< Updated upstream
-        if not form.vars.get('paginate'):
-            form.vars['paginate'] = mire.DEFAULT_PAGINATION
+        if not form.vars.get("paginate"):
+            form.vars["paginate"] = mire.DEFAULT_PAGINATION
         result = mire.fetch(**form.vars)
-=======
         with NoDBIO(form):
             if not form.vars.get("paginate"):
                 form.vars["paginate"] = mire.DEFAULT_PAGINATION
             result = mire.fetch(**form.vars)
->>>>>>> Stashed changes
-
     return {
         "result": result,
         "results": result and len(result),
@@ -1156,68 +1163,150 @@ def lista_mire():
     }
 
 
+# ?------------------------------------------------------------
+# ?------------------------------------------------------------
+# ?------------------------------------------------------------
+
 # TODO Message url for putting message
 # TODO POST via postman message on url
-# TODO get data from url 
+# TODO get data from url
 # TODO make a query to DB
 # TODO recieve DB data
 # TODO generate campaign
 
-@action("message_group/visualize", method=["POST"])
-def intercept_message():
-    form = Form()
+# TODO cannot send datetime in correct format
+@action("user_campaign/_get_campaign_from_to", method=["POST"])
+def user_campaign_get_campaign_from_to():
+    form = Form(
+        [
+            Field(
+                "date_start",
+                "datetime",
+                requires=IS_EMPTY_OR(
+                    IS_DATETIME(format="%Y-%m-%d %H:%M")
+                ),
+            ),
+            Field(
+                "date_end",
+                "datetime",
+                requires=IS_EMPTY_OR(
+                    IS_DATETIME(format="%Y-%m-%d %H:%M")
+                ),
+            ),
+        ],
+        deletable=False,
+        dbio=False,
+        # hidden = {'rollback': False},
+        form_name="_get_campaign_from_to",
+        csrf_protection=False,
+    )
+    # a, b = form.vars.get("date_start"), form.vars.get("date_end")
+    # logger.debug(f"date_start: {a} and date_end: {b}")
+    # del a
+    # del b
     if form.accepted:
-        a = form.vars["group"]
-        b = form.vars["message"]
-        res = db(
-            (db.soggetti_vulnerabili.gruppo==3) |
-        ).select(
-            db.soggetti_vulnerabili.id,
-            db.soggetti_vulnerabili.gruppo,
-            db.soggetti_vulnerabili.telefono
+        date_start: datetime = form.vars.get("date_start")
+        date_end: datetime = form.vars.get("date_end")
+        logger.debug(
+            f"date_start: {date_start} and date_end: {date_end}"
         )
-        mynum = [oo.numero for oo in res]
     else:
-        visualizza_messegi
-        pass
+        return r"Error, form not accepted, check the format='%Y-%m-%d %H:%M'"
+    touple_of_campaigns = {}
+    touple_of_campaigns: tuple = alert_do.ricerca_campagne(
+        cfg=alertsystem_config,
+        start_date=date_start,
+        end_date=date_end,
+    )
+    logger.debug(f"touple_of_campaigns: {touple_of_campaigns}")
+    return touple_of_campaigns
 
-    return "OK"
 
-@action("delete_mess", method=["POST"])
-def intercept_message():
-    form = Form()
+# TODO use env credentials (check)
+@action("user_campaign/_retrive_message_list", method=["GET"])
+def user_campaign_retrive_list():
+    (
+        message_list,
+        alertsystem_response_status,
+    ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
+
+    logger.debug(f"\talertsystem_config: {alertsystem_config}")
+    logger.debug(f"\tstatus: {alertsystem_response_status}")
+    logger.debug(f"\tmessage_list: {message_list}")
+
+    return json.dump(
+        [
+            dict.fromkeys(message_list),
+            dict.fromkeys(alertsystem_response_status),
+        ]
+    )
+
+
+# TODO get message ID, delete message
+@action(
+    "user_campaign/_delete_older_message_campaign",
+    method=["DELETE"],
+)
+def user_campaign_delete_older_message_campaign():
+    (
+        message_list,
+        alertsystem_response_status,
+    ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
+    logger.debug(f"\talertsystem_config: {alertsystem_config}")
+    logger.debug(f"\tstatus: {alertsystem_response_status}")
+    logger.debug(f"\tmessage_list: {message_list}")
+
+    # TODO How to get message ID from message_list?
     if form.accepted:
-        a = form.vars["group"]
-        b = form.vars["message"]
-        res = db(
-            (db.soggetti_vulnerabili.gruppo==3) |
-        ).select(
-            db.soggetti_vulnerabili.id,
-            db.soggetti_vulnerabili.gruppo,
-            db.soggetti_vulnerabili.telefono
+        message_id: int = form.vars.get("message_id")
+        message_to_be_deleted = alert_do.cancella_messaggio(
+            cfg=alertsystem_config, message_id=message_id
         )
-        mynum = [oo.numero for oo in res]
+        return f"Message with ID: {message_to_be_deleted} deleted"
     else:
-        visualizza_messegi
-        pass
+        return "Error 401 mismatch"
 
-    return "OK"
-@action("message_group", method=["POST"])
-def intercept_message():
-    form = Form()
+
+@action("user_campaign/_create_capmaign", method=["POST"])
+def user_campaign_create():
+    form = Form(
+        [
+            Field(
+                "group",
+                "integer",
+                requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, 3)),
+            ),
+            Field(
+                "message",
+                requires=IS_NOT_EMPTY(
+                    error_message="Message was not specified"
+                ),
+            ),
+        ],
+        deletable=False,
+        dbio=False,
+        # hidden = {'rollback': False},
+        form_name="_create_capmaign",
+        csrf_protection=False,
+    )
     if form.accepted:
-        a = form.vars["group"]
-        b = form.vars["message"]
-        res = db(
-            (db.soggetti_vulnerabili.gruppo==3) |
+        group_numer: int = form.vars["group"]
+        message_text: str = form.vars["message"]
+        result_from_database = db(
+            (db.soggetti_vulnerabili.gruppo == group_numer)
         ).select(
-            db.soggetti_vulnerabili.id,
-            db.soggetti_vulnerabili.gruppo,
-            db.soggetti_vulnerabili.telefono
+            db.soggetti_vulnerabili.telefono,
         )
-        mynum = [oo.numero for oo in res]
+        telephone_numbers = dict.fromkeys(result_from_database)
+        # telephone_numbers = ["+48663031666"]
+        # TODO ask about ID, how to get them, is it a query?
+        # alert_do.genera_campagna(
+        #     cfg=alertsystem_config,
+        #     id_prescelto_campagna=1,
+        #     id_messaggio=1,
+        #     lista_numeri_telefonici=telephone_numbers,
+        # )
     else:
-        visualizza_messegi
-        pass
+        telephone_numbers = "Error, no group or no message"
 
-    return "OK"
+    return telephone_numbers
