@@ -47,7 +47,9 @@ SMTP_TLS = False
 
 # session settings
 SESSION_TYPE = "cookies"
-SESSION_SECRET_KEY = "<session-secret-key>" # replace this with a uuid
+SESSION_SECRET_KEY = (
+    "<session-secret-key>"  # replace this with a uuid
+)
 MEMCACHE_CLIENTS = ["127.0.0.1:11211"]
 REDIS_SERVER = "localhost:6379"
 
@@ -97,12 +99,16 @@ MIGRATE_EVENTO = False
 MIGRATE_AGENTE = False
 MIGRATE_PATTUGLIA_PM = False
 
-VBT_PROT = 'http'
-VBT_HOST = '192.168.153.84'
-VBT_PATH = 'GestioneEmergenzeTest/api'
+VBT_PROT = "http"
+VBT_HOST = "192.168.153.84"
+VBT_PATH = "GestioneEmergenzeTest/api"
 
 PM_PROFILO_ID = 6
 PC_PROFILO_ID = 3
+
+ALERTSYSTEM_ENDPOINT = None
+ALERTSYSTEM_USERNAME = None
+ALERTSYSTEM_PASSWORD = None
 
 # try import private settings
 try:
