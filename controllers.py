@@ -1252,19 +1252,34 @@ def user_campaign_delete_older_message_campaign():
         message_list,
         alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
+    message_id_delete = int(request.params["message_id_delete"])
+    logger.debug(
+        f"\tmessage_id_delete is a {type(message_id_delete)}"
+    )
+    # ?checking if message_id_delete is in message_list
+    if (
+        len(
+            [
+                b[0].id_messaggio
+                for b in message_list
+                if b[0].id_messaggio == message_id_delete
+            ]
+        )
+        < 1
+    ):
+        return "Error 401 mismatch. Message ID not found"
     logger.debug(f"\talertsystem_config: {alertsystem_config}")
     logger.debug(f"\tstatus: {alertsystem_response_status}")
     logger.debug(f"\tmessage_list: {message_list}")
-
+    logger.debug(f"\message_id_delete: {message_id_delete}")
     # TODO How to get message ID from message_list?
-    if form.accepted:
-        message_id: int = form.vars.get("message_id")
-        message_to_be_deleted = alert_do.cancella_messaggio(
-            cfg=alertsystem_config, message_id=message_id
-        )
-        return f"Message with ID: {message_to_be_deleted} deleted"
-    else:
-        return "Error 401 mismatch"
+    message_to_be_deleted = alert_do.cancella_messaggio(
+        cfg=alertsystem_config, message_id=message_id_delete
+    )
+    if message_to_be_deleted is None:
+        return "Error 401 mismatch. Wrong message_ID from cancella_messagio"
+    elif message_to_be_deleted == message_id_delete:
+        return f"Message with ID: {message_id_delete} deleted"
 
 
 @action("user_campaign/_create_capmaign", method=["POST"])
@@ -1307,6 +1322,6 @@ def user_campaign_create():
         #     lista_numeri_telefonici=telephone_numbers,
         # )
     else:
-        telephone_numbers = "Error, no group or no message"
+        telephone_numbers = "Error 401. No group or no message"
 
     return telephone_numbers
