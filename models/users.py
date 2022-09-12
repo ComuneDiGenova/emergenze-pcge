@@ -3,6 +3,7 @@
 from .. import settings
 from .users_decodifica import SCHEMA, db, Field
 from .tools import new_id
+from .validators import isValidPhoneNumber
 
 from pydal.validators import *
 
@@ -16,7 +17,8 @@ db.define_table('squadra',
     ),
     Field('stato_id', 'reference stato_squadra',
         required = True,
-        requires = IS_IN_DB(db(db.stato_squadra.valido==True), db.stato_squadra.id, db.stato_squadra.descrizione),
+        default = 2,
+        requires = IS_IN_DB(db(db.stato_squadra.valido==True), db.stato_squadra.id, db.stato_squadra.descrizione, zero=None),
         rname='id_stato'
     ),
     Field('afferenza', required=True, notnull=True, rname='cod_afferenza'),
@@ -66,7 +68,8 @@ db.define_table('telefono',
     ),
     Field('telefono',
         label = 'Numero di telefono',
-        required=True, notnull=True
+        required=True, notnull=True,
+        requires = isValidPhoneNumber()
     ),
     Field('matricola', required=True, notnull=True, rname='matricola_cf'),
     primarykey = ['codice', 'telefono', 'matricola'],
@@ -85,7 +88,7 @@ db.define_table('email',
         requires = IS_EMAIL()
     ),
     Field('matricola', required=True, notnull=True, rname='matricola_cf'),
-    primarykey = ['codice', 'email', 'matricola'],
+    primarykey = ['codice', 'email'],
     rname = f'{SCHEMA}.t_mail_squadre'
 )
 

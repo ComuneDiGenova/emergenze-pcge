@@ -41,6 +41,7 @@ from . import segnalazione
 from . import presidio_mobile as squadra
 
 from .incarico import incarico
+from . import mire
 
 from mptools.frameworks.py4web import shampooform as sf
 
@@ -194,7 +195,8 @@ def ws_segnalazione():
     db.segnalazione.criticita_id.requires = IS_IN_DB(
         db((db.tipo_criticita.valido==True) & ~db.tipo_criticita.id.belongs([7,12])),
         db.tipo_criticita.id, label=db.tipo_criticita.descrizione,
-        orderby=db.tipo_criticita.descrizione
+        orderby=db.tipo_criticita.descrizione,
+        zero = None
     )
 
     db.intervento.intervento_id.requires = [IS_NOT_EMPTY(), IS_NOT_IN_DB(
@@ -202,7 +204,7 @@ def ws_segnalazione():
     )]
     db.intervento.intervento_id.comment = "Inserire un nuovo identificativo di intervento Verbatel"
 
-    db.stato_incarico.stato_id.default = incarico.DEFAULT_TIPO_STATO
+    db.stato_incarico.stato_id.default = 2 # Preso in carico
 
     db.stato_incarico.stato_id.requires = IS_EMPTY_OR(IS_IN_DB(
         db(
@@ -215,7 +217,7 @@ def ws_segnalazione():
     ))
 
     if not 'stato_id' in request.POST:
-        request.POST['stato_id'] = incarico.DEFAULT_TIPO_STATO
+        request.POST['stato_id'] = db.stato_incarico.stato_id.default
 
     form = Form([
         db.intervento.intervento_id,
@@ -243,7 +245,13 @@ def ws_segnalazione():
         db.segnalante.tipo_segnalante_id,
         db.segnalante.telefono,
         db.segnalante.note,
-        db.segnalazione.nverde,
+        # db.segnalazione.nverde,
+        Field('nverde',
+            label = db.segnalazione.nverde.label,
+            comment = db.segnalazione.nverde.comment,
+            required = True,
+            requres = IS_IN_SET(['True', 'False'], zero=None)
+        ),
         Field('note_geo',
             label = db.segnalazione.note.label,
             comment = db.segnalazione.note.comment
@@ -254,9 +262,15 @@ def ws_segnalazione():
             length = db.civico.id.length,
             requires = IS_EMPTY_OR(IS_INT_IN_RANGE(int(civ_stats.idmin), int(civ_stats.idmax)+1))
         ),
-        Field('persone_a_rischio', 'boolean',
+        # Field('persone_a_rischio', 'boolean',
+        #     label = db.segnalazione.rischio.label,
+        #     comment = db.segnalazione.rischio.comment
+        # ),
+        Field('persone_a_rischio',
             label = db.segnalazione.rischio.label,
-            comment = db.segnalazione.rischio.comment
+            comment = db.segnalazione.rischio.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         ),
         Field('tabella_oggetto_id',
             label = 'Seleziona la tabella degli oggetti a rischio',
@@ -274,9 +288,24 @@ def ws_segnalazione():
         db.segnalante.telefono,
         db.stato_incarico.stato_id,
         db.incarico.preview,
-        Field('ceduta', 'boolean',
-            label = 'Indica la segnalazione come NON in carico a PM'
+        Field('ceduta',
+            label = "Se presente indica la segnalazione come NON in carico a PM",
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
+        ),
+        Field('parziale',
+            label = db.stato_incarico.parziale.label,
+            comment = db.stato_incarico.parziale.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         )
+        # Field('ceduta', 'boolean',
+        #     label = """Se presente indica la segnalazione come NON in carico a PM,
+        #     in questo caso non viene associato nessun incarico/intervento,
+        #     quindi nessun id incarico verrà restituito.
+        #     Sarà quindi cura dell'ente che prenderà la lavorazione assegnare gli incarichi.
+        #     """
+        # )
     ],
         hidden = {'rollback': False},
         validation = _segnalazione.valida_nuova_segnalazione,
@@ -291,10 +320,11 @@ def ws_segnalazione():
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
-            form.vars['assegna'] = not form.vars.pop('ceduta')
+            form.vars['assegna'] = form.vars.pop('ceduta')=='False'
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
+            form.vars['nverde'] = form.vars.pop('nverde')=='True'
+            form.vars['parziale'] = form.vars.pop('parziale')=='True'
             result =_segnalazione.verbatel_create(**form.vars)
-    # else:
-    #     import pdb; pdb.set_trace()
 
     return {'result': result, 'form': sf.form2dict(form)}
 
@@ -323,16 +353,22 @@ def segnalazione_form():
         Field('lon', 'double', label='Longitudine', requires=IS_FLOAT_IN_RANGE(-180., 180.)),
         Field('lat', 'double', label='Latitudine', requires=IS_FLOAT_IN_RANGE(-90., 90.)),
         # db.segnalante.tipo_segnalante_id,
-        Field('descrizione', required=False),
+        Field('descrizione', required=True, requires=IS_NOT_EMPTY()),
         Field('note_geo',
             label = db.segnalazione.note.label,
             comment = db.segnalazione.note.comment
         ),
         db.segnalazione.criticita_id,
-        Field('persone_a_rischio', 'boolean',
+        Field('persone_a_rischio',
             label = db.segnalazione.rischio.label,
-            comment = db.segnalazione.rischio.comment
+            comment = db.segnalazione.rischio.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
         ),
+        # Field('persone_a_rischio', 'boolean',
+        #     label = db.segnalazione.rischio.label,
+        #     comment = db.segnalazione.rischio.comment
+        # ),
     ]
 
 def incarico_form():
@@ -345,7 +381,13 @@ def incarico_form():
         # db.incarico.note,
         db.incarico.rifiuto,
         db.stato_incarico.stato_id,
-        db.stato_incarico.parziale
+        # db.stato_incarico.parziale
+        Field('parziale',
+            label = db.stato_incarico.parziale.label,
+            comment = db.stato_incarico.parziale.comment,
+            required = True,
+            requires = IS_IN_SET(['True', 'False'], zero=None)
+        )
     ]
 
 
@@ -390,6 +432,7 @@ def modifica_segnalazione(segnalazione_id=None):
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
             result = _segnalazione.update(**form.vars)
 
     return {'result': result, 'form': sf.form2dict(form)}
@@ -405,12 +448,22 @@ def modifica_intervento(intervento_id=None):
     if not intervento_id is None:
         request.POST['intervento_id'] = intervento_id
 
-    res = db(db.intervento).select(
+    intervento_info = db(db.intervento).select(
         db.intervento.intervento_id.min().with_alias('idmin'),
         db.intervento.intervento_id.max().with_alias('idmax')
     ).first()
 
-    db.intervento.intervento_id.requires = IS_INT_IN_RANGE(res.idmin, res.idmax+1)
+    db.intervento.intervento_id.requires = IS_INT_IN_RANGE(intervento_info.idmin, intervento_info.idmax+1)
+
+    db.stato_incarico.stato_id.requires = IS_EMPTY_OR(IS_IN_DB(
+        db(
+            (db.tipo_stato_incarico.valido!=False) & \
+            db.tipo_stato_incarico.id.belongs([1, 2, 3, 4])
+        ),
+        db.tipo_stato_incarico.id,
+        db.tipo_stato_incarico.descrizione,
+        zero = None
+    ))
 
     form = Form([db.intervento.intervento_id] + segnalazione_form() + incarico_form(),
         deletable = False, dbio=False,
@@ -430,9 +483,11 @@ def modifica_intervento(intervento_id=None):
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
+            form.vars['parziale'] = form.vars.pop('parziale')=='True'
             result = _segnalazione.verbatel_update(**form.vars)
 
-    return {'result': result, 'form': sf.form2dict(form)}
+    return {'result': result and 'Ok', 'form': sf.form2dict(form)}
 
 
 @action('comunicazione', method=['GET', 'POST'])
@@ -558,22 +613,30 @@ def ws_presidio():
         lambda row: (row[uo_value], row[uo_label],),
         db(db.municipio)(db.profilo_utilizatore.id==6).iterselect(uo_value, uo_label)
     )
-    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative))
+    db.squadra.afferenza.requires = IS_IN_SET(list(unita_operative), zero=None)
+
+    db.squadra.stato_id.required = False
+    db.squadra.stato_id.requires = IS_EMPTY_OR(db.squadra.stato_id.requires)
 
     form = Form([
+        db.pattuglia_pm.pattuglia_id,
         Field('componenti', 'json', label='Componenti squadra', default='[]',
             comment = 'Es.: [{"matricola": "MRARSS80A01H501T", "nome": "Mario", "cognome": "Rossi", "telefono": "1234", "email": "mario.rossi@foo.it"}]',
             requires = squadra.IS_JSON_LIST_OF_COMPONENTI()
         ),
         Field('percorso', label='Percorso', comment='Scegliere un percorso',
-            required = True,
-            requires = IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso),
+            required = False,
+            requires = IS_EMPTY_OR(IS_IN_DB(db(db.presidi_mobili), db.presidi_mobili.percorso, zero=None)),
         ),
         db.squadra.nome,
         db.squadra.evento_id,
         db.squadra.stato_id,
-        db.squadra.afferenza
+        db.squadra.afferenza,
+        db.presidio.preview,
+        db.presidio.start,
+        # db.presidio.stop
     ], deletable = False, dbio=False,
+        validation = squadra.squadra.valida_nuova_pattuglia,
         hidden = {'rollback': False},
         form_name = 'crea_presidio',
         csrf_protection = False
@@ -582,8 +645,156 @@ def ws_presidio():
     result = None
     if form.accepted:
         with NoDBIO(form):
-            squadra.create(**form.vars)
+            if form.vars['percorso'] is None:
+                form.vars['percorso'] = 'A1'
+            else:
+                form.vars['descrizione'] =  form.vars['percorso']
+            # if form.vars['stato_id'] is None:
+            #     form.vars['stato_id'] = db.squadra.stato_id.default
+            result = squadra.squadra.create(**form.vars)
 
     output = {'result': result, 'form': sf.form2dict(form)}
 
     return output
+
+
+@action('pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica/pattuglia/', method=['GET', 'POST'])
+@action('modifica/pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('ModificaPattuglia', method=['GET', 'POST'])
+@action('ModificaPattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica_pattuglia', method=['GET', 'POST'])
+@action('modifica_pattuglia/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica/presidio/', method=['GET', 'POST'])
+@action('modifica/presidio/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('ModificaPresidio', method=['GET', 'POST'])
+@action('ModificaPresidio/<pattuglia_id:int>', method=['GET', 'POST'])
+@action('modifica_presidio', method=['GET', 'POST'])
+@action('modifica_presidio/<pattuglia_id:int>', method=['GET', 'POST'])
+@action.uses(db)
+def ws_presidio_update(pattuglia_id=None):
+
+    db.pattuglia_pm.pattuglia_id.requires = None
+
+    stat_pattuglia = db(db.pattuglia_pm).select(
+        db.pattuglia_pm.pattuglia_id.min().with_alias('idmin'),
+        db.pattuglia_pm.pattuglia_id.max().with_alias('idmax')
+    ).first()
+
+    db.pattuglia_pm.pattuglia_id.comment = f'Inserisci un id pattuglia valido compreso tra {stat_pattuglia.idmin or 0} e {stat_pattuglia.idmax or 0}'
+
+    if not pattuglia_id is None:
+        request.POST['pattuglia_id'] = pattuglia_id
+
+    form = Form([
+        db.pattuglia_pm.pattuglia_id,
+        db.presidio.preview,
+        db.presidio.start,
+        db.presidio.stop
+    ],
+        deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        form_name = 'aggiorna_presidio',
+        validation = squadra.squadra.valida_pattuglia,
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = squadra.squadra.update_by_pattuglia_pm_id(**form.vars)
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+
+    return output
+
+@action('comunicazione/presidio', method=['GET', 'POST'])
+@action('comunicazione/presidio/<presidio_id:int>', method=['GET', 'POST'])
+@action.uses(db)
+def segnalazione_comunicazione_a_presidio(presidio_id=None):
+    """ """
+
+    if not presidio_id is None:
+        request.POST['presidio_id'] = presidio_id
+
+    # stat_presidio = db(db.intervento).select(
+    #     db.intervento.id.min().with_alias('idmin'),
+    #     db.intervento.id.max().with_alias('idmax')
+    # ).first()
+
+    form = Form([
+        Field('pattuglia_id', 'integer',
+            label='Id Presidio', required=True,
+            comment = 'Inserisci un id Presidio valido'
+            # comment = f'Inserisci un id Incarico valido compreso tra {stat_presidio.idmin} e {stat_presidio.idmax}',
+        ),
+        *squadra.comunicazione.comunicazione_fields
+    ], deletable = False, dbio=False,
+        hidden = {'rollback': False},
+        validation = squadra.comunicazione.valida_nuova_comunicazione,
+        form_name = 'crea_comunicazione_a_presidio',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = squadra.comunicazione.create(**form.vars)
+            pass
+
+    output = {'result': result, 'form': sf.form2dict(form)}
+    if not segnalazione.comunicazione.UPLOAD_CONFIGURED and not form.errors and "allegato" in form.vars:
+        output["message"] = "ATTENZIONE! L'allegato non è stato salvato perché non è ancora configurato il percorso per l'upload."
+
+    return output
+
+@action('lista/segnalazioni', method=['GET', 'POST'])
+def segnalazioni():
+
+    form = Form([
+        Field('status', 'integer', requires=IS_EMPTY_OR(segnalazione.state_validation)),
+        Field('start', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        Field('end', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        Field('page', 'integer', requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, None))),
+        Field('paginate', 'integer', requires=IS_EMPTY_OR(IS_IN_SET([5, 10, 20, 50], zero=None))),
+        ], deletable = False, dbio=False,
+        # hidden = {'rollback': False},
+        form_name = 'segnalazioni',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        with NoDBIO(form):
+            result = segnalazione.fetch(**form.vars)
+
+    return {
+        'result': result,
+        'results': result and len(result),
+        'form': sf.form2dict(form)
+    }
+
+@action('lista/mire', method=['GET', 'POST'])
+def lista_mire():
+
+    form = Form([
+        # Field('start', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        # Field('end', 'datetime', requires=IS_EMPTY_OR(IS_DATETIME(format="%Y-%m-%d %H:%M"))),
+        Field('page', 'integer', requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, None))),
+        Field('paginate', 'integer', requires=IS_EMPTY_OR(IS_IN_SET([5, 10, 20, 50, 100], zero=None))),
+    ], deletable = False, dbio=False,
+        form_name = 'mire',
+        csrf_protection = False
+    )
+
+    result = None
+    if form.accepted:
+        if not form.vars.get('paginate'):
+            form.vars['paginate'] = mire.DEFAULT_PAGINATION
+        result = mire.fetch(**form.vars)
+
+    return {
+        'result': result,
+        'results': result and len(result),
+        'form': sf.form2dict(form)
+    }

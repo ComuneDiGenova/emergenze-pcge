@@ -20,6 +20,36 @@ comunicazione_fields = [
 
 UPLOAD_CONFIGURED = (fake_upload.uploadfolder and settings.EMERGENZE_UPLOAD)
 
+def _upload(allegato):
+    """
+    allegato @string : Path to file on fs
+    """
+    rdest = None
+    if UPLOAD_CONFIGURED and not allegato is None:
+        filename, stream = fake_upload.retrieve(allegato)
+        filepath = stream.name
+        stream.close()
+
+        dest = os.path.join(
+            settings.EMERGENZE_UPLOAD,
+            os.path.relpath(
+                filepath,
+                fake_upload.uploadfolder
+            ),
+            filename
+        )
+        Path(os.path.dirname(dest)).mkdir(parents=True, exist_ok=True)
+
+        shutil.move(
+            filepath,
+            dest
+        )
+
+        rdest = os.path.join(
+            os.path.basename(settings.EMERGENZE_UPLOAD),
+            os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
+        )
+    return rdest
 
 def valida_nuova_comunicazione(form):
     """ """
@@ -50,31 +80,7 @@ def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
 
     # segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
 
-    rdest = None
-    if UPLOAD_CONFIGURED and not allegato is None:
-        filename, stream = fake_upload.retrieve(allegato)
-        filepath = stream.name
-        stream.close()
-
-        dest = os.path.join(
-            settings.EMERGENZE_UPLOAD,
-            os.path.relpath(
-                filepath,
-                fake_upload.uploadfolder
-            ),
-            filename
-        )
-        Path(os.path.dirname(dest)).mkdir(parents=True, exist_ok=True)
-
-        shutil.move(
-            filepath,
-            dest
-        )
-
-        rdest = os.path.join(
-            os.path.basename(settings.EMERGENZE_UPLOAD),
-            os.path.relpath(dest, settings.EMERGENZE_UPLOAD)
-        )
+    rdest = _upload(allegato)
 
     row = db.comunicazione.insert(
         lavorazione_id = lavorazione_id,
@@ -101,7 +107,7 @@ def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
 def create_by_incarico(incarico_id, *args, **kwargs):
 
     lavorazione_id = db(
-        (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        # (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
         (db.join_segnalazione_incarico.incarico_id==incarico_id)
     ).select(
         db.join_segnalazione_incarico.lavorazione_id,

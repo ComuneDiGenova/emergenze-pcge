@@ -44,7 +44,7 @@ class isValidPhoneNumber(Validator):
             pn = phonenumbers.parse(value, None)
         except phonenumbers.phonenumberutil.NumberParseException:
             pn = phonenumbers.parse(value, 'IT')
-        
+
         try:
             assert phonenumbers.is_valid_number(pn)
         except AssertionError:
@@ -289,6 +289,20 @@ db.define_table('recupero',
     ),
     migrate = False,
     rname = f'{SCHEMA}.recupero'
+)
+
+db.define_table('soggetti_vulnerabili',
+    Field('id'),
+    Field('nome'),
+    Field('cognome'),
+    Field('telefono'),
+    Field('indirizzo', rname='indirizzocompleto'),
+    Field('numero_civico', rname='numerocivico'),
+    Field('gruppo'),
+    Field('sorgente'),
+    primarykey = ['id'],
+    migrate = False,
+    rname = f'{SCHEMA}.soggetti_vulnerabili'
 )
 
 db.recupero._enable_record_versioning()

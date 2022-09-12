@@ -39,7 +39,8 @@ db.define_table('segnalante',
             db(db.tipo_segnalante),
             db.tipo_segnalante.id,
             label = db.tipo_segnalante.descrizione,
-            orderby = db.tipo_segnalante.descrizione
+            orderby = db.tipo_segnalante.descrizione,
+            zero = None
         ),
         rname='id_tipo_segnalante'
     ),
@@ -145,6 +146,15 @@ db.define_table('segnalazioni_lista',
     Field('geom', 'geometry()'),
     migrate = False,
     rname = f'{SCHEMA}.v_segnalazioni_lista' # <- VISTA!
+)
+
+db.define_table("incarichi_lista",
+    Field('data_ora', rname='data_ora_invio'),
+    Field('segnalazione_id', rname='id_segnalazione'),
+    Field('stato_id', rname='id_stato_incarico'),
+    Field('stato', rname='descrizione_stato'),
+    migrate = False,
+    rname = f'{SCHEMA}.v_incarichi_last_update'
 )
 
 db.define_table('comunicazione',
@@ -253,6 +263,23 @@ db.define_table('join_segnalazione_incarico',
     rname = f'{SCHEMA}.join_segnalazioni_incarichi'
 )
 
+db.define_table('incarichi_utili',
+    Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
+    Field('profilo_id', 'reference profilo_utilizatore',
+        notnull=True, required=True,
+        rname='id_profilo'
+    ),
+    Field('descrizione', required=True, notnull=True),
+    Field('uo_id', rname='id_uo', required=True, notnull=True),
+    # ...
+    Field('segnalazione_id', rname='id_segnalazione'),
+    # ...
+    Field('descrizione_segnalazione'),
+    # ...
+    rname = f'{SCHEMA}.v_incarichi',
+    migrate = False
+)
+
 db.define_table('intervento',
     Field('intervento_id', 'integer',
         label = 'Identificativo intevento Verbatel',
@@ -277,9 +304,22 @@ db.define_table('presidio',
         required=True, notnull=True, rname='id_profilo'
     ),
     Field('descrizione'),
-    Field('preview', 'datetime', rname='time_preview'),
-    Field('start', 'datetime', rname='time_preview'),
-    Field('stop', 'datetime', rname='time_preview'),
+    Field('preview', 'datetime', rname='time_preview',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))
+    ),
+    Field('start', 'datetime', rname='time_start',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))),
+    Field('stop', 'datetime', rname='time_stop',
+        requires = IS_EMPTY_OR(IS_DATETIME(
+            format="%Y-%m-%d %H:%M",
+            error_message="Inserire un formato data del tipo: %(format)s"
+        ))),
     Field('note', rname='note_ente'),
     Field('geom', 'geometry()', required=True, notnull=True),
     Field('evento_id', 'reference evento', rname='id_evento'),
@@ -314,4 +354,21 @@ db.define_table('comunicazione_presidio',
     Field('allegato'),
     primarykey = ['presidio_id', 'timeref'],
     rname = f'{SCHEMA}.t_comunicazioni_sopralluoghi_mobili_inviate'
+)
+
+db.define_table('pattuglia_pm',
+    Field('pattuglia_id', 'integer',
+        label = 'Identificativo pattuglia Verbatel',
+        notnull=True, unique=True, required=True
+    ),
+    Field('squadra_id', 'reference squadra',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.squadra), db.squadra.id)
+    ),
+    Field('presidio_id', 'reference presidio',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.presidio), db.presidio.id)
+    ),
+    migrate = settings.MIGRATE_PATTUGLIA_PM,
+    rname = 'verbatel.pattuglia_pm'
 )

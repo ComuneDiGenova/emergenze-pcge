@@ -2,6 +2,7 @@
 
 import argparse
 import select
+from . import settings
 from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
@@ -14,6 +15,7 @@ from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
 from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
+from .presidio_mobile.squadra import after_insert_stato_presidio
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
@@ -81,7 +83,7 @@ def create_sql_function_true(schema, function_insert, notification_insert, funct
 
 
 def create_sql_function_comunicazione(schema, function_name, notification_name, payload, action):
-    
+
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
         RETURNS trigger
          LANGUAGE 'plpgsql'
@@ -102,6 +104,28 @@ def create_sql_function_comunicazione(schema, function_name, notification_name, 
 
     db.executesql(sql_notify_new_item)
 
+def create_sql_function_stato_presidio(schema, function_name, notification_name, payload, action):
+
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id_sopralluogo', NEW.{payload[0]},
+                 'id_stato_sopralluogo', NEW.{payload[1]},
+                 'data_ora_stato', NEW.{payload[2]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
 
 def create_sql_trigger(schema, table, function_name, trigger_name, action):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
@@ -144,13 +168,20 @@ def create_sql_trigger_true(schema, table, function_insert, trigger_insert, func
 
 # list of list, the inner list contains [schema, tabella, payload in a form of string]
 # # terzo elemento old ['segnalazioni','t_incarichi','id']
-elementi = [['eventi','join_tipo_foc', 'id_evento'],['eventi','t_note_eventi','id_evento']]#,['segnalazioni','join_segnalazioni_incarichi','id_incarico']]
+elementi = [
+    ['eventi','join_tipo_foc', 'id_evento'],
+    ['eventi','t_note_eventi','id_evento'],
+    #,['segnalazioni','join_segnalazioni_incarichi','id_incarico']
+]
+
 segnalaz = [
     ['segnalazioni','join_segnalazioni_incarichi','id_incarico'],
     ['segnalazioni','t_incarichi','id'],
     ['segnalazioni','join_segnalazioni_in_lavorazione','id_segnalazione_in_lavorazione'],
     ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
-    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']]
+    ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']],
+    ['segnalazioni', 'stato_sopralluoghi_mobili', ['id_sopralluogo', 'id_stato_sopralluogo', 'data_ora_stato']],
+    ['eventi', 't_eventi', 'id']
     ]
 
 def setup():
@@ -194,20 +225,39 @@ def setup_segn():
     trigger_name_n_lav = f"after_insert_{segnalaz[2][1]}"
     create_sql_function(segnalaz[2][0], function_name_n_lav, notification_name_n_lav, segnalaz[2][2], "INSERT")
     create_sql_trigger(segnalaz[2][0], segnalaz[2][1], function_name_n_lav, trigger_name_n_lav, "INSERT")
-    
+
     #elemento 4 ovver [3] comunicazioni
     function_name_n_com = f"notify_new_{segnalaz[3][1]}"
     notification_name_n_com = f"new_{segnalaz[3][1]}_added"
     trigger_name_n_com = f"after_insert_{segnalaz[3][1]}"
     create_sql_function_comunicazione(segnalaz[3][0], function_name_n_com, notification_name_n_com, segnalaz[3][2], "INSERT")
     create_sql_trigger(segnalaz[3][0], segnalaz[3][1], function_name_n_com, trigger_name_n_com, "INSERT")
-    
+
     #elemento 5 ovver [4] comunicazioni
     function_name_n_comsopr = f"notify_new_{segnalaz[4][1]}"
     notification_name_n_comsopr = f"new_{segnalaz[4][1]}_added"
     trigger_name_n_comsopr = f"after_insert_{segnalaz[4][1]}"
     create_sql_function_comunicazione(segnalaz[4][0], function_name_n_comsopr, notification_name_n_comsopr, segnalaz[4][2], "INSERT")
     create_sql_trigger(segnalaz[4][0], segnalaz[4][1], function_name_n_comsopr, trigger_name_n_comsopr, "INSERT")
+
+    function_name_n_stato_presidio = f"notify_new_{segnalaz[5][1]}"
+    notification_name_n_stato_presidio = f"new_{segnalaz[5][1]}_added"
+    trigger_name_n_stato_presidio = f"after_insert_{segnalaz[5][1]}"
+    create_sql_function_stato_presidio(segnalaz[5][0], function_name_n_stato_presidio, notification_name_n_stato_presidio, segnalaz[5][2], "INSERT")
+    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_n_stato_presidio, trigger_name_n_stato_presidio, "INSERT")
+
+    function_name_u_stato_presidio = f"notify_updated_{segnalaz[5][1]}"
+    notification_name_u_stato_presidio = f"new_{segnalaz[5][1]}_updated"
+    trigger_name_u_stato_presidio = f"after_updated_{segnalaz[5][1]}"
+    create_sql_function_stato_presidio(segnalaz[5][0], function_name_u_stato_presidio, notification_name_u_stato_presidio, segnalaz[5][2], "UPDATE")
+    create_sql_trigger(segnalaz[5][0], segnalaz[5][1], function_name_u_stato_presidio, trigger_name_u_stato_presidio, "UPDATE")
+
+    function_name_u_evento = f"notify_updated_{segnalaz[6][1]}"
+    notification_name_u_evento = f"new_{segnalaz[6][1]}_updated"
+    trigger_name_u_evento = f"after_updated_{segnalaz[6][1]}"
+    create_sql_function(segnalaz[6][0], function_name_u_evento, notification_name_u_evento, segnalaz[6][2], "UPDATE")
+    create_sql_trigger(segnalaz[6][0], segnalaz[6][1], function_name_u_evento, trigger_name_u_evento, "UPDATE")
+
     db.commit()
 
 # def ciao():
@@ -230,12 +280,17 @@ def set_listen():
     listen_n_interventi_com = f"LISTEN new_{segnalaz[3][1]}_added;"
     listen_n_interventi_comsopr = f"LISTEN new_{segnalaz[4][1]}_added;"
 
+    listen_n_stato_presidio = f"LISTEN new_{segnalaz[5][1]}_added;"
+    listen_u_stato_presidio = f"LISTEN new_{segnalaz[5][1]}_updated;"
+
+    listen_u_evento = f"LISTEN new_{segnalaz[6][1]}_updated;"
+
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
     db.executesql(listen_u_foc)
     db.executesql(listen_n_nota)
     db.executesql(listen_u_nota)
-        #interventi
+    #interventi
     db.executesql(listen_n_interventi)
     db.executesql(listen_u_interventi)
 
@@ -243,6 +298,11 @@ def set_listen():
 
     db.executesql(listen_n_interventi_com)
     db.executesql(listen_n_interventi_comsopr)
+
+    db.executesql(listen_n_stato_presidio)
+    db.executesql(listen_u_stato_presidio)
+
+    db.executesql(listen_u_evento)
 
     db.commit()
 
@@ -252,6 +312,9 @@ def do_stuff(channel, **payload):
     #mio_evento = evento.fetch(id=payload["id"])
 
     logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+
+    if settings.VBT_HOST is None:
+        return
 
     if channel in [
         f"new_{elementi[0][1]}_added",
@@ -304,6 +367,20 @@ def do_stuff(channel, **payload):
     elif channel in f"new_{segnalaz[4][1]}_added":
         after_insert_comunicazione_presidio_mobile(payload["id"], payload["data"])
         #after_insert_comsopr(payload["id"])
+    elif channel in [
+        f"new_{segnalaz[5][1]}_added",
+        f"new_{segnalaz[5][1]}_updated"
+    ]:
+         # 'presidio_id', NEW.{payload[0]},
+         # 'stato_presidio_id', NEW.{payload[1]},
+         # 'timeref', NEW.{payload[2]}
+
+        after_insert_stato_presidio(payload['id_sopralluogo'], payload['id_stato_sopralluogo'], payload['data_ora_stato'])
+    elif channel in f"new_{segnalaz[6][1]}_updated":
+        mio_evento = evento.fetch(id=payload["id"])
+
+        if not mio_evento is None:
+            out = syncEvento(mio_evento)
 
 
 def listen():
@@ -312,7 +389,7 @@ def listen():
     while True:
         set_listen()
         # sleep until there is some data
-        logger.debug('Waiting!')
+        logger.debug('Waiting for notifications!')
         select.select([db._adapter.connection],[],[])
         logger.debug('Catched!')
 

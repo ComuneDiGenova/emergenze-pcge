@@ -4,11 +4,11 @@ from ..common import db, Field
 
 SCHEMA = 'users'
 
-# db.define_table('tipo_stato_squadra',
-#     Field('descrizione', required=True, notnull=True),
-#     Field('valido', 'boolean'),
-#     rname = f'{SCHEMA}.tipo_stato_squadre'
-# )
+db.define_table('tipo_stato_squadra',
+    Field('descrizione', required=True, notnull=True),
+    Field('valido', 'boolean'),
+    rname = f'{SCHEMA}.tipo_stato_squadre'
+)
 
 db.define_table('stato_squadra',
     Field('descrizione'),

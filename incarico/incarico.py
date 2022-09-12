@@ -21,7 +21,7 @@ get_uo_id = lambda id: db(db.municipio)(
 
 
 def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_id,
-    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO
+    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False
 ):
 
     uo_id = get_uo_id(municipio_id)
@@ -37,7 +37,8 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
 
     stato_id = db.stato_incarico.insert(
         incarico_id = incarico_id,
-        stato_id = stato_id
+        stato_id = stato_id,
+        parziale = parziale
     )
 
     join_id = db.join_segnalazione_incarico.insert(
@@ -120,7 +121,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
 def render(row):
 
-    # Pr caso gli identificativi coincidono
+    # Per caso gli identificativi coincidono
     if row.stato_id==1:
         stato = 1 # Da prendere in carico
     elif row.stato_id==2:
@@ -137,7 +138,7 @@ def render(row):
 
     if row.civico_id is None:
         localizzazione['tipoLocalizzazione'] = 3
-        localizzazione['daSpecificare'] = indirizzo
+        localizzazione['daSpecificare'] = civico
     else:
         localizzazione['tipoLocalizzazione'] = 1
         localizzazione['civico'] = civico
@@ -151,7 +152,7 @@ def render(row):
     if (row.segnalazione_lavorazione.profilo_id==settings.PM_PROFILO_ID) and (row.incarico.profilo_id==settings.PM_PROFILO_ID):
         tipoRichiesta = 1
     elif row.incarico.profilo_id==settings.PM_PROFILO_ID and (WARNING in row.note):
-        tipoRichiesta = 2
+        tipoRichiesta = 1
     elif row.incarico.uo_id.startswith('com_PO'):
     # elif row.incarico.profilo_id==settings.PM_PROFILO_ID:
         tipoRichiesta = 3
@@ -250,9 +251,15 @@ def fetch(id):
     # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
     # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
 
+import time
 
 def after_insert_incarico(id):
     logger.debug(f"after insert incarico")
+
+    # Cerco di attendere che l'icarico possa essere salvato come intervento
+    # segnalato da PM, se questo non avviene invio i dati verso Verbatel
+    # (NB. 3 sec forse sono anche tanti)
+    time.sleep(3)
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
@@ -268,16 +275,17 @@ def after_insert_incarico(id):
 
 def after_update_incarico(id):
     logger.debug(f"after update incarico")
-    if not db.intervento(incarico_id=id) is None:
+    intervento = db.intervento(incarico_id=id)
+    if not intervento is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
-        logger.debug(f"{invia}")
         if invia:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
-            response = Intervento.update(incarico_id, **mio_incarico)
-            # Registro
-            db.intervento.insert(
-                intervento_id = response['idIntervento'],
-                incarico_id = id
-            )
+            response = Intervento.update(intervento.intervento_id, **mio_incarico)
+
+            # # Registro
+            # db.intervento.insert(
+            #     intervento_id = response['idIntervento'],
+            #     incarico_id = id
+            # )

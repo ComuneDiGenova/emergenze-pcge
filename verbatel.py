@@ -61,13 +61,19 @@ class Verbatel(object):
                     return out
 
     @classmethod
-    def create(cls, *endpoints, **payload):
+    def create(cls, *endpoints, encode=True, json=False, **payload):
         """ POST """
         _url = cls._url(*endpoints)
-        data = cls._payload(**payload)
+        if encode is True:
+            data = cls._payload(**payload)
+        else:
+            data = payload
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.post(_url, data=data) # <---
+        if json is True:
+            response = requests.post(_url, json=data) # <---
+        else:
+            response = requests.post(_url, data=data) # <---
         return cls.__nout(response)
 
     @classmethod
@@ -80,6 +86,15 @@ class Verbatel(object):
         response = requests.put(_url, data=data) # <---
         return cls.__nout(response)
 
+    @classmethod
+    def get(cls, *endpoints, **payload):
+        """ GET """
+        _url = cls._url(*endpoints)
+        data = cls._payload(**payload)
+        logger.debug(f'"{_url}"')
+        logger.debug(data)
+        response = requests.get(_url, params=data) # <---
+        return cls.__nout(response)
 
 class Evento(Verbatel):
     """docstring for Evento."""
@@ -93,16 +108,20 @@ class Intervento(Verbatel):
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', **payload)
+        return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
 
 class Presidio(Verbatel):
     """docstring for Intervento."""
-    root = 'squadre' # <- guess (manca ancora la doc da Verbatel)
+    root = 'servizi' # <- guess (manca ancora la doc da Verbatel)
 
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', **payload)
+        return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
+
+    @classmethod
+    def end(cls, id, **payload):
+        return cls.create(id, 'termina', encode=False, json=False, **payload)
 
 
 class Messaggio(Verbatel):
@@ -112,7 +131,7 @@ class Messaggio(Verbatel):
 
 def syncEvento(mio_evento):
     """ Segnala nuovo evento verso Verbatel """
-    
+
     try:
         Evento.create(**mio_evento)
     except requests.exceptions.HTTPError as err:
@@ -133,7 +152,7 @@ def syncEvento(mio_evento):
 #     """ DEPRECATO Segnala nuovo evento verso Verbatel """
 #     mio_evento = evento.fetch(id=id)
 #     return Evento.create(**mio_evento)
-# 
+#
 # def aggiornaEvento(id):
 #     """ Segnala aggiornamento evento verso Verbatel """
 #     mio_evento = evento.fetch(id=id)
