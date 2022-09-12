@@ -63,7 +63,7 @@ from .incarico import incarico
 from . import mire
 from . import settings
 
-from alertsystem import config
+from alertsystem import config, model
 from alertsystem.azioni import do as alert_do
 from pprint import pformat, pprint
 
@@ -1176,7 +1176,7 @@ def lista_mire():
 # TODO recieve DB data
 # TODO generate campaign
 
-# TODO cannot send datetime in correct format
+# TODO check validator for the datetime
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
 def user_campaign_get_campaign_from_to():
     form = Form(
@@ -1184,15 +1184,17 @@ def user_campaign_get_campaign_from_to():
             Field(
                 "date_start",
                 "datetime",
-                requires=IS_EMPTY_OR(
-                    IS_DATETIME(format="%Y-%m-%d %H:%M")
-                ),
+                # requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
             ),
             Field(
                 "date_end",
                 "datetime",
+                # requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
+            ),
+            Field(
+                "retrieve_status",
                 requires=IS_EMPTY_OR(
-                    IS_DATETIME(format="%Y-%m-%d %H:%M")
+                    IS_IN_SET(["True", "False"], zero=None)
                 ),
             ),
         ],
@@ -1202,31 +1204,55 @@ def user_campaign_get_campaign_from_to():
         form_name="_get_campaign_from_to",
         csrf_protection=False,
     )
+    logger.debug(
+        f"tuple_of_campaigns: {pformat(form, indent=4, width=1)}"
+    )
     # a, b = form.vars.get("date_start"), form.vars.get("date_end")
     # logger.debug(f"date_start: {a} and date_end: {b}")
     # del a
     # del b
     if form.accepted:
-        date_start: datetime = form.vars.get("date_start")
-        date_end: datetime = form.vars.get("date_end")
+        date_start: datetime = datetime.strptime(
+            form.vars.get("date_start"), "%Y-%m-%d %H:%M"
+        )
+        date_end: datetime = datetime.strptime(
+            form.vars.get("date_end"), "%Y-%m-%d %H:%M"
+        )
         logger.debug(
             f"date_start: {date_start} and date_end: {date_end}"
         )
+        tuple_of_campaigns: dict = {}
+        alertsystem_response_status: dict = {}
+        (
+            tuple_of_campaigns,
+            alertsystem_response_status,
+        ) = alert_do.ricerca_campagne(
+            cfg=alertsystem_config,
+            start_date=date_start,
+            end_date=date_end,
+        )
+        tuple_of_campaigns = dict(
+            (x.id_campagna, x) for x in tuple_of_campaigns
+        )
+        # * If there is retrieve_status field return a tuple with the campaigns and the status of the alertsystem response
+        if form.vars.get("retrieve_status") == "True":
+            return {
+                "tuple_of_campaigns": tuple_of_campaigns,
+                "alertsystem_response_status": alertsystem_response_status,
+            }
+        # * If there is no retrieve_status field return only the campaigns in a tuple
+        else:
+            return {
+                "tuple_of_campaigns": tuple_of_campaigns,
+            }
+
     else:
         return r"Error, form not accepted, check the format='%Y-%m-%d %H:%M'"
-    touple_of_campaigns = {}
-    touple_of_campaigns: tuple = alert_do.ricerca_campagne(
-        cfg=alertsystem_config,
-        start_date=date_start,
-        end_date=date_end,
-    )
-    logger.debug(f"touple_of_campaigns: {touple_of_campaigns}")
-    return touple_of_campaigns
 
 
-# TODO use env credentials (check)
+# TODO retrieve reposne status as well
 @action("user_campaign/_retrive_message_list", method=["GET"])
-def user_campaign_retrive_list():
+def user_campaign_retrive_message_list():
     (
         message_list,
         alertsystem_response_status,
@@ -1241,8 +1267,76 @@ def user_campaign_retrive_list():
     logger.debug(
         f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
     )
-    print()
-    return json.dumps([message_list, pformat])
+    # ? Ask if return only message list of a dick of message list and status
+    return message_list
+    # return {
+    #     "message_ID_and_content": message_list,
+    #     "alertsystem_response_status": alertsystem_response_status_kk,
+    # }
+
+
+@action("user_campaign/_create_message", method=["POST"])
+def user_campaign_create_message():
+    form = Form(
+        [
+            Field(
+                "message_text",
+                requires=IS_NOT_EMPTY(),
+            ),
+            Field(
+                "voice_gender",
+                requires=IS_EMPTY_OR(IS_IN_SET(["M", "F"])),
+            ),
+            Field("message_note"),
+        ],
+        deletable=False,
+        dbio=False,
+        # hidden = {'rollback': False},
+        form_name="_create_capmaign",
+        csrf_protection=False,
+    )
+    if form.accepted:
+        message_text: str = form.vars.get("message_text")
+        voice_gender: str = form.vars.get("voice_gender")
+        message_type: str = form.vars.get("message_note")
+        voice_for_character: model.Carattere = getattr(
+            model.Carattere, voice_gender
+        )
+
+        (
+            message_tuple,
+            alertsystem_response_status,
+        ) = alert_do.crea_messaggio(
+            cfg=alertsystem_config,
+            testo_messaggio=message_text,
+            carattere_voce=voice_for_character,
+            note_messaggio=message_type,
+        )
+        # message_tuple = dict(
+        #     (x.id_messaggio, x) for x in message_tuple
+        # )
+        logger.debug(f"\talertsystem_config: {alertsystem_config}")
+        logger.debug(f"\tstatus: {alertsystem_response_status}")
+        logger.debug(
+            f"\n{pformat(message_tuple, indent=4, width=1)}"
+        )
+        alertsystem_response_status_kk = (
+            alertsystem_response_status.__dict__
+        )
+        logger.debug(
+            f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
+        )
+        return {
+            "message_ID_and_credits": [
+                message_tuple[0],
+                message_tuple[1],
+            ],
+            "alertsystem_response_status": alertsystem_response_status,
+            "form": sf.form2dict(form),
+        }
+    # return f"\nThis is the message_tuple content {pformat(message_tuple, indent=4, width=1)} and the status {pformat(alertsystem_response_status, indent=4, width=1)}"
+    # else:
+    #     return r"Error, form not accepted, check the message'"
 
 
 # TODO get message ID, delete message
@@ -1295,11 +1389,15 @@ def user_campaign_create():
                 requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, 3)),
             ),
             Field(
-                "message",
-                requires=IS_NOT_EMPTY(
-                    error_message="Message was not specified"
-                ),
+                "message_text",
+                requires=IS_NOT_EMPTY(),
             ),
+            Field(
+                "voice_gender",
+                requires=IS_EMPTY_OR(IS_IN_SET(["M", "F"])),
+            ),
+            Field("message_note"),
+            Field("message_ID"),
         ],
         deletable=False,
         dbio=False,
@@ -1307,24 +1405,59 @@ def user_campaign_create():
         form_name="_create_capmaign",
         csrf_protection=False,
     )
+
     if form.accepted:
+        if form.vars["voice_gender"] is None:
+            voice_gender: str = "F"
+        else:
+            voice_gender: str = form.vars.get("voice_gender")
         group_numer: int = form.vars["group"]
-        message_text: str = form.vars["message"]
+        message_text: str = form.vars["message_text"]
+        message_type: str = form.vars.get("message_note")
+        voice_for_character: model.Carattere = getattr(
+            model.Carattere, voice_gender
+        )
         result_from_database = db(
             (db.soggetti_vulnerabili.gruppo == group_numer)
         ).select(
             db.soggetti_vulnerabili.telefono,
         )
-        telephone_numbers = dict.fromkeys(result_from_database)
-        # telephone_numbers = ["+48663031666"]
-        # TODO ask about ID, how to get them, is it a query?
-        # alert_do.genera_campagna(
-        #     cfg=alertsystem_config,
-        #     id_prescelto_campagna=1,
-        #     id_messaggio=1,
-        #     lista_numeri_telefonici=telephone_numbers,
-        # )
-    else:
-        telephone_numbers = "Error 401. No group or no message"
+        # telephone_numbers = dict.fromkeys(result_from_database)
+        telephone_numbers = ["3494351325"]
 
-    return telephone_numbers
+        # * if there is no message ID given create a new message
+        if form.vars["message_ID"] is None:
+            if form.vars["message_note"] is None:
+                message_type: str = "default"
+            (
+                message_tuple,
+                alertsystem_response_status,
+            ) = alert_do.crea_messaggio(
+                cfg=alertsystem_config,
+                testo_messaggio=message_text,
+                carattere_voce=voice_for_character,
+                note_messaggio=message_type,
+            )
+            message_id = int(message_tuple[0])
+            logger.debug(
+                f"\n This is message_tuple : {pformat(message_tuple, indent=4, width=1)}"
+            )
+        # * if there is a message ID given, create campaign with this message ID
+        else:
+            message_id = int(form.vars("message_ID"))
+        # return f"\n{pformat(alertsystem_config, indent=4, width=1)}"
+        (
+            campagin_tuple,
+            alertsystem_response_status,
+        ) = alert_do.genera_campagna(
+            cfg=alertsystem_config,
+            id_prescelto_campagna="TESTGTERpresceltocampagna",
+            id_messaggio=message_id,
+            lista_numeri_telefonici=telephone_numbers,
+        )
+        return {
+            "campagin_tuple": campagin_tuple,
+            "alertsystem_response_status": alertsystem_response_status,
+        }
+    else:
+        return r"Error, form not accepted, the fields'"
