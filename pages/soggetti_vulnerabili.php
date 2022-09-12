@@ -71,7 +71,13 @@ require('navbar_up.php');
                 </div>
             </div>
 
-
+	    <?php
+	    	if ( $_SERVER['HTTP_HOST'] == 'vm-lxprotcivemet.comune.genova.it' ) {
+		    $grid_url = "https://emergenze-apit.comune.genova.it/emergenze/soggettiVulnerabili/";
+		} else {
+		    $grid_url = "https://emergenze-api.comune.genova.it/emergenze/soggettiVulnerabili/";
+		}
+            ?>
             <div class="row">
 							<table
 							  id="table"
@@ -80,7 +86,7 @@ require('navbar_up.php');
 							  data-show-export="true"
 							  data-pagination="false"
 							  data-search="true"
-							  data-url="https://emergenze-apit.comune.genova.it/emergenze/soggettiVulnerabili/"
+							  data-url="<?php echo $grid_url?>"
 							  data-pagination="false"
 							  data-total-field="results"
 							  data-data-field="result">
