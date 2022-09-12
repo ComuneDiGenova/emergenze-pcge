@@ -88,6 +88,7 @@ if($contatore_eventi>0) {
 	$result = pg_query($conn, $query);
 	while($r = pg_fetch_assoc($result)) {
 		$contatore_allerte=$contatore_allerte+1;
+		$id_evento = $r["id_evento"];
 		if ($descrizione_allerta=='Nessuna allerta' OR $descrizione_allerta=='Gialla'){
 			$color_allerta=$r["rgb_hex"];
 			$descrizione_allerta = $r["descrizione"];

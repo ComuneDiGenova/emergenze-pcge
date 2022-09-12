@@ -162,7 +162,7 @@ if (isset($subtitle)) {
                      
                     <ul class="dropdown-menu dropdown-messages">
                         <li>
-                            <a href="dettagli_evento.php">
+                            <a href="dettagli_evento.php?e=<?php echo $id_evento; ?>">
                                 <div>
                                 <?php if( $descrizione_allerta!= 'Nessuna allerta') {?>
                                     <strong> Allerta <?php echo $descrizione_allerta; ?> in corso</strong>
