@@ -88,7 +88,11 @@ if (isset($subtitle)) {
         </li>
 			<?php
 			}
-			?>	 
+			?>
+	 
+                        <li class="nav-item active">
+                            <a class="nav-link" title="Elenco soggetti vulnerabili" href="soggetti_vulnerabili.php"><i class="fas fa-address-book"></i></a>
+                        </li>
 				
 				
 				<?php
