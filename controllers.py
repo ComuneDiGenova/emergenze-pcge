@@ -1429,8 +1429,20 @@ def user_campaign_create():
         ).select(
             db.soggetti_vulnerabili.telefono,
         )
-        # telephone_numbers = dict.fromkeys(result_from_database)
-        telephone_numbers = ["3494351325"]
+        telephone_numbers = result_from_database.column(0)
+        # telephone_numbers = ["3494351325"]
+        # logger.debug(
+        #     f"\n This is telephone_numbers : {pformat(telephone_numbers, indent=4, width=1)}"
+        # )
+        print(
+            f"This is the column method {pformat(telephone_numbers, indent=4, width=1)}"
+            ""
+        )
+        logger.debug(
+            f"\n This is result_from_database[0] : {pformat(result_from_database[0], indent=4, width=1)}"
+        )
+
+        return telephone_numbers
 
         # * if there is no message ID given create a new message
         if form.vars["message_ID"] is None:
@@ -1452,7 +1464,7 @@ def user_campaign_create():
         # * if there is a message ID given, create campaign with this message ID
         else:
             message_id = int(form.vars("message_ID"))
-        # return f"\n{pformat(alertsystem_config, indent=4, width=1)}"
+        return f"\n{pformat(alertsystem_config, indent=4, width=1)}"
         (
             campagin_tuple,
             alertsystem_response_status,
