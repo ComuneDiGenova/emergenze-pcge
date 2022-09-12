@@ -26,6 +26,7 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from datetime import datetime
+from pprint import pp
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
 from .common import (
@@ -64,6 +65,7 @@ from . import settings
 
 from alertsystem import config
 from alertsystem.azioni import do as alert_do
+from pprint import pformat, pprint
 
 # To be checked
 # ? from alertsystem.azioni import do, config
@@ -1229,17 +1231,18 @@ def user_campaign_retrive_list():
         message_list,
         alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
-
+    message_list = dict((x.id_messaggio, x) for x in message_list)
     logger.debug(f"\talertsystem_config: {alertsystem_config}")
     logger.debug(f"\tstatus: {alertsystem_response_status}")
-    logger.debug(f"\tmessage_list: {message_list}")
-
-    return json.dump(
-        [
-            dict.fromkeys(message_list),
-            dict.fromkeys(alertsystem_response_status),
-        ]
+    logger.debug(f"\n{pformat(message_list, indent=4, width=1)}")
+    alertsystem_response_status_kk = (
+        alertsystem_response_status.__dict__
     )
+    logger.debug(
+        f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
+    )
+    print()
+    return json.dumps([message_list, pformat])
 
 
 # TODO get message ID, delete message
