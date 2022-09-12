@@ -409,7 +409,7 @@ def cancellaComponente(utente_id=None, civico_id=None, motivo=None):
 
 @action("soggettiVulnerabili/<page:int>/<paginate:int>/", method=['GET'])
 @action("soggettiVulnerabili/<page:int>/", method=['GET'])
-@action("soggettiVulnerabili/", method=['GET'])
+@action("soggettiVulnerabili/", method=['GET', 'OPTIONS'])
 @action.uses(cors)
 def soggetti_vulnerabili(page=None, paginate=10):
 
