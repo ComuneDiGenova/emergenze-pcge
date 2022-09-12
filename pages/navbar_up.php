@@ -162,19 +162,23 @@ if (isset($subtitle)) {
                      
                     <ul class="dropdown-menu dropdown-messages">
                         <li>
-                            <a href="dettagli_evento.php?e=<?php echo $id_evento; ?>">
+							<?php if( $descrizione_allerta!= 'Nessuna allerta') {?>
+                            	<a href="dettagli_evento.php?e=<?php echo $id_evento; ?>">
                                 <div>
-                                <?php if( $descrizione_allerta!= 'Nessuna allerta') {?>
                                     <strong> Allerta <?php echo $descrizione_allerta; ?> in corso</strong>
-                                 <?php } else { ?>
-                                 	<strong> Nessuna allerta in corso</strong>
-                                 <?php }  ?> 
-                                    <span class="pull-right text-muted">
+									<span class="pull-right text-muted">
                                         <em><i class="fas fa-circle fa-1x" style="color:<?php echo $color_allerta; ?>"></i></em>
                                     </span>
                                 </div>
                                 <div> Clicca per visualizzare i dettagli sugli eventi in corso. </div>
                             </a>
+                                 <?php } else { ?>
+                                 	<strong> Nessuna allerta in corso</strong>
+									 <span class="pull-right text-muted">
+                                        <em><i class="fas fa-circle fa-1x" style="color:<?php echo $color_allerta; ?>"></i></em>
+                                    </span>
+                                 <?php }  ?> 
+                                    
                         </li>
 
                         <li class="divider"></li>
