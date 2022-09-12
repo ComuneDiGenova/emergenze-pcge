@@ -1184,12 +1184,12 @@ def user_campaign_get_campaign_from_to():
             Field(
                 "date_start",
                 "datetime",
-                # requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
+                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
             ),
             Field(
                 "date_end",
                 "datetime",
-                # requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
+                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
             ),
             Field(
                 "retrieve_status",
@@ -1207,22 +1207,15 @@ def user_campaign_get_campaign_from_to():
     logger.debug(
         f"tuple_of_campaigns: {pformat(form, indent=4, width=1)}"
     )
-    # a, b = form.vars.get("date_start"), form.vars.get("date_end")
-    # logger.debug(f"date_start: {a} and date_end: {b}")
-    # del a
-    # del b
     if form.accepted:
-        date_start: datetime = datetime.strptime(
-            form.vars.get("date_start"), "%Y-%m-%d %H:%M"
-        )
-        date_end: datetime = datetime.strptime(
-            form.vars.get("date_end"), "%Y-%m-%d %H:%M"
-        )
+        date_start: datetime = form.vars.get("date_start")
+        date_end: datetime = form.vars.get("date_end")
         logger.debug(
             f"date_start: {date_start} and date_end: {date_end}"
         )
         tuple_of_campaigns: dict = {}
         alertsystem_response_status: dict = {}
+        # ? alert_do.ricerca_campagne is using strftime to convert str to datetime so str mmust be passed
         (
             tuple_of_campaigns,
             alertsystem_response_status,
@@ -1242,9 +1235,10 @@ def user_campaign_get_campaign_from_to():
             }
         # * If there is no retrieve_status field return only the campaigns in a tuple
         else:
-            return {
-                "tuple_of_campaigns": tuple_of_campaigns,
-            }
+            # return {
+            #     "tuple_of_campaigns": tuple_of_campaigns,
+            # }
+            return tuple_of_campaigns
 
     else:
         return r"Error, form not accepted, check the format='%Y-%m-%d %H:%M'"
