@@ -1194,7 +1194,9 @@ def user_campaign_get_campaign_from_to():
             Field(
                 "retrieve_status",
                 requires=IS_EMPTY_OR(
-                    IS_IN_SET(["True", "False"], zero=None)
+                    IS_IN_SET(
+                        ["True", "False", "Id_only"], zero=None
+                    )
                 ),
             ),
         ],
@@ -1234,11 +1236,10 @@ def user_campaign_get_campaign_from_to():
                 "alertsystem_response_status": alertsystem_response_status,
             }
         # * If there is no retrieve_status field return only the campaigns in a tuple
-        else:
-            # return {
-            #     "tuple_of_campaigns": tuple_of_campaigns,
-            # }
+        elif form.varsystem_response_status == "Id_only":
             return tuple_of_campaigns
+        else:
+            return {"tuple_of_campaigns": tuple_of_campaigns}
 
     else:
         return r"Error, form not accepted, check the format='%Y-%m-%d %H:%M'"
@@ -1262,11 +1263,11 @@ def user_campaign_retrive_message_list():
         f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
     )
     # ? Ask if return only message list of a dick of message list and status
-    return message_list
-    # return {
-    #     "message_ID_and_content": message_list,
-    #     "alertsystem_response_status": alertsystem_response_status_kk,
-    # }
+    # return message_list
+    return {
+        "message_ID_and_content": message_list,
+        "alertsystem_response_status": alertsystem_response_status,
+    }
 
 
 @action("user_campaign/_create_message", method=["POST"])
@@ -1326,11 +1327,22 @@ def user_campaign_create_message():
                 message_tuple[1],
             ],
             "alertsystem_response_status": alertsystem_response_status,
-            "form": sf.form2dict(form),
+            # "form": sf.form2dict(form),
         }
     # return f"\nThis is the message_tuple content {pformat(message_tuple, indent=4, width=1)} and the status {pformat(alertsystem_response_status, indent=4, width=1)}"
     # else:
     #     return r"Error, form not accepted, check the message'"
+
+
+@action("user_campaign/<campaign_id>", method=["GET"])
+def test(campaign_id: str):
+    """This is a test function to test the campaign creation"""
+    (vis_campaign, alert_status) = alert_do.visualizza_campagna(
+        id_campagna=campaign_id,
+        cfg=alertsystem_config,
+    )
+    vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
+    return vis_campaign
 
 
 # TODO get message ID, delete message
@@ -1357,18 +1369,14 @@ def user_campaign_delete_older_message():
     ):
         return "Error 401 mismatch. Message ID not found"
     logger.debug(
-        f"\n alertsystem_config: {pformat(alertsystem_config, indent=4, width=1)}"
+        f"\n message_list: {pformat(message_list, indent=4, width=1)}"
     )
     logger.debug(
         f"\n status: {pformat(alertsystem_response_status_visualize, indent=4, width=1)}"
     )
     logger.debug(
-        f"\n message_list: {pformat(message_list, indent=4, width=1)}"
-    )
-    logger.debug(
         f"\n message_id_delete: {pformat(message_id_delete, indent=4, width=1)}"
     )
-    # TODO How to get message ID from message_list?
     (
         message_to_be_deleted,
         alertsystem_response_status_visualize,
@@ -1418,6 +1426,7 @@ def user_campaign_create():
             voice_gender: str = "F"
         else:
             voice_gender: str = form.vars.get("voice_gender")
+
         group_numer: int = form.vars["group"]
         message_text: str = form.vars["message_text"]
         message_type: str = form.vars.get("message_note")
@@ -1438,10 +1447,7 @@ def user_campaign_create():
             f"This is the column method {pformat(telephone_numbers, indent=4, width=1)}"
             ""
         )
-        logger.debug(
-            f"\n This is result_from_database[0] : {pformat(result_from_database[0], indent=4, width=1)}"
-        )
-
+        # * To be deleted once we use whole phone numbers list
         return telephone_numbers
 
         # * if there is no message ID given create a new message
@@ -1479,4 +1485,4 @@ def user_campaign_create():
             "alertsystem_response_status": alertsystem_response_status,
         }
     else:
-        return r"Error, form not accepted, the fields'"
+        return r"Error, form not accepted, the fields are not valid"
