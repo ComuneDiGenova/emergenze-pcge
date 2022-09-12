@@ -43,10 +43,13 @@ status_is_1 = (db.segnalazioni_lista.lavorazione_id != None) & \
 gt_ts = lambda ts: f"TO_TIMESTAMP(v_segnalazioni_lista.data_ora, 'YYY/MM/DD HH24:MI')>=TO_TIMESTAMP('{ts.strftime('%Y/%m/%d %H:%M')}', 'YYY/MM/DD HH24:MI')"
 lt_ts = lambda ts: f"TO_TIMESTAMP(v_segnalazioni_lista.data_ora, 'YYY/MM/DD HH24:MI')<=TO_TIMESTAMP('{ts.strftime('%Y/%m/%d %H:%M')}', 'YYY/MM/DD HH24:MI')"
 
+DISAGIO_SALUTE = 8
+
 def fetch(status=None, start=None, end=None, page=None, paginate=DEFAULT_PAGINATION):
 
     dbset = db(
-        (db.segnalazioni_lista.criticita_id==db.tipo_criticita.id)
+        (db.segnalazioni_lista.criticita_id==db.tipo_criticita.id) & \
+	(db.tipo_criticita.id!=DISAGIO_SALUTE)
     )
 
     if not end is None:
