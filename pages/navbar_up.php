@@ -173,10 +173,12 @@ if (isset($subtitle)) {
                                 <div> Clicca per visualizzare i dettagli sugli eventi in corso. </div>
                             </a>
                                  <?php } else { ?>
-                                 	<strong> Nessuna allerta in corso</strong>
-									 <span class="pull-right text-muted">
-                                        <em><i class="fas fa-circle fa-1x" style="color:<?php echo $color_allerta; ?>"></i></em>
-                                    </span>
+									<div>
+										<strong> Nessuna allerta in corso</strong>
+										<span class="pull-right text-muted">
+											<em><i class="fas fa-circle fa-1x" style="color:<?php echo $color_allerta; ?>"></i></em>
+										</span>
+									</div>
                                  <?php }  ?> 
                                     
                         </li>
