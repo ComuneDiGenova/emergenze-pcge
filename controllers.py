@@ -1335,42 +1335,55 @@ def user_campaign_create_message():
 
 # TODO get message ID, delete message
 @action(
-    "user_campaign/_delete_older_message_campaign",
+    "user_campaign/_delete_older_message",
     method=["DELETE"],
 )
-def user_campaign_delete_older_message_campaign():
+def user_campaign_delete_older_message():
     (
         message_list,
-        alertsystem_response_status,
+        alertsystem_response_status_visualize,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
     message_id_delete = int(request.params["message_id_delete"])
-    logger.debug(
-        f"\tmessage_id_delete is a {type(message_id_delete)}"
-    )
     # ?checking if message_id_delete is in message_list
     if (
         len(
             [
-                b[0].id_messaggio
+                b.id_messaggio
                 for b in message_list
-                if b[0].id_messaggio == message_id_delete
+                if b.id_messaggio == message_id_delete
             ]
         )
         < 1
     ):
         return "Error 401 mismatch. Message ID not found"
-    logger.debug(f"\talertsystem_config: {alertsystem_config}")
-    logger.debug(f"\tstatus: {alertsystem_response_status}")
-    logger.debug(f"\tmessage_list: {message_list}")
-    logger.debug(f"\message_id_delete: {message_id_delete}")
+    logger.debug(
+        f"\n alertsystem_config: {pformat(alertsystem_config, indent=4, width=1)}"
+    )
+    logger.debug(
+        f"\n status: {pformat(alertsystem_response_status_visualize, indent=4, width=1)}"
+    )
+    logger.debug(
+        f"\n message_list: {pformat(message_list, indent=4, width=1)}"
+    )
+    logger.debug(
+        f"\n message_id_delete: {pformat(message_id_delete, indent=4, width=1)}"
+    )
     # TODO How to get message ID from message_list?
-    message_to_be_deleted = alert_do.cancella_messaggio(
-        cfg=alertsystem_config, message_id=message_id_delete
+    (
+        message_to_be_deleted,
+        alertsystem_response_status_visualize,
+    ) = alert_do.cancella_messaggio(
+        cfg=alertsystem_config, id_messaggio=message_id_delete
     )
     if message_to_be_deleted is None:
         return "Error 401 mismatch. Wrong message_ID from cancella_messagio"
     elif message_to_be_deleted == message_id_delete:
-        return f"Message with ID: {message_id_delete} deleted"
+        logger.debug(
+            f"\n Deleted: {message_id_delete} from database"
+        )
+        return json.dumps(
+            f"Message with ID: {message_id_delete} deleted"
+        )
 
 
 @action("user_campaign/_create_capmaign", method=["POST"])
