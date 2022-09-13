@@ -110,6 +110,11 @@ def general_error_message(
     error_message: str = "Bad Request",
     error_code: int = 400,
 ):
+    if form == None:
+        return {
+            "error_code": error_code,
+            "error_message": error_message,
+        }
     error_body = sf.form2dict(form)
     error_body["error_status"] = f"{error_code} {error_message}"
     raise HTTP(
@@ -1202,14 +1207,6 @@ def user_campaign_get_campaign_from_to():
                 "datetime",
                 requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
             ),
-            # Field(
-            #     "retrieve_status",
-            #     requires=IS_EMPTY_OR(
-            #         IS_IN_SET(
-            #             ["True", "False", "Id_only"], zero=None
-            #         )
-            #     ),
-            # ),
         ],
         deletable=False,
         dbio=False,
@@ -1226,8 +1223,6 @@ def user_campaign_get_campaign_from_to():
         logger.debug(
             f"date_start: {date_start} and date_end: {date_end}"
         )
-        tuple_of_campaigns: dict = {}
-        alertsystem_response_status: dict = {}
         # ? alert_do.ricerca_campagne is using strftime to convert str to datetime so str mmust be passed
         (
             tuple_of_campaigns,
@@ -1244,25 +1239,8 @@ def user_campaign_get_campaign_from_to():
             "result": tuple_of_campaigns,
             "alertsystem_response_status": alertsystem_response_status,
         }
-        # * If there is retrieve_status field return a tuple with the campaigns and the status of the alertsystem response
-        # if form.vars.get("retrieve_status") == "True":
-        #     return {
-        #         "tuple_of_campaigns": tuple_of_campaigns,
-        #         "alertsystem_response_status": alertsystem_response_status,
-        #     }
-        # # * If there is no retrieve_status field return only the campaigns in a tuple
-        # elif (
-        #     form.vars.get("retrieve_status") == "Id_only" or "False"
-        # ):
-        #     return tuple_of_campaigns
-        # else:
-        #     return {"tuple_of_campaigns": tuple_of_campaigns}
     else:
-        general_error_message(
-            form=form,
-            error_code=400,
-            error_message="Bad Request",
-        )
+        general_error_message(form=form)
 
 
 # TODO retrieve reposne status as well
@@ -1273,8 +1251,12 @@ def user_campaign_retrive_message_list():
         alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
     message_list = dict((x.id_messaggio, x) for x in message_list)
-    logger.debug(f"\talertsystem_config: {alertsystem_config}")
-    logger.debug(f"\tstatus: {alertsystem_response_status}")
+    logger.debug(
+        f"\talertsystem_config: {pformat(alertsystem_config, indent=4, width=1)}"
+    )
+    logger.debug(
+        f"\tstatus: {pformat(alertsystem_response_status, indent=4, width=1)}"
+    )
     logger.debug(f"\n{pformat(message_list, indent=4, width=1)}")
     alertsystem_response_status_kk = (
         alertsystem_response_status.__dict__
@@ -1282,8 +1264,6 @@ def user_campaign_retrive_message_list():
     logger.debug(
         f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
     )
-    # ? Ask if return only message list of a dick of message list and status
-    # return message_list
     return {
         "result": message_list,
         "alertsystem_response_status": alertsystem_response_status,
@@ -1350,24 +1330,30 @@ def user_campaign_create_message():
             # "form": sf.form2dict(form),
         }
     # return f"\nThis is the message_tuple content {pformat(message_tuple, indent=4, width=1)} and the status {pformat(alertsystem_response_status, indent=4, width=1)}"
-    # else:
-    #     return r"Error, form not accepted, check the message'"
+    else:
+        general_error_message(form=form)
 
 
 @action("user_campaign/<campaign_id>", method=["GET"])
 def user_campaign_get_campaign(campaign_id: str):
     """This is a test function to test the campaign creation"""
-    (vis_campaign, alert_status) = alert_do.visualizza_campagna(
+    (
+        vis_campaign,
+        alertsystem_response_status,
+    ) = alert_do.visualizza_campagna(
         id_campagna=campaign_id,
         cfg=alertsystem_config,
     )
-    print(vis_campaign, alert_status)
+    print(vis_campaign, alertsystem_response_status)
     if vis_campaign is None:
-        return alert_status.__dict__
+        return {
+            "alertsystem_response_status": alertsystem_response_status,
+            "result": vis_campaign,
+        }
     vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
     return {
         "result": vis_campaign,
-        "alertsystem_response_status": alert_status.__dict__,
+        "alertsystem_response_status": alertsystem_response_status,
     }
 
 
@@ -1416,13 +1402,23 @@ def user_campaign_delete_older_message():
         # general_error_message(
         #     error_code=410, error_message="ID mismatch", form=None
         # )
-        return alertsystem_response_status
+        return {
+            "alertsystem_response_status": alertsystem_response_status,
+            "result": "No message with this ID, list with this ID is empty",
+        }
     elif message_to_be_deleted == message_id_delete:
         logger.debug(
             f"\n Deleted: {message_id_delete} from database"
         )
-        return json.dumps(
-            f"Message with ID: {message_id_delete} deleted"
+        return {
+            "alertsystem_response_status": alertsystem_response_status,
+            "result": f"Message {message_id_delete} deleted from database",
+        }
+    else:
+        general_error_message(
+            form=None,
+            error_code=500,
+            error_message="Internal Server Error. Message deleted is not the message specified",
         )
 
 
@@ -1475,7 +1471,6 @@ def user_campaign_create():
             general_error_message(
                 form=form,
                 error_message=".Bad Request. Empty result_from_database is None",
-                error_code=400,
             )
         telephone_numbers = result_from_database.column(0)
         # telephone_numbers = ["3494351325"]
@@ -1520,6 +1515,4 @@ def user_campaign_create():
             "alertsystem_response_status": alertsystem_response_status,
         }
     else:
-        general_error_message(
-            form=form, error_code=400, error_message="Bad request"
-        )
+        general_error_message(form=form)
