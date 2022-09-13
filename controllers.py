@@ -1191,7 +1191,7 @@ def lista_mire():
 ##// TODO recieve DB data
 ##// TODO generate campaign
 
-# TODO managment of HTTP raise errors
+# // TODO managment of HTTP raise errors
 # // TODO check validator for the datetime
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
 def user_campaign_get_campaign_from_to():
@@ -1250,7 +1250,7 @@ def user_campaign_get_campaign_from_to():
         general_error_message(form=form)
 
 
-# TODO retrieve reposne status as well
+# // TODO retrieve reposne status as well
 @action("user_campaign/_retrive_message_list", method=["GET"])
 def user_campaign_retrive_message_list():
     """user_campaign_retrive_message_list _summary_
@@ -1318,7 +1318,6 @@ def user_campaign_create_message():
         voice_for_character: model.Carattere = getattr(
             model.Carattere, voice_gender
         )
-
         (
             message_tuple,
             alertsystem_response_status,
@@ -1373,7 +1372,6 @@ def user_campaign_get_campaign(campaign_id: str):
     }
 
 
-# TODO get message ID, delete message
 @action(
     "user_campaign/_delete_older_message",
     method=["DELETE"],
@@ -1391,21 +1389,6 @@ def user_campaign_delete_older_message():
         alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
     message_id_delete = int(request.params["message_id_delete"])
-    # ?checking if message_id_delete is in message_list
-    if (
-        len(
-            [
-                b.id_messaggio
-                for b in message_list
-                if b.id_messaggio == message_id_delete
-            ]
-        )
-        < 1
-    ):
-        return {
-            "result": "No message with this ID, list with this ID is empty",
-            "alertsystem_response_status": alertsystem_response_status,
-        }
     logger.debug(
         f"\n message_list: {pformat(message_list, indent=4, width=1)}"
     )
@@ -1422,14 +1405,11 @@ def user_campaign_delete_older_message():
         cfg=alertsystem_config, id_messaggio=message_id_delete
     )
     if message_to_be_deleted is None:
-        # general_error_message(
-        #     error_code=410, error_message="ID mismatch", form=None
-        # )
         return {
             "alertsystem_response_status": alertsystem_response_status,
             "result": "No message with this ID, list with this ID is empty",
         }
-    elif message_to_be_deleted == message_id_delete:
+    else:
         logger.debug(
             f"\n Deleted: {message_id_delete} from database"
         )
@@ -1437,12 +1417,6 @@ def user_campaign_delete_older_message():
             "alertsystem_response_status": alertsystem_response_status,
             "result": f"Message {message_id_delete} deleted from database",
         }
-    else:
-        general_error_message(
-            form=None,
-            error_code=500,
-            error_message="Internal Server Error. Message deleted is not the message specified",
-        )
 
 
 @action("user_campaign/_create_capmaign", method=["POST"])
@@ -1502,14 +1476,17 @@ def user_campaign_create():
                 form=form,
                 error_message=".Bad Request. Empty result_from_database is None",
             )
-        telephone_numbers = result_from_database.column(0)
+        telephone_numbers = [
+            ii.telefono for ii in result_from_database
+        ]
         # telephone_numbers = ["3494351325"]
-        # logger.debug(
-        #     f"\n This is telephone_numbers : {pformat(telephone_numbers, indent=4, width=1)}"
-        # )
-        # * To be deleted once we use whole phone numbers list
-        return telephone_numbers
-
+        telephone_numbers = [
+            ii.lstrip("+39") for ii in telephone_numbers
+        ]
+        logger.debug(
+            f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
+        )
+        return {"telephone_numbers": telephone_numbers}
         # * if there is no message ID given create a new message
         if form.vars["message_ID"] is None:
             if form.vars["message_note"] is None:
@@ -1523,6 +1500,8 @@ def user_campaign_create():
                 carattere_voce=voice_for_character,
                 note_messaggio=message_type,
             )
+            if message_tuple is None:
+                general_error_message(form=form)
             message_id = int(message_tuple[0])
             logger.debug(
                 f"\n This is message_tuple : {pformat(message_tuple, indent=4, width=1)}"
@@ -1530,7 +1509,6 @@ def user_campaign_create():
         # * if there is a message ID given, create campaign with this message ID
         else:
             message_id = int(form.vars("message_ID"))
-        return f"\n{pformat(alertsystem_config, indent=4, width=1)}"
         (
             campagin_tuple,
             alertsystem_response_status,
