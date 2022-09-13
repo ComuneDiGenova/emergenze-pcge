@@ -1195,6 +1195,13 @@ def lista_mire():
 # // TODO check validator for the datetime
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
 def user_campaign_get_campaign_from_to():
+    """user_campaign_get_campaign_from_to _summary_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     form = Form(
         [
             Field(
@@ -1246,6 +1253,13 @@ def user_campaign_get_campaign_from_to():
 # TODO retrieve reposne status as well
 @action("user_campaign/_retrive_message_list", method=["GET"])
 def user_campaign_retrive_message_list():
+    """user_campaign_retrive_message_list _summary_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     (
         message_list,
         alertsystem_response_status,
@@ -1272,6 +1286,13 @@ def user_campaign_retrive_message_list():
 
 @action("user_campaign/_create_message", method=["POST"])
 def user_campaign_create_message():
+    """user_campaign_create_message _summary_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     form = Form(
         [
             Field(
@@ -1307,9 +1328,6 @@ def user_campaign_create_message():
             carattere_voce=voice_for_character,
             note_messaggio=message_type,
         )
-        # message_tuple = dict(
-        #     (x.id_messaggio, x) for x in message_tuple
-        # )
         logger.debug(f"\talertsystem_config: {alertsystem_config}")
         logger.debug(f"\tstatus: {alertsystem_response_status}")
         logger.debug(
@@ -1322,14 +1340,12 @@ def user_campaign_create_message():
             f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
         )
         return {
-            "result": [
-                message_tuple[0],
-                message_tuple[1],
-            ],
+            "result": {
+                "message_id": message_tuple[0],
+                "message_credits": message_tuple[1],
+            },
             "alertsystem_response_status": alertsystem_response_status,
-            # "form": sf.form2dict(form),
         }
-    # return f"\nThis is the message_tuple content {pformat(message_tuple, indent=4, width=1)} and the status {pformat(alertsystem_response_status, indent=4, width=1)}"
     else:
         general_error_message(form=form)
 
@@ -1363,6 +1379,13 @@ def user_campaign_get_campaign(campaign_id: str):
     method=["DELETE"],
 )
 def user_campaign_delete_older_message():
+    """user_campaign_delete_older_message _summary_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     (
         message_list,
         alertsystem_response_status,
@@ -1424,6 +1447,13 @@ def user_campaign_delete_older_message():
 
 @action("user_campaign/_create_capmaign", method=["POST"])
 def user_campaign_create():
+    """user_campaign_create _summary_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     form = Form(
         [
             Field(
