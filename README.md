@@ -83,3 +83,17 @@ INSERT INTO eventi.join_tipo_foc
 VALUES(110, 3, NOW(), NOW() + interval '1 hour');
 </pre>
 </details>
+
+## Attivare e disattivare il servizio
+Per tirare su il sistema di container è necessario lanciare dalla shell di comando, posizionandosi nella cartella che contiere il docker-compose.yml di interesse, che segue:
+```bash
+docker-compose up -d
+```
+Analogamente per tirare giù il servizio, dalla stessa cartella, eseguire:
+```bash
+docker-compose down -v
+```
+Per controllare eventuali log:
+```bash
+docker-compose logs -f
+```
