@@ -97,3 +97,34 @@ Per controllare eventuali log:
 ```bash
 docker-compose logs -f
 ```
+
+### Problemi
+
+#### Non raggiungibilità portale Gestione Emergenze
+
+Sono segnalati occasionali blocchi degli accessi al portale di Gestione Emergenze
+che a valle dell'autenticazione tramite SPID risponde con un *proxy error*.
+
+Promemoria delle cose da verificare in queste occasioni:
+
+* consumo CPU dei servizi
+* stato di occupazione del filesystem
+* panoramica delle query al db e relativi consumi di risorse
+* ... (altre idee?)
+
+**Soluzione**
+
+Per far ripartire il servizio dovrebbe bastare il riavvio del container web:
+
+```sh
+cd ~/emergenze_verbatel
+sudo docker-compose restart web
+```
+
+o in alternativa per riavviare entrambi i container definiti:
+
+```sh
+cd ~/emergenze_verbatel
+sudo docker-compose down -v
+sudo docker-compose up -d
+```
