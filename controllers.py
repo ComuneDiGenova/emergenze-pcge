@@ -63,12 +63,10 @@ from .incarico import incarico
 from . import mire
 from . import settings
 
-from alertsystem import config, model
+from alertsystem import model
 from alertsystem.azioni import do as alert_do
 from pprint import pformat, pprint
-
-# To be checked
-# ? from alertsystem.azioni import do, config
+from py4web.core import HTTP
 
 
 class NoDBIO(object):
@@ -107,6 +105,18 @@ id_message_global: int = -1
 #     user = auth.get_user()
 #     message = T("Hello {first_name}".format(**user) if user else "Hello")
 #     return dict(message=message)
+def general_error_message(
+    form: Form,
+    error_message: str = "Bad Request",
+    error_code: int = 400,
+):
+    error_body = sf.form2dict(form)
+    error_body["error_status"] = f"{error_code} {error_message}"
+    raise HTTP(
+        status=error_code,
+        body=json.dumps(error_body),
+        headers={"Content-Type": "application/json"},
+    )
 
 
 @action("evento")
@@ -1169,14 +1179,15 @@ def lista_mire():
 # ?------------------------------------------------------------
 # ?------------------------------------------------------------
 
-# TODO Message url for putting message
-# TODO POST via postman message on url
-# TODO get data from url
-# TODO make a query to DB
-# TODO recieve DB data
-# TODO generate campaign
+##// TODO Message url for putting message
+##// TODO POST via postman message on url
+##// TODO get data from url
+##// TODO make a query to DB
+##// TODO recieve DB data
+##// TODO generate campaign
 
-# TODO check validator for the datetime
+# TODO managment of HTTP raise errors
+# // TODO check validator for the datetime
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
 def user_campaign_get_campaign_from_to():
     form = Form(
@@ -1191,14 +1202,14 @@ def user_campaign_get_campaign_from_to():
                 "datetime",
                 requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
             ),
-            Field(
-                "retrieve_status",
-                requires=IS_EMPTY_OR(
-                    IS_IN_SET(
-                        ["True", "False", "Id_only"], zero=None
-                    )
-                ),
-            ),
+            # Field(
+            #     "retrieve_status",
+            #     requires=IS_EMPTY_OR(
+            #         IS_IN_SET(
+            #             ["True", "False", "Id_only"], zero=None
+            #         )
+            #     ),
+            # ),
         ],
         deletable=False,
         dbio=False,
@@ -1229,20 +1240,29 @@ def user_campaign_get_campaign_from_to():
         tuple_of_campaigns = dict(
             (x.id_campagna, x) for x in tuple_of_campaigns
         )
+        return {
+            "result": tuple_of_campaigns,
+            "alertsystem_response_status": alertsystem_response_status,
+        }
         # * If there is retrieve_status field return a tuple with the campaigns and the status of the alertsystem response
-        if form.vars.get("retrieve_status") == "True":
-            return {
-                "tuple_of_campaigns": tuple_of_campaigns,
-                "alertsystem_response_status": alertsystem_response_status,
-            }
-        # * If there is no retrieve_status field return only the campaigns in a tuple
-        elif form.varsystem_response_status == "Id_only":
-            return tuple_of_campaigns
-        else:
-            return {"tuple_of_campaigns": tuple_of_campaigns}
-
+        # if form.vars.get("retrieve_status") == "True":
+        #     return {
+        #         "tuple_of_campaigns": tuple_of_campaigns,
+        #         "alertsystem_response_status": alertsystem_response_status,
+        #     }
+        # # * If there is no retrieve_status field return only the campaigns in a tuple
+        # elif (
+        #     form.vars.get("retrieve_status") == "Id_only" or "False"
+        # ):
+        #     return tuple_of_campaigns
+        # else:
+        #     return {"tuple_of_campaigns": tuple_of_campaigns}
     else:
-        return r"Error, form not accepted, check the format='%Y-%m-%d %H:%M'"
+        general_error_message(
+            form=form,
+            error_code=400,
+            error_message="Bad Request",
+        )
 
 
 # TODO retrieve reposne status as well
@@ -1265,7 +1285,7 @@ def user_campaign_retrive_message_list():
     # ? Ask if return only message list of a dick of message list and status
     # return message_list
     return {
-        "message_ID_and_content": message_list,
+        "result": message_list,
         "alertsystem_response_status": alertsystem_response_status,
     }
 
@@ -1322,7 +1342,7 @@ def user_campaign_create_message():
             f"\n{pformat(alertsystem_response_status, indent=4, width=1)}"
         )
         return {
-            "message_ID_and_credits": [
+            "result": [
                 message_tuple[0],
                 message_tuple[1],
             ],
@@ -1335,14 +1355,20 @@ def user_campaign_create_message():
 
 
 @action("user_campaign/<campaign_id>", method=["GET"])
-def test(campaign_id: str):
+def user_campaign_get_campaign(campaign_id: str):
     """This is a test function to test the campaign creation"""
     (vis_campaign, alert_status) = alert_do.visualizza_campagna(
         id_campagna=campaign_id,
         cfg=alertsystem_config,
     )
+    print(vis_campaign, alert_status)
+    if vis_campaign is None:
+        return alert_status.__dict__
     vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
-    return vis_campaign
+    return {
+        "result": vis_campaign,
+        "alertsystem_response_status": alert_status.__dict__,
+    }
 
 
 # TODO get message ID, delete message
@@ -1353,7 +1379,7 @@ def test(campaign_id: str):
 def user_campaign_delete_older_message():
     (
         message_list,
-        alertsystem_response_status_visualize,
+        alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
     message_id_delete = int(request.params["message_id_delete"])
     # ?checking if message_id_delete is in message_list
@@ -1367,24 +1393,30 @@ def user_campaign_delete_older_message():
         )
         < 1
     ):
-        return "Error 401 mismatch. Message ID not found"
+        return {
+            "result": "No message with this ID, list with this ID is empty",
+            "alertsystem_response_status": alertsystem_response_status,
+        }
     logger.debug(
         f"\n message_list: {pformat(message_list, indent=4, width=1)}"
     )
     logger.debug(
-        f"\n status: {pformat(alertsystem_response_status_visualize, indent=4, width=1)}"
+        f"\n status: {pformat(alertsystem_response_status, indent=4, width=1)}"
     )
     logger.debug(
         f"\n message_id_delete: {pformat(message_id_delete, indent=4, width=1)}"
     )
     (
         message_to_be_deleted,
-        alertsystem_response_status_visualize,
+        alertsystem_response_status,
     ) = alert_do.cancella_messaggio(
         cfg=alertsystem_config, id_messaggio=message_id_delete
     )
     if message_to_be_deleted is None:
-        return "Error 401 mismatch. Wrong message_ID from cancella_messagio"
+        # general_error_message(
+        #     error_code=410, error_message="ID mismatch", form=None
+        # )
+        return alertsystem_response_status
     elif message_to_be_deleted == message_id_delete:
         logger.debug(
             f"\n Deleted: {message_id_delete} from database"
@@ -1433,20 +1465,23 @@ def user_campaign_create():
         voice_for_character: model.Carattere = getattr(
             model.Carattere, voice_gender
         )
+        # TODO HTTP response status
         result_from_database = db(
             (db.soggetti_vulnerabili.gruppo == group_numer)
         ).select(
             db.soggetti_vulnerabili.telefono,
         )
+        if result_from_database is None:
+            general_error_message(
+                form=form,
+                error_message=".Bad Request. Empty result_from_database is None",
+                error_code=400,
+            )
         telephone_numbers = result_from_database.column(0)
         # telephone_numbers = ["3494351325"]
         # logger.debug(
         #     f"\n This is telephone_numbers : {pformat(telephone_numbers, indent=4, width=1)}"
         # )
-        print(
-            f"This is the column method {pformat(telephone_numbers, indent=4, width=1)}"
-            ""
-        )
         # * To be deleted once we use whole phone numbers list
         return telephone_numbers
 
@@ -1481,8 +1516,10 @@ def user_campaign_create():
             lista_numeri_telefonici=telephone_numbers,
         )
         return {
-            "campagin_tuple": campagin_tuple,
+            "result": campagin_tuple,
             "alertsystem_response_status": alertsystem_response_status,
         }
     else:
-        return r"Error, form not accepted, the fields are not valid"
+        general_error_message(
+            form=form, error_code=400, error_message="Bad request"
+        )
