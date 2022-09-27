@@ -27,7 +27,7 @@ LOGGERS = [
 I due file docker-compose-yml e Dockerfile devono stare una cartella sopra al progetto, da modificare la struttura (e questo readme)
 
 ```
-# 
+#
 emergenze_verbatel
 |     docker-compose.yml
 |     Dockerfile
@@ -83,3 +83,34 @@ INSERT INTO eventi.join_tipo_foc
 VALUES(110, 3, NOW(), NOW() + interval '1 hour');
 </pre>
 </details>
+
+### Problemi
+
+#### Non raggiungibilità portale Gestione Emergenze
+
+Sono segnalati occasionali blocchi degli accessi al portale di Gestione Emergenze
+che a valle dell'autenticazione tramite SPID risponde con un *proxy error*.
+
+Promemoria delle cose da verificare in queste occasioni:
+
+* consumo CPU dei servizi
+* stato di occupazione del filesystem
+* panoramica delle query al db e relativi consumi di risorse
+* ... (altre idee?)
+
+**Soluzione**
+
+Per far ripartire il servizio dovrebbe bastare il riavvio del container web:
+
+```sh
+cd ~/emergenze_verbatel
+sudo docker-compose restart web
+```
+
+o in alternativa:
+
+```sh
+cd ~/emergenze_verbatel
+sudo docker-compose down -v
+sudo docker-compose up -d
+```

@@ -49,7 +49,7 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     intervento_id=None, tipo_segnalante_id=DEFAULT_TIPO_SEGNALANTE,
     municipio_id=None, telefono=None, note=None, nverde=False, note_geo=None,
     civico_id=None, persone_a_rischio=None, tabella_oggetto_id=None,
-    note_riservate=None, assegna=True, , **kwargs
+    note_riservate=None, assegna=True, **kwargs
 ):
     """
     Funzione dedicata alla creazione di una nuova Segnalazione.
