@@ -368,8 +368,7 @@ def after_insert_lavorazione(id):
         # Segnalazione di intetresse di PL
         ~db.tipo_criticita.id.belongs([7,12]) & \
         (db.segnalazione.criticita_id==db.tipo_criticita.id) & \
-        (db.tipo_criticita.valido==True) & \
-        ~(db.segnalazione.id == db.segnalazione_da_vt.segnalazione_id )
+        (db.tipo_criticita.valido==True)
     ).select(
         db.segnalazione.ALL,
         db.segnalazione_lavorazione.with_alias('lavorazione').ALL,
@@ -377,7 +376,8 @@ def after_insert_lavorazione(id):
         orderby = (db.segnalazione.id,~db.segnalazione_lavorazione.id,)
     ).first()
 
-    if not rec is None and rec.lavorazione.profilo_id!=settings.PM_PROFILO_ID:
+    if (not rec is None) and (db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None) and \
+        (rec.lavorazione.profilo_id!=settings.PM_PROFILO_ID):
         descrizione_incarico = f'''Richiesta sola presa visione della segnalazione:
 {rec.segnalazione.descrizione}.
 {incarico.WARNING}'''
