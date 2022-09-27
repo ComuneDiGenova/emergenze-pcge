@@ -46,10 +46,10 @@ def valida_intervento(form):
 
 
 def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
-    tipo_segnalante_id=DEFAULT_TIPO_SEGNALANTE, municipio_id=None,
-    telefono=None, note=None, nverde=False, note_geo=None,
+    intervento_id=None, tipo_segnalante_id=DEFAULT_TIPO_SEGNALANTE,
+    municipio_id=None, telefono=None, note=None, nverde=False, note_geo=None,
     civico_id=None, persone_a_rischio=None, tabella_oggetto_id=None,
-    note_riservate=None, assegna=True, **kwargs
+    note_riservate=None, assegna=True, , **kwargs
 ):
     """
     Funzione dedicata alla creazione di una nuova Segnalazione.
@@ -107,6 +107,13 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
         civico_id = civico_id,
         note = note_geo
     )
+
+    if not intervento_id is None:
+        # Registrazione segnalazione da Verbatel
+        db.segnalazione_da_vt.insert(
+            segnalazione_id = segnalazione_id,
+            intervento_id = intervento_id
+        )
 
     # Insert OGGETTO A RISCHIO
 
@@ -175,10 +182,10 @@ def create(evento_id, nome, descrizione, lon_lat, criticita_id, operatore,
     else:
         return segnalazione_id, None, None,
 
-def verbatel_create(intervento_id, *args, **kwargs):
+def verbatel_create(intervento_id, **kwargs):
     """ """
 
-    segnalazione_id, lavorazione_id, incarico_id = create(*args, **kwargs)
+    segnalazione_id, lavorazione_id, incarico_id = create(intervento_id=intervento_id, **kwargs)
 
     # Registrazione intervento id di Verbatel assegnato all'incarico
     if not incarico_id is None:
@@ -361,7 +368,8 @@ def after_insert_lavorazione(id):
         # Segnalazione di intetresse di PL
         ~db.tipo_criticita.id.belongs([7,12]) & \
         (db.segnalazione.criticita_id==db.tipo_criticita.id) & \
-        (db.tipo_criticita.valido==True)
+        (db.tipo_criticita.valido==True) & \
+        ~(db.segnalazione.id == db.segnalazione_da_vt.segnalazione_id )
     ).select(
         db.segnalazione.ALL,
         db.segnalazione_lavorazione.with_alias('lavorazione').ALL,
@@ -370,25 +378,25 @@ def after_insert_lavorazione(id):
     ).first()
 
     if not rec is None and rec.lavorazione.profilo_id!=settings.PM_PROFILO_ID:
-            descrizione_incarico = f'''Richiesta sola presa visione della segnalazione:
+        descrizione_incarico = f'''Richiesta sola presa visione della segnalazione:
 {rec.segnalazione.descrizione}.
 {incarico.WARNING}'''
 
-            incarico_id = incarico.create(
-                segnalazione_id = rec.segnalazione.id,
-                lavorazione_id = id,
-                profilo_id = settings.PM_PROFILO_ID,
-                descrizione = descrizione_incarico,
-                municipio_id = rec.segnalazione.municipio_id
-            )
-            logger.debug(f'Creato incarico: {incarico_id}')
+        incarico_id = incarico.create(
+            segnalazione_id = rec.segnalazione.id,
+            lavorazione_id = id,
+            profilo_id = settings.PM_PROFILO_ID,
+            descrizione = descrizione_incarico,
+            municipio_id = rec.segnalazione.municipio_id
+        )
+        logger.debug(f'Creato incarico: {incarico_id}')
 
-            # a quanto pare l'evento insert lanciato al passo precedente
-            # all'interno dello stesso trigger non viene intercettato
-            # per cui lancio a mano la callback seguente.
-            incarico.after_insert_incarico(incarico_id)
+        # a quanto pare l'evento insert lanciato al passo precedente
+        # all'interno dello stesso trigger non viene intercettato
+        # per cui lancio a mano la callback seguente.
+        incarico.after_insert_incarico(incarico_id)
 
-            return incarico_id
+        return incarico_id
 
 
 # def render(row):

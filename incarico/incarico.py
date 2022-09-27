@@ -157,8 +157,8 @@ def render(row):
     # elif row.incarico.profilo_id==settings.PM_PROFILO_ID:
         tipoRichiesta = 3
     else:
-        logger.error(f'Situazione non prevista: {row}')
-        tipoRichiesta = None
+        # logger.error(f'Situazione non prevista: {row}')
+        tipoRichiesta = 2
 
     geom = json.loads(row.geom)
     lon, lat = geom['coordinates']
@@ -259,7 +259,7 @@ def after_insert_incarico(id):
     # Cerco di attendere che l'icarico possa essere salvato come intervento
     # segnalato da PM, se questo non avviene invio i dati verso Verbatel
     # (NB. 3 sec forse sono anche tanti)
-    time.sleep(3)
+    # time.sleep(3)
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
