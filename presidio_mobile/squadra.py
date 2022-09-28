@@ -108,14 +108,16 @@ def create(nome, evento_id, afferenza, componenti, pattuglia_id=None,
 
     # 2. Creazione del presidio
 
-    percorso_presidio = db.presidi_mobili(percorso=percorso)
+    # percorso_presidio = db.presidi_mobili(percorso=percorso)
+    geom = "st_transform (geom, 4326)"
+    percorso_presidio = db(db.presidi_mobili.percorso==percorso).select(geom).first()
 
     presidio_id = db.presidio.insert(
         profilo_id = profilo_id,
         descrizione = descrizione,
         evento_id = evento_id,
         note = note,
-        geom = percorso_presidio.geom,
+        geom = percorso_presidio[geom],
         preview = preview,
         start = start,
         stop = stop
