@@ -84,6 +84,20 @@ VALUES(110, 3, NOW(), NOW() + interval '1 hour');
 </pre>
 </details>
 
+## Attivare e disattivare il servizio
+Per tirare su il sistema di container è necessario lanciare dalla shell di comando, posizionandosi nella cartella che contiere il docker-compose.yml di interesse, che segue:
+```bash
+docker-compose up -d
+```
+Analogamente per tirare giù il servizio, dalla stessa cartella, eseguire:
+```bash
+docker-compose down -v
+```
+Per controllare eventuali log:
+```bash
+docker-compose logs -f
+```
+
 ### Problemi
 
 #### Non raggiungibilità portale Gestione Emergenze
@@ -107,7 +121,7 @@ cd ~/emergenze_verbatel
 sudo docker-compose restart web
 ```
 
-o in alternativa:
+o in alternativa per riavviare entrambi i container definiti:
 
 ```sh
 cd ~/emergenze_verbatel
