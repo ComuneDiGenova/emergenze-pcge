@@ -313,7 +313,7 @@ database='xxxxxxxxxxxx'
 
 * Amministrazione proprietaria: Comune di Genova
 * Soggetto incaricato al mantenimento: [Gter srl](http://www.gter.it)
-* Contatto e-mail referente di progetto (per segnalazioni e richiesta informazioni): roberta.fagandini@gter.it
+* Contatto e-mail referente di progetto (per segnalazioni e richiesta informazioni): manuele.pesenti@gter.it
 * Contatto e-mail presso l'amministrazione: applicazionisit@comune.genova.it
 * Gestione segnalazioni: **tramite issues github**
 
