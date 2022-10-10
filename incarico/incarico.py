@@ -283,9 +283,3 @@ def after_update_incarico(id):
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = Intervento.update(intervento.intervento_id, **mio_incarico)
-
-            # # Registro
-            # db.intervento.insert(
-            #     intervento_id = response['idIntervento'],
-            #     incarico_id = id
-            # )

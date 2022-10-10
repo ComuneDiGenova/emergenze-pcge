@@ -29,7 +29,7 @@ def render(row):
             'file': encoded_string
         }
 
-	
+
 
         out['files'] = [allegato]
 
@@ -50,7 +50,7 @@ def fetch(incarico_id, timeref=None):
         (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
         (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) & \
         # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
-        "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
+        f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}'"
         # (db.presidio.profilo_id=='6')
     )
 
