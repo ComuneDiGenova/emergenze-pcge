@@ -271,12 +271,14 @@ def valida_nuova_pattuglia(form):
     if msg:
         form.errors[fieldname] = msg
 
+PRESIDIO_CHIUSO = 3
+
 def after_insert_stato_presidio(presidio_id, stato_presidio_id, timeref):
     """ payload['presidio_id'], payload['stato_presidio_id'], payload['timeref']
     """
     logger.debug(f"after insert stato_presidio")
 
-    if stato_presidio_id==3:
+    if stato_presidio_id==PRESIDIO_CHIUSO:
 
         pattuglia = db(
             (db.stato_presidio.presidio_id==db.pattuglia_pm.presidio_id) & \

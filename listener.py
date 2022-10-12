@@ -2,6 +2,7 @@
 
 import argparse
 import select
+from . import settings
 from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
@@ -311,6 +312,9 @@ def do_stuff(channel, **payload):
     #mio_evento = evento.fetch(id=payload["id"])
 
     logger.debug(f"NOTIFICATION CHANNEL: {channel} PAYLOAD: {payload}")
+
+    if settings.VBT_HOST is None:
+        return
 
     if channel in [
         f"new_{elementi[0][1]}_added",
