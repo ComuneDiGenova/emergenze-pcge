@@ -1,3 +1,5 @@
+# Instruction manual
+
 ## Configuration
 
 just create a file called `settings_private.py` with the following content replacing
@@ -22,11 +24,12 @@ LOGGERS = [
 ]  # syntax "severity:filename" filename can be stderr or stdout
 
 ```
+
 ## Docker
 
 I due file docker-compose-yml e Dockerfile devono stare una cartella sopra al progetto, da modificare la struttura (e questo readme)
 
-```
+```bash
 # 
 emergenze_verbatel
 |     docker-compose.yml
@@ -40,46 +43,55 @@ emergenze_verbatel
      ....
 
 ```
-Per accedere all'applicazione cerca da browser http://localhost:8000/emergenze/evento
 
+Per accedere all'applicazione cerca da browser <http://localhost:8000/emergenze/evento>
 
 <details>
 <summary>Lanciare i comandi dal container e simili</summary>
-<br>
+
 Per lanciare un comando da bash nel container
-<pre>
+
+```bash
 sudo docker exec <container_id/container_name> echo "I'm inside the container"
-</pre>
+```
+
 oppure
-<pre>
+
+```bash
 sudo docker exec -it <container_id/container_name> echo "I'm inside the container"
-</pre>
+```
+
 Per quanto riguarda listener.py, dopo essere entrati nel container eseguire il set up
-<pre>
+
+```bash
 py4web call apps emergenze.listener.setup
-</pre>
+```
+
 E mettere il servizio in ascolto
-<pre>
+
+```bash
 py4web call apps emergenze.listener.listen
-</pre>
+```
 
 A questo punto in maniera speditiva, una volta che il container è già attivo:
 
-<pre>
+```bash
 sudo docker exec -d <container_id/container_name> py4web call apps emergenze.listener.listen
-</pre>
+```
 
 Controllare comunque il docker-compose.
 Per richiamare il listener senza entrare nel container ma in maniera interattiva (va bene accoppiato con pdb)
 
-<pre>
+```bash
 sudo docker exec -it 0be784c462d6 py4web call apps emergenze.listener.listen
-</pre>
+```
 
 si può testare il listner con una modifica al DB
-<pre>
+
+```sql
 INSERT INTO eventi.join_tipo_foc
 (id_evento, id_tipo_foc, data_ora_inizio_foc, data_ora_fine_foc)
 VALUES(110, 3, NOW(), NOW() + interval '1 hour');
-</pre>
+```
+
 </details>
