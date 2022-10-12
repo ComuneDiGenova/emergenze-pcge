@@ -25,7 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pp
 from py4web import action, request, abort, redirect, URL, Field
 from yatl.helpers import A
@@ -110,6 +110,7 @@ def general_error_message(
     error_message: str = "Bad Request",
     error_code: int = 400,
 ):
+    """Return a general error message when using POST message"""
     if form == None:
         return {
             "error_code": error_code,
@@ -712,9 +713,7 @@ def modifica_intervento(intervento_id=None):
 @action("crea_comunicazione", method=["GET", "POST"])
 @action("crea/comunicazione", method=["GET", "POST"])
 @action("CreaComunicazione", method=["GET", "POST"])
-@action(
-    "segnalazione/incarico/comunicazione", method=["GET", "POST"]
-)
+@action("segnalazione/incarico/comunicazione", method=["GET", "POST"])
 @action("incarico/comunicazione", method=["GET", "POST"])
 @action(
     "comunicazione/incarico/<incarico_id:int>",
@@ -973,9 +972,7 @@ def ws_presidio():
     "modifica/presidio/<pattuglia_id:int>", method=["GET", "POST"]
 )
 @action("ModificaPresidio", method=["GET", "POST"])
-@action(
-    "ModificaPresidio/<pattuglia_id:int>", method=["GET", "POST"]
-)
+@action("ModificaPresidio/<pattuglia_id:int>", method=["GET", "POST"])
 @action("modifica_presidio", method=["GET", "POST"])
 @action(
     "modifica_presidio/<pattuglia_id:int>", method=["GET", "POST"]
@@ -1183,16 +1180,10 @@ def lista_mire():
 # ?------------------------------------------------------------
 # ?------------------------------------------------------------
 # ?------------------------------------------------------------
+# ? To run the docker container
+# ? docker-compose -f docker-compose-dev.yml up -d web
 
-##// TODO Message url for putting message
-##// TODO POST via postman message on url
-##// TODO get data from url
-##// TODO make a query to DB
-##// TODO recieve DB data
-##// TODO generate campaign
 
-# // TODO managment of HTTP raise errors
-# // TODO check validator for the datetime
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
 def user_campaign_get_campaign_from_to():
     """user_campaign_get_campaign_from_to _summary_
@@ -1207,12 +1198,21 @@ def user_campaign_get_campaign_from_to():
             Field(
                 "date_start",
                 "datetime",
-                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
+                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M"))
+                and IS_DATETIME_IN_RANGE(
+                    minimum=datetime(2020, 1, 1),
+                    maximum=datetime.now() + timedelta(days=1),
+                ),
             ),
             Field(
                 "date_end",
                 "datetime",
-                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M")),
+                requires=IS_EMPTY_OR(IS_DATETIME("%Y-%m-%d %H:%M"))
+                and IS_DATETIME_IN_RANGE(
+                    minimum=datetime(2020, 1, 1)
+                    + timedelta(seconds=1),
+                    maximum=datetime.now() + timedelta(days=1),
+                ),
             ),
         ],
         deletable=False,
@@ -1329,9 +1329,7 @@ def user_campaign_create_message():
         )
         logger.debug(f"\talertsystem_config: {alertsystem_config}")
         logger.debug(f"\tstatus: {alertsystem_response_status}")
-        logger.debug(
-            f"\n{pformat(message_tuple, indent=4, width=1)}"
-        )
+        logger.debug(f"\n{pformat(message_tuple, indent=4, width=1)}")
         alertsystem_response_status_kk = (
             alertsystem_response_status.__dict__
         )
@@ -1359,8 +1357,12 @@ def user_campaign_get_campaign(campaign_id: str):
         id_campagna=campaign_id,
         cfg=alertsystem_config,
     )
-    print(vis_campaign, alertsystem_response_status)
-    if vis_campaign is None:
+    if vis_campaign is None or vis_campaign == []:
+        # raise HTTP(
+        # status=204,
+        # body="No campaign found",
+        # headers={"Content-Type": "application/json"},
+        # )
         return {
             "alertsystem_response_status": alertsystem_response_status,
             "result": vis_campaign,
@@ -1410,9 +1412,7 @@ def user_campaign_delete_older_message():
             "result": "No message with this ID, list with this ID is empty",
         }
     else:
-        logger.debug(
-            f"\n Deleted: {message_id_delete} from database"
-        )
+        logger.debug(f"\n Deleted: {message_id_delete} from database")
         return {
             "alertsystem_response_status": alertsystem_response_status,
             "result": f"Message {message_id_delete} deleted from database",
