@@ -14,9 +14,29 @@ $color_allerta='#5cb85c';
 $profilo_sistema=0;
 //require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
+$query1 = <<<'EOD'
+SELECT
+        eventi.t_eventi.id as id,
+        data_ora_inizio_evento as data_ora_inizio_evento,
+        data_ora_fine_evento as data_ora_fine_evento,
+        valido as valido,
+        fine_sospensione as fine_sospensione,
+        data_ora_chiusura as data_ora_chiusura,
+        CASE
+                WHEN eventi_inviati.inviato='T' THEN 'T'
+                ELSE 'F'
+        END as condiviso_con_verbatel
+FROM eventi.t_eventi
+LEFT JOIN verbatel.eventi_inviati ON eventi_inviati.evento_id=t_eventi.id
+WHERE t_eventi.valido='TRUE'
+ORDER BY t_eventi.id;
+EOD;
+
 $query1="SELECT * From \"eventi\".\"t_eventi\" WHERE valido='TRUE' ORDER BY id;";
 $result1 = pg_query($conn, $query1);
 $contatore_eventi=0;
+
+$foo = pg_fetch_assoc($result1);
 
 while($r1 = pg_fetch_assoc($result1)) {
 	$check_evento=1; // controllo se evento in corso inizializzato a 1

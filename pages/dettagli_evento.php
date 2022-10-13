@@ -223,6 +223,15 @@ require('navbar_up.php');
 	   					echo '<div class="row">';
 	   					echo '<div class="col-lg-6"><h3>Tipologia: '. $tipo_eventi_attivi[$i][1].'</h3>';
 	   					echo '<h3>Note: '. $nota_eventi_attivi[$i][1].'</h3>';
+						$qq = "SELECT * FROM verbatel.eventi_inviati WHERE evento_id=".$evento_attivo.";";
+						$rr = pg_query($conn, $qq);
+						$risp = 'No';
+						while ($res = pg_fetch_assoc($rr)) {
+							if ($res["inviato"]=='T') {
+								$risp = 'Si';
+							};
+						}; 
+				   		echo '<h3>Evento condiviso con PM: '.$risp.'</h3>';
 	   					echo '</div><div class="col-lg-6"><h3>Municipi interessati: ';
 	   					$len2=count($municipi);
 	   					//echo $len2;	               

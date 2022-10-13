@@ -33,9 +33,31 @@ if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
-	$query="SELECT id, id as id2, data_ora, descrizione, criticita, 
-       rischio, id_evento, tipo_evento, id_man, 
-       note, id_lavorazione, in_lavorazione, localizzazione, nome_munic, st_x(geom) as lon, st_y(geom) as lat FROM segnalazioni.v_segnalazioni_lista ".$filter[0]." ".$filter_r." ORDER BY id;";
+	$query="SELECT DISTINCT ON (ss.id) ss.id as id, ss.id as id2, data_ora, ss.descrizione, criticita,
+	rischio, id_evento, tipo_evento, id_man,
+	note, id_lavorazione, in_lavorazione, localizzazione, nome_munic, st_x(geom) as lon, st_y(geom) as lat,
+	CASE
+		WHEN interventi.id IS NULL THEN 'No'
+		ELSE 'Si'
+	END as condiviso_pm
+FROM segnalazioni.v_segnalazioni_lista ss
+LEFT JOIN segnalazioni.join_segnalazioni_in_lavorazione ON (
+	join_segnalazioni_in_lavorazione.id_segnalazione=ss.id
+)
+LEFT JOIN segnalazioni.join_segnalazioni_incarichi ON (
+	join_segnalazioni_incarichi.id_segnalazione_in_lavorazione=join_segnalazioni_in_lavorazione.id_segnalazione_in_lavorazione
+)
+LEFT JOIN segnalazioni.t_incarichi ON (
+	join_segnalazioni_incarichi.id_incarico=t_incarichi.id
+)
+LEFT JOIN verbatel.interventi ON (
+	interventi.incarico_id=t_incarichi.id
+)".$filter[0]." ".$filter_r." ORDER BY ss.id;";
+	//$query="SELECT id, id as id2, data_ora, descrizione, criticita, 
+        //rischio, id_evento, tipo_evento, id_man, 
+        //note, id_lavorazione, in_lavorazione, localizzazione, nome_munic, st_x(geom) as lon, st_y(geom) as lat
+        //FROM segnalazioni.v_segnalazioni_lista
+        //".$filter[0]." ".$filter_r." ORDER BY id;";
     
     //echo $query."<br>";
 	$result = pg_query($conn, $query);
