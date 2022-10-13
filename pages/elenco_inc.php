@@ -174,7 +174,6 @@ require('navbar_up.php');
 			<th data-field="data_ora_invio" data-sortable="true"  data-visible="true">Ora<br>assegnazione</th>
             <th data-field="time_preview" data-sortable="true"  data-visible="true">Ora<br>prevista</th>
             <th data-field="time_start" data-sortable="true"  data-visible="true">Ora<br>inizio</th>
-            <th data-field="condiviso" data-sortable="true"  data-visible="true">Condiviso PM</th>
 			<th data-field="descrizione_uo" data-sortable="true"  data-visible="true">Referente<br>incarico</th>
             <!--th data-field="note" data-sortable="false" data-visible="true" >Note</th-->
             <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th>            

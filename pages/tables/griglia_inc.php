@@ -55,15 +55,10 @@ if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
-	$query="SELECT uu.id as id, id_profilo, id_evento, data_ora_invio, id_stato_incarico, descrizione_stato, 
-	descrizione, note_ente, descrizione_uo, id_segnalazione, time_preview, time_start,
-	CASE
-	    WHEN ii.intervento_id IS NULL THEN 'No'
-	    ELSE 'Si'
-	END as condiviso 
-	From segnalazioni.v_incarichi_last_update uu 
-	LEFT JOIN verbatel.interventi ii ON ii.incarico_id = uu.id
-	where uu.id_stato_incarico < 3 ".$filter.";";
+	$query="SELECT id, id_profilo, id_evento, data_ora_invio, id_stato_incarico, descrizione_stato, 
+	descrizione, note_ente, descrizione_uo, id_segnalazione, time_preview, time_start 
+	From segnalazioni.v_incarichi_last_update 
+	where id_stato_incarico < 3 ".$filter." ;";
     
    //echo $query ."<br>";
 	$result = pg_query($conn, $query);
