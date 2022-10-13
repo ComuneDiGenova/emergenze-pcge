@@ -297,6 +297,19 @@ db.define_table('intervento',
     rname = 'verbatel.interventi'
 )
 
+db.define_table('segnalazione_da_vt',
+    Field('intervento_id', 'integer',
+        label = 'Identificativo intevento Verbatel',
+        notnull=True, unique=True, required=True
+    ),
+    Field('segnalazione_id', 'reference segnalazione',
+        required=True, notnull=True, unique=True,
+        requires = IS_IN_DB(db(db.segnalazione), db.segnalazione.id)
+    ),
+    migrate = False, # settings.MIGRATE_INTERVENTO,
+    rname = 'verbatel.segnalazioni_da_verbatel'
+)
+
 db.define_table('presidio',
     Field('id', 'id', default=lambda: new_id(db['presidio'])),
     Field('timeref', 'datetime', rname='data_ora_invio'),

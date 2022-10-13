@@ -130,6 +130,12 @@ def create(
         note=note_geo,
     )
 
+    if not intervento_id is None:
+        # Registrazione segnalazione da Verbatel
+        db.segnalazione_da_vt.insert(
+            segnalazione_id=segnalazione_id, intervento_id=intervento_id
+        )
+
     # Insert OGGETTO A RISCHIO
 
     if tabella_oggetto_id == TABELLA_CIVICI.id and not civico_id is None:
@@ -223,10 +229,12 @@ def create(
         )
 
 
-def verbatel_create(intervento_id, *args, **kwargs):
+def verbatel_create(intervento_id, **kwargs):
     """ """
 
-    segnalazione_id, lavorazione_id, incarico_id = create(*args, **kwargs)
+    segnalazione_id, lavorazione_id, incarico_id = create(
+        intervento_id=intervento_id, **kwargs
+    )
 
     # Registrazione intervento id di Verbatel assegnato all'incarico
     if not incarico_id is None:
