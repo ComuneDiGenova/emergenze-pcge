@@ -256,7 +256,7 @@ require('navbar_up.php');
 					   <ul>
 	   					<?php
 						$query='SELECT id, to_char(data_aggiornamento, \'DD/MM/YY HH24:MI\'::text) AS data_aggiornamento, testo, allegato FROM report.t_comunicazione 
-						WHERE id_evento = '.$evento_attivo.';';
+						WHERE id_evento = '.$evento_attivo.' ORDER BY data_aggiornamento DESC;';
 						//echo $query;
 						$result = pg_query($conn, $query);
 						$c=0;
