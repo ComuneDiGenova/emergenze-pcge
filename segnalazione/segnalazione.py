@@ -68,6 +68,7 @@ def create(
     tabella_oggetto_id=None,
     note_riservate=None,
     assegna=True,
+    intervento_id=None,
     **kwargs,
 ):
     """
