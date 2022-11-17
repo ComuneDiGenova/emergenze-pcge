@@ -83,7 +83,7 @@ class NoDBIO(object):
 #     return dict(message=message)
 
 @action("evento")
-@action.uses(cors)
+@action.uses(cors, db)
 def evento():
     return {'result': _evento.fetch()}
 
@@ -93,7 +93,7 @@ def evento():
 @action('ricerca_indirizzo.<format>', method=['GET', 'POST'])
 @action('RicercaCivico', method=['GET', 'POST'])
 @action('RicercaCivico.<format>', method=['GET', 'POST'])
-@action.uses(cors)
+@action.uses(cors, db)
 def civico(format=None):
 
     db.civico.desvia.comment = 'Cerca per toponimo'
@@ -162,7 +162,7 @@ def civico(format=None):
         return {'result': result, 'form': sf.form2dict(form)}
 
 @action("fetch/segnalazione/<id:int>")
-@action.uses(cors)
+@action.uses(cors, db)
 def fetch_segnalazione(id):
     return {'result': _segnalazione.fetch(id)}
 
@@ -749,6 +749,7 @@ def segnalazione_comunicazione_a_presidio(presidio_id=None):
     return output
 
 @action('lista/segnalazioni', method=['GET', 'POST'])
+@action.uses(db)
 def segnalazioni():
 
     form = Form([
@@ -774,7 +775,9 @@ def segnalazioni():
         'form': sf.form2dict(form)
     }
 
+
 @action('lista/mire', method=['GET', 'POST'])
+@action.uses(db)
 def lista_mire():
 
     form = Form([

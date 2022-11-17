@@ -122,7 +122,7 @@ def lingue():
 
 @action("utente/<codice_fiscale>", method=['GET'])
 @action("allerte/utente/<codice_fiscale>", method=['GET'])
-@action.uses(cors)
+@action.uses(cors, db)
 def info(codice_fiscale):
     """ Recap informazioni utente """
 
@@ -410,7 +410,7 @@ def cancellaComponente(utente_id=None, civico_id=None, motivo=None):
 @action("soggettiVulnerabili/<page:int>/<paginate:int>/", method=['GET'])
 @action("soggettiVulnerabili/<page:int>/", method=['GET'])
 @action("soggettiVulnerabili/", method=['GET', 'OPTIONS'])
-@action.uses(cors)
+@action.uses(cors, db)
 def soggetti_vulnerabili(page=None, paginate=10):
 
     if page is None:
