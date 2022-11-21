@@ -480,6 +480,11 @@ def modifica_intervento(intervento_id=None):
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
+            if form.vars['stato_id'] is None:
+                form.vars['stato_id'] = db(
+                    (db.stato_incarico.incarico_id==db.intervento.incarico_id) \
+                    & (db.intervento.intervento_id==form.vars['intervento_id'])
+                ).select(db.stato_incarico.stato_id, limitby=(0,1,)).first().stato_id
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
             form.vars['lon_lat'] = (lon, lat,)
