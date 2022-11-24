@@ -465,7 +465,15 @@ def modifica_intervento(intervento_id=None):
         zero = None
     ))
 
-    form = Form([db.intervento.intervento_id] + segnalazione_form() + incarico_form(),
+    form = Form(
+        [
+            db.intervento.intervento_id,
+            Field('ceduta',
+                label = "Se presente indica la segnalazione come NON in carico a PM",
+                required = False,
+                requires = IS_EMPTY_OR(IS_IN_SET(['True', 'False'], zero=None))
+            ),
+        ] + segnalazione_form() + incarico_form(),
         deletable = False, dbio=False,
         validation = _segnalazione.valida_intervento,
         hidden = {'rollback': False},
@@ -487,6 +495,10 @@ def modifica_intervento(intervento_id=None):
                 ).select(db.stato_incarico.stato_id, limitby=(0,1,)).first().stato_id
             lon = form.vars.pop('lon')
             lat = form.vars.pop('lat')
+
+            if 'ceduta' in form.vars:
+                form.vars['ceduta'] = form.vars.pop('ceduta')=='True'
+
             form.vars['lon_lat'] = (lon, lat,)
             form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
             form.vars['parziale'] = form.vars.pop('parziale')=='True'

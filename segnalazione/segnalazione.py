@@ -243,7 +243,7 @@ def verbatel_create(intervento_id, **kwargs):
     return incarico_id
 
 
-def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, **kwargs):
+def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, ceduta=None, **kwargs):
     """Funzione dedicata all'aggiornamento dei dati di Segnalazione"""
 
     # if not criticita is None:
@@ -254,6 +254,14 @@ def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, **kwargs):
 
     if not persone_a_rischio is None:
         kwargs["rischio"] = persone_a_rischio
+
+    if ceduta:
+        lavorazione = db.join_segnalazione_lavorazione(segnalazione_id=segnalazione_id)
+        tt = db(
+            db.segnalazione_lavorazione.id == lavorazione.lavorazione_id
+        ).update(
+            profilo_id = settings.PC_PROFILO_ID
+        )
 
     db(db.segnalazione.id == segnalazione_id).update(
         segnalante_id=segnalante_id, **db.segnalazione._filter_fields(kwargs)
