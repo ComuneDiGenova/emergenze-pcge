@@ -126,18 +126,17 @@ def general_error_message(
 
 
 @action("evento")
-@action.uses(cors)
+@action.uses(cors, db)
 def evento():
     return {"result": _evento.fetch()}
 
-
-@action("indirizzo", method=["GET", "POST"])
-@action("indirizzo.<format>", method=["GET", "POST"])
-@action("ricerca_indirizzo", method=["GET", "POST"])
-@action("ricerca_indirizzo.<format>", method=["GET", "POST"])
-@action("RicercaCivico", method=["GET", "POST"])
-@action("RicercaCivico.<format>", method=["GET", "POST"])
-@action.uses(cors)
+@action('indirizzo', method=['GET', 'POST'])
+@action('indirizzo.<format>', method=['GET', 'POST'])
+@action('ricerca_indirizzo', method=['GET', 'POST'])
+@action('ricerca_indirizzo.<format>', method=['GET', 'POST'])
+@action('RicercaCivico', method=['GET', 'POST'])
+@action('RicercaCivico.<format>', method=['GET', 'POST'])
+@action.uses(cors, db)
 def civico(format=None):
 
     db.civico.desvia.comment = "Cerca per toponimo"
@@ -254,7 +253,7 @@ def civico(format=None):
 
 
 @action("fetch/segnalazione/<id:int>")
-@action.uses(cors)
+@action.uses(cors, db)
 def fetch_segnalazione(id):
     return {"result": _segnalazione.fetch(id)}
 
@@ -674,15 +673,19 @@ def modifica_intervento(intervento_id=None):
     )
 
     form = Form(
-        [db.intervento.intervento_id]
-        + segnalazione_form()
-        + incarico_form(),
-        deletable=False,
-        dbio=False,
-        validation=_segnalazione.valida_intervento,
-        hidden={"rollback": False},
-        form_name="modifica_intervento",
-        csrf_protection=False,
+        [
+            db.intervento.intervento_id,
+            Field('ceduta',
+                label = "Se presente indica la segnalazione come NON in carico a PM",
+                required = False,
+                requires = IS_EMPTY_OR(IS_IN_SET(['True', 'False'], zero=None))
+            ),
+        ] + segnalazione_form() + incarico_form(),
+        deletable = False, dbio=False,
+        validation = _segnalazione.valida_intervento,
+        hidden = {'rollback': False},
+        form_name = 'modifica_intervento',
+        csrf_protection = False
     )
 
     result = None
@@ -692,18 +695,20 @@ def modifica_intervento(intervento_id=None):
             for ff in form.table:
                 if not ff.required and form.vars[ff.name] is None:
                     form.vars.pop(ff.name)
-            lon = form.vars.pop("lon")
-            lat = form.vars.pop("lat")
-            form.vars["lon_lat"] = (
-                lon,
-                lat,
-            )
-            form.vars["persone_a_rischio"] = (
-                form.vars.pop("persone_a_rischio") == "True"
-            )
-            form.vars["parziale"] = (
-                form.vars.pop("parziale") == "True"
-            )
+            if form.vars['stato_id'] is None:
+                form.vars['stato_id'] = db(
+                    (db.stato_incarico.incarico_id==db.intervento.incarico_id) \
+                    & (db.intervento.intervento_id==form.vars['intervento_id'])
+                ).select(db.stato_incarico.stato_id, limitby=(0,1,)).first().stato_id
+            lon = form.vars.pop('lon')
+            lat = form.vars.pop('lat')
+
+            if 'ceduta' in form.vars:
+                form.vars['ceduta'] = form.vars.pop('ceduta')=='True'
+
+            form.vars['lon_lat'] = (lon, lat,)
+            form.vars['persone_a_rischio'] = form.vars.pop('persone_a_rischio')=='True'
+            form.vars['parziale'] = form.vars.pop('parziale')=='True'
             result = _segnalazione.verbatel_update(**form.vars)
 
     return {"result": result and "Ok", "form": sf.form2dict(form)}
@@ -1078,8 +1083,8 @@ def segnalazione_comunicazione_a_presidio(presidio_id=None):
 
     return output
 
-
-@action("lista/segnalazioni", method=["GET", "POST"])
+@action('lista/segnalazioni', method=['GET', 'POST'])
+@action.uses(db)
 def segnalazioni():
 
     form = Form(
@@ -1135,7 +1140,8 @@ def segnalazioni():
     }
 
 
-@action("lista/mire", method=["GET", "POST"])
+@action('lista/mire', method=['GET', 'POST'])
+@action.uses(db)
 def lista_mire():
 
     form = Form(
@@ -1419,7 +1425,7 @@ def user_campaign_delete_older_message():
         }
 
 
-@action("user_campaign/_create_capmaign", method=["POST"])
+@action("user_campaign/_create_campaign", method=["POST"])
 def user_campaign_create():
     """user_campaign_create _summary_
 

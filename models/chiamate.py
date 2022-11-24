@@ -104,21 +104,12 @@ db.define_table(
         ),
         rname="dataregistrazione",
     ),
-    Field(
-        "iscrizione",
-        required=True,
-        notnull=True,
-        requires=IS_IN_SET(iscrizione_options),
-    ),
-    Field(
-        "vulnerabilitaPersonale",
-        length=2,
-        default="NO",
-        notnull=True,
-        label="Vulnerabilità personale",
-        comment="Indica se la persona possiede una vulnerabilità personale",
-        requires=IS_IN_SET(["SI", "NO"]),
-        rname="vulnerabilitapersonale",
+    Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_options)),
+    Field('vulnerabilitaPersonale', length=2, default='NO', notnull=False,
+        label = 'Vulnerabilità personale',
+        comment = 'Indica se la persona possiede una vulnerabilità personale',
+        requires=IS_EMPTY_OR(IS_IN_SET(['SI', 'NO'])),
+        rname = 'vulnerabilitapersonale'
     ),
     # Field('disabilita', 'boolean', default=False, required=True, notnull=True, requires=IS_IN_SET()),
     Field(
