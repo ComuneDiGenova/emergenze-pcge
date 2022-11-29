@@ -5,7 +5,15 @@ These are fixtures that every app needs so probably you will not be editing this
 import os
 import sys
 import logging
-from py4web import Session, Cache, Translator, Flash, DAL, action, Field
+from py4web import (
+    Session,
+    Cache,
+    Translator,
+    Flash,
+    DAL,
+    action,
+    Field,
+)
 from py4web.utils.mailer import Mailer
 from py4web.utils.auth import Auth
 from py4web.utils.downloader import downloader
@@ -14,10 +22,12 @@ from py4web.utils.factories import ActionFactory
 from . import settings
 from py4web.utils.cors import CORS
 
+from alertsystem import config
+
 # #######################################################
 # implement custom loggers form settings.LOGGERS
 # #######################################################
-logger = logging.getLogger("py4web:" + settings.APP_NAME)
+logger = logging.getLogger("py4web:" + settings.APP_NAME + "")
 formatter = logging.Formatter(
     "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 )
@@ -40,7 +50,9 @@ db = DAL(
     pool_size=settings.DB_POOL_SIZE,
     migrate=settings.DB_MIGRATE,
     fake_migrate=settings.DB_FAKE_MIGRATE,
-    decode_credentials=settings.DB_DECODE_CREDENTIALS if hasattr(settings, 'DB_DECODE_CREDENTIALS') else False
+    decode_credentials=settings.DB_DECODE_CREDENTIALS
+    if hasattr(settings, "DB_DECODE_CREDENTIALS")
+    else False,
 )
 
 # #######################################################
@@ -66,16 +78,22 @@ elif settings.SESSION_TYPE == "redis":
         if ct(k) >= 0
         else cs(k, v, e)
     )
-    session = Session(secret=settings.SESSION_SECRET_KEY, storage=conn)
+    session = Session(
+        secret=settings.SESSION_SECRET_KEY, storage=conn
+    )
 elif settings.SESSION_TYPE == "memcache":
     import memcache, time
 
     conn = memcache.Client(settings.MEMCACHE_CLIENTS, debug=0)
-    session = Session(secret=settings.SESSION_SECRET_KEY, storage=conn)
+    session = Session(
+        secret=settings.SESSION_SECRET_KEY, storage=conn
+    )
 elif settings.SESSION_TYPE == "database":
     from py4web.utils.dbstore import DBStore
 
-    session = Session(secret=settings.SESSION_SECRET_KEY, storage=DBStore(db))
+    session = Session(
+        secret=settings.SESSION_SECRET_KEY, storage=DBStore(db)
+    )
 
 # #######################################################
 # Instantiate the object and actions that handle auth
@@ -83,7 +101,9 @@ elif settings.SESSION_TYPE == "database":
 auth = Auth(session, db, define_tables=False)
 auth.use_username = True
 auth.param.registration_requires_confirmation = settings.VERIFY_EMAIL
-auth.param.registration_requires_approval = settings.REQUIRES_APPROVAL
+auth.param.registration_requires_approval = (
+    settings.REQUIRES_APPROVAL
+)
 auth.param.allowed_actions = settings.ALLOWED_ACTIONS
 auth.param.login_expiration_time = 3600
 auth.param.password_complexity = {"entropy": 50}
@@ -120,10 +140,14 @@ if settings.USE_PAM:
 if settings.USE_LDAP:
     from py4web.utils.auth_plugins.ldap_plugin import LDAPPlugin
 
-    auth.register_plugin(LDAPPlugin(db=db, groups=groups, **settings.LDAP_SETTINGS))
+    auth.register_plugin(
+        LDAPPlugin(db=db, groups=groups, **settings.LDAP_SETTINGS)
+    )
 
 if settings.OAUTH2GOOGLE_CLIENT_ID:
-    from py4web.utils.auth_plugins.oauth2google import OAuth2Google  # TESTED
+    from py4web.utils.auth_plugins.oauth2google import (
+        OAuth2Google,
+    )  # TESTED
 
     auth.register_plugin(
         OAuth2Google(
@@ -133,7 +157,9 @@ if settings.OAUTH2GOOGLE_CLIENT_ID:
         )
     )
 if settings.OAUTH2FACEBOOK_CLIENT_ID:
-    from py4web.utils.auth_plugins.oauth2facebook import OAuth2Facebook  # UNTESTED
+    from py4web.utils.auth_plugins.oauth2facebook import (
+        OAuth2Facebook,
+    )  # UNTESTED
 
     auth.register_plugin(
         OAuth2Facebook(
@@ -144,7 +170,9 @@ if settings.OAUTH2FACEBOOK_CLIENT_ID:
     )
 
 if settings.OAUTH2OKTA_CLIENT_ID:
-    from py4web.utils.auth_plugins.oauth2okta import OAuth2Okta  # TESTED
+    from py4web.utils.auth_plugins.oauth2okta import (
+        OAuth2Okta,
+    )  # TESTED
 
     auth.register_plugin(
         OAuth2Okta(
@@ -159,10 +187,12 @@ if settings.OAUTH2OKTA_CLIENT_ID:
 # files uploaded and reference by Field(type='upload')
 # #######################################################
 if settings.UPLOAD_FOLDER:
-    @action('download/<filename>')
+
+    @action("download/<filename>")
     @action.uses(db)
     def download(filename):
         return downloader(db, settings.UPLOAD_FOLDER, filename)
+
     # To take advantage of this in Form(s)
     # for every field of type upload you MUST specify:
     #
@@ -178,7 +208,8 @@ if settings.USE_CELERY:
     # to use "from .common import scheduler" and then use it according
     # to celery docs, examples in tasks.py
     scheduler = Celery(
-        "apps.%s.tasks" % settings.APP_NAME, broker=settings.CELERY_BROKER
+        "apps.%s.tasks" % settings.APP_NAME,
+        broker=settings.CELERY_BROKER,
     )
 
 
@@ -195,3 +226,11 @@ authenticated = ActionFactory(db, session, T, flash, auth.user)
 
 # TODO: Limitare l'abilitazione cross origin all'indirizzo effettivo di chiamata da parte di WSO2
 cors = CORS()
+
+alertsystem_config = config.get_config(
+    {
+        "AS_ENDPOINT": settings.ALERTSYSTEM_ENDPOINT,
+        "AS_USERNAME": settings.ALERTSYSTEM_USERNAME,
+        "AS_PASSWORD": settings.ALERTSYSTEM_PASSWORD,
+    }
+)
