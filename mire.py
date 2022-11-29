@@ -20,9 +20,11 @@ def render(row):
     return out
 
 
-def fetch(page=None, paginate=DEFAULT_PAGINATION):
+def fetch(page=None, paginate=DEFAULT_PAGINATION, no_idrometri=True):
 
     dbset = db(db.letture_mire.geom != None)
+    if no_idrometri:
+        dbset = dbset(~db.letture_mire.tipo.startswith('IDROMETRO'))
 
     if page is None:
         limitby = None
