@@ -14,7 +14,7 @@ import string
 
 from ..chiamate.tools import iscrizione_options, LANGUAGES
 
-SCHEMA = 'chiamate'
+SCHEMA = "chiamate"
 
 now = lambda: datetime.datetime.utcnow()
 today = lambda: datetime.date.today()
@@ -22,6 +22,7 @@ today = lambda: datetime.date.today()
 # def now():
 #     import pdb; pdb.set_trace()
 #     return datetime.datetime.utcnow()
+
 
 class isValidCf(Validator):
     """docstring for isValidCf"""
@@ -35,6 +36,7 @@ class isValidCf(Validator):
         else:
             return value
 
+
 class isValidPhoneNumber(Validator):
     """docstring for isValidCf"""
 
@@ -43,49 +45,79 @@ class isValidPhoneNumber(Validator):
         try:
             pn = phonenumbers.parse(value, None)
         except phonenumbers.phonenumberutil.NumberParseException:
-            pn = phonenumbers.parse(value, 'IT')
+            pn = phonenumbers.parse(value, "IT")
 
         try:
             assert phonenumbers.is_valid_number(pn)
         except AssertionError:
-            raise ValidationError("Formato numero telefonico non valido")
+            raise ValidationError(
+                "Formato numero telefonico non valido"
+            )
         else:
-            return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
+            return phonenumbers.format_number(
+                pn, phonenumbers.PhoneNumberFormat.E164
+            )
 
 
-db.define_table('utente',
+db.define_table(
+    "utente",
     # TODO: CF validator
-    Field('codiceFiscale', length=16, required=True, notnull=True, unique=True, rname='cf'),
-    Field('nome', required=True, notnull=True,
-        requires = [
-            IS_NOT_EMPTY(),
-            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
-        ]
+    Field(
+        "codiceFiscale",
+        length=16,
+        required=True,
+        notnull=True,
+        unique=True,
+        rname="cf",
     ),
-    Field('cognome', required=True, notnull=True,
-        requires = [
+    Field(
+        "nome",
+        required=True,
+        notnull=True,
+        requires=[
             IS_NOT_EMPTY(),
-            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
-        ]
+            IS_MATCH(
+                "^[\D]*$", error_message="Caratteri non validi"
+            ),
+        ],
     ),
-    Field('dataRegistrazione', 'date', required=True, notnull=True,
-        default = today,
-        requires=IS_DATE(format="%Y-%m-%d", error_message="Inserire un formato data del tipo: %(format)s"),
-        rname='dataregistrazione'
+    Field(
+        "cognome",
+        required=True,
+        notnull=True,
+        requires=[
+            IS_NOT_EMPTY(),
+            IS_MATCH(
+                "^[\D]*$", error_message="Caratteri non validi"
+            ),
+        ],
+    ),
+    Field(
+        "dataRegistrazione",
+        "date",
+        required=True,
+        notnull=True,
+        default=today,
+        requires=IS_DATE(
+            format="%Y-%m-%d",
+            error_message="Inserire un formato data del tipo: %(format)s",
+        ),
+        rname="dataregistrazione",
     ),
     Field('iscrizione', required=True, notnull=True, requires=IS_IN_SET(iscrizione_options)),
-    Field('vulnerabilitaPersonale', length=2, default='NO', notnull=True,
+    Field('vulnerabilitaPersonale', length=2, default='NO', notnull=False,
         label = 'Vulnerabilità personale',
         comment = 'Indica se la persona possiede una vulnerabilità personale',
-        requires=IS_IN_SET(['SI', 'NO']),
+        requires=IS_EMPTY_OR(IS_IN_SET(['SI', 'NO'])),
         rname = 'vulnerabilitapersonale'
     ),
     # Field('disabilita', 'boolean', default=False, required=True, notnull=True, requires=IS_IN_SET()),
-    Field('eMail',
-        label = 'Indirizzo email',
-        comment = 'Email di contatto alternativo ai numeri telefonici',
-        requires = IS_EMAIL(),
-        rname = 'email'
+    Field(
+        "eMail",
+        label="Indirizzo email",
+        comment="Email di contatto alternativo ai numeri telefonici",
+        requires=IS_EMAIL(),
+        rname="email",
     ),
     # ...
     Field(
@@ -105,38 +137,56 @@ db.define_table('utente',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = False,
-    rname=f'{SCHEMA}.utente'
+    migrate=False,
+    rname=f"{SCHEMA}.utente",
 )
 
-db.utente.codiceFiscale.requires = requires=[
+db.utente.codiceFiscale.requires = requires = [
     IS_NOT_EMPTY(),
     isValidCf(),
     # IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
 ]
 
-db.define_table('contatto',
-    Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
-    Field('idUtente', 'reference utente', required=True, notnull=True,
+db.define_table(
+    "contatto",
+    Field(
+        "numero",
+        required=True,
+        notnull=True,
+        requires=isValidPhoneNumber(),
+        rname="telefono",
+    ),
+    Field(
+        "idUtente",
+        "reference utente",
+        required=True,
+        notnull=True,
         requires=IS_IN_DB(db(db.utente), db.utente.id),
-        rname = 'idutente'
+        rname="idutente",
     ),
-    Field('tipo',
+    Field(
+        "tipo",
         requires=IS_IN_SET(
-            ['FISSO', 'CELLULARE'],
-            error_message='Valore non permesso, scegliere tra: FISSO, CELLULARE'
-        )
+            ["FISSO", "CELLULARE"],
+            error_message="Valore non permesso, scegliere tra: FISSO, CELLULARE",
+        ),
     ),
-    Field('lingua',
-        requires = IS_IN_SET(
-            ["BUONA SE IN LINGUA ITALIANA", "BUONA SOLO SE IN LINGUA STRANIERA", "AUDIOLESO o NON UDENTE"],
-            error_message = 'Valore non permesso, scegliere tra: "BUONA SE IN LINGUA ITALIANA", "BUONA SOLO SE IN LINGUA STRANIERA", "AUDIOLESO o NON UDENTE"'
-        )
+    Field(
+        "lingua",
+        requires=IS_IN_SET(
+            [
+                "BUONA SE IN LINGUA ITALIANA",
+                "BUONA SOLO SE IN LINGUA STRANIERA",
+                "AUDIOLESO o NON UDENTE",
+            ],
+            error_message='Valore non permesso, scegliere tra: "BUONA SE IN LINGUA ITALIANA", "BUONA SOLO SE IN LINGUA STRANIERA", "AUDIOLESO o NON UDENTE"',
+        ),
     ),
-    Field('linguaNoItalia',
-        comment = 'Lingua preferita a quella italiana per il messaggio vocale',
-        requires = IS_EMPTY_OR(IS_IN_SET(LANGUAGES)),
-        rname = 'linguanoitalia'
+    Field(
+        "linguaNoItalia",
+        comment="Lingua preferita a quella italiana per il messaggio vocale",
+        requires=IS_EMPTY_OR(IS_IN_SET(LANGUAGES)),
+        rname="linguanoitalia",
     ),
     # ...
     Field(
@@ -156,52 +206,95 @@ db.define_table('contatto',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = False,
-    rname=f'{SCHEMA}.contatto'
+    migrate=False,
+    rname=f"{SCHEMA}.contatto",
 )
 
-db.define_table('recapito',
-    Field('indirizzoCompleto', required=True, notnull=True,
-        label = 'Indirizzo completo', comment = 'Indirizzo completo',
-        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
-        rname = 'indirizzocompleto'
+db.define_table(
+    "recapito",
+    Field(
+        "indirizzoCompleto",
+        required=True,
+        notnull=True,
+        label="Indirizzo completo",
+        comment="Indirizzo completo",
+        requires=IS_NOT_EMPTY(error_message="Valore richiesto"),
+        rname="indirizzocompleto",
     ),
-    Field('idVia', required=True, notnull=True,
-        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
-        rname = 'idvia'
+    Field(
+        "idVia",
+        required=True,
+        notnull=True,
+        requires=IS_NOT_EMPTY(error_message="Valore richiesto"),
+        rname="idvia",
     ),
-    Field('numeroCivico', length = 6, required=True, notnull=True,
-        label='Civico', comment='Numero civico',
-        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
-        rname = 'numerocivico'
+    Field(
+        "numeroCivico",
+        length=6,
+        required=True,
+        notnull=True,
+        label="Civico",
+        comment="Numero civico",
+        requires=IS_NOT_EMPTY(error_message="Valore richiesto"),
+        rname="numerocivico",
     ),
-    Field('esponente', length=1,
-        label='Esponente', comment='Esponente del civico',
-        requires = IS_EMPTY_OR(IS_IN_SET(string.ascii_uppercase))
+    Field(
+        "esponente",
+        length=1,
+        label="Esponente",
+        comment="Esponente del civico",
+        requires=IS_EMPTY_OR(IS_IN_SET(string.ascii_uppercase)),
     ),
-    Field('colore', length=1,
-        label='Colore', comment='Colore del civico',
-        requires = IS_EMPTY_OR(IS_IN_SET('NR'))
+    Field(
+        "colore",
+        length=1,
+        label="Colore",
+        comment="Colore del civico",
+        requires=IS_EMPTY_OR(IS_IN_SET("NR")),
     ),
-    Field('interno', length=3,
-        label='Interno', comment='Interno',
+    Field(
+        "interno",
+        length=3,
+        label="Interno",
+        comment="Interno",
     ),
-    Field('internoLettera', length=1,
-        label='Lettera', comment="Lettera dell'interno",
-        equires = IS_IN_SET(string.ascii_uppercase),
-        rname = 'internolettera'
+    Field(
+        "internoLettera",
+        length=1,
+        label="Lettera",
+        comment="Lettera dell'interno",
+        equires=IS_IN_SET(string.ascii_uppercase),
+        rname="internolettera",
     ),
-    Field('scala', label='Scala', comment="Scala",),
-    Field('posizione',
-        label='posizione', comment='Posizione della abitazione rispetto al piano stradale di riferimento',
-        requires = IS_EMPTY_OR(IS_IN_SET(['STRADA', 'SOTTOSTRADA']))
+    Field(
+        "scala",
+        label="Scala",
+        comment="Scala",
     ),
-    Field('vulnerabilita',
-        label='Vulnerabilità', comment='Grado di vulnerabilità',
-        requires = IS_EMPTY_OR(IS_IN_SET(['SOSTENIBILE', 'MATERIALE', 'PERSONALE']))
+    Field(
+        "posizione",
+        label="posizione",
+        comment="Posizione della abitazione rispetto al piano stradale di riferimento",
+        requires=IS_EMPTY_OR(IS_IN_SET(["STRADA", "SOTTOSTRADA"])),
     ),
-    Field('amministratore', label='Amministratore', comment="Recapito dell'amministratore condominiale"),
-    Field('proprietario', label='Proprietario', comment='Recapito del proprietario'),
+    Field(
+        "vulnerabilita",
+        label="Vulnerabilità",
+        comment="Grado di vulnerabilità",
+        requires=IS_EMPTY_OR(
+            IS_IN_SET(["SOSTENIBILE", "MATERIALE", "PERSONALE"])
+        ),
+    ),
+    Field(
+        "amministratore",
+        label="Amministratore",
+        comment="Recapito dell'amministratore condominiale",
+    ),
+    Field(
+        "proprietario",
+        label="Proprietario",
+        comment="Recapito del proprietario",
+    ),
     Field(
         "created_on",
         "datetime",
@@ -219,26 +312,40 @@ db.define_table('recapito',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = False,
-    rname=f'{SCHEMA}.recapito'
+    migrate=False,
+    rname=f"{SCHEMA}.recapito",
 )
 
-db.define_table('nucleo',
-    Field('idUtente', 'reference utente', required=True, notnull=True,
+db.define_table(
+    "nucleo",
+    Field(
+        "idUtente",
+        "reference utente",
+        required=True,
+        notnull=True,
         requires=IS_IN_DB(db(db.utente), db.utente.id),
-        rname = 'idutente'
+        rname="idutente",
     ),
-    Field('idCivico', 'reference recapito', required=True, notnull=True,
+    Field(
+        "idCivico",
+        "reference recapito",
+        required=True,
+        notnull=True,
         requires=IS_IN_DB(db(db.recapito), db.recapito.id),
-        rname = 'idcivico'
+        rname="idcivico",
     ),
-    Field('tipo', required=True, notnull=True,
-        label = 'Ruolo',
-        comment = "Indica che ruolo ha la persona all'interno del nucleo abitativo",
-        requires = [
+    Field(
+        "tipo",
+        required=True,
+        notnull=True,
+        label="Ruolo",
+        comment="Indica che ruolo ha la persona all'interno del nucleo abitativo",
+        requires=[
             IS_NOT_EMPTY(),
-            IS_IN_SET(["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"])
-        ]
+            IS_IN_SET(
+                ["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"]
+            ),
+        ],
     ),
     Field(
         "created_on",
@@ -257,52 +364,83 @@ db.define_table('nucleo',
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate = False,
-    rname=f'{SCHEMA}.componente'
+    migrate=False,
+    rname=f"{SCHEMA}.componente",
 )
 
-db.define_table('recupero',
-    Field('nome', required=True, notnull=True,
-        requires = [
+db.define_table(
+    "recupero",
+    Field(
+        "nome",
+        required=True,
+        notnull=True,
+        requires=[
             IS_NOT_EMPTY(),
-            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
-        ]
+            IS_MATCH(
+                "^[\D]*$", error_message="Caratteri non validi"
+            ),
+        ],
     ),
-    Field('cognome', required=True, notnull=True,
-        requires = [
+    Field(
+        "cognome",
+        required=True,
+        notnull=True,
+        requires=[
             IS_NOT_EMPTY(),
-            IS_MATCH('^[\D]*$', error_message='Caratteri non validi')
-        ]
+            IS_MATCH(
+                "^[\D]*$", error_message="Caratteri non validi"
+            ),
+        ],
     ),
-    Field('numero', required=True, notnull=True, requires=isValidPhoneNumber(), rname='telefono'),
-    Field('indirizzoCompleto', rname='indirizzocompleto'),
-    Field('numeroCivico', length = 20, required=True, notnull=True,
-        label='Civico', comment='Numero civico',
-        requires = IS_NOT_EMPTY(error_message='Valore richiesto'),
-        rname = 'numerocivico'
+    Field(
+        "numero",
+        required=True,
+        notnull=True,
+        requires=isValidPhoneNumber(),
+        rname="telefono",
     ),
-    Field('gruppo', length=1, required=True, notnull=True,
-        requires = IS_IN_SET(['1', '2', '3'])
+    Field("indirizzoCompleto", rname="indirizzocompleto"),
+    Field(
+        "numeroCivico",
+        length=20,
+        required=True,
+        notnull=True,
+        label="Civico",
+        comment="Numero civico",
+        requires=IS_NOT_EMPTY(error_message="Valore richiesto"),
+        rname="numerocivico",
     ),
-    Field('is_active', 'boolean',
-        writable=False, readable=False, default=True
+    Field(
+        "gruppo",
+        length=1,
+        required=True,
+        notnull=True,
+        requires=IS_IN_SET(["1", "2", "3"]),
     ),
-    migrate = False,
-    rname = f'{SCHEMA}.recupero'
+    Field(
+        "is_active",
+        "boolean",
+        writable=False,
+        readable=False,
+        default=True,
+    ),
+    migrate=False,
+    rname=f"{SCHEMA}.recupero",
 )
 
-db.define_table('soggetti_vulnerabili',
-    Field('id'),
-    Field('nome'),
-    Field('cognome'),
-    Field('telefono'),
-    Field('indirizzo', rname='indirizzocompleto'),
-    Field('numero_civico', rname='numerocivico'),
-    Field('gruppo'),
-    Field('sorgente'),
-    primarykey = ['id'],
-    migrate = False,
-    rname = f'{SCHEMA}.soggetti_vulnerabili'
+db.define_table(
+    "soggetti_vulnerabili",
+    Field("id"),
+    Field("nome"),
+    Field("cognome"),
+    Field("telefono"),
+    Field("indirizzo", rname="indirizzocompleto"),
+    Field("numero_civico", rname="numerocivico"),
+    Field("gruppo"),
+    Field("sorgente"),
+    primarykey=["id"],
+    migrate=False,
+    rname=f"{SCHEMA}.soggetti_vulnerabili",
 )
 
 db.recupero._enable_record_versioning()
@@ -315,11 +453,14 @@ def foo(f, i):
     Nel caso in cui attraverso le API venga registrato un telefono della tabella
     recupero questo viene disattivato dalla stessa tabella e gestito normalmente
     """
+
     def bar(numero, **__):
         tel, err = db.recupero.numero.requires(numero)
-        nn = db(db.recupero.numero==tel).delete()
-        logger.debug(f'Removed records: {nn}')
+        nn = db(db.recupero.numero == tel).delete()
+        logger.debug(f"Removed records: {nn}")
+
     return bar(**f)
+
 
 db.contatto._after_insert.append(foo)
 
