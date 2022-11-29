@@ -308,6 +308,7 @@ def ws_segnalazione():
     db.intervento.intervento_id.requires = [
         IS_NOT_EMPTY(),
         IS_NOT_IN_DB(db(db.intervento), db.intervento.intervento_id),
+        IS_NOT_IN_DB(db(db.segnalazione_da_vt), db.segnalazione_da_vt.intervento_id),
     ]
     db.intervento.intervento_id.comment = (
         "Inserire un nuovo identificativo di intervento Verbatel"

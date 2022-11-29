@@ -241,7 +241,10 @@ def verbatel_create(intervento_id, **kwargs):
     if not incarico_id is None:
         db.intervento.insert(incarico_id=incarico_id, intervento_id=intervento_id)
 
-    return incarico_id
+    return {
+        "incarico_id": incarico_id,
+        "segnalazione_id": segnalazione_id
+    }
 
 
 def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, ceduta=None, **kwargs):
