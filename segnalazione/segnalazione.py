@@ -237,17 +237,16 @@ def verbatel_create(intervento_id, **kwargs):
         intervento_id=intervento_id, **kwargs
     )
 
-    # Registrazione intervento id di Verbatel assegnato all'incarico
+    # Registrazione intervento id Verbatel assegnato all'incarico
     if not incarico_id is None:
         db.intervento.insert(incarico_id=incarico_id, intervento_id=intervento_id)
 
-    return {
-        "incarico_id": incarico_id,
-        "segnalazione_id": segnalazione_id
-    }
+    return {"incarico_id": incarico_id, "segnalazione_id": segnalazione_id}
 
 
-def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, ceduta=None, **kwargs):
+def update_(
+    segnalazione_id, segnalante_id, persone_a_rischio=None, ceduta=None, **kwargs
+):
     """Funzione dedicata all'aggiornamento dei dati di Segnalazione"""
 
     # if not criticita is None:
@@ -261,10 +260,8 @@ def update_(segnalazione_id, segnalante_id, persone_a_rischio=None, ceduta=None,
 
     if ceduta:
         lavorazione = db.join_segnalazione_lavorazione(segnalazione_id=segnalazione_id)
-        tt = db(
-            db.segnalazione_lavorazione.id == lavorazione.lavorazione_id
-        ).update(
-            profilo_id = settings.PC_PROFILO_ID
+        tt = db(db.segnalazione_lavorazione.id == lavorazione.lavorazione_id).update(
+            profilo_id=settings.PC_PROFILO_ID
         )
 
     db(db.segnalazione.id == segnalazione_id).update(
@@ -403,7 +400,7 @@ def upgrade(
     logger.debug(f"{_}: {message}")
 
     # Incarico
-    if not stato_id is None:
+    if not stato_id is None and db.segnalazione_da_vt(segnalazione_id=segnalazione_id) is None:
 
         descrizione_incarico = segnalazione.descrizione
 
@@ -457,7 +454,11 @@ def after_insert_lavorazione(id):
         .first()
     )
 
-    if not rec is None and rec.lavorazione.profilo_id != settings.PM_PROFILO_ID:
+    if (
+        not rec is None
+        and rec.lavorazione.profilo_id != settings.PM_PROFILO_ID
+        and db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None
+    ):
         descrizione_incarico = f"""Richiesta sola presa visione della segnalazione:
 {rec.segnalazione.descrizione}.
 {incarico.WARNING}"""

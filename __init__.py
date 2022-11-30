@@ -11,6 +11,11 @@ from . import controllers
 
 from .chiamate import controllers
 
+try:
+    from .chiamate.alertSystem import controllers
+except Exception:
+    pass
+
 # optional parameters
 __version__ = "0.0.0"
 __author__ = "Gter s.r.l. <assistenzagis@gter.it>"

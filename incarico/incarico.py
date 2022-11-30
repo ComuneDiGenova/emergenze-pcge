@@ -201,8 +201,8 @@ def fetch(id):
         (db.segnalante.id == db.segnalazione.segnalante_id) & \
         (db.segnalazione.evento_id == db.evento.id) & \
         (db.incarico.id==id) & \
-        # "verbatel.segnalazioni_da_verbatel.incarico_id is null" & \
-        "verbatel.interventi.incarico_id is null" & \
+        # "verbatel.segnalazioni_da_verbatel.intervento_id is null" & \
+        # "verbatel.interventi.intervento_id is null" & \
         "eventi.t_eventi.valido is not false"
     ).select(
         db.incarico.id.with_alias('id'),
@@ -239,8 +239,8 @@ def fetch(id):
             ~db.segnalazione_lavorazione.in_lavorazione,
         ),
         left = (
+            # db.intervento.on(db.intervento.id==db.segnalazione_da_vt.intervento_id),
             # db.incarico.on(db.incarico.id==db.intervento.incarico_id),
-            db.incarico.on(db.intervento.id==db.segnalazione_da_vt.intervento_id),
             db.segnalazione.on(db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione.id),
             db.segnalazione_lavorazione.on(db.join_segnalazione_lavorazione.lavorazione_id==db.segnalazione_lavorazione.id),
             db.civico.on(
