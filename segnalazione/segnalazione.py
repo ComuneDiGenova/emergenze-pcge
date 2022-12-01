@@ -457,7 +457,7 @@ def after_insert_lavorazione(id):
     if (
         not rec is None
         and rec.lavorazione.profilo_id != settings.PM_PROFILO_ID
-        and db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None
+        and not db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None
     ):
         descrizione_incarico = f"""Richiesta sola presa visione della segnalazione:
 {rec.segnalazione.descrizione}.
