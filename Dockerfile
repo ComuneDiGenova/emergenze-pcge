@@ -5,6 +5,10 @@
 
 FROM ubuntu:20.04
 
+ARG UNAME=py4web
+ARG UID=1000
+ARG GID=1000
+
 ARG user=py4web
 ARG password=none
 
@@ -15,7 +19,10 @@ RUN update-alternatives --config python
 
 RUN service memcached restart
 
-RUN groupadd -r $user && useradd -m -r -g $user $user
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -o -m -u $UID -g $GID -s /bin/bash $UNAME
+
+# RUN groupadd -r $user && useradd -m -r -g $user $user
 
 RUN python3.8 -m pip install -U py4web==v1.20220222.1
 

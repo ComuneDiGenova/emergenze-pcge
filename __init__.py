@@ -13,7 +13,7 @@ from .chiamate import controllers
 
 try:
     from .chiamate.alertSystem import controllers
-except Exception:
+except ModuleNotFoundError:
     pass
 
 # optional parameters
