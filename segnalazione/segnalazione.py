@@ -454,30 +454,32 @@ def after_insert_lavorazione(id):
         .first()
     )
 
-    if (
-        not rec is None
-        and rec.lavorazione.profilo_id != settings.PM_PROFILO_ID
-        and db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None
-    ):
-        descrizione_incarico = f"""Richiesta sola presa visione della segnalazione:
-{rec.segnalazione.descrizione}.
-{incarico.WARNING}"""
-
-        incarico_id = incarico.create(
-            segnalazione_id=rec.segnalazione.id,
-            lavorazione_id=id,
-            profilo_id=settings.PM_PROFILO_ID,
-            descrizione=descrizione_incarico,
-            municipio_id=rec.segnalazione.municipio_id,
-        )
-        logger.debug(f"Creato incarico: {incarico_id}")
-
-        # a quanto pare l'evento insert lanciato al passo precedente
-        # all'interno dello stesso trigger non viene intercettato
-        # per cui lancio a mano la callback seguente.
-        incarico.after_insert_incarico(incarico_id)
-
-        return incarico_id
+    # INFO: Da richiesta esplicita PL L'incarico di presa visione non è utile alle
+    # operazioni
+#     if (
+#         not rec is None
+#         and rec.lavorazione.profilo_id != settings.PM_PROFILO_ID
+#         and not db.segnalazione_da_vt(segnalazione_id=rec.segnalazione.id) is None
+#     ):
+#         descrizione_incarico = f"""Richiesta sola presa visione della segnalazione:
+# {rec.segnalazione.descrizione}.
+# {incarico.WARNING}"""
+#
+#         incarico_id = incarico.create(
+#             segnalazione_id=rec.segnalazione.id,
+#             lavorazione_id=id,
+#             profilo_id=settings.PM_PROFILO_ID,
+#             descrizione=descrizione_incarico,
+#             municipio_id=rec.segnalazione.municipio_id,
+#         )
+#         logger.debug(f"Creato incarico: {incarico_id}")
+#
+#         # a quanto pare l'evento insert lanciato al passo precedente
+#         # all'interno dello stesso trigger non viene intercettato
+#         # per cui lancio a mano la callback seguente.
+#         incarico.after_insert_incarico(incarico_id)
+#
+#         return incarico_id
 
 
 # def render(row):
