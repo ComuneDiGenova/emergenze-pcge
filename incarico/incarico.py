@@ -277,10 +277,70 @@ def after_insert_incarico(id):
 def after_update_incarico(id):
     logger.debug(f"after update incarico")
     intervento = db.intervento(incarico_id=id)
-    if not intervento is None:
+
+    if intervento is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
         if invia:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = Intervento.update(intervento.intervento_id, **mio_incarico)
+
+    # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
+    # altri incarichi aperti, in tal caso chiudere la Segnalazione
+
+    nfo = db((db.incarichi_utili.id==id)).select(
+        db.incarichi_utili.segnalazione_id,
+        db.incarichi_utili.lavorazione_id,
+        db.incarichi_utili.id,
+        limitby=(0,1,)
+    ).first()
+
+    segnalazione_id = nfo.segnalazione_id
+
+    num_incarichi_aperti = len(db(
+        (db.incarichi_utili.segnalazione_id==segnalazione_id)
+        # & (db.incarichi_utili.stato_incarico_id < 3)
+    ).select(
+        db.incarichi_utili.stato_incarico_id,
+
+        distinct = f'{db.incarichi_utili._rname}.id',
+        orderby = db.incarichi_utili.id|~db.incarichi_utili.timeref
+    ).find(lambda row: row.stato_incarico_id<3))
+
+    logger.debug(f'Incarichi ancora aperti: {num_incarichi_aperti}')
+
+    if num_incarichi_aperti == 0:
+
+        # 1. Aggiornamento Lavorazione
+
+        lavorazione = db.segnalazione_lavorazione(
+            id = nfo.lavorazione_id,
+            profilo_id = settings.PM_PROFILO_ID
+        )
+
+        
+        if not lavorazione is None:
+            logger.debug('Aggiornamento Lavorazione')
+            descrizione_chiusura = "Chiusura segnalazione da parte di PL"
+            lavorazione.update_record(
+                in_lavorazione = False,
+                descrizione_chiusura = descrizione_chiusura
+            )
+            logger.debug(descrizione_chiusura)
+
+            db.storico_segnalazione_lavorazione.insert(
+                lavorazione_id = lavorazione.id,
+                aggiornamento = f'Chiusura delle segnalazioni. (id_lavorazione= "{lavorazione.id}")'
+            )
+
+            segnalazione = db.segnalazione(id=segnalazione_id)
+
+            operazione = f'La segnalazione in lavorazione con "{segnalazione.id}" è stata chiusa'
+
+            db.log.insert(
+                schema = 'segnalazioni',
+                operatore = segnalazione.operatore,
+                operazione = operazione
+            )
+            logger.debug(operazione)

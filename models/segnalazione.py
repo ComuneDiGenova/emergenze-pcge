@@ -272,10 +272,13 @@ db.define_table('incarichi_utili',
     Field('descrizione', required=True, notnull=True),
     Field('uo_id', rname='id_uo', required=True, notnull=True),
     # ...
-    Field('segnalazione_id', rname='id_segnalazione'),
+    Field('segnalazione_id', 'integer', rname='id_segnalazione'),
+    Field('lavorazione_id', 'integer', rname='id_lavorazione'),
     # ...
     Field('descrizione_segnalazione'),
     # ...
+    Field('stato_incarico_id', rname='id_stato_incarico'),
+    Field('timeref', 'datetime', rname='data_ora_stato'),
     rname = f'{SCHEMA}.v_incarichi',
     migrate = False
 )
