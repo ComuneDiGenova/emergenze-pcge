@@ -261,10 +261,6 @@ import time
 def after_insert_incarico(id):
     logger.debug(f"after insert incarico")
 
-    # Cerco di attendere che l'icarico possa essere salvato come intervento
-    # segnalato da PM, se questo non avviene invio i dati verso Verbatel
-    # (NB. 3 sec forse sono anche tanti)
-    # time.sleep(3)
     if db.intervento(incarico_id=id) is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)

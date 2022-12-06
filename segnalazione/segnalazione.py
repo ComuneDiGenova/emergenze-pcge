@@ -400,7 +400,10 @@ def upgrade(
     logger.debug(f"{_}: {message}")
 
     # Incarico
-    if not stato_id is None and db.segnalazione_da_vt(segnalazione_id=segnalazione_id) is None:
+    if (
+        not stato_id is None
+        # and db.segnalazione_da_vt(segnalazione_id=segnalazione_id) is None
+    ):
 
         descrizione_incarico = segnalazione.descrizione
 
@@ -424,35 +427,54 @@ def upgrade(
 
 
 def after_insert_lavorazione(id):
-    """
+    """ DEPRECATO
     id @integer : Id della nuova lavorazione
     """
+    pass
 
-    rec = (
-        db(
-            (db.segnalazione_lavorazione.id == id)
-            & (
-                db.segnalazione_lavorazione.id
-                == db.join_segnalazione_lavorazione.lavorazione_id
-            )
-            & (db.join_segnalazione_lavorazione.segnalazione_id == db.segnalazione.id)
-            & ~db.tipo_criticita.id.belongs([7, 12])  # Segnalazione di intetresse di PL
-            & (db.segnalazione.criticita_id == db.tipo_criticita.id)
-            & (db.tipo_criticita.valido == True)
-            & (db.segnalazione_lavorazione.in_lavorazione == True)
-            # & (db.join_segnalazione_lavorazione.sospeso == False)
-        )
-        .select(
-            db.segnalazione.ALL,
-            db.segnalazione_lavorazione.with_alias("lavorazione").ALL,
-            distinct=f"{db.segnalazione._rname}.id",
-            orderby=(
-                db.segnalazione.id,
-                ~db.segnalazione_lavorazione.id,
-            ),
-        )
-        .first()
-    )
+    # rec = (
+    #     db(
+    #         (db.segnalazione_lavorazione.id == id)
+    #         & (
+    #             db.segnalazione_lavorazione.id
+    #             == db.join_segnalazione_lavorazione.lavorazione_id
+    #         )
+    #         & (db.join_segnalazione_lavorazione.segnalazione_id == db.segnalazione.id)
+    #         & ~db.tipo_criticita.id.belongs([7, 12])  # Segnalazione di intetresse di PL
+    #         & (db.segnalazione.criticita_id == db.tipo_criticita.id)
+    #         & (db.tipo_criticita.valido == True)
+    #         & (db.segnalazione_lavorazione.in_lavorazione == True)
+    #         # & (db.join_segnalazione_lavorazione.sospeso == False)
+    #     )
+    #     .select(
+    #         db.segnalazione.ALL,
+    #         db.segnalazione_lavorazione.with_alias("lavorazione").ALL,
+    #         distinct=f"{db.segnalazione._rname}.id",
+    #         orderby=(
+    #             db.segnalazione.id,
+    #             ~db.segnalazione_lavorazione.id,
+    #         ),
+    #     )
+    #     .first()
+    # )
+
+
+    # if (not rec is None):
+    #     if (rec.lavorazione.profilo_id == settings.PM_PROFILO_ID):
+    #         incarico_id = incarico.create(
+    #             segnalazione_id = rec.segnalazione.id,
+    #             lavorazione_id = id,
+    #             profilo_id = settings.PM_PROFILO_ID,
+    #             descrizione = rec.descrizione,
+    #             municipio_id = rec.segnalazione.municipio_id,
+    #         )
+    #         logger.debug(f"Creato incarico: {incarico_id}")
+    #
+    #         pdb
+    #
+    #         return incarico_id
+
+
 
     # INFO: Da richiesta esplicita PL L'incarico di presa visione non è utile alle
     # operazioni
