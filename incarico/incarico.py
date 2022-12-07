@@ -289,12 +289,26 @@ def after_update_incarico(id):
     # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
     # altri incarichi aperti, in tal caso chiudere la Segnalazione
 
-    nfo = db((db.incarichi_utili.id==id)).select(
-        db.incarichi_utili.segnalazione_id,
-        db.incarichi_utili.lavorazione_id,
-        db.incarichi_utili.id,
-        limitby=(0,1,)
+    nfo = db(
+        (db.incarico.id==db.join_segnalazione_incarico.incarico_id) \
+        & (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.id) \
+        # & (db.join_segnalazione_lavorazione.)
+        & (db.incarico.id==id)
+    ).select(
+        db.incarico.id.withalias('incarico_id'),
+        db.join_segnalazione_lavorazione.lavorazione_id.with_alias('lavorazione_id'),
+        db.join_segnalazione_lavorazione.segnalazione_id.with_alias('segnalante_id'),
+        limitby = (0,1,)
     ).first()
+
+    # TODO: by-passare la vista incarichi_utili e usare direttamente le tabelle di incarico, segnalazione, lavorazione, etc
+
+    # nfo = db((db.incarichi_utili.id==id)).select(
+    #     db.incarichi_utili.segnalazione_id,
+    #     db.incarichi_utili.lavorazione_id,
+    #     db.incarichi_utili.id,
+    #     limitby=(0,1,)
+    # ).first()
 
     segnalazione_id = nfo.segnalazione_id
 
@@ -319,7 +333,7 @@ def after_update_incarico(id):
             profilo_id = settings.PM_PROFILO_ID
         )
 
-        
+
         if not lavorazione is None:
             logger.debug('Aggiornamento Lavorazione')
             descrizione_chiusura = "Chiusura segnalazione da parte di PL"
