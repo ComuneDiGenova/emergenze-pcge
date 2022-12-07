@@ -291,13 +291,13 @@ def after_update_incarico(id):
 
     nfo = db(
         (db.incarico.id==db.join_segnalazione_incarico.incarico_id) \
-        & (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.id) \
+        & (db.join_segnalazione_incarico.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) \
         # & (db.join_segnalazione_lavorazione.)
         & (db.incarico.id==id)
     ).select(
-        db.incarico.id.withalias('incarico_id'),
+        db.incarico.id.with_alias('incarico_id'),
         db.join_segnalazione_lavorazione.lavorazione_id.with_alias('lavorazione_id'),
-        db.join_segnalazione_lavorazione.segnalazione_id.with_alias('segnalante_id'),
+        db.join_segnalazione_lavorazione.segnalazione_id.with_alias('segnalazione_id'),
         limitby = (0,1,)
     ).first()
 
