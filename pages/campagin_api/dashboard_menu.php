@@ -55,20 +55,32 @@
         <button class="btn btn-primary" id="button_msg_list" type="button">Get message
             list </button>
         <button class="btn btn-primary" id="button_vis_campaign" type="button">Visualise campaign </button>
-        <button class="btn btn-primary" id="button_user_list" type="button">Get user list
-        </button>
+        <button class="btn btn-primary" id="button_user_list" type="button">Get user list</button>
+        <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
+
         <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
-        <script type="text/javascript" src="dashboard_js.js">
-        // This is ommited in the output
-        console.log("inside of a script tag");
-        </script>
     </div>
     <div class="container" id="API_results_container">
         <h1 id="results_header">Results</h1>
     </div>
     <!-- Data table for messages -->
-    <div class="container" id="bstr_campaign" style="display: none;">
-        <table class="table-hover" id="campaign_table_1">
+    <div class="container" id="bstr_message" style="display: none;">
+        <table class="table-hover" id="msg_table">
+            <thead>
+                <!-- Add a header for table -->
+                <tr>
+                    <th data-field="message_date">Date</th>
+                    <th data-field="message_id">ID</th>
+                    <th data-field="message_note">Note</th>
+                    <th data-field="message_duration">Duration</th>
+                    <th data-field="message_dimension">Dimension</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <!-- Data table for campaigns -->
+    <div class="container" id="bstr_camp_vis" style="display: none;">
+        <table class="table-hover" id="camp_table">
             <thead>
                 <!-- Add a header for table -->
                 <tr>
@@ -81,6 +93,7 @@
                     <th data-field="campaign_end_date">End date</th>
                     <th data-field="campaign_status">Status</th>
                     <th data-field="campaign_identifier">Identifier</th>
+                    <th data-field="campaign_contacts_num">Number of contacts</th>
                 </tr>
             </thead>
         </table>
@@ -100,6 +113,26 @@
             </thead>
         </table>
     </div>
+    <!-- Data table for campaign -->
+    <div class="container" id="bstr_camp" style="display: none;">
+        <table class="table-hover" id="camp_table_time">
+            <thead>
+                <!-- Add a header for table -->
+                <tr>
+                    <th data-field="camp_id">Campaign ID</th>
+                    <th data-field="camp_type">Type</th>
+                    <th data-field="camp_date">Campaign date</th>
+                    <th data-field="camp_user">Campaign user</th>
+                    <th data-field="camp_contact">Campaign contact</th>
+                    <th data-field="camp_identifier">Campaign noter</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <script type="text/javascript" src="dashboard_js.js">
+    // This is ommited in the output
+    console.log("inside of a script tag");
+    </script>
 </body>
 
 </html>
