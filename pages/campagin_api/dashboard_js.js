@@ -14,10 +14,16 @@ const button_vis_campaign = document.getElementById("button_vis_campaign");
 const button_user_list = document.getElementById("button_user_list");
 const button_result = document.getElementById("button_result");
 const button_get_camapaign = document.getElementById("button_campaign_from_to");
-
-// const bstr_results = document.getElementById("bstr_user");
-
+const header_cmp_list = document.getElementById("camp_list_header");
+const bstr_date_picker = document.getElementById("bstr_date_picker");
+const bstr_results = document.getElementById("bstr_user");
 const python_api_url = "/emergenze/user_campaign/";
+
+// Getting the datepicker ready
+$('#bstr_date_picker').datepicker({
+    format: 'dd-mm-yyyy',
+    startDate: '-3d'
+});
 
 
 button_message_list.onclick = () => { _retr_message_list(); };
@@ -41,21 +47,43 @@ button_get_camapaign.onclick = () => { _get_campaign_from_to(); };
 // Call the dashboard Get Visualise campaign
 // Call the API, returning promise
 
-function fetch_generic(url, bootstrap_id, req_opt, table_id) {
+async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
     const bstr_container = document.getElementById(bootstrap_id);
     const message_table = $('#' + table_id);
     bstr_container.style.display = "block";
-    return fetch(url, req_opt)
-        .then(response => response.json())
-        .then(result => {
-            message_table.bootstrapTable(
-                {
-                    data: message_list_dict,
+    try {
+        const response = await fetch(url, req_opt);
+        const result_1 = await response.json();
+        message_table.bootstrapTable(
+            {
+                data: message_list_dict,
+                pagination: true,
+                search: true,
+                showColumns: true,
+                showRefresh: true,
+                showToggle: true,
+                showExport: true,
+                exportDataType: 'all',
+                exportTypes: ['csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],
+                exportOptions: {
+                    fileName: 'export',
+                    jspdf: {
+                        orientation: 'l',
+                        format: 'a4',
+                        margins: { left: 20, right: 10, top: 10, bottom: 10 },
+                        autotable: {
+                            styles: { fillColor: 'inherit', textColor: 'inherit' },
+                            tableWidth: 'auto'
+                        }
+
+                    }
                 }
-            );
-            return result;
-        })
-        .catch(error => console.log('error', error));
+            }
+        );
+        return result_1;
+    } catch (error) {
+        return console.log('error', error);
+    }
 }
 
 /**Retrieves list of messages in JSON format */
@@ -95,6 +123,14 @@ function _retr_message_list(root_div = 'http://localhost:8000/') {
             message_table.bootstrapTable(
                 {
                     data: message_list_dict,
+                    pagination: true,
+                    search: true,
+                    showColumns: true,
+                    showRefresh: true,
+                    showToggle: true,
+                    showExport: true,
+                    exportDataType: 'all',
+                    exportTypes: ['csv', 'txt', 'sql', 'doc', 'excel', 'xlsx', 'pdf'],
                 }
             );
         })
@@ -214,13 +250,14 @@ function _retr_user_list(root_div = 'https://emergenze-apit.comune.genova.it/') 
         });
 }
 
-function _get_campaign_from_to(root_div = 'http://localhost:8000/') {
+function _get_campaign_from_to(root_div = 'http://localhost:8000/', date_start = '2022-01-10 10:10', date_end = '2022-10-10 10:10') {
 
     const bstr_results = document.getElementById("bstr_camp");
     const camp_table = $('#camp_table_time');
+    header_cmp_list.innerHTML = "Campaign list from " + date_start + " to " + date_end;
     let formdata = new FormData();
-    formdata.append("date_start", "2022-01-10 10:10");
-    formdata.append("date_end", "2022-10-10 10:10");
+    formdata.append("date_start", date_start);
+    formdata.append("date_end", date_end);
     const requestOptions = {
         method: 'POST',
         body: formdata,
