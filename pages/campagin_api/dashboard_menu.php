@@ -9,14 +9,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Dashboard - Python API GUI</title>
         <?php
-        #TODO Make the routing using getcwd() and dirname() functions
         $_DEBUG = false;
         define('ROOT_DIR', realpath(__DIR__ . '/..'));
         try {
             $config_path = __DIR__ . '/config.php';
             $path_to_boostrap = explode("/", __DIR__);
             require(__DIR__ . '/../req.php');
-            // check_evento.php already does this:
             # Getting the conn.php file from the parent directory
             $conn_php_path = explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
         } catch (Exception $e) {
@@ -51,26 +49,53 @@
             <h1 id="dashboard_header">Dashboard</h1>
             <p id="button_result">testing javascript</p>
         </div>
-        <div>
 
-            <div class="container" id="API_bttn_container">
-                <button class="btn btn-primary" id="button_msg_list" type="button">Get message
-                    list </button>
-                <button class="btn btn-primary" id="button_vis_campaign" type="button">Visualise campaign </button>
-                <button class="btn btn-primary" id="button_user_list" type="button">Get user list</button>
-                <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
-                <!-- <input data-provide="datepicker"> -->
+        <div class="container" id="API_bttn_container">
+            <button class="btn btn-primary" id="button_msg_list" type="button">Get message
+                list </button>
+            <button class="btn btn-primary" id="button_vis_campaign" type="button">Visualise campaign </button>
+            <button class="btn btn-primary" id="button_user_list" type="button">Get user list</button>
+            <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
+        </div>
 
-                <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+        <div class="container" id="API_date_container">
+            <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">
+                <input placeholder="Select start date" type="text" class="form-control" id="ui_date_start">
+                <label for="ui_date_start">Pick a date for campaign</label>
+                <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-th"></span>
+                </div>
             </div>
+            <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">
+                <input placeholder="Select end date" type="text" class="form-control" id="ui_date_end">
+                <label for="ui_date_end">Pick a date for campaign</label>
+                <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-th"></span>
+                </div>
+            </div>
+        </div>
 
-            <div class="container" id="API_date_container">
-                <h3 id="date_header">Select date</h3>
-                <div class="input-group date" data-provide="datepicker">
-                    <!-- <div class="input-group date" data-provide="datepicker" style="position: relative"> -->
-                    <input type="text" class="form-control" id="bstr_date_picker">
-                    <div class="input-group-addon">
-                        <span class="glyphicon glyphicon-th"></span>
+        <div class="container" id="API_message_container">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="button">Add a message</button>
+                </div>
+                <input type="text" class="form-control" placeholder="Write the message here" aria-label=""
+                    aria-describedby="basic-addon1">
+                <input type="text" class="form-control" placeholder="Pick a male of female voic" aria-label=""
+                    aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group">
+                <input type="text" class="form-control" aria-label="Text input with dropdown button">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">Dropdown</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <div role="separator" class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Separated link</a>
                     </div>
                 </div>
             </div>
@@ -149,10 +174,7 @@
                 </thead>
             </table>
         </div>
-        <script type="text/javascript" src="dashboard_js.js">
-            // This is ommited in the output
-            console.log("inside of a script tag");
-        </script>
+        <script type="text/javascript" src="dashboard_js.js"></script>
     </body>
 
 </html>
