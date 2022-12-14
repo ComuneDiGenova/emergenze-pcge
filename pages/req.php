@@ -4,42 +4,41 @@
 //$sec = "60";
 
 
-function integerToRoman($integer)
-{
-	// Convert the integer into an integer (just to make sure)
-	$integer = intval($integer);
-	$result = '';
+function integerToRoman($integer) {
+    // Convert the integer into an integer (just to make sure)
+    $integer = intval($integer);
+    $result = '';
 
-	// Create a lookup array that contains all of the Roman numerals.
-	$lookup = array(
-		'M' => 1000,
-		'CM' => 900,
-		'D' => 500,
-		'CD' => 400,
-		'C' => 100,
-		'XC' => 90,
-		'L' => 50,
-		'XL' => 40,
-		'X' => 10,
-		'IX' => 9,
-		'V' => 5,
-		'IV' => 4,
-		'I' => 1
-	);
+    // Create a lookup array that contains all of the Roman numerals.
+    $lookup = array(
+        'M'  => 1000,
+        'CM' => 900,
+        'D'  => 500,
+        'CD' => 400,
+        'C'  => 100,
+        'XC' => 90,
+        'L'  => 50,
+        'XL' => 40,
+        'X'  => 10,
+        'IX' => 9,
+        'V'  => 5,
+        'IV' => 4,
+        'I'  => 1
+    );
 
-	foreach ($lookup as $roman => $value) {
-		// Determine the number of matches
-		$matches = intval($integer / $value);
+    foreach ($lookup as $roman => $value) {
+        // Determine the number of matches
+        $matches = intval($integer / $value);
 
-		// Add the same number of characters to the string
-		$result .= str_repeat($roman, $matches);
+        // Add the same number of characters to the string
+        $result .= str_repeat($roman, $matches);
 
-		// Set the integer to be the remainder of the integer and the value
-		$integer = $integer % $value;
-	}
+        // Set the integer to be the remainder of the integer and the value
+        $integer = $integer % $value;
+    }
 
-	// The Roman numeral should be built, return it
-	return $result;
+    // The Roman numeral should be built, return it
+    return $result;
 }
 
 ?>
@@ -65,7 +64,7 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 <link href="/../vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" rel="stylesheet">
 <link href="/../vendor/bootstrap-table/dist/bootstrap-table.min.css" rel="stylesheet">
 <link href="/../vendor/bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.css"
-	rel="stylesheet">
+    rel="stylesheet">
 <link href="/../vendor/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
 
 
@@ -92,117 +91,117 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 <link href="/../vendor/font-awesome-animation/dist/font-awesome-animation.css" rel="stylesheet" type="text/css">
 
 <style type="text/css">
-	#wrapper {
-		/*padding-top:50px;*/
-		padding-top: $(
-			'.navbar').height()
-	}
+    #wrapper {
+        /*padding-top:50px;*/
+        padding-top: $(
+            '.navbar').height()
+    }
 
 
-	.sidebar {
-		overflow-y: scroll;
-		position: fixed;
-		margin-top: 0px;
-		z-index: 1;
-	}
+    .sidebar {
+        overflow-y: scroll;
+        position: fixed;
+        margin-top: 0px;
+        z-index: 1;
+    }
 
-	.panel-allerta {
-		border-color: <?php echo $color_allerta;
+    .panel-allerta {
+        border-color: <?php echo $color_allerta;
         ?>;
-	}
+    }
 
-	.panel-allerta>.panel-heading {
-		border-color: <?php echo $color_allerta;
+    .panel-allerta>.panel-heading {
+        border-color: <?php echo $color_allerta;
         ?>;
-		color: white;
-		background-color: <?php echo $color_allerta;
+        color: white;
+        background-color: <?php echo $color_allerta;
         ?>;
-	}
+    }
 
-	.panel-allerta>a {
-		color: <?php echo $color_allerta;
+    .panel-allerta>a {
+        color: <?php echo $color_allerta;
         ?>;
-	}
+    }
 
-	.panel-allerta>a:hover {
-		color: #337ab7;
-		/* <?php echo $color_allerta; ?>;*/
-	}
-
-
-	.dot {
-		height: 25px;
-		width: 25px;
-		/*background-color: #bbb;*/
-		border-radius: 50%;
-		display: inline-block;
-	}
+    .panel-allerta>a:hover {
+        color: #337ab7;
+        /* <?php echo $color_allerta; ?>;*/
+    }
 
 
-	.fa {
-		-webkit-print-color-adjust: exact;
-	}
-
-	.fas {
-		-webkit-print-color-adjust: exact;
-	}
-
-
-
-	@media print {
-
-		/* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
-		.fa {
-			-webkit-print-color-adjust: exact;
-		}
-
-		.fas {
-			-webkit-print-color-adjust: exact;
-		}
-
-		p.bodyText {
-			font-family: georgia,
-				times,
-				serif;
-			-webkit-print-color-adjust: exact;
-			color-adjust: exact;
-		}
-
-		.rows-print-as-pages .row {
-			page-break-before: auto;
-		}
-
-		.btn {
-			display: none;
-		}
+    .dot {
+        height: 25px;
+        width: 25px;
+        /*background-color: #bbb;*/
+        border-radius: 50%;
+        display: inline-block;
+    }
 
 
-		table,
-		table tr td,
-		table tr th {
-			page-break-inside: avoid;
-		}
+    .fa {
+        -webkit-print-color-adjust: exact;
+    }
 
-		.collapse {
-			display: block !important;
-			height: auto !important;
-		}
+    .fas {
+        -webkit-print-color-adjust: exact;
+    }
 
 
-		#break {
-			page-break-before: always;
-		}
 
-		.fa-inverse {
-			color: #fff !important;
-		}
+    @media print {
 
-		.noprint {
-			display: none
-		}
+        /* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
+        .fa {
+            -webkit-print-color-adjust: exact;
+        }
+
+        .fas {
+            -webkit-print-color-adjust: exact;
+        }
+
+        p.bodyText {
+            font-family: georgia,
+                times,
+                serif;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+        }
+
+        .rows-print-as-pages .row {
+            page-break-before: auto;
+        }
+
+        .btn {
+            display: none;
+        }
 
 
-	}
+        table,
+        table tr td,
+        table tr th {
+            page-break-inside: avoid;
+        }
+
+        .collapse {
+            display: block !important;
+            height: auto !important;
+        }
+
+
+        #break {
+            page-break-before: always;
+        }
+
+        .fa-inverse {
+            color: #fff !important;
+        }
+
+        .noprint {
+            display: none
+        }
+
+
+    }
 </style>
 
 
@@ -216,6 +215,12 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 <!-- jQuery -->
 <script src="/../vendor/jquery/jquery.min.js"></script>
 
+<!-- ✅ load jquery UI ✅ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"
+    integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+
 <!-- GRAFICI d3js -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -228,7 +233,8 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 
 <!-- Bootstrap table -->
 <script src="/../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
+<!-- <script src="extensions/export/bootstrap-table-export.js"></script> -->
 
-
-<?php
-?>
+<!-- Formatter for PHP -->
+<script src="https://unpkg.com/prettier/standalone.js"></script>
+<script src="https://unpkg.com/@prettier/plugin-php/standalone.js"></script>
