@@ -14,21 +14,27 @@ $(document).ready(() => {
 // ! Bootstrap table accepts only Arrays as input, not JSON objects
 
 const dashboard_header = document.getElementById("dashboard_header").innerHTML = "JS_bootto_strappo_dashboardo is working!";
+const dashboard_text = document.getElementById("dashboard_text");
 const button_message_list = document.getElementById("button_msg_list");
-const button_vis_campaign = document.getElementById("button_vis_campaign");
 const button_user_list = document.getElementById("button_user_list");
-const button_result = document.getElementById("button_result");
+const button_vis_campaign = document.getElementById("button_vis_campaign");
 const button_get_camapaign = document.getElementById("button_campaign_from_to");
 const header_cmp_list = document.getElementById("camp_list_header");
 const ui_date_start = document.getElementById("ui_date_start");
 const ui_date_end = document.getElementById("ui_date_end");
 const bstr_results = document.getElementById("bstr_user");
+const voice_picker_female = document.getElementById("voice_picker_female");
+const voice_picker_male = document.getElementById("voice_picker_male");
 
-const python_api_url = "/emergenze/user_campaign/";
+
+//* API URL
+const python_api_url = "http://localhost:8000/emergenze/user_campaign/";
 
 let date_start_picked = "2021-01-01";
 let date_end_picked = "2021-01-31";
 let date_picked = { date_start: date_start_picked, date_end: date_end_picked };
+
+let voice_picked = null;
 
 // Register the date picker with JQuery
 $(() => {
@@ -80,10 +86,21 @@ $("#ui_date_end").on("change", () => {
     date_picked.date_end = date_end_picked
 });
 
-button_message_list.onclick = () => { _retr_message_list(); };
-button_vis_campaign.onclick = () => { _vis_campaign(); };
-button_user_list.onclick = () => { _retr_user_list(); };
-button_get_camapaign.onclick = () => { _get_campaign_from_to("http://localhost:8000/", date_picked); };
+$("voice_picker_female").click(function() {
+    voice_picked = $("voice_picker_female").val();
+    console.log(`voice_picked: ${voice_picked}`);
+    alert(`voice_picked: ${voice_picked}`);
+});
+$("voice_picker_male").click(function() {
+    voice_picked = $("voice_picker_male").val();
+    console.log(`voice_picked: ${voice_picked}`);
+    alert(`voice_picked: ${voice_picked}`);
+});
+
+button_message_list.onclick = () => { _retr_message_list(python_api_url); };
+button_vis_campaign.onclick = () => { _vis_campaign(python_api_url); };
+button_user_list.onclick = () => { _retr_user_list(python_api_url); };
+button_get_camapaign.onclick = () => { _get_campaign_from_to(python_api_url, date_picked); };
 
 async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
     const bstr_container = document.getElementById(bootstrap_id);
@@ -124,23 +141,25 @@ async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
     }
 }
 
-function _create_message(root_div = "http://localhost:8000/", dict_of_options = { message : "Sono romano, grana padano!", voice_gender : "M"}) {
-    document.getElementById("button_result").innerHTML = "Creating message!";
+function _create_message(root_div = "http://localhost:8000/emergenze/user_campaign/", dict_of_options = { message : "Sono romano, grana padano!", voice_gender : "M"}) {
+    document.getElementById("dashboard_text").innerHTML = "Creating message!";
     const bstr_message = document.getElementById("bstr_message");
     const message_table = $("#msg_table");
-    const form_data = new FormData();
-    form_data.append("message", bstr_message.value);
-    const request_options = {
-        method: "POST",
-        body: form_data,
-        redirect: "follow"
+    let formdata = new FormData();
+    formdata.append("message_text", "Hello, this is pyalertsystem!");
+    formdata.append("voice_gender", "M");
+    formdata.append("message_note", "Gter_test_JS");
+    
+    const requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow'
     };
-
-    fetch(root_div + python_api_url + "_create_message", request_options)
+    fetch(`${root_div}_create_message`, request_options)
         .then(asyn_response => asyn_response.json())
         .then(async_result => {
             console.log("async_result", async_result);
-            document.getElementById("button_result").innerHTML = "Message created!";
+            document.getElementById("dashboard_text").innerHTML = "Message created!";
             bstr_message.value = "";
             _retr_message_list();
         })
@@ -153,7 +172,7 @@ function _create_message(root_div = "http://localhost:8000/", dict_of_options = 
     // Retrieve the list of messages from url with GET method
 /**Retrieves list of messages in JSON format */
 function _retr_message_list(root_div = "http://localhost:8000/") {
-    document.getElementById("button_result").innerHTML = "Retriving message list!";
+    document.getElementById("dashboard_text").innerHTML = "Retriving message list!";
     const bstr_message = document.getElementById("bstr_message");
     const message_table = $("#msg_table");
     const request_options = {
@@ -164,7 +183,7 @@ function _retr_message_list(root_div = "http://localhost:8000/") {
 
     // Retrieve the list of messages from url with GET method 
     // and then put it ien the div in table format
-    fetch(root_div + python_api_url + "_retrive_message_list", request_options)
+    fetch(`${root_div}_retrive_message_list`, request_options)
         .then(asyn_response => asyn_response.json())
         .then(async_result => {
             const message_list = async_result.result;
@@ -205,8 +224,8 @@ function _retr_message_list(root_div = "http://localhost:8000/") {
 
 //?
 /**Get info about campaign with {ID} in JSON format */
-function _vis_campaign(campaign_id = "vo6274305ad55304.39423618", root_div = "http://localhost:8000/") {
-    button_result.innerHTML = "Visualizing campaign info!";
+function _vis_campaign( root_div = "http://localhost:8000/", campaign_id = "vo6274305ad55304.39423618") {
+    dashboard_text.innerHTML = `Visualizing ${campaign_id} campaign info!`;
     const bstr_campaign = document.getElementById("bstr_camp_vis");
     const campaign_table = $("#camp_table");
     const request_options = {
@@ -215,7 +234,7 @@ function _vis_campaign(campaign_id = "vo6274305ad55304.39423618", root_div = "ht
     };
     // Retrieve the list of messages from url with GET method with user defnided ID
     // and then put it in the div in table format
-    fetch(root_div + python_api_url + campaign_id, request_options)
+    fetch(`${root_div + campaign_id}`, request_options)
         .then(async_response => async_response.json())
         .then(async_result => {
             bstr_campaign.style.display = "block";
@@ -243,14 +262,14 @@ function _vis_campaign(campaign_id = "vo6274305ad55304.39423618", root_div = "ht
 
 /** Get users list info in JSON format */
 function _retr_user_list(root_div = "https://emergenze-apit.comune.genova.it/") {
-    button_result.innerHTML = "Retriving users list!";
+    dashboard_text.innerHTML = "Retriving users list!";
     const bstr_results = document.getElementById("bstr_user");
     const user_table = $("#user_table_1");
     const request_options = {
         method: "GET",
         redirect: "follow"
     };
-    fetch(root_div + "emergenze/soggettiVulnerabili/", request_options)
+    fetch(`${root_div}emergenze/soggettiVulnerabili/`, request_options)
         .then((async_response) => async_response.json()
         )
         .then(async_anwser => {
@@ -301,7 +320,7 @@ function _get_campaign_from_to(root_div = "http://localhost:8000/", date_dict = 
         redirect: "follow"
     };
 
-    fetch(root_div + "emergenze/user_campaign/_get_campaign_from_to", requestOptions)
+    fetch(`${root_div}_get_campaign_from_to`, requestOptions)
         .then(async_response => async_response.json())
         .then(async_anwser => {
             bstr_results.style.display = "block";

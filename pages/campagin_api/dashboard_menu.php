@@ -27,9 +27,9 @@
         // echo $r['username'];
         ?>
         <style>
-            body {
-                margin-top: 100px;
-            }
+        body {
+            margin-top: 100px;
+        }
         </style>
 
     </head>
@@ -47,7 +47,8 @@
             require('../navbar_up.php');
             ?>
             <h1 id="dashboard_header">Dashboard</h1>
-            <p id="button_result">testing javascript</p>
+            <p id="dashboard_text">This is a dashboard for the Python API. You can use it to send messages to the users
+                of the application. You can also visualise the campaign and get the list of users.</p>
         </div>
 
         <div class="container" id="API_bttn_container">
@@ -55,54 +56,59 @@
                 list </button>
             <button class="btn btn-primary" id="button_vis_campaign" type="button">Visualise campaign </button>
             <button class="btn btn-primary" id="button_user_list" type="button">Get user list</button>
-            <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
+
         </div>
 
         <div class="container" id="API_date_container">
             <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">
+                <label for="ui_date_start">Pick a start date for campaign search</label>
                 <input placeholder="Select start date" type="text" class="form-control" id="ui_date_start">
-                <label for="ui_date_start">Pick a date for campaign</label>
                 <div class="input-group-addon">
                     <span class="glyphicon glyphicon-th"></span>
                 </div>
             </div>
             <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">
+                <label for="ui_date_end">Pick a end date for campaign search</label>
                 <input placeholder="Select end date" type="text" class="form-control" id="ui_date_end">
-                <label for="ui_date_end">Pick a date for campaign</label>
                 <div class="input-group-addon">
                     <span class="glyphicon glyphicon-th"></span>
                 </div>
             </div>
+            <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
         </div>
 
         <div class="container" id="API_message_container">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary" type="button">Add a message</button>
-                </div>
-                <input type="text" class="form-control" placeholder="Write the message here" aria-label=""
-                    aria-describedby="basic-addon1">
-                <input type="text" class="form-control" placeholder="Pick a male of female voic" aria-label=""
-                    aria-describedby="basic-addon1">
+            <div class="container">
+                <hr class="hr" />
             </div>
-            <div class="input-group">
-                <input type="text" class="form-control" aria-label="Text input with dropdown button">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">Dropdown</button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div role="separator" class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
+            <!-- <div class="input-group"> -->
+            <!-- <div class="form-group">
+                <input type="text" class="form-control" rows="5" aria-label="...">
+            </div> -->
+            <div class="form-group">
+                <label for="comment">Message:</label>
+                <textarea class="form-control" rows="5" id="comment"></textarea>
+            </div>
+            <!-- Buttons voice -->
+            <div class="btn-group">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="options" id="voice_picker_female" value="Female"> Female voice
+                    </label>
+                </div>
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="voice_picker_male" value="Male"> Male voice
+                    </label>
                 </div>
             </div>
-        </div>
 
-        <div class="container" id="API_results_container">
-            <h1 id="results_header">Results</h1>
+            <div class="col-2 text-right" role="group">
+                <button class="btn btn-warning" type="button">Send a message</button>
+            </div>
+            <div class="container" id="API_results_container">
+                <h1 id="results_header">Results</h1>
+            </div>
         </div>
         <!-- Data table for messages -->
         <div class="container" id="bstr_message" style="display: none;">
@@ -122,6 +128,9 @@
         </div>
         <!-- Data table for campaigns -->
         <div class="container" id="bstr_camp_vis" style="display: none;">
+            <div class="container">
+                <hr class="hr" />
+            </div>
             <table class="table-hover" id="camp_table">
                 <thead>
                     <!-- Add a header for table -->
@@ -141,8 +150,12 @@
                 </thead>
             </table>
         </div>
+
         <!-- Data table for users -->
         <div class="container" id="bstr_user" style="display: none;">
+            <div class="container">
+                <hr class="hr" />
+            </div>
             <table class="table-hover" id="user_table_1">
                 <thead>
                     <!-- Add a header for table -->
@@ -157,8 +170,12 @@
                 </thead>
             </table>
         </div>
+
         <!-- Data table for campaign -->
         <div class="container" id="bstr_camp" style="display: none;">
+            <div class="container">
+                <hr class="hr" />
+            </div>
             <table class="table-hover" id="camp_table_time">
                 <thead>
                     <!-- Add a header for table -->
@@ -176,5 +193,6 @@
         </div>
         <script type="text/javascript" src="dashboard_js.js"></script>
     </body>
+
 
 </html>
