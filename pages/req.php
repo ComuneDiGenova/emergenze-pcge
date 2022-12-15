@@ -54,6 +54,7 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 ?>
 
 
+
 <!-- Bootstrap Core CSS -->
 <!-- <link href="/../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"> -->
 <link href=<?php echo "\"$bootstrap_path\""; ?> rel="stylesheet">
@@ -91,53 +92,65 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 <link href="/../vendor/font-awesome-animation/dist/font-awesome-animation.css" rel="stylesheet" type="text/css">
 
 <style type="text/css">
-    #wrapper {
-        /*padding-top:50px;*/
-        padding-top: $(
-            '.navbar').height()
-    }
+#wrapper {
+    /*padding-top:50px;*/
+    padding-top: $('.navbar').height()
+}
 
 
-    .sidebar {
-        overflow-y: scroll;
-        position: fixed;
-        margin-top: 0px;
-        z-index: 1;
-    }
+.sidebar {
+    overflow-y: scroll;
+    position: fixed;
+    margin-top: 0px;
+    z-index: 1;
+}
 
-    .panel-allerta {
-        border-color: <?php echo $color_allerta;
-        ?>;
-    }
+.panel-allerta {
+    border-color: <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>.panel-heading {
-        border-color: <?php echo $color_allerta;
-        ?>;
-        color: white;
-        background-color: <?php echo $color_allerta;
-        ?>;
-    }
+.panel-allerta>.panel-heading {
+    border-color: <?php echo $color_allerta;
+    ?>;
+    color: white;
+    background-color: <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>a {
-        color: <?php echo $color_allerta;
-        ?>;
-    }
+.panel-allerta>a {
+    color: <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>a:hover {
-        color: #337ab7;
-        /* <?php echo $color_allerta; ?>;*/
-    }
-
-
-    .dot {
-        height: 25px;
-        width: 25px;
-        /*background-color: #bbb;*/
-        border-radius: 50%;
-        display: inline-block;
-    }
+.panel-allerta>a:hover {
+    color: #337ab7;
+    /* <?php echo $color_allerta; ?>;*/
+}
 
 
+.dot {
+    height: 25px;
+    width: 25px;
+    /*background-color: #bbb;*/
+    border-radius: 50%;
+    display: inline-block;
+}
+
+
+.fa {
+    -webkit-print-color-adjust: exact;
+}
+
+.fas {
+    -webkit-print-color-adjust: exact;
+}
+
+
+
+@media print {
+
+    /* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
     .fa {
         -webkit-print-color-adjust: exact;
     }
@@ -146,62 +159,49 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
         -webkit-print-color-adjust: exact;
     }
 
-
-
-    @media print {
-
-        /* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
-        .fa {
-            -webkit-print-color-adjust: exact;
-        }
-
-        .fas {
-            -webkit-print-color-adjust: exact;
-        }
-
-        p.bodyText {
-            font-family: georgia,
-                times,
-                serif;
-            -webkit-print-color-adjust: exact;
-            color-adjust: exact;
-        }
-
-        .rows-print-as-pages .row {
-            page-break-before: auto;
-        }
-
-        .btn {
-            display: none;
-        }
-
-
-        table,
-        table tr td,
-        table tr th {
-            page-break-inside: avoid;
-        }
-
-        .collapse {
-            display: block !important;
-            height: auto !important;
-        }
-
-
-        #break {
-            page-break-before: always;
-        }
-
-        .fa-inverse {
-            color: #fff !important;
-        }
-
-        .noprint {
-            display: none
-        }
-
-
+    p.bodyText {
+        font-family: georgia,
+            times,
+            serif;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
     }
+
+    .rows-print-as-pages .row {
+        page-break-before: auto;
+    }
+
+    .btn {
+        display: none;
+    }
+
+
+    table,
+    table tr td,
+    table tr th {
+        page-break-inside: avoid;
+    }
+
+    .collapse {
+        display: block !important;
+        height: auto !important;
+    }
+
+
+    #break {
+        page-break-before: always;
+    }
+
+    .fa-inverse {
+        color: #fff !important;
+    }
+
+    .noprint {
+        display: none
+    }
+
+
+}
 </style>
 
 
@@ -214,6 +214,12 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 
 <!-- jQuery -->
 <script src="/../vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap js -->
+<script src="/../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Bootstrap table -->
+<script src="/../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
 
 <!-- ✅ load jquery UI ✅ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"
@@ -231,10 +237,9 @@ $leaflet_measure_path = "/../pages/l_map/css/leaflet-measure.css";
 <script src="/../vendor/highcharts/code/modules/exporting.js"></script>
 <script src="/../vendor/highcharts/code/modules/export-data.js"></script>
 
-<!-- Bootstrap table -->
-<script src="/../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
+
 <!-- <script src="extensions/export/bootstrap-table-export.js"></script> -->
 
-<!-- Formatter for PHP -->
+<!-- Formatter for PHP
 <script src="https://unpkg.com/prettier/standalone.js"></script>
-<script src="https://unpkg.com/@prettier/plugin-php/standalone.js"></script>
+<script src="https://unpkg.com/@prettier/plugin-php/standalone.js"></script> -->
