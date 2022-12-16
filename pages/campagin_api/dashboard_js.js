@@ -1,6 +1,6 @@
 // This is a JQuery function that is called when the page is loaded
 $(document).ready(() => {
-  alert('Hello World.This page is loaded!');
+  alert("Hello World.This page is loaded!");
 
   //TODO Make a call for users list when the page is loaded
   //TODO Add button for deletion of messages in message table
@@ -12,49 +12,49 @@ $(document).ready(() => {
   // ! Bootstrap table accepts only Arrays as input, not JSON objects
 
   const dashboard_header = (document.getElementById(
-    'dashboard_header',
-  ).innerHTML = 'JS_bootto_strappo_dashboardo is working!');
-  const dashboard_text = document.getElementById('dashboard_text');
+    "dashboard_header",
+  ).innerHTML = "JS_bootto_strappo_dashboardo is working!");
+  const dashboard_text = document.getElementById("dashboard_text");
   const button_message_list =
-    document.getElementById('button_msg_list');
+    document.getElementById("button_msg_list");
   const button_user_list = document.getElementById(
-    'button_user_list',
+    "button_user_list",
   );
   const button_vis_campaign = document.getElementById(
-    'button_vis_campaign',
+    "button_vis_campaign",
   );
   const button_get_camapaign = document.getElementById(
-    'button_campaign_from_to',
+    "button_campaign_from_to",
   );
-  const header_cmp_list = document.getElementById('camp_list_header');
-  const ui_date_start = document.getElementById('ui_date_start');
-  const ui_date_end = document.getElementById('ui_date_end');
-  const bstr_results = document.getElementById('bstr_user');
+  const header_cmp_list = document.getElementById("camp_list_header");
+  const ui_date_start = document.getElementById("ui_date_start");
+  const ui_date_end = document.getElementById("ui_date_end");
+  const bstr_results = document.getElementById("bstr_user");
   const voice_picker_female = document.getElementById(
-    'voice_picker_female',
+    "voice_picker_female",
   );
   const voice_picker_male = document.getElementById(
-    'voice_picker_male',
+    "voice_picker_male",
   );
-  const msg_send = document.getElementById('button_send_message');
+  const msg_send = document.getElementById("button_send_message");
 
   //* API URL
   const python_api_url =
-    'http://localhost:8000/emergenze/user_campaign/';
+    "http://localhost:8000/emergenze/user_campaign/";
 
-  let date_start_picked = '2021-01-01';
-  let date_end_picked = '2021-01-31';
+  let date_start_picked = "2021-01-01";
+  let date_end_picked = "2021-01-31";
   let date_picked = {
     date_start: date_start_picked,
     date_end: date_end_picked,
   };
 
-  let voice_picked = 'Female';
+  let voice_picked = "F";
 
   // Register the date picker with JQuery
   $(() => {
-    $('#ui_date_end').datepicker({
-      dateFormat: 'yy-mm-dd',
+    $("#ui_date_end").datepicker({
+      dateFormat: "yy-mm-dd",
       defaultDate: new Date(),
       maxDate: new Date(),
       minDate: new Date(2020, 1, 1),
@@ -64,13 +64,13 @@ $(document).ready(() => {
       autoSize: true,
       autoclose: true,
       clearBtn: true,
-      language: 'en',
-      orientation: 'bottom auto',
+      language: "en",
+      orientation: "bottom auto",
     });
   });
   $(() => {
-    $('#ui_date_start').datepicker({
-      dateFormat: 'yy-mm-dd',
+    $("#ui_date_start").datepicker({
+      dateFormat: "yy-mm-dd",
       defaultDate: new Date(),
       maxDate: new Date(),
       minDate: new Date(2020, 1, 1),
@@ -80,36 +80,35 @@ $(document).ready(() => {
       autoSize: true,
       autoclose: true,
       clearBtn: true,
-      language: 'en',
-      orientation: 'bottom auto',
+      language: "en",
+      orientation: "bottom auto",
     });
   });
 
   // Registering listeners for the date pickers on change event
-  $('#ui_date_start').on('change', () => {
+  $("#ui_date_start").on("change", () => {
     // date_start = "2022-01-10 10:10"
     // Convert the date to the format of the API
-    date_start_picked = $('#ui_date_start').val();
-    console.log('Start date_picked_>', date_start_picked);
+    date_start_picked = $("#ui_date_start").val();
+    console.log("Start date_picked_>", date_start_picked);
     date_picked.date_start = date_start_picked;
   });
-  $('#ui_date_end').on('change', () => {
+  $("#ui_date_end").on("change", () => {
     // date_start = "2022-01-10 10:10"
     // Convert the date to the format of the API
-    date_end_picked = $('#ui_date_end').val();
-    console.log('End date_picked_>', date_end_picked);
+    date_end_picked = $("#ui_date_end").val();
+    console.log("End date_picked_>", date_end_picked);
     date_picked.date_end = date_end_picked;
   });
 
   // JQuery style of registering listeners
-  $('#voice_picker_female').on('click', () => {
-    voice_picked = $('#voice_picker_female').val();
+  $("#voice_picker_female").on("click", () => {
+    voice_picked = $("#voice_picker_female").val();
     console.log(`voice_picked: ${voice_picked}`);
     alert(`voice_picked: ${voice_picked}`);
-    _create_message;
   });
-  $('#voice_picker_male').on('click', () => {
-    voice_picked = $('#voice_picker_male').val();
+  $("#voice_picker_male").on("click", () => {
+    voice_picked = $("#voice_picker_male").val();
     console.log(`voice_picked: ${voice_picked}`);
     alert(`voice_picked: ${voice_picked}`);
   });
@@ -130,17 +129,17 @@ $(document).ready(() => {
   };
   msg_send.onclick = () => {
     const msg_dict = {
-      message: document.getElementById('msg_content').value,
-      voice: voice_picked,
-      note: document.getElementById('msg_note').value,
+      message: document.getElementById("msg_content").value,
+      voice_gender: voice_picked,
+      note: document.getElementById("msg_note").value,
     };
     _create_message(python_api_url, msg_dict);
   };
   //wolo
   async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
     const bstr_container = document.getElementById(bootstrap_id);
-    const message_table = $('#' + table_id);
-    bstr_container.style.display = 'block';
+    const message_table = $("#" + table_id);
+    bstr_container.style.display = "block";
     try {
       const response = await fetch(url, req_opt);
       const result_1 = await response.json();
@@ -152,84 +151,91 @@ $(document).ready(() => {
         // showRefresh: true,
         showToggle: true,
         // showExport: true,
-        exportDataType: 'all',
+        exportDataType: "all",
         exportTypes: [
-          'csv',
-          'txt',
-          'sql',
-          'doc',
-          'excel',
-          'xlsx',
-          'pdf',
+          "csv",
+          "txt",
+          "sql",
+          "doc",
+          "excel",
+          "xlsx",
+          "pdf",
         ],
         exportOptions: {
-          fileName: 'export',
+          fileName: "export",
           jspdf: {
-            orientation: 'l',
-            format: 'a4',
+            orientation: "l",
+            format: "a4",
             margins: { left: 20, right: 10, top: 10, bottom: 10 },
             autotable: {
               styles: {
-                fillColor: 'inherit',
-                textColor: 'inherit',
+                fillColor: "inherit",
+                textColor: "inherit",
               },
-              tableWidth: 'auto',
+              tableWidth: "auto",
             },
           },
         },
       });
       return result_1;
     } catch (error) {
-      return console.log('error', error);
+      return console.log("error", error);
     }
   }
 
   function _create_message(
-    root_div = 'http://localhost:8000/emergenze/user_campaign/',
+    root_div = "http://localhost:8000/emergenze/user_campaign/",
     dict_of_options = {
-      message: 'Sono romano, grana padano!',
-      voice_gender: 'M',
-      note: 'Gter_test_JS',
+      message: "Sono romano, grana padano!",
+      voice_gender: "M",
+      note: "Gter_test_JS",
     },
   ) {
-    document.getElementById('dashboard_text').innerHTML =
-      'Creating message!';
-    const bstr_message = document.getElementById('bstr_message');
-    const message_table = $('#msg_table');
-    return console.log('dict_of_options', dict_of_options);
+    document.getElementById("dashboard_text").innerHTML =
+      "Creating message!";
+    const bstr_message = document.getElementById("bstr_message");
+    const message_table = $("#msg_table");
+    // return console.log('dict_of_options', dict_of_options);
     let formdata = new FormData();
-    formdata.append('message_text', dict_of_options.message);
-    formdata.append('voice_gender', dict_of_options.voice_gender);
-    formdata.append('message_note', 'Gter_test_JS');
-
-    const requestOptions = {
-      method: 'POST',
+    if (dict_of_options.message === "") {
+      dict_of_options.message = "EMPTY MESSAGE";
+    }
+    formdata.append("message_text", dict_of_options.message);
+    formdata.append("voice_gender", dict_of_options.voice_gender);
+    formdata.append("message_note", dict_of_options.note);
+    console.log("dict_of_options", dict_of_options);
+    console.log("dict_of_options.message", dict_of_options.message);
+    console.log(
+      "dict_of_options.voice_gender",
+      dict_of_options.voice_gender,
+    );
+    const request_options = {
+      method: "POST",
       body: formdata,
-      redirect: 'follow',
+      // redirect: 'follow',
     };
     fetch(`${root_div}_create_message`, request_options)
       .then((asyn_response) => asyn_response.json())
       .then((async_result) => {
-        console.log('async_result', async_result);
-        document.getElementById('dashboard_text').innerHTML =
-          'Message created!';
-        bstr_message.value = '';
-        _retr_message_list();
+        console.log("async_result", async_result);
+        document.getElementById("dashboard_text").innerHTML =
+          "Message created!";
+        _retr_message_list(python_api_url);
       })
-      .catch((error) => console.log('error', error));
+      .catch((error) => console.log("error", error));
   }
 
   // Retrieve the list of messages from url with GET method
   /**Retrieves list of messages in JSON format */
-  function _retr_message_list(root_div = 'http://localhost:8000/') {
-    document.getElementById('dashboard_text').innerHTML =
-      'Retriving message list!';
-    const bstr_message = document.getElementById('bstr_message');
-    const message_table = $('#msg_table');
+  function _retr_message_list(root_div = "http://localhost:8000/") {
+    document.getElementById("dashboard_text").innerHTML =
+      "Retriving message list!";
+    const bstr_message = document.getElementById("bstr_message");
+    const message_table = $("#msg_table");
     const request_options = {
-      method: 'GET',
+      method: "GET",
       // body: form_data,
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     // Retrieve the list of messages from url with GET method
@@ -253,8 +259,8 @@ $(document).ready(() => {
             message_note: message_list[i].note,
           });
         }
-        const message_table = $('#msg_table');
-        bstr_message.style.display = 'block';
+        const message_table = $("#msg_table");
+        bstr_message.style.display = "block";
         message_table.bootstrapTable({
           data: message_list_dict,
           pagination: true,
@@ -263,40 +269,40 @@ $(document).ready(() => {
           // showRefresh: true,
           showToggle: true,
           showExport: true,
-          exportDataType: 'all',
+          exportDataType: "all",
           exportTypes: [
-            'csv',
-            'txt',
-            'sql',
-            'doc',
-            'excel',
-            'xlsx',
-            'pdf',
+            "csv",
+            "txt",
+            "sql",
+            "doc",
+            "excel",
+            "xlsx",
+            "pdf",
           ],
         });
       })
-      .catch((error) => console.log('error', error));
+      .catch((error) => console.log("error", error));
   }
 
   //?
   /**Get info about campaign with {ID} in JSON format */
   function _vis_campaign(
-    root_div = 'http://localhost:8000/',
-    campaign_id = 'vo6274305ad55304.39423618',
+    root_div = "http://localhost:8000/",
+    campaign_id = "vo6274305ad55304.39423618",
   ) {
     dashboard_text.innerHTML = `Visualizing ${campaign_id} campaign info!`;
-    const bstr_campaign = document.getElementById('bstr_camp_vis');
-    const campaign_table = $('#camp_table');
+    const bstr_campaign = document.getElementById("bstr_camp_vis");
+    const campaign_table = $("#camp_table");
     const request_options = {
-      method: 'GET',
-      redirect: 'follow',
+      method: "GET",
+      redirect: "follow",
     };
     // Retrieve the list of messages from url with GET method with user defnided ID
     // and then put it in the div in table format
     fetch(`${root_div + campaign_id}`, request_options)
       .then((async_response) => async_response.json())
       .then((async_result) => {
-        bstr_campaign.style.display = 'block';
+        bstr_campaign.style.display = "block";
         const campaign_json = async_result.result;
         const campaign_list_dict = [
           {
@@ -316,19 +322,19 @@ $(document).ready(() => {
           showToggle: true,
         });
       })
-      .catch((error) => console.log('error', error));
+      .catch((error) => console.log("error", error));
   }
 
   /** Get users list info in JSON format */
   function _retr_user_list(
-    root_div = 'https://emergenze-apit.comune.genova.it/',
+    root_div = "https://emergenze-apit.comune.genova.it/",
   ) {
-    dashboard_text.innerHTML = 'Retriving users list!';
-    const bstr_results = document.getElementById('bstr_user');
-    const user_table = $('#user_table_1');
+    dashboard_text.innerHTML = "Retriving users list!";
+    const bstr_results = document.getElementById("bstr_user");
+    const user_table = $("#user_table_1");
     const request_options = {
-      method: 'GET',
-      redirect: 'follow',
+      method: "GET",
+      redirect: "follow",
     };
     fetch(
       `${root_div}emergenze/soggettiVulnerabili/`,
@@ -336,7 +342,7 @@ $(document).ready(() => {
     )
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
-        bstr_results.style.display = 'block';
+        bstr_results.style.display = "block";
         const user_list_json = async_anwser.result;
         const user_list_dict = user_list_json.map((item) => {
           return {
@@ -355,53 +361,53 @@ $(document).ready(() => {
           // showRefresh: true,
           showToggle: true,
           exportTypes: [
-            'csv',
-            'txt',
-            'sql',
-            'doc',
-            'excel',
-            'xlsx',
-            'pdf',
+            "csv",
+            "txt",
+            "sql",
+            "doc",
+            "excel",
+            "xlsx",
+            "pdf",
           ],
-          exportDataType: 'all',
+          exportDataType: "all",
         });
       })
       .catch((error) => {
-        console.error('error', error);
+        console.error("error", error);
         console.log(
-          'Error in retriving user list! Check VPN connection!',
+          "Error in retriving user list! Check VPN connection!",
         );
       });
   }
 
   function _get_campaign_from_to(
-    root_div = 'http://localhost:8000/',
+    root_div = "http://localhost:8000/",
     date_dict = {
-      date_start: '2021-01-01',
-      date_end: '2021-01-31',
+      date_start: "2021-01-01",
+      date_end: "2021-01-31",
     },
   ) {
-    const bstr_results = document.getElementById('bstr_camp');
-    const camp_table = $('#camp_table_time');
-    const date_start = date_dict.date_start + ' 12:00';
-    const date_end = date_dict.date_end + ' 12:00';
-    console.log('date_start form date_dict: ' + date_start);
-    console.log('date_end form date_dict: ' + date_end);
+    const bstr_results = document.getElementById("bstr_camp");
+    const camp_table = $("#camp_table_time");
+    const date_start = date_dict.date_start + " 12:00";
+    const date_end = date_dict.date_end + " 12:00";
+    console.log("date_start form date_dict: " + date_start);
+    console.log("date_end form date_dict: " + date_end);
     header_cmp_list.innerHTML =
-      'Campaign list from ' + date_start + ' to ' + date_end;
+      "Campaign list from " + date_start + " to " + date_end;
     let form_data = new FormData();
-    form_data.append('date_start', date_start);
-    form_data.append('date_end', date_end);
+    form_data.append("date_start", date_start);
+    form_data.append("date_end", date_end);
     const requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: form_data,
-      redirect: 'follow',
+      redirect: "follow",
     };
 
     fetch(`${root_div}_get_campaign_from_to`, requestOptions)
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
-        bstr_results.style.display = 'block';
+        bstr_results.style.display = "block";
         const camp_list_json = async_anwser.result;
         console.log(camp_list_json);
         let camp_list_dict = [];
@@ -425,17 +431,17 @@ $(document).ready(() => {
           // showRefresh: true,
           showToggle: true,
           exportTypes: [
-            'csv',
-            'txt',
-            'sql',
-            'doc',
-            'excel',
-            'xlsx',
-            'pdf',
+            "csv",
+            "txt",
+            "sql",
+            "doc",
+            "excel",
+            "xlsx",
+            "pdf",
           ],
-          exportDataType: 'all',
+          exportDataType: "all",
         });
       })
-      .catch((error) => console.log('error', error));
+      .catch((error) => console.log("error", error));
   }
 });
