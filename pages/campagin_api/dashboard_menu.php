@@ -36,13 +36,7 @@
 
     <body>
         <div class="container" id="foretext_container">
-            <?php if ($_DEBUG) {
-                echo "This is the __DIR__: " . __DIR__ . "<br>";
-                echo "This is the config path: " . "$config_path" . "<br>";
-                echo "This is the root path: " . ROOT_DIR . "<br>";
-                echo "This is the bootstrap path: $path_to_boostrap[2]" . "<br>";
-            }
-
+            <?php
             require('../check_event_fake.php');
             require('../navbar_up.php');
             ?>
@@ -86,25 +80,27 @@
                 <input type="text" class="form-control" rows="5" aria-label="...">
             </div> -->
             <div class="form-group">
-                <label for="comment">Message:</label>
-                <textarea class="form-control" rows="5" id="comment"></textarea>
+                <label for="comment">Message:</plabel>
+                    <textarea class="form-control" rows="5" id="msg_content"></textarea>
+                    <input type="text" class="form-control" id="msg_note" placeholder="Message note">
             </div>
             <!-- Buttons voice -->
             <div class="btn-group">
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary active">
-                        <input type="radio" name="options" id="voice_picker_female" value="Female"> Female voice
+                    <label class="btn btn-primary">
+                        <button type="radio" name="options" id="voice_picker_female" value="F"> Female voice
+                        </button>
                     </label>
                 </div>
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary">
-                        <input type="radio" name="options" id="voice_picker_male" value="Male"> Male voice
+                        <button type="radio" name="options" id="voice_picker_male" value="M"> Male voice</button>
                     </label>
                 </div>
             </div>
 
             <div class="col-2 text-right" role="group">
-                <button class="btn btn-warning" type="button">Send a message</button>
+                <button class="btn btn-warning" type="button" id="button_send_message">Send a message</button>
             </div>
             <div class="container" id="API_results_container">
                 <h1 id="results_header">Results</h1>
