@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # Framework specific
-settings_private.py
+settings_private*.py
 uploads
 databases
 

@@ -55,9 +55,14 @@ USER $user
 
 #RUN cd /home/$user/apps/ && mkdir emergenze
 
-COPY --chown=$UNAME:$UNAME . /home/$user/apps/emergenze
-# RUN chown -R $user:$user /home/$user/apps/emergenze
+#COPY Emergenze-Verbatel /home/$user/apps/emergenze
+
+#USER $user
 
 EXPOSE 8000
 
 WORKDIR /home/$user/
+
+#USER root
+
+#CMD py4web run --password_file password.txt --host 0.0.0.0 --port 8000 apps
