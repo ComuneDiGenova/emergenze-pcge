@@ -2,8 +2,8 @@
 $(document).ready(() => {
   alert("Hello World.This page is loaded!");
 
-  //TODO Make a call for users list when the page is loaded
-  //TODO Add button for deletion of messages in message table
+  // // TODO Make a call for users list when the page is loaded
+  // TODO Add button for deletion of messages in message table
 
   // TODO Fetching data stays iun browser cache, and for the same data it is downloaded again and again
   // TODO: Add a button to clear the cache
@@ -40,6 +40,7 @@ $(document).ready(() => {
 
   //* API URL
   const python_api_url =
+    // "http://localhost:8000/emergenze/user_campaign/";
     "http://localhost:8000/emergenze/user_campaign/";
 
   let date_start_picked = "2021-01-01";
@@ -50,6 +51,9 @@ $(document).ready(() => {
   };
 
   let voice_picked = "F";
+
+  // Loads the userlist when document is loaded
+  // retr_user_list();
 
   // Register the date picker with JQuery
   $(() => {
@@ -115,17 +119,18 @@ $(document).ready(() => {
 
   //* Main API calls
   // JS Registering listeners for the buttons
-  button_message_list.onclick = () => {
-    _retr_message_list(python_api_url);
+  button_message_list.onclick = async () => {
+    await retr_message_list(python_api_url);
+    await listen_delete();
   };
   button_vis_campaign.onclick = () => {
-    _vis_campaign(python_api_url);
+    vis_campaign(python_api_url);
   };
   button_user_list.onclick = () => {
-    _retr_user_list(python_api_url);
+    retr_user_list(python_api_url);
   };
   button_get_camapaign.onclick = () => {
-    _get_campaign_from_to(python_api_url, date_picked);
+    get_campaign_from_to(python_api_url, date_picked);
   };
   msg_send.onclick = () => {
     const msg_dict = {
@@ -133,57 +138,76 @@ $(document).ready(() => {
       voice_gender: voice_picked,
       note: document.getElementById("msg_note").value,
     };
-    _create_message(python_api_url, msg_dict);
+    create_message(python_api_url, msg_dict);
   };
-  //wolo
-  async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
-    const bstr_container = document.getElementById(bootstrap_id);
-    const message_table = $("#" + table_id);
-    bstr_container.style.display = "block";
-    try {
-      const response = await fetch(url, req_opt);
-      const result_1 = await response.json();
-      message_table.bootstrapTable({
-        data: message_list_dict,
-        pagination: true,
-        search: true,
-        // showColumns: true,
-        // showRefresh: true,
-        showToggle: true,
-        // showExport: true,
-        exportDataType: "all",
-        exportTypes: [
-          "csv",
-          "txt",
-          "sql",
-          "doc",
-          "excel",
-          "xlsx",
-          "pdf",
-        ],
-        exportOptions: {
-          fileName: "export",
-          jspdf: {
-            orientation: "l",
-            format: "a4",
-            margins: { left: 20, right: 10, top: 10, bottom: 10 },
-            autotable: {
-              styles: {
-                fillColor: "inherit",
-                textColor: "inherit",
-              },
-              tableWidth: "auto",
-            },
-          },
-        },
-      });
-      return result_1;
-    } catch (error) {
-      return console.log("error", error);
-    }
+  // async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
+  //   const bstr_container = document.getElementById(bootstrap_id);
+  //   const message_table = $("#" + table_id);
+  //   bstr_container.style.display = "block";
+  //   try {
+  //     const response = await fetch(url, req_opt);
+  //     const result_1 = await response.json();
+  //     message_table.bootstrapTable({
+  //       data: message_list_dict,
+  //       pagination: true,
+  //       search: true,
+  //       // showColumns: true,
+  //       // showRefresh: true,
+  //       showToggle: true,
+  //       // showExport: true,
+  //       exportDataType: "all",
+  //       exportTypes: [
+  //         "csv",
+  //         "txt",
+  //         "sql",
+  //         "doc",
+  //         "excel",
+  //         "xlsx",
+  //         "pdf",
+  //       ],
+  //       exportOptions: {
+  //         fileName: "export",
+  //         jspdf: {
+  //           orientation: "l",
+  //           format: "a4",
+  //           margins: { left: 20, right: 10, top: 10, bottom: 10 },
+  //           autotable: {
+  //             styles: {
+  //               fillColor: "inherit",
+  //               textColor: "inherit",
+  //             },
+  //             tableWidth: "auto",
+  //           },
+  //         },
+  //       },
+  //     });
+  //     return result_1;
+  //   } catch (error) {
+  //     return console.log("error", error);
+  //   }
+  // }
+
+  function delete_message(
+    message_id = "1",
+    root_div = "http://localhost:8000/emergenze/user_campaign/",
+  ) {
+    const form_data = new FormData();
+    // const msg_id = document.getElementById("msg_id").value;
+    form_data.append("message_id_delete", `${message_id}`);
+    const request_options = {
+      method: "DELETE",
+      body: form_data,
+      redirect: "follow",
+      // set the request mode to no-cors
+      // mode: "no-cors",
+    };
+    fetch(`${root_div}_delete_older_message`, request_options)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
   }
 
-  function _create_message(
+  function create_message(
     root_div = "http://localhost:8000/emergenze/user_campaign/",
     dict_of_options = {
       message: "Sono romano, grana padano!",
@@ -214,20 +238,48 @@ $(document).ready(() => {
       body: formdata,
       // redirect: 'follow',
     };
-    fetch(`${root_div}_create_message`, request_options)
+    fetch(`${root_div}create_message`, request_options)
       .then((asyn_response) => asyn_response.json())
       .then((async_result) => {
         console.log("async_result", async_result);
         document.getElementById("dashboard_text").innerHTML =
           "Message created!";
-        _retr_message_list(python_api_url);
+        retr_message_list(python_api_url);
       })
       .catch((error) => console.log("error", error));
+  }
+  // TODO get querySelectorAll
+
+  async function listen_delete() {
+    const $message_table = $("#msg_table");
+    const $button = $("#button_delete");
+
+    $(function () {
+      $button.click(function () {
+        var ids = $.map(
+          $message_table.bootstrapTable("getSelections"),
+          function (row) {
+            return row.message_id;
+          },
+        );
+        $message_table.bootstrapTable("remove", {
+          field: "message_id",
+          values: ids,
+        });
+        // delete_message(ids);
+        ids.forEach((element) => {
+          delete_message(element, python_api_url);
+          console.log("delteted id:", element);
+        });
+      });
+    });
   }
 
   // Retrieve the list of messages from url with GET method
   /**Retrieves list of messages in JSON format */
-  function _retr_message_list(root_div = "http://localhost:8000/") {
+  async function retr_message_list(
+    root_div = "http://localhost:8000/",
+  ) {
     document.getElementById("dashboard_text").innerHTML =
       "Retriving message list!";
     const bstr_message = document.getElementById("bstr_message");
@@ -245,28 +297,33 @@ $(document).ready(() => {
       .then((async_result) => {
         const message_list = async_result.result;
         const message_list_dict = [];
-        // "data_creazione": "01-12-2021 12:03:09",
-        // "dimensione": 181998,
-        // "durata": "0:11",
-        // "id_messaggio": 2551638356544,
-        // "note": "prova prima sessione corso"
         for (let i in message_list) {
+          const string_id = `message_row_${i}`;
           message_list_dict.push({
             message_date: message_list[i].data_creazione,
             message_dimension: message_list[i].dimensione,
             message_duration: message_list[i].durata,
             message_id: message_list[i].id_messaggio,
             message_note: message_list[i].note,
+            // deletion_button: `<button type="button" class="btn btn-danger message_delete_button" message_id="${message_list[i].id_messaggio}">Delete</button>`,
+            // deletion_button: `<button type="button" class="btn btn-danger" id="${string_id}">Delete</button>`,
           });
         }
         const message_table = $("#msg_table");
         bstr_message.style.display = "block";
+
         message_table.bootstrapTable({
           data: message_list_dict,
+          // height: 768,
+          uniqueId: "message_id",
+          striped: true,
+          sortable: true,
+          pageNumber: 1,
+          pageSize: 10,
+          pageList: [10, 25, 50, 100],
+          searchHighlight: true,
           pagination: true,
           search: true,
-          // showColumns: true,
-          // showRefresh: true,
           showToggle: true,
           showExport: true,
           exportDataType: "all",
@@ -281,12 +338,12 @@ $(document).ready(() => {
           ],
         });
       })
+
       .catch((error) => console.log("error", error));
   }
 
-  //?
   /**Get info about campaign with {ID} in JSON format */
-  function _vis_campaign(
+  function vis_campaign(
     root_div = "http://localhost:8000/",
     campaign_id = "vo6274305ad55304.39423618",
   ) {
@@ -326,7 +383,7 @@ $(document).ready(() => {
   }
 
   /** Get users list info in JSON format */
-  function _retr_user_list(
+  function retr_user_list(
     root_div = "https://emergenze-apit.comune.genova.it/",
   ) {
     dashboard_text.innerHTML = "Retriving users list!";
@@ -380,7 +437,7 @@ $(document).ready(() => {
       });
   }
 
-  function _get_campaign_from_to(
+  function get_campaign_from_to(
     root_div = "http://localhost:8000/",
     date_dict = {
       date_start: "2021-01-01",
@@ -404,7 +461,7 @@ $(document).ready(() => {
       redirect: "follow",
     };
 
-    fetch(`${root_div}_get_campaign_from_to`, requestOptions)
+    fetch(`${root_div}get_campaign_from_to`, requestOptions)
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
         bstr_results.style.display = "block";

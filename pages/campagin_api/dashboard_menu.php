@@ -10,22 +10,25 @@
         <title>Dashboard - Python API GUI</title>
         <?php
         $_DEBUG = false;
-        define('ROOT_DIR', realpath(__DIR__ . '/..'));
+        define("ROOT_DIR", realpath(__DIR__ . "/.."));
         try {
-            $config_path = __DIR__ . '/config.php';
+            $config_path = __DIR__ . "/config.php";
             $path_to_boostrap = explode("/", __DIR__);
-            require(__DIR__ . '/../req.php');
+            require __DIR__ . "/../req.php";
             # Getting the conn.php file from the parent directory
-            $conn_php_path = explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
+            $conn_php_path =
+                explode("emergenze-pcge", getcwd())[0] .
+                "emergenze-pcge/conn.php";
         } catch (Exception $e) {
-            echo 'Caught exception: ', $e->getMessage(), "\n";
+            echo "Caught exception: ", $e->getMessage(), "\n";
         }
-        // This is an example of how to use SQL queries:
-        // $my_query = "SELECT * FROM users.utenti WHERE username = '$_SESSION[username]';";
-        // $result = pg_query($conn, $my_query);
-        // $r = pg_fetch_assoc($result);
-        // echo $r['username'];
-        ?>
+
+// This is an example of how to use SQL queries:
+// $my_query = "SELECT * FROM users.utenti WHERE username = '$_SESSION[username]';";
+// $result = pg_query($conn, $my_query);
+// $r = pg_fetch_assoc($result);
+// echo $r['username'];
+?>
         <style>
         body {
             margin-top: 100px;
@@ -37,8 +40,8 @@
     <body>
         <div class="container" id="foretext_container">
             <?php
-            require('../check_event_fake.php');
-            require('../navbar_up.php');
+            require "../check_event_fake.php";
+            require "../navbar_up.php";
             ?>
             <h1 id="dashboard_header">Dashboard</h1>
             <p id="dashboard_text">This is a dashboard for the Python API. You can use it to send messages to the users
@@ -75,10 +78,6 @@
             <div class="container">
                 <hr class="hr" />
             </div>
-            <!-- <div class="input-group"> -->
-            <!-- <div class="form-group">
-                <input type="text" class="form-control" rows="5" aria-label="...">
-            </div> -->
             <div class="form-group">
                 <label for="comment">Message:</plabel>
                     <textarea class="form-control" rows="5" id="msg_content"></textarea>
@@ -87,15 +86,16 @@
             <!-- Buttons voice -->
             <div class="btn-group">
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary">
-                        <button type="radio" name="options" id="voice_picker_female" value="F"> Female voice
-                        </button>
-                    </label>
+                    <button class="btn btn-primary" type="submit" name="voice_options" id="voice_picker_female"
+                        value="F">
+                        Female
+                        voice
+                    </button>
                 </div>
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary">
-                        <button type="radio" name="options" id="voice_picker_male" value="M"> Male voice</button>
-                    </label>
+                    <button class="btn btn-primary" type="submit" name="voice_options" id="voice_picker_male" value="M">
+                        Male
+                        voice</button>
                 </div>
             </div>
 
@@ -108,18 +108,33 @@
         </div>
         <!-- Data table for messages -->
         <div class="container" id="bstr_message" style="display: none;">
-            <table class="table-hover" id="msg_table">
-                <h3 id="msg_list_header">Messages</h3>
+            <h3 id="msg_list_header">Messages</h3>
+            <div id="msg_toolbar">
+                <button id="button_delete" class="btn btn-danger">
+                    <i class="glyphicon glyphicon-remove"></i> Delete selected messages
+                </button>
+            </div>
+            <table class="table-hover" id="msg_table" data-togle="table" data-toolbar="msg_toolbar">
                 <thead>
                     <!-- Add a header for table -->
                     <tr>
-                        <th data-field="message_date">Date</th>
-                        <th data-field="message_id">ID</th>
-                        <th data-field="message_note">Note</th>
-                        <th data-field="message_duration">Duration</th>
-                        <th data-field="message_dimension">Dimension</th>
+                        <th data-field="state" data-checkbox="true"> Select checkbox</th>
+                        <th data-field="message_date"> Date</th>
+                        <th data-field="message_id"> ID</th>
+                        <th data-field="message_note"> Note</th>
+                        <th data-field="message_duration"> Duration</th>
+                        <th data-field="message_dimension"> Dimension</th>
                     </tr>
                 </thead>
+                <!-- <tbody id="msg_table_body">
+                    <tr>
+                        <td>
+                            <button class="btn btn-danger badge-pill" id="deletion_button">
+                                Delete_wololo
+                            </button>
+                        </td>
+                    </tr>
+                </tbody> -->
             </table>
         </div>
         <!-- Data table for campaigns -->
