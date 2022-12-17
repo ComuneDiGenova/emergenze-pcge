@@ -118,6 +118,17 @@ $(document).ready(() => {
   });
 
   //* Main API calls
+
+  $("#button_create_campaign").on("click", () => {
+    const msg_dict = {
+      message_text: document.getElementById("msg_content").value,
+      voice: voice_picked,
+      group: document.getElementById("msg_note").value,
+    };
+    create_campaign(python_api_url, msg_dict);
+    alert(`Campaign: Sent!`);
+  });
+
   // JS Registering listeners for the buttons
   button_message_list.onclick = async () => {
     await retr_message_list(python_api_url);
@@ -202,8 +213,37 @@ $(document).ready(() => {
       // mode: "no-cors",
     };
     fetch(`${root_div}_delete_older_message`, request_options)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
+  }
+
+  // TODO Add option for using messages from the database
+  function create_campaign(
+    root_div = "http://localhost:8000/emergenze/user_campaign/",
+    dict_of_options = {
+      message_text: "Test messagio per alert sistema",
+      group: "1",
+      voice: voice_picked,
+    },
+  ) {
+    let formdata = new FormData();
+    formdata.append("message_text", dict_of_options.message_text);
+    formdata.append("group", dict_of_options.group);
+    formdata.append("voice_gender", dict_of_options.voice);
+
+    const requestOptions = {
+      method: "POST",
+      body: formdata,
+      redirect: "follow",
+    };
+
+    fetch(`${root_div}_create_capmaign`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Campaign created!");
+        console.log(result);
+      })
       .catch((error) => console.log("error", error));
   }
 
@@ -238,7 +278,7 @@ $(document).ready(() => {
       body: formdata,
       // redirect: 'follow',
     };
-    fetch(`${root_div}create_message`, request_options)
+    fetch(`${root_div}_create_message`, request_options)
       .then((asyn_response) => asyn_response.json())
       .then((async_result) => {
         console.log("async_result", async_result);
@@ -250,6 +290,8 @@ $(document).ready(() => {
   }
   // TODO get querySelectorAll
 
+  /* This function operates on bootstrap table for
+  deletions of rows*/
   async function listen_delete() {
     const $message_table = $("#msg_table");
     const $button = $("#button_delete");
@@ -266,7 +308,6 @@ $(document).ready(() => {
           field: "message_id",
           values: ids,
         });
-        // delete_message(ids);
         ids.forEach((element) => {
           delete_message(element, python_api_url);
           console.log("delteted id:", element);

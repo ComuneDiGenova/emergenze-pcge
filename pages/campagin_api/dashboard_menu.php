@@ -97,14 +97,21 @@
                         Male
                         voice</button>
                 </div>
+                <div class="btn-group" data-toggle="buttons">
+                    <button class="btn btn-success" type="submit" id="button_send_message">Create a
+                        message</button>
+                </div>
+                <!-- <div class="col-2 text-left" role="group"> -->
+                <div class="btn-group" data-toggle="buttons">
+                    <button class="btn btn-warning" type="submit" id="button_create_campaign">Create and send a
+                        campaign</button>
+                </div>
             </div>
 
-            <div class="col-2 text-right" role="group">
-                <button class="btn btn-warning" type="button" id="button_send_message">Send a message</button>
-            </div>
-            <div class="container" id="API_results_container">
-                <h1 id="results_header">Results</h1>
-            </div>
+
+        </div>
+        <div class="container" id="API_results_container">
+            <h1 id="results_header">Results</h1>
         </div>
         <!-- Data table for messages -->
         <div class="container" id="bstr_message" style="display: none;">
