@@ -40,7 +40,9 @@
     <body>
         <div class="container" id="foretext_container">
             <?php
+            // This is workaround for SPID account check
             require "../check_event_fake.php";
+            // This is for the navbar component
             require "../navbar_up.php";
             ?>
             <h1 id="dashboard_header">Dashboard</h1>
@@ -64,6 +66,7 @@
                     <span class="glyphicon glyphicon-th"></span>
                 </div>
             </div>
+
             <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">
                 <label for="ui_date_end">Pick a end date for campaign search</label>
                 <input placeholder="Select end date" type="text" class="form-control" id="ui_date_end">
@@ -71,6 +74,7 @@
                     <span class="glyphicon glyphicon-th"></span>
                 </div>
             </div>
+
             <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign from/to</button>
         </div>
 
@@ -78,13 +82,30 @@
             <div class="container">
                 <hr class="hr" />
             </div>
-            <div class="form-group">
-                <label for="comment">Message:</plabel>
-                    <textarea class="form-control" rows="5" id="msg_content"></textarea>
-                    <input type="text" class="form-control" id="msg_note" placeholder="Message note">
+            <form>
+                <div class="form-group">
+                    <label for="comment">Message:</plabel>
+                        <textarea class="form-control" rows="5" id="msg_content"
+                            placeholder="Message content"></textarea>
+                        <input type="text" class="form-control" id="msg_note" placeholder="Message note ">
+                        <input type="text" class="form-control" id="msg_id" placeholder="ID of pre-made message ">
+                </div>
+            </form>
+            <div class="card">
+                <label>
+                    <input type="radio" class="option-input radio" value=1 name="group_option" id="radio_grp_1" />
+                    Group 1
+                </label>
+                <label>
+                    <input type="radio" class="option-input radio" value=2 name="group_option" id="radio_grp_2"
+                        checked />
+                    Group 2
+                </label>
+
             </div>
             <!-- Buttons voice -->
             <div class="btn-group">
+
                 <div class="btn-group" data-toggle="buttons">
                     <button class="btn btn-primary" type="submit" name="voice_options" id="voice_picker_female"
                         value="F">
@@ -92,21 +113,24 @@
                         voice
                     </button>
                 </div>
+
                 <div class="btn-group" data-toggle="buttons">
                     <button class="btn btn-primary" type="submit" name="voice_options" id="voice_picker_male" value="M">
                         Male
                         voice</button>
                 </div>
+
                 <div class="btn-group" data-toggle="buttons">
                     <button class="btn btn-success" type="submit" id="button_send_message">Create a
                         message</button>
                 </div>
                 <!-- <div class="col-2 text-left" role="group"> -->
                 <div class="btn-group" data-toggle="buttons">
-                    <button class="btn btn-warning" type="submit" id="button_create_campaign">Create and send a
+                    <button class="btn btn-warning" type="submit" id="button_create_campaign">Create and start a
                         campaign</button>
                 </div>
             </div>
+
 
 
         </div>

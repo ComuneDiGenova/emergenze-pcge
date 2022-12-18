@@ -1,7 +1,5 @@
 // This is a JQuery function that is called when the page is loaded
 $(document).ready(() => {
-  alert("Hello World.This page is loaded!");
-
   // // TODO Make a call for users list when the page is loaded
   // TODO Add button for deletion of messages in message table
 
@@ -40,8 +38,8 @@ $(document).ready(() => {
 
   //* API URL
   const python_api_url =
-    // "http://localhost:8000/emergenze/user_campaign/";
     "http://localhost:8000/emergenze/user_campaign/";
+  const genova_api_url = "https://emergenze-apit.comune.genova.it/";
 
   let date_start_picked = "2021-01-01";
   let date_end_picked = "2021-01-31";
@@ -51,10 +49,13 @@ $(document).ready(() => {
   };
 
   let voice_picked = "F";
+  let group_picked = "1";
 
   // Loads the userlist when document is loaded
   // retr_user_list();
-
+  $(() => {
+    console.log("Hello World.This page is loaded!");
+  });
   // Register the date picker with JQuery
   $(() => {
     $("#ui_date_end").datepicker({
@@ -119,13 +120,28 @@ $(document).ready(() => {
 
   //* Main API calls
 
-  $("#button_create_campaign").on("click", () => {
-    const msg_dict = {
-      message_text: document.getElementById("msg_content").value,
+  $("#button_create_campaign").on("click", async () => {
+    const msg_id_input = document.getElementById("msg_id").value;
+    const group_number = document.querySelectorAll(
+      "input[name='group_option']:checked",
+    )[0].value;
+    const message_returned = await retr_message(
+      python_api_url,
+      msg_id_input,
+    );
+    let msg_dict = {
+      message_text: "Empty message",
       voice: voice_picked,
-      group: document.getElementById("msg_note").value,
+      group: group_number,
     };
-    create_campaign(python_api_url, msg_dict);
+
+    if (message_returned == null) {
+      msg_dict.message_text =
+        document.getElementById("msg_content").value;
+    } else {
+      msg_dict.message_text = message_returned.message.note;
+    }
+    await create_campaign(python_api_url, msg_dict);
     alert(`Campaign: Sent!`);
   });
 
@@ -138,7 +154,7 @@ $(document).ready(() => {
     vis_campaign(python_api_url);
   };
   button_user_list.onclick = () => {
-    retr_user_list(python_api_url);
+    retr_user_list(genova_api_url);
   };
   button_get_camapaign.onclick = () => {
     get_campaign_from_to(python_api_url, date_picked);
@@ -198,13 +214,46 @@ $(document).ready(() => {
   //   }
   // }
 
-  function delete_message(
-    message_id = "1",
-    root_div = "http://localhost:8000/emergenze/user_campaign/",
-  ) {
+  async function retr_message(root_div, message_id) {
+    const request_options = {
+      method: "GET",
+      redirect: "follow",
+    };
+    // Retrieve the list of messages from url with GET method
+    // and then put it ien the div in table format
+    if (message_id == "") {
+      return console.log("message_id is empty");
+    }
+    let message_dict = null;
+    const returned_message = await fetch(
+      `${root_div}_retrive_message_list`,
+      request_options,
+    )
+      .then((asyn_response) => asyn_response.json())
+      .then((async_result) => {
+        const message_list = async_result.result;
+        return Object.entries(message_list).forEach(
+          ([key, value]) => {
+            // message_list.forEach((element) => {
+            if (key == message_id) {
+              message_dict = {};
+              message_dict.message = value;
+            }
+          },
+        );
+      })
+      .catch((error) => console.log("error", error));
+    if (message_dict != null) {
+      return message_dict;
+    }
+    console.log(`element with id ${message_id} was not found`);
+    return null;
+  }
+
+  function delete_message(message_id = "1", root_div) {
     const form_data = new FormData();
     // const msg_id = document.getElementById("msg_id").value;
-    form_data.append("message_id_delete", `${message_id}`);
+    form_data.append("message_id_delete", message_id);
     const request_options = {
       method: "DELETE",
       body: form_data,
@@ -212,15 +261,20 @@ $(document).ready(() => {
       // set the request mode to no-cors
       // mode: "no-cors",
     };
-    fetch(`${root_div}_delete_older_message`, request_options)
+    fetch(`${root_div + "_delete_older_message"}`, request_options)
       .then((response) => response.json())
       .then((result) => console.log(result))
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        alert(
+          `Error while deleting the message from database: ${error}`,
+        );
+        console.log("error", error);
+      });
   }
 
   // TODO Add option for using messages from the database
-  function create_campaign(
-    root_div = "http://localhost:8000/emergenze/user_campaign/",
+  async function create_campaign(
+    root_div,
     dict_of_options = {
       message_text: "Test messagio per alert sistema",
       group: "1",
@@ -241,14 +295,13 @@ $(document).ready(() => {
     fetch(`${root_div}_create_capmaign`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log("Campaign created!");
         console.log(result);
       })
       .catch((error) => console.log("error", error));
   }
 
   function create_message(
-    root_div = "http://localhost:8000/emergenze/user_campaign/",
+    root_div,
     dict_of_options = {
       message: "Sono romano, grana padano!",
       voice_gender: "M",
@@ -267,12 +320,6 @@ $(document).ready(() => {
     formdata.append("message_text", dict_of_options.message);
     formdata.append("voice_gender", dict_of_options.voice_gender);
     formdata.append("message_note", dict_of_options.note);
-    console.log("dict_of_options", dict_of_options);
-    console.log("dict_of_options.message", dict_of_options.message);
-    console.log(
-      "dict_of_options.voice_gender",
-      dict_of_options.voice_gender,
-    );
     const request_options = {
       method: "POST",
       body: formdata,
@@ -281,7 +328,7 @@ $(document).ready(() => {
     fetch(`${root_div}_create_message`, request_options)
       .then((asyn_response) => asyn_response.json())
       .then((async_result) => {
-        console.log("async_result", async_result);
+        console.log("async_result from alertpy", async_result);
         document.getElementById("dashboard_text").innerHTML =
           "Message created!";
         retr_message_list(python_api_url);
@@ -308,29 +355,52 @@ $(document).ready(() => {
           field: "message_id",
           values: ids,
         });
+        // Each element of the bootstrap table picked run this function
         ids.forEach((element) => {
           delete_message(element, python_api_url);
-          console.log("delteted id:", element);
+          console.log("Deleted id:", element);
         });
       });
     });
   }
 
+  function fill_bootstrap_table(input, table_name) {
+    table_name.bootstrapTable({
+      data: input,
+      uniqueId: "message_id",
+      striped: true,
+      sortable: true,
+      pageNumber: 1,
+      pageSize: 10,
+      pageList: [10, 25, 50, 100],
+      searchHighlight: true,
+      pagination: true,
+      search: true,
+      showToggle: true,
+      showExport: true,
+      exportDataType: "all",
+      exportTypes: [
+        "csv",
+        "txt",
+        "sql",
+        "doc",
+        "excel",
+        "xlsx",
+        "pdf",
+      ],
+    });
+  }
   // Retrieve the list of messages from url with GET method
   /**Retrieves list of messages in JSON format */
-  async function retr_message_list(
-    root_div = "http://localhost:8000/",
-  ) {
+  async function retr_message_list(root_div) {
     document.getElementById("dashboard_text").innerHTML =
       "Retriving message list!";
     const bstr_message = document.getElementById("bstr_message");
     const message_table = $("#msg_table");
     const request_options = {
       method: "GET",
-      // body: form_data,
       redirect: "follow",
     };
-
     // Retrieve the list of messages from url with GET method
     // and then put it ien the div in table format
     fetch(`${root_div}_retrive_message_list`, request_options)
@@ -338,54 +408,25 @@ $(document).ready(() => {
       .then((async_result) => {
         const message_list = async_result.result;
         const message_list_dict = [];
+        const message_table = $("#msg_table");
         for (let i in message_list) {
-          const string_id = `message_row_${i}`;
           message_list_dict.push({
             message_date: message_list[i].data_creazione,
             message_dimension: message_list[i].dimensione,
             message_duration: message_list[i].durata,
             message_id: message_list[i].id_messaggio,
             message_note: message_list[i].note,
-            // deletion_button: `<button type="button" class="btn btn-danger message_delete_button" message_id="${message_list[i].id_messaggio}">Delete</button>`,
-            // deletion_button: `<button type="button" class="btn btn-danger" id="${string_id}">Delete</button>`,
           });
         }
-        const message_table = $("#msg_table");
         bstr_message.style.display = "block";
-
-        message_table.bootstrapTable({
-          data: message_list_dict,
-          // height: 768,
-          uniqueId: "message_id",
-          striped: true,
-          sortable: true,
-          pageNumber: 1,
-          pageSize: 10,
-          pageList: [10, 25, 50, 100],
-          searchHighlight: true,
-          pagination: true,
-          search: true,
-          showToggle: true,
-          showExport: true,
-          exportDataType: "all",
-          exportTypes: [
-            "csv",
-            "txt",
-            "sql",
-            "doc",
-            "excel",
-            "xlsx",
-            "pdf",
-          ],
-        });
+        fill_bootstrap_table(message_list_dict, message_table);
       })
-
       .catch((error) => console.log("error", error));
   }
 
   /**Get info about campaign with {ID} in JSON format */
   function vis_campaign(
-    root_div = "http://localhost:8000/",
+    root_div,
     campaign_id = "vo6274305ad55304.39423618",
   ) {
     dashboard_text.innerHTML = `Visualizing ${campaign_id} campaign info!`;
@@ -415,18 +456,13 @@ $(document).ready(() => {
             campaign_identifier: campaign_json.Identificativo,
           },
         ];
-        campaign_table.bootstrapTable({
-          data: campaign_list_dict,
-          showToggle: true,
-        });
+        fill_bootstrap_table(campaign_list_dict, campaign_table);
       })
       .catch((error) => console.log("error", error));
   }
 
   /** Get users list info in JSON format */
-  function retr_user_list(
-    root_div = "https://emergenze-apit.comune.genova.it/",
-  ) {
+  function retr_user_list(root_div) {
     dashboard_text.innerHTML = "Retriving users list!";
     const bstr_results = document.getElementById("bstr_user");
     const user_table = $("#user_table_1");
@@ -450,25 +486,7 @@ $(document).ready(() => {
             user_group: item.gruppo,
           };
         });
-        user_table.bootstrapTable({
-          data: user_list_dict,
-          pagination: true,
-          search: true,
-          // showColumns: true,
-          // showExport: true,
-          // showRefresh: true,
-          showToggle: true,
-          exportTypes: [
-            "csv",
-            "txt",
-            "sql",
-            "doc",
-            "excel",
-            "xlsx",
-            "pdf",
-          ],
-          exportDataType: "all",
-        });
+        fill_bootstrap_table(user_list_dict, user_table);
       })
       .catch((error) => {
         console.error("error", error);
@@ -520,25 +538,7 @@ $(document).ready(() => {
           });
         }
         console.log(camp_list_dict);
-        camp_table.bootstrapTable({
-          data: camp_list_dict,
-          pagination: true,
-          search: true,
-          // showColumns: true,
-          // showExport: true,
-          // showRefresh: true,
-          showToggle: true,
-          exportTypes: [
-            "csv",
-            "txt",
-            "sql",
-            "doc",
-            "excel",
-            "xlsx",
-            "pdf",
-          ],
-          exportDataType: "all",
-        });
+        fill_bootstrap_table(camp_list_dict, camp_table);
       })
       .catch((error) => console.log("error", error));
   }
