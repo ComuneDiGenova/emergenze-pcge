@@ -57,6 +57,11 @@
             <button class="btn btn-primary" id="button_user_list" type="button">Get user list</button>
 
         </div>
+        <div class="container">
+            <hr class="hr" />
+
+            <input type="text" class="form-control" id="camp_id" placeholder="ID of campaign to visualize ">
+        </div>
 
         <div class="container" id="API_date_container">
             <div class="md-form md-outline input-with-post-icon input-group date datepicker" data-provide="datepicker">

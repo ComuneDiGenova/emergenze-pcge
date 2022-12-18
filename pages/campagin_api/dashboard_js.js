@@ -151,7 +151,13 @@ $(document).ready(() => {
     await listen_delete();
   };
   button_vis_campaign.onclick = () => {
-    vis_campaign(python_api_url);
+    campaign_id_to_visualize =
+      document.getElementById("camp_id").value;
+    if (campaign_id_to_visualize == "") {
+      alert("Please insert a campaign id first");
+      return;
+    }
+    vis_campaign(python_api_url, campaign_id_to_visualize);
   };
   button_user_list.onclick = () => {
     retr_user_list(genova_api_url);
