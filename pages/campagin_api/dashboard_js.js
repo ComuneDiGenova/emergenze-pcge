@@ -1,14 +1,16 @@
 // This is a JQuery function that is called when the page is loaded
 $(document).ready(() => {
   // // TODO Make a call for users list when the page is loaded
-  // TODO Add button for deletion of messages in message table
 
-  // TODO Fetching data stays iun browser cache, and for the same data it is downloaded again and again
-  // TODO: Add a button to clear the cache
-  // TODO: Make this a class of buttons, so that the same function can be called with different parameters
-  // TODO Date from JQueryUI handles only dates, not time. So the time is always 00:00:00
+  // ? TODO Fetching data stays iun browser cache, and for the same data it is downloaded again and again
+  // ? TODO: Add a button to clear the cache
+  // // TODO: Make this a class of buttons, so that the same function can be called with different parameters
+  // ? Date from JQueryUI handles only dates, not time. So the time is always 00:00:00
   // ! Bootstrap table accepts only Arrays as input, not JSON objects
 
+  // TODO Add button for deletion of messages in message table
+  // TODO button for creating new campaigns from message_list table
+  // TODO button for visualizing the campaign from campaign_list table
   const dashboard_header = (document.getElementById(
     "dashboard_header",
   ).innerHTML = "JS_bootto_strappo_dashboardo is working!");
@@ -256,7 +258,7 @@ $(document).ready(() => {
     return null;
   }
 
-  function delete_message(message_id = "1", root_div) {
+  function delete_message(root_div, message_id = "1") {
     const form_data = new FormData();
     // const msg_id = document.getElementById("msg_id").value;
     form_data.append("message_id_delete", message_id);
@@ -267,7 +269,8 @@ $(document).ready(() => {
       // set the request mode to no-cors
       // mode: "no-cors",
     };
-    fetch(`${root_div + "_delete_older_message"}`, request_options)
+
+    fetch(`${root_div}_delete_older_message`, request_options)
       .then((response) => response.json())
       .then((result) => console.log(result))
       .catch((error) => {
@@ -287,18 +290,22 @@ $(document).ready(() => {
       voice: voice_picked,
     },
   ) {
-    let formdata = new FormData();
-    formdata.append("message_text", dict_of_options.message_text);
-    formdata.append("group", dict_of_options.group);
-    formdata.append("voice_gender", dict_of_options.voice);
+    let form_data = new FormData();
+    form_data.append("message_text", dict_of_options.message_text);
+    form_data.append("group", dict_of_options.group);
+    form_data.append("voice_gender", dict_of_options.voice);
 
     const requestOptions = {
       method: "POST",
-      body: formdata,
-      redirect: "follow",
+      body: form_data,
+      // redirect: "follow",
     };
 
-    fetch(`${root_div}_create_capmaign`, requestOptions)
+    fetch(
+      "http://localhost:8000/emergenze/user_campaign/_create_capmaign",
+      requestOptions,
+    )
+      // fetch(`${root_div}_create_capmaign`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
@@ -363,7 +370,7 @@ $(document).ready(() => {
         });
         // Each element of the bootstrap table picked run this function
         ids.forEach((element) => {
-          delete_message(element, python_api_url);
+          delete_message(python_api_url, element);
           console.log("Deleted id:", element);
         });
       });
@@ -526,7 +533,7 @@ $(document).ready(() => {
       redirect: "follow",
     };
 
-    fetch(`${root_div}get_campaign_from_to`, requestOptions)
+    fetch(`${root_div}_get_campaign_from_to`, requestOptions)
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
         bstr_results.style.display = "block";
