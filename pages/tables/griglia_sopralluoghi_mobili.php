@@ -58,7 +58,7 @@ if(!$conn) {
 	//$idcivico=$_GET["id"];
 	$query="SELECT p.id, p.descrizione, p.descrizione_uo, p.data_ora_invio,
 	p.id_stato_sopralluogo, s.componenti From segnalazioni.v_sopralluoghi_mobili_last_update p 
-	left join users.v_squadre s ON s.id=p.id_squadra where id_stato_sopralluogo < 3 ".$filter.";";
+	left join users.v_squadre2 s ON s.id=p.id_squadra where id_stato_sopralluogo < 3 ".$filter.";";
     
    //echo $query . "<br>";
 	$result = pg_query($conn, $query);
