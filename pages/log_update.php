@@ -2,7 +2,8 @@
 
 if (isset($_POST['LightON'])){
     $Comando0='cd /opt/rh/httpd24/root/var/www/html/aggiornamento_DB';
-    $Comando='/usr/bin/python3 /opt/rh/httpd24/root/var/www/html/aggiornamento_DB/postgis_update.py 2>&1';
+    $CondaEnv = '/home/local/COMGE/egter01/miniconda3/envs/dbupdate/bin/python3';
+    $Comando = $CondaEnv.'/opt/rh/httpd24/root/var/www/html/aggiornamento_DB/postgis_update.py 2>&1';
     //echo $Comando;
     //exit;
     $error = array();
