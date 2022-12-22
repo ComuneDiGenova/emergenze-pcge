@@ -85,7 +85,8 @@ require('navbar_up.php');
                     
                     <hr> 
                     <form method="post">
-							<button class="btn btn-primary" name="LightON"> <i class="fas fa-sync-alt"></i> Aggiornamento manuale</button> 
+							<button class="btn btn-primary" name="LightON"> <i class="fas fa-sync-alt"></i> Aggiornamento manuale</button>
+                            <div style="color:red">Attenzione! L'aggiornamento manuale comporta la disattivazione temporanea di Altri Servizi</div>
 							</form>
 							<?php 
 							} else {
