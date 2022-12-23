@@ -8,35 +8,27 @@ $(document).ready(() => {
   // ? Date from JQueryUI handles only dates, not time. So the time is always 00:00:00
   // ! Bootstrap table accepts only Arrays as input, not JSON objects
 
-  // TODO Add button for deletion of messages in message table
+  // // TODO Add button for deletion of messages in message table
   // TODO button for creating new campaigns from message_list table
   // TODO button for visualizing the campaign from campaign_list table
-  const dashboard_header = (document.getElementById(
-    "dashboard_header",
-  ).innerHTML = "JS_bootto_strappo_dashboardo is working!");
-  const dashboard_text = document.getElementById("dashboard_text");
-  const button_message_list =
-    document.getElementById("button_msg_list");
-  const button_user_list = document.getElementById(
-    "button_user_list",
+  const $dashboard_header = $("#dashboard_header").text(
+    "JS_bootto_strappo_dashboardo is working!",
   );
-  const button_vis_campaign = document.getElementById(
-    "button_vis_campaign",
-  );
-  const button_get_camapaign = document.getElementById(
-    "button_campaign_from_to",
-  );
-  const header_cmp_list = document.getElementById("camp_list_header");
-  const ui_date_start = document.getElementById("ui_date_start");
-  const ui_date_end = document.getElementById("ui_date_end");
-  const bstr_results = document.getElementById("bstr_user");
-  const voice_picker_female = document.getElementById(
-    "voice_picker_female",
-  );
-  const voice_picker_male = document.getElementById(
-    "voice_picker_male",
-  );
-  const msg_send = document.getElementById("button_send_message");
+  const $dashboard_text = $("#dashboard_text");
+  const $button_message_list = $("#button_msg_list");
+  const $button_user_list = $("#button_user_list");
+  const $button_vis_campaign = $("#button_vis_campaign");
+  const $button_get_camapaign = $("#button_campaign_from_to");
+  const $button_create_campaign = $("#button_create_campaign");
+  const $header_cmp_list = $("#camp_list_header");
+  const $ui_date_start = $("#ui_date_start");
+  const $ui_date_end = $("#ui_date_end");
+  const $bstr_results = $("#bstr_user");
+  const $voice_picker_female = $("#voice_picker_female");
+  const $voice_picker_male = $("#voice_picker_male");
+  const $msg_send = $("#button_send_message");
+  const $message_table = $("#msg_table");
+  const $button_del = $("#button_delete");
 
   //* API URL
   const python_api_url =
@@ -51,16 +43,16 @@ $(document).ready(() => {
   };
 
   let voice_picked = "F";
-  let group_picked = "1";
 
   // Loads the userlist when document is loaded
-  // retr_user_list();
+  $(retr_user_list(genova_api_url));
   $(() => {
     console.log("Hello World.This page is loaded!");
   });
+
   // Register the date picker with JQuery
   $(() => {
-    $("#ui_date_end").datepicker({
+    $ui_date_end.datepicker({
       dateFormat: "yy-mm-dd",
       defaultDate: new Date(),
       maxDate: new Date(),
@@ -76,7 +68,7 @@ $(document).ready(() => {
     });
   });
   $(() => {
-    $("#ui_date_start").datepicker({
+    $ui_date_start.datepicker({
       dateFormat: "yy-mm-dd",
       defaultDate: new Date(),
       maxDate: new Date(),
@@ -93,43 +85,43 @@ $(document).ready(() => {
   });
 
   // Registering listeners for the date pickers on change event
-  $("#ui_date_start").on("change", () => {
+  $ui_date_start.change(() => {
     // date_start = "2022-01-10 10:10"
     // Convert the date to the format of the API
-    date_start_picked = $("#ui_date_start").val();
+    date_start_picked = $ui_date_start.val();
     console.log("Start date_picked_>", date_start_picked);
     date_picked.date_start = date_start_picked;
   });
-  $("#ui_date_end").on("change", () => {
+  $ui_date_end.change(() => {
     // date_start = "2022-01-10 10:10"
     // Convert the date to the format of the API
-    date_end_picked = $("#ui_date_end").val();
+    date_end_picked = $ui_date_end.val();
     console.log("End date_picked_>", date_end_picked);
     date_picked.date_end = date_end_picked;
   });
 
   // JQuery style of registering listeners
-  $("#voice_picker_female").on("click", () => {
-    voice_picked = $("#voice_picker_female").val();
+  // TODO refactor to pure funtion style
+  $voice_picker_female.click(() => {
+    voice_picked = $voice_picker_female.val();
     console.log(`voice_picked: ${voice_picked}`);
     alert(`voice_picked: ${voice_picked}`);
   });
-  $("#voice_picker_male").on("click", () => {
-    voice_picked = $("#voice_picker_male").val();
+  $voice_picker_male.click(() => {
+    voice_picked = $voice_picker_male.val();
     console.log(`voice_picked: ${voice_picked}`);
     alert(`voice_picked: ${voice_picked}`);
   });
 
   //* Main API calls
-
-  $("#button_create_campaign").on("click", async () => {
-    const msg_id_input = document.getElementById("msg_id").value;
+  $button_create_campaign.click(async () => {
+    const $msg_id_input = $("#msg_id").value;
     const group_number = document.querySelectorAll(
       "input[name='group_option']:checked",
     )[0].value;
     const message_returned = await retr_message(
       python_api_url,
-      msg_id_input,
+      $msg_id_input,
     );
     let msg_dict = {
       message_text: "Empty message",
@@ -138,8 +130,7 @@ $(document).ready(() => {
     };
 
     if (message_returned == null) {
-      msg_dict.message_text =
-        document.getElementById("msg_content").value;
+      msg_dict.message_text = $("#msg_content").value;
     } else {
       msg_dict.message_text = message_returned.message.note;
     }
@@ -148,79 +139,32 @@ $(document).ready(() => {
   });
 
   // JS Registering listeners for the buttons
-  button_message_list.onclick = async () => {
+  $button_message_list.click(async () => {
     await retr_message_list(python_api_url);
     await listen_delete();
-  };
-  button_vis_campaign.onclick = () => {
-    campaign_id_to_visualize =
-      document.getElementById("camp_id").value;
-    if (campaign_id_to_visualize == "") {
+  });
+  $button_vis_campaign.click(() => {
+    $campaign_id_to_visualize = $("#camp_id").value;
+    if ($campaign_id_to_visualize == "") {
       alert("Please insert a campaign id first");
       return;
     }
-    vis_campaign(python_api_url, campaign_id_to_visualize);
-  };
-  button_user_list.onclick = () => {
+    vis_campaign(python_api_url, $campaign_id_to_visualize);
+  });
+  $button_user_list.click(() => {
     retr_user_list(genova_api_url);
-  };
-  button_get_camapaign.onclick = () => {
+  });
+  $button_get_camapaign.click(() => {
     get_campaign_from_to(python_api_url, date_picked);
-  };
-  msg_send.onclick = () => {
+  });
+  $msg_send.click(() => {
     const msg_dict = {
       message: document.getElementById("msg_content").value,
       voice_gender: voice_picked,
       note: document.getElementById("msg_note").value,
     };
     create_message(python_api_url, msg_dict);
-  };
-  // async function fetch_generic(url, bootstrap_id, req_opt, table_id) {
-  //   const bstr_container = document.getElementById(bootstrap_id);
-  //   const message_table = $("#" + table_id);
-  //   bstr_container.style.display = "block";
-  //   try {
-  //     const response = await fetch(url, req_opt);
-  //     const result_1 = await response.json();
-  //     message_table.bootstrapTable({
-  //       data: message_list_dict,
-  //       pagination: true,
-  //       search: true,
-  //       // showColumns: true,
-  //       // showRefresh: true,
-  //       showToggle: true,
-  //       // showExport: true,
-  //       exportDataType: "all",
-  //       exportTypes: [
-  //         "csv",
-  //         "txt",
-  //         "sql",
-  //         "doc",
-  //         "excel",
-  //         "xlsx",
-  //         "pdf",
-  //       ],
-  //       exportOptions: {
-  //         fileName: "export",
-  //         jspdf: {
-  //           orientation: "l",
-  //           format: "a4",
-  //           margins: { left: 20, right: 10, top: 10, bottom: 10 },
-  //           autotable: {
-  //             styles: {
-  //               fillColor: "inherit",
-  //               textColor: "inherit",
-  //             },
-  //             tableWidth: "auto",
-  //           },
-  //         },
-  //       },
-  //     });
-  //     return result_1;
-  //   } catch (error) {
-  //     return console.log("error", error);
-  //   }
-  // }
+  });
 
   async function retr_message(root_div, message_id) {
     const request_options = {
@@ -260,7 +204,6 @@ $(document).ready(() => {
 
   function delete_message(root_div, message_id = "1") {
     const form_data = new FormData();
-    // const msg_id = document.getElementById("msg_id").value;
     form_data.append("message_id_delete", message_id);
     const request_options = {
       method: "DELETE",
@@ -301,10 +244,7 @@ $(document).ready(() => {
       // redirect: "follow",
     };
 
-    fetch(
-      "http://localhost:8000/emergenze/user_campaign/_create_capmaign",
-      requestOptions,
-    )
+    fetch(`${python_api_url}_create_capmaign`, requestOptions)
       // fetch(`${root_div}_create_capmaign`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
@@ -321,10 +261,7 @@ $(document).ready(() => {
       note: "Gter_test_JS",
     },
   ) {
-    document.getElementById("dashboard_text").innerHTML =
-      "Creating message!";
-    const bstr_message = document.getElementById("bstr_message");
-    const message_table = $("#msg_table");
+    $dashboard_text.text("Creating message!");
     // return console.log('dict_of_options', dict_of_options);
     let formdata = new FormData();
     if (dict_of_options.message === "") {
@@ -344,27 +281,25 @@ $(document).ready(() => {
         console.log("async_result from alertpy", async_result);
         document.getElementById("dashboard_text").innerHTML =
           "Message created!";
+        // It calls the function to retrieve the list of messages from the database
         retr_message_list(python_api_url);
       })
       .catch((error) => console.log("error", error));
   }
   // TODO get querySelectorAll
 
-  /* This function operates on bootstrap table for
+  /* This function operates on bootstrap table delete button for
   deletions of rows*/
   async function listen_delete() {
-    const $message_table = $("#msg_table");
-    const $button = $("#button_delete");
-
-    $(function () {
-      $button.click(function () {
-        var ids = $.map(
-          $message_table.bootstrapTable("getSelections"),
-          function (row) {
-            return row.message_id;
-          },
-        );
-        $message_table.bootstrapTable("remove", {
+    $(() => {
+      $button_del.prop(
+        "disabled",
+        !$message_table.bootstrapTable("getSelections").length,
+      );
+      $button_del.click(() => {
+        console.log("Button_del clicked");
+        let ids = getIdSelections($message_table);
+        $message_table.bootstrapTable("remove_msg", {
           field: "message_id",
           values: ids,
         });
@@ -373,9 +308,37 @@ $(document).ready(() => {
           delete_message(python_api_url, element);
           console.log("Deleted id:", element);
         });
+        $button_del.prop("disabled", true);
       });
     });
   }
+
+  function operateFormatter(value, row, index) {
+    return [
+      '<a class="remove_msg" href="javascript:void(0)" title="Remove">',
+      '<i class="fa fa-trash"></i>',
+      "</a>",
+    ].join("");
+  }
+
+  window.operateEvents = {
+    "click .like": function (e, value, row, index) {
+      alert("You clicked like action, row: " + JSON.stringify(row));
+    },
+    "click .remove_msg": function (e, value, row, index) {
+      alert(
+        "You clicked remove_msg action, row: " + JSON.stringify(row),
+      );
+      console.log(`This e: ${e}`);
+      console.log(`This value: ${value}`);
+      console.log(`This row: ${row}`);
+      console.log(`This index: ${index}`);
+      $table.bootstrapTable("remove", {
+        field: "message_id",
+        values: [row.message_id],
+      });
+    },
+  };
 
   function fill_bootstrap_table(input, table_name) {
     table_name.bootstrapTable({
@@ -403,13 +366,19 @@ $(document).ready(() => {
       ],
     });
   }
+  function create_tables(table_name, dict_of_columns) {}
+
+  function responseHandler(res) {
+    $.each(res.rows, function (i, row) {
+      row.state = $.inArray(row.id, selections) !== -1;
+    });
+    return res;
+  }
   // Retrieve the list of messages from url with GET method
   /**Retrieves list of messages in JSON format */
   async function retr_message_list(root_div) {
-    document.getElementById("dashboard_text").innerHTML =
-      "Retriving message list!";
-    const bstr_message = document.getElementById("bstr_message");
-    const message_table = $("#msg_table");
+    $dashboard_text.text("Retriving message list!");
+    const $bstr_message = $("#bstr_message");
     const request_options = {
       method: "GET",
       redirect: "follow",
@@ -421,7 +390,6 @@ $(document).ready(() => {
       .then((async_result) => {
         const message_list = async_result.result;
         const message_list_dict = [];
-        const message_table = $("#msg_table");
         for (let i in message_list) {
           message_list_dict.push({
             message_date: message_list[i].data_creazione,
@@ -431,19 +399,115 @@ $(document).ready(() => {
             message_note: message_list[i].note,
           });
         }
-        bstr_message.style.display = "block";
-        fill_bootstrap_table(message_list_dict, message_table);
+        $bstr_message.show();
+        $message_table.bootstrapTable({
+          columns: [
+            {
+              field: "state",
+              checkbox: true,
+              // Not used because the header columns are 1 not 2
+              // rowspan: 2,
+              align: "center",
+              valign: "middle",
+            },
+            {
+              field: "message_id",
+              title: "Item ID",
+              align: "center",
+              valign: "middle",
+            },
+            {
+              field: "message_date",
+              title: "Message Date",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "message_note",
+              title: "Message note",
+              align: "center",
+            },
+            {
+              field: "message_duration",
+              title: "Message duration",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "message_dimension",
+              title: "Message dimension",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "operate",
+              title: "Item Operate",
+              align: "center",
+              clickToSelect: false,
+              events: operateEvents,
+              formatter: operateFormatter,
+            },
+          ],
+          data: message_list_dict,
+          uniqueId: "message_id",
+          striped: true,
+          sortable: true,
+          pageNumber: 1,
+          pageSize: 10,
+          pageList: [10, 25, 50, 100],
+          searchHighlight: true,
+          pagination: true,
+          search: true,
+          showToggle: true,
+          showExport: true,
+          exportDataType: "all",
+          exportTypes: [
+            "csv",
+            "txt",
+            "sql",
+            "doc",
+            "excel",
+            "xlsx",
+            "pdf",
+          ],
+        });
       })
       .catch((error) => console.log("error", error));
+    $message_table.on(
+      "check.bs.table uncheck.bs.table " +
+        "check-all.bs.table uncheck-all.bs.table",
+      () => {
+        $button_del.prop(
+          "disabled",
+          !$message_table.bootstrapTable("getSelections").length,
+        );
+
+        // save your data, here just save the current page
+        // push or splice the selections if you want to save all data selections
+      },
+    );
+    $button_del.prop("disabled", true);
+    // Applies disabled to button
   }
 
+  function getIdSelections($table_name) {
+    return $.map(
+      $table_name.bootstrapTable("getSelections"),
+      function (row) {
+        return row.message_id;
+      },
+    );
+  }
   /**Get info about campaign with {ID} in JSON format */
   function vis_campaign(
     root_div,
     campaign_id = "vo6274305ad55304.39423618",
   ) {
-    dashboard_text.innerHTML = `Visualizing ${campaign_id} campaign info!`;
-    const bstr_campaign = document.getElementById("bstr_camp_vis");
+    $dashboard_text.text(`Visualizing ${campaign_id} campaign info!`);
+    const $bstr_campaign = $("#bstr_camp_vis");
     const campaign_table = $("#camp_table");
     const request_options = {
       method: "GET",
@@ -454,7 +518,7 @@ $(document).ready(() => {
     fetch(`${root_div + campaign_id}`, request_options)
       .then((async_response) => async_response.json())
       .then((async_result) => {
-        bstr_campaign.style.display = "block";
+        $bstr_campaign.show();
         const campaign_json = async_result.result;
         const campaign_list_dict = [
           {
@@ -476,8 +540,8 @@ $(document).ready(() => {
 
   /** Get users list info in JSON format */
   function retr_user_list(root_div) {
-    dashboard_text.innerHTML = "Retriving users list!";
-    const bstr_results = document.getElementById("bstr_user");
+    $dashboard_text.text("Retriving users list!");
+    const $bstr_div = $("#bstr_user");
     const user_table = $("#user_table_1");
     const request_options = {
       method: "GET",
@@ -489,7 +553,7 @@ $(document).ready(() => {
     )
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
-        bstr_results.style.display = "block";
+        $bstr_div.show();
         const user_list_json = async_anwser.result;
         const user_list_dict = user_list_json.map((item) => {
           return {
@@ -516,14 +580,15 @@ $(document).ready(() => {
       date_end: "2021-01-31",
     },
   ) {
-    const bstr_results = document.getElementById("bstr_camp");
+    const $bstr_div_camp = $("#bstr_camp");
     const camp_table = $("#camp_table_time");
     const date_start = date_dict.date_start + " 12:00";
     const date_end = date_dict.date_end + " 12:00";
     console.log("date_start form date_dict: " + date_start);
     console.log("date_end form date_dict: " + date_end);
-    header_cmp_list.innerHTML =
-      "Campaign list from " + date_start + " to " + date_end;
+    $header_cmp_list.text(
+      "Campaign list from " + date_start + " to " + date_end,
+    );
     let form_data = new FormData();
     form_data.append("date_start", date_start);
     form_data.append("date_end", date_end);
@@ -536,7 +601,7 @@ $(document).ready(() => {
     fetch(`${root_div}_get_campaign_from_to`, requestOptions)
       .then((async_response) => async_response.json())
       .then((async_anwser) => {
-        bstr_results.style.display = "block";
+        $bstr_div_camp.show();
         const camp_list_json = async_anwser.result;
         console.log(camp_list_json);
         let camp_list_dict = [];
