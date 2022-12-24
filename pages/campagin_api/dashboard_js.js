@@ -1,7 +1,6 @@
 // This is a JQuery function that is called when the page is loaded
 $(document).ready(() => {
   // // TODO Make a call for users list when the page is loaded
-
   // ? TODO Fetching data stays iun browser cache, and for the same data it is downloaded again and again
   // ? TODO: Add a button to clear the cache
   // // TODO: Make this a class of buttons, so that the same function can be called with different parameters
@@ -119,6 +118,8 @@ $(document).ready(() => {
     const group_number = document.querySelectorAll(
       "input[name='group_option']:checked",
     )[0].value;
+    console.log(`group_number vanilla: ${group_number}`);
+
     const message_returned = await retr_message(
       python_api_url,
       $msg_id_input,
@@ -177,10 +178,7 @@ $(document).ready(() => {
       return console.log("message_id is empty");
     }
     let message_dict = null;
-    const returned_message = await fetch(
-      `${root_div}_retrive_message_list`,
-      request_options,
-    )
+    await fetch(`${root_div}_retrive_message_list`, request_options)
       .then((asyn_response) => asyn_response.json())
       .then((async_result) => {
         const message_list = async_result.result;
@@ -313,30 +311,59 @@ $(document).ready(() => {
     });
   }
 
-  function operateFormatter(value, row, index) {
+  function op_formttr_msg_list(value, row, index) {
+    const remove_msg_class = "remove_msg";
+    const create_campaign_class = "create_campaign";
     return [
-      '<a class="remove_msg" href="javascript:void(0)" title="Remove">',
-      '<i class="fa fa-trash"></i>',
+      `<a class="${create_campaign_class}" href="javascript:void(0)" title="Create">`,
+      `<i class="fa fa-bullhorn"></i>`,
+      "</a>",
+      ,
+      `<a class="${remove_msg_class}" href="javascript:void(0)" title="Remove">`,
+      `<i class="fa fa-trash"></i>`,
       "</a>",
     ].join("");
   }
 
+  async function create_campaign_from_table_msg(
+    e,
+    value,
+    row,
+    index,
+  ) {
+    // const message_returned = await retr_message(
+    //   python_api_url,
+    //   row.message_id,
+    // );
+    const group_number = document.querySelectorAll(
+      "input[name='group_option']:checked",
+    )[0].value;
+    const msg_dict = {
+      message_text: "Empty message",
+      voice: voice_picked,
+      group: group_number,
+    };
+    msg_dict.message_text = row.message_note;
+    await create_campaign(python_api_url, msg_dict);
+    alert(
+      "You have created a campaign from message, row: " +
+        JSON.stringify(row),
+    );
+  }
+
   window.operateEvents = {
-    "click .like": function (e, value, row, index) {
-      alert("You clicked like action, row: " + JSON.stringify(row));
-    },
+    // This is just an example of how to use custom buttons
+    "click .create_campaign": create_campaign_from_table_msg,
+    // * this is a trash button for deleting rows in message table
     "click .remove_msg": function (e, value, row, index) {
-      alert(
-        "You clicked remove_msg action, row: " + JSON.stringify(row),
-      );
-      console.log(`This e: ${e}`);
-      console.log(`This value: ${value}`);
-      console.log(`This row: ${row}`);
-      console.log(`This index: ${index}`);
-      $table.bootstrapTable("remove", {
+      $message_table.bootstrapTable("remove", {
         field: "message_id",
         values: [row.message_id],
       });
+      delete_message(python_api_url, row.message_id);
+      alert(
+        "You have removed row: " + JSON.stringify(row.message_id),
+      );
     },
   };
 
@@ -448,7 +475,7 @@ $(document).ready(() => {
               align: "center",
               clickToSelect: false,
               events: operateEvents,
-              formatter: operateFormatter,
+              formatter: op_formttr_msg_list,
             },
           ],
           data: message_list_dict,

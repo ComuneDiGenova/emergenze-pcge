@@ -33,6 +33,15 @@
         body {
             margin-top: 100px;
         }
+
+        .select,
+        #locale {
+            width: 100%;
+        }
+
+        .create_campaign {
+            margin-right: 10px;
+        }
         </style>
 
     </head>
@@ -87,6 +96,7 @@
             <div class="container">
                 <hr class="hr" />
             </div>
+
             <form>
                 <div class="form-group">
                     <label for="comment">Message:</plabel>
@@ -147,30 +157,10 @@
             <h3 id="msg_list_header">Messages</h3>
             <div id="msg_toolbar">
                 <button id="button_delete" class="btn btn-danger">
-                    <i class="glyphicon glyphicon-remove"></i> Delete selected messages
+                    <i class="fa fa-trash"></i> Delete selected messages
                 </button>
             </div>
             <table class="table-hover" id="msg_table" data-togle="table" data-toolbar="msg_toolbar">
-                <thead>
-                    <!-- Add a header for table -->
-                    <tr>
-                        <th data-field="state" data-checkbox="true"> Select checkbox</th>
-                        <th data-field="message_date"> Date</th>
-                        <th data-field="message_id"> ID</th>
-                        <th data-field="message_note"> Note</th>
-                        <th data-field="message_duration"> Duration</th>
-                        <th data-field="message_dimension"> Dimension</th>
-                    </tr>
-                </thead>
-                <!-- <tbody id="msg_table_body">
-                    <tr>
-                        <td>
-                            <button class="btn btn-danger badge-pill" id="deletion_button">
-                                Delete_wololo
-                            </button>
-                        </td>
-                    </tr>
-                </tbody> -->
             </table>
         </div>
         <!-- Data table for campaigns -->
@@ -238,7 +228,8 @@
                 </thead>
             </table>
         </div>
-        <script type="text/javascript" src="dashboard_js.js"></script>
+        <!-- defer blocks execution of script untill document is loaded -->
+        <script type="text/javascript" defer src="dashboard_js.js"></script>
     </body>
 
 
