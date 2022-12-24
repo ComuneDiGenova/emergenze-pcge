@@ -8,7 +8,7 @@ $(document).ready(() => {
   // ! Bootstrap table accepts only Arrays as input, not JSON objects
 
   // // TODO Add button for deletion of messages in message table
-  // TODO button for creating new campaigns from message_list table
+  // // TODO button for creating new campaigns from message_list table
   // TODO button for visualizing the campaign from campaign_list table
   const $dashboard_header = $("#dashboard_header").text(
     "JS_bootto_strappo_dashboardo is working!",
@@ -325,6 +325,15 @@ $(document).ready(() => {
     ].join("");
   }
 
+  function op_formttr_cmp_list(value, row, index) {
+    const visualise_campaign_class = "c_vis_campaign";
+    return [
+      `<a class="${visualise_campaign_class}" href="javascript:void(0)" title="Visualise">`,
+      `<i class="fa fa-eye"></i>`,
+      "</a>",
+    ].join("");
+  }
+
   async function create_campaign_from_table_msg(
     e,
     value,
@@ -363,6 +372,12 @@ $(document).ready(() => {
       delete_message(python_api_url, row.message_id);
       alert(
         "You have removed row: " + JSON.stringify(row.message_id),
+      );
+    },
+    "click .c_vis_campaign": function (e, value, row, index) {
+      vis_campaign(python_api_url, row.campaign_id);
+      alert(
+        "You have visualised row: " + JSON.stringify(row.message_id),
       );
     },
   };
@@ -471,7 +486,7 @@ $(document).ready(() => {
             },
             {
               field: "operate",
-              title: "Item Operate",
+              title: "Actions",
               align: "center",
               clickToSelect: false,
               events: operateEvents,
@@ -608,7 +623,7 @@ $(document).ready(() => {
     },
   ) {
     const $bstr_div_camp = $("#bstr_camp");
-    const camp_table = $("#camp_table_time");
+    const $camp_table = $("#camp_table_time");
     const date_start = date_dict.date_start + " 12:00";
     const date_end = date_dict.date_end + " 12:00";
     console.log("date_start form date_dict: " + date_start);
@@ -643,7 +658,86 @@ $(document).ready(() => {
           });
         }
         console.log(camp_list_dict);
-        fill_bootstrap_table(camp_list_dict, camp_table);
+        $camp_table.bootstrapTable({
+          columns: [
+            {
+              field: "state",
+              checkbox: true,
+              // Not used because the header columns are 1 not 2
+              // rowspan: 2,
+              align: "center",
+              valign: "middle",
+            },
+            {
+              field: "camp_id",
+              title: "Campaign ID",
+              align: "center",
+              valign: "middle",
+            },
+            {
+              field: "camp_type",
+              title: "Type",
+              align: "center",
+              valign: "middle",
+            },
+            {
+              field: "camp_date",
+              title: "Campaign Date",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "camp_identifier",
+              title: "Campaign note",
+              align: "center",
+            },
+            {
+              field: "camp_user",
+              title: "Campaign user",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "camp_contact",
+              title: "Campaign contact",
+              align: "center",
+              valign: "middle",
+              sortable: true,
+            },
+            {
+              field: "operate",
+              title: "Actions",
+              align: "center",
+              clickToSelect: false,
+              events: operateEvents,
+              formatter: op_formttr_cmp_list,
+            },
+          ],
+          data: camp_list_dict,
+          uniqueId: "message_id",
+          striped: true,
+          sortable: true,
+          pageNumber: 1,
+          pageSize: 10,
+          pageList: [10, 25, 50, 100],
+          searchHighlight: true,
+          pagination: true,
+          search: true,
+          showToggle: true,
+          showExport: true,
+          exportDataType: "all",
+          exportTypes: [
+            "csv",
+            "txt",
+            "sql",
+            "doc",
+            "excel",
+            "xlsx",
+            "pdf",
+          ],
+        });
       })
       .catch((error) => console.log("error", error));
   }

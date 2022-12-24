@@ -96,7 +96,6 @@
             <div class="container">
                 <hr class="hr" />
             </div>
-
             <form>
                 <div class="form-group">
                     <label for="comment">Message:</plabel>
@@ -145,33 +144,29 @@
                         campaign</button>
                 </div>
             </div>
-
-
-
         </div>
         <div class="container" id="API_results_container">
             <h1 id="results_header">Results</h1>
         </div>
         <!-- Data table for messages -->
-        <div class="container" id="bstr_message" style="display: none;">
+        <div class="container bg-success" id="bstr_message" style="display: none;">
             <h3 id="msg_list_header">Messages</h3>
             <div id="msg_toolbar">
                 <button id="button_delete" class="btn btn-danger">
                     <i class="fa fa-trash"></i> Delete selected messages
                 </button>
             </div>
-            <table class="table-hover" id="msg_table" data-togle="table" data-toolbar="msg_toolbar">
+            <table class="table-hover " id="msg_table" data-togle="table" data-toolbar="msg_toolbar">
             </table>
         </div>
         <!-- Data table for campaigns -->
-        <div class="container" id="bstr_camp_vis" style="display: none;">
+        <div class="container bg-success" id="bstr_camp_vis" style="display: none;">
             <div class="container">
                 <hr class="hr" />
             </div>
+            <h3 id="camp_viz_header">Campaign visualization</h3>
             <table class="table-hover" id="camp_table">
                 <thead>
-                    <!-- Add a header for table -->
-                    <h3 id="camp_viz_header">Campaign visualization</h3>
                     <tr>
                         <th data-field="campaign_id">Campaign id</th>
                         <th data-field="campaign_telephone">Campaign telephone</th>
@@ -189,7 +184,7 @@
         </div>
 
         <!-- Data table for users -->
-        <div class="container" id="bstr_user" style="display: none;">
+        <div class="container bg-success" id="bstr_user" style="display: none;">
             <div class="container">
                 <hr class="hr" />
             </div>
@@ -209,23 +204,12 @@
         </div>
 
         <!-- Data table for campaign -->
-        <div class="container" id="bstr_camp" style="display: none;">
+        <div class="container bg-primary" id="bstr_camp" style="display: none;">
             <div class="container">
                 <hr class="hr" />
             </div>
+            <h3 id="camp_list_header">Campaign list</h3>
             <table class="table-hover" id="camp_table_time">
-                <thead>
-                    <!-- Add a header for table -->
-                    <h3 id="camp_list_header">Campaign list</h3>
-                    <tr>
-                        <th data-field="camp_id">Campaign ID</th>
-                        <th data-field="camp_type">Type</th>
-                        <th data-field="camp_date">Campaign date</th>
-                        <th data-field="camp_user">Campaign user</th>
-                        <th data-field="camp_contact">Campaign contact</th>
-                        <th data-field="camp_identifier">Campaign noter</th>
-                    </tr>
-                </thead>
             </table>
         </div>
         <!-- defer blocks execution of script untill document is loaded -->
