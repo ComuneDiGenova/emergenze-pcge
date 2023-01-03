@@ -99,16 +99,23 @@ require "../navbar_up.php";
                             </ul>
                         </div>
 
-                        <form role="form" action="index.html" class="login-box">
+                        <form role="form" class="login-box">
                             <div class="tab-content" id="main_form">
                                 <div class="tab-pane active" role="tabpanel" id="step1">
                                     <h4 class="text-center">Dati Indirizzo</h4>
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group autoComplete">
-                                                <label>Indirizzo</label>
+                                                <label>Toponimo</label>
                                                 <input class="form-control advancedAutoComplete" type="text" autocomplete="on"
-                                                    placeholder="ricerca per toponimo" id="indirizzoCompleto" name="indirizzoCompleto">
+                                                    placeholder="ricerca per toponimo" id="toponimo" name="toponimo">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group autoComplete">
+                                                <label>Civico</label>
+                                                <input class="form-control advancedAutoComplete" type="text" autocomplete="on"
+                                                    placeholder="ricerca civico" id="civico" name="civico" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -117,12 +124,12 @@ require "../navbar_up.php";
                                     </ul>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step2">
-                                    <h4 class="text-center">Dati Generali</h4>
+                                    <h4 class="text-center">Dati generali dell'utente</h4>
 
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Nome</label>
-                                            <input class="form-control" type="text" name="nome" placeholder="Inserisci il nome">
+                                            <input class="form-control" type="text" name="nome" data-form="utente" id="nome" placeholder="Inserisci il nome">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(RICHIESTO)</span>
                                         </div>
@@ -130,7 +137,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Cognome</label>
-                                            <input class="form-control" type="text" name="cognome" placeholder="Inserisci il cognome">
+                                            <input class="form-control" type="text" data-form="utente" name="cognome" id="cognome" placeholder="Inserisci il cognome">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(RICHIESTO)</span>
                                         </div>
@@ -138,7 +145,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Codice fiscale</label>
-                                            <input class="form-control" type="text" name="codiceFiscale" placeholder="Inserisci il codice fiscale">
+                                            <input class="form-control" type="text" data-form="utente" name="codiceFiscale" id="codiceFiscale" placeholder="Inserisci il codice fiscale">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(RICHIESTO)</span>
                                         </div>
@@ -146,7 +153,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Email</label>
-                                            <input class="form-control" type="text" name="eMail" placeholder="Inserisci l'indirizzo mail">
+                                            <input class="form-control" type="text" data-form="utente" name="eMail" id="eMail" placeholder="Inserisci l'indirizzo mail">
                                             <!-- <div class="alert alert-danger hidden" role="alert">
                                               <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                                               <span class="sr-only">Errore:</span>
@@ -157,7 +164,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Numero di telefono</label>
-                                            <input class="form-control" type="text" name="numero" placeholder="Inserisci un recapito telefonico">
+                                            <input class="form-control" type="text" name="numero" id="numero" placeholder="Inserisci un recapito telefonico">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(RICHIESTO)</span>
                                             <!-- <div class="alert alert-danger" role="alert">
@@ -171,7 +178,7 @@ require "../navbar_up.php";
                                         <!-- Usare classe has-warning per enfatizzare i campi obbligatori  -->
                                         <div class="form-group has-warning has-feedback">
                                             <label>Tipo telefono</label>
-                                            <select class="form-control" name="tipo" placeholder="">
+                                            <select class="form-control" name="tipo" id="tipo" placeholder="">
                                               <option></option>
                                               <option value="FISSO">FISSO</option>
                                               <option value="CELLULARE">CELLULARE</option>
@@ -183,7 +190,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Comprensione dei messaggi vocali</label>
-                                            <select class="form-control" name="lingua" placeholder="">
+                                            <select class="form-control" name="lingua" id="lingua" placeholder="">
                                               <option></option>
                                               <option value="BUONA SE IN LINGUA ITALIANA">BUONA SE IN LINGUA ITALIANA</option>
                                               <option value="BUONA SOLO SE IN LINGUA STRANIERA">BUONA SOLO SE IN LINGUA STRANIERA</option>
@@ -203,7 +210,7 @@ require "../navbar_up.php";
                                     <ul class="list-inline pull-right">
                                         <li><button type="button" class="default-btn prev-step">In dietro</button></li>
                                         <!-- <li><button type="button" class="default-btn next-step skip-btn">Skip</button></li> -->
-                                        <li><button type="button" class="default-btn next-step">Continua</button></li>
+                                        <li><button type="button" class="default-btn next-step" id="submitStep2">Continua</button></li>
                                     </ul>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step3">
@@ -212,7 +219,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label>Posizione</label>
-                                            <select class="form-control" name="posizione" placeholder="">
+                                            <select class="form-control" name="posizione" id="posizione" placeholder="">
                                               <option></option>
                                               <option value="STRADA">STRADA</option>
                                               <option value="SOTTOSTRADA">SOTTOSTRADA</option>
@@ -226,7 +233,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label>Vulnerabilità personale</label>
-                                            <select class="form-control" name="vulnerabilita" placeholder="">
+                                            <select class="form-control" name="vulnerabilita" id="vulnerabilita" placeholder="">
                                               <option></option>
                                               <option value="SOSTENIBILE">SOSTENIBILE</option>
                                               <option value="MATERIALE">MATERIALE</option>
@@ -239,7 +246,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Telefono amministratore</label>
-                                            <input class="form-control" type="text" name="name" placeholder="">
+                                            <input class="form-control" type="text" name="tel_amministratore" id="tel_amministratore" placeholder="">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                         </div>
@@ -248,7 +255,7 @@ require "../navbar_up.php";
                                         <div class="form-group has-warning has-feedback">
                                             <label>Telefono proprietario</label>
                                             <div class="custom-file">
-                                              <input class="form-control" type="text" name="name" placeholder="">
+                                              <input class="form-control" type="text" name="tel_proprietario" id="tel_proprietario" placeholder="">
                                               <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                               <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                             </div>
@@ -268,8 +275,8 @@ require "../navbar_up.php";
 
                                     <ul class="list-inline pull-right">
                                         <li><button type="button" class="default-btn prev-step">In dietro</button></li>
-                                        <li><button type="button" class="default-btn next-step skip-btn">Skip</button></li>
-                                        <li><button type="button" class="default-btn next-step">Continua</button></li>
+                                        <!-- <li><button type="button" class="default-btn next-step skip-btn">Skip</button></li> -->
+                                        <li><button type="button" class="default-btn next-step" id="submitStep3">Continua</button></li>
                                     </ul>
 
                                     <div class="col-md-12">

@@ -18,9 +18,9 @@ button:focus,
 	outline: none;
 	box-shadow: none;
 }
-.form-control:disabled, .form-control[readonly]{
+/* .form-control:disabled, .form-control[readonly]{
 	background-color: #fff;
-}
+} */
 /*----------step-wizard------------*/
 .d-flex{
 	display: flex;
@@ -259,9 +259,11 @@ span.round-tab i{
     right: 10px;
     transition: 0.5s;
 }
-.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+
+/* .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #fdfdfd;
-}
+} */
+
 .list-box{
 	padding: 10px;
 }
