@@ -68,6 +68,18 @@ button:focus,
     z-index: 1;
 }
 
+.connecting-line {
+    height: 2px;
+    background: #e0e0e0;
+    position: absolute;
+    width: 75%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 35px;
+    z-index: 1;
+}
+
 .wizard .nav-tabs > li.active > a, .wizard .nav-tabs > li.active > a:hover, .wizard .nav-tabs > li.active > a:focus {
     color: #555555;
     cursor: default;
@@ -107,7 +119,7 @@ span.round-tab i{
 }
 
 .wizard .nav-tabs > li {
-    width: 25%;
+    width: 20%;
 }
 
 .wizard li:after {
@@ -160,14 +172,14 @@ span.round-tab i{
 .wizard h3 {
     margin-top: 0;
 }
-.prev-step,
+/* .prev-step,
 .next-step{
     font-size: 13px;
     padding: 8px 24px;
     border: none;
     border-radius: 4px;
     margin-top: 30px;
-}
+} */
 .next-step{
 	background-color: #0db02b;
 }

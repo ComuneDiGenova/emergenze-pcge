@@ -24,13 +24,47 @@ const CIVICOURL    = 'https://mappe.comune.genova.it/geoserver/wfs'
 // }
 
 $(document).ready(function () {
+
+    [].forEach.call(document.querySelectorAll('input[data-form]'), (el)=>{
+        el.addEventListener('input', ()=>{
+            const binded = document.querySelector(`input[data-form='${el.getAttribute("data-form")}'][name='${el.getAttribute("name")}'][data-binded]`);
+            binded.value = el.value;
+        });
+    });
+
+    [].forEach.call(document.querySelectorAll('select[data-form]'), (el)=>{
+        el.addEventListener('change', ()=>{
+            const binded = document.querySelector(`input[data-form='${el.getAttribute("data-form")}'][name='${el.getAttribute("name")}'][data-binded]`);
+            binded.value = el.value;
+        });
+    });
+
     form1_setup();
     form2_setup();
+    form3_setup();
+    subscribe_setup();
     wiz_setup();
 
 });
 
 window.events = {};
+
+function collectPayload(form, key, saveData) {
+    const inputs = form.querySelectorAll(`input[data-form='${key}'], select[data-form='${key}']`);
+    const formdata = new FormData();
+    [].forEach.call(inputs, (el)=>{
+        formdata.append(el.name, el.value);
+    });
+    if (!saveData) {
+        formdata.append('rollback', 'true');
+    };
+    const requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow'
+    };
+    return requestOptions;
+};
 
 function form1_setup() {
     $('#toponimo').autoComplete({
@@ -62,7 +96,12 @@ function form1_setup() {
               fetch(url, requestOptions)
               .then(response => response.json())
               .then(result => {
-                  let options = result.features.map((fc) => fc.properties.NOMEVIA);
+                  let options = result.features.map((fc) => ({
+                      text: fc.properties.NOMEVIA,
+                      properties: {
+                          codice: fc.properties.COD_STRADA
+                      }
+                  }));
                   callback(options);
               })
               // .catch(error => console.log('error', error));
@@ -77,7 +116,8 @@ function form1_setup() {
             }
         }
     }).on("autocomplete.select ", (evt, item)=>{
-        window.address = item;
+        document.getElementById('civico').value = "";
+        window.codiceStrada = item.properties.codice;
         document.getElementById("civico").removeAttribute("disabled");
     });
 
@@ -100,10 +140,9 @@ function form1_setup() {
                   redirect: 'follow'
               };
 
-              const desvia = window.address;
-
               // let url = CIVICOURL + `&cql_filter=(TESTO+ILIKE+%27%251%25%27)+AND+COD_STRADA+%3D+%2738000%27`;
-              let url = CIVICOURL + `&cql_filter=(TESTO+ILIKE+%27%25${qry||''}%25%27)+AND+DESVIA+%3D+%27${desvia}%27&maxFeatures=${maxFeatures}`;
+              // let url = CIVICOURL + `&cql_filter=(TESTO+ILIKE+%27%25${qry||''}%25%27)+AND+DESVIA+%3D+%27${item.text}%27&maxFeatures=${maxFeatures}`;
+              let url = CIVICOURL + `&cql_filter=(TESTO+ILIKE+%27%25${qry||''}%25%27)+AND+COD_STRADA+%3D+%27${window.codiceStrada}%27&maxFeatures=${maxFeatures}`;
 
               // var url = new URL(STRADARIOURL)
               // url.search = new URLSearchParams({
@@ -114,7 +153,17 @@ function form1_setup() {
               fetch(url, requestOptions)
               .then(response => response.json())
               .then(result => {
-                  let options = result.features.map((fc) => fc.properties.TESTO);
+                  let options = result.features.map((fc) => ({
+                      text: fc.properties.TESTO,
+                      properties: {
+                          idVia: fc.properties.COD_STRADA,
+                          colore: fc.properties.COLORE,
+                          esponente: fc.properties.LETTERA,
+                          numeroCivico: fc.properties.NUMERO,
+                          indirizzoCompleto: fc.properties.MACHINE_LAST_UPD
+                      }
+
+                  }));
                   callback(options);
               })
               // .catch(error => console.log('error', error));
@@ -128,14 +177,53 @@ function form1_setup() {
                 // });
             }
         }
+    }).on("autocomplete.select ", (evt, item)=>{
+        console.log(item.properties);
+        for ( const [kk, vv] of Object.entries(item.properties) ) {
+            document.getElementById(kk).value = vv;
+        };
     });
 
+};
 
+function validate(results, container) {
+    let successes = 0
+    for (const result of results) {
+        switch (result.status) {
+            case 200:
+                successes += 1;
+                break;
+            case undefined:
+                successes += 1;
+                break;
+            case 400:
+                let successes_ = 0
+                for ( const [kk, vv] of Object.entries(result.errors) ) {
+                    // const el = document.getElementById(kk);
+                    const el = container.querySelector(`input[name='${kk}'], select[name='${kk}']`)
+                    if (el) {
+                        const err = document.createElement('span');
+                        err.classList.add(help_className);
+                        err.append(vv)
+                        el.parentElement.appendChild(err);
+                        el.parentElement.parentElement.classList.remove('has-warning');
+                        el.parentElement.parentElement.classList.add('has-error');
+                    } else {
+                        successes_ += 1;
+                    };
+                };
+                if (Object.keys(result.errors).length==successes_) {
+                    successes += 1;
+                };
+                break;
+          };
+    };
+    return (results.length==successes);
 };
 
 function form2_setup() {
 
-    var requestOptions = {
+    const requestOptions = {
         method: 'GET',
         redirect: 'follow'
     };
@@ -157,52 +245,86 @@ function form2_setup() {
         })
         .catch(error => console.log('error', error));
 
-    function checkSubscribe (callback) {
+
+    function checkSubscribe () {
         const form = document.getElementById("step2");
-        const inputs = form.querySelectorAll("input[data-form='utente'], select[data-form='utente']");
-
-        var formdata = new FormData();
-        [].forEach.call(inputs, (el)=>{
-            formdata.append(el.name, el.value);
-        });
-
-        var requestOptions = {
-          method: 'POST',
-          body: formdata,
-          redirect: 'follow'
-        };
 
         return Promise.all([
-            fetch(BASEURL+"utente", requestOptions).then(response => response.json())
-          ]).then(results => {
-            const result = results[0];
-            switch (result.status) {
-                case 200:
-                    callback();
-                    break;
-                case 400:
-                    for ( const [kk, vv] of Object.entries(result.errors) ) {
-                        const el = document.getElementById(kk);
-
-                        // el.parentElement.querySelectorAll(`.${help_className}`).forEach(el => el.remove());
-                        const err = document.createElement('span');
-                        err.classList.add(help_className);
-                        err.append(vv)
-                        el.parentElement.appendChild(err);
-                        el.parentElement.parentElement.classList.remove('has-warning');
-                        el.parentElement.parentElement.classList.add('has-error');
-                    };
-                    // alert(result.detail);
-
-                    break;
-            }
-        })
-
+            fetch(BASEURL+"utente", collectPayload(form, 'utente')).then(response => response.json()),
+            fetch(BASEURL+"telefono", collectPayload(form, 'contatto')).then(response => response.json()),
+          ]).then(results => validate(results, form))
     };
 
     const elemId = 'submitStep2'
     window.events[elemId] = checkSubscribe;
 
+};
+
+function form3_setup() {
+
+    const posizione = document.getElementById('posizione');
+    const vulnerabilita = document.getElementById('vulnerabilita');
+    const amministratore = document.getElementById('amministratore');
+    const proprietario = document.getElementById('proprietario');
+
+    function toggleEnable() {
+
+        let btn = document.getElementById('submitStep3');
+
+        if (
+            (vulnerabilita.value=='PERSONALE' || ['STRADA', 'SOTTOSTRADA'].includes(posizione.value))
+            && amministratore.value && proprietario.value
+        ) {
+            btn.removeAttribute('disabled');
+        } else {
+            btn.setAttribute('disabled', true);
+        };
+    };
+
+    posizione.addEventListener('change', toggleEnable);
+    vulnerabilita.addEventListener('change', toggleEnable);
+    amministratore.addEventListener('input', toggleEnable);
+    proprietario.addEventListener('input', toggleEnable);
+
+    function checkSubscribeStep3 () {
+        const form = document.getElementById("step3");
+
+        return Promise.all([
+            fetch(BASEURL+"civico", collectPayload(form, 'recapito')).then(response => response.json()),
+            fetch(BASEURL+"componente", collectPayload(form, 'nucleo')).then(response => response.json()),
+          ]).then(results => validate(results, form))
+    };
+
+    const elemId = 'submitStep3'
+    window.events[elemId] = checkSubscribeStep3;
+
+};
+
+function subscribe_setup() {
+
+    function submitSubscribe () {
+        const form = document.getElementById("step4");
+        return Promise.all([
+            fetch(BASEURL+"utente", collectPayload(form, 'utente', true)).then(response => response.json()),
+            fetch(BASEURL+"civico", collectPayload(form, 'recapito', true)).then(response => response.json()),
+        ]).then(result => {
+            // TODO
+
+            let contattoPayload = collectPayload(form, 'contatto');
+            let componentePayload = collectPayload(form, 'nucleo')
+
+            // TODO: await next call
+            Promise.all([
+                fetch(BASEURL+"telefono", contattoPayload).then(response => response.json()),
+                fetch(BASEURL+"componente", componentePayload).then(response => response.json())
+            ]).then(results => {});
+
+            return true
+        });
+    }
+
+    const elemId = 'submitSubscribe'
+    window.events[elemId] = submitSubscribe;
 };
 
 function wiz_setup () {
@@ -218,13 +340,15 @@ function wiz_setup () {
         }
     });
 
-    $(".next-step").click(function (e) {
+    function goOn() {
+        var $active = $('.wizard .nav-tabs li.active');
+        $active.next().removeClass('disabled');
+        nextTab($active);
+    };
 
-        function goOn() {
-            var $active = $('.wizard .nav-tabs li.active');
-            $active.next().removeClass('disabled');
-            nextTab($active);
-        };
+    $(".skip-step").click(function (e) {goOn()});
+
+    $(".next-step").click(function (e) {
 
         if (e.target.id) {
             e.target.parentElement.parentElement.parentElement.querySelectorAll("input, select").forEach(el => {
@@ -237,13 +361,15 @@ function wiz_setup () {
                 el.parentElement.parentElement.classList.add('has-success');
 
             });
-            window.events[e.target.id](goOn)
-
+            window.events[e.target.id]().then(canIGoOn => {
+                if (canIGoOn) goOn();
+            });
         } else {
             goOn();
         };
 
     });
+
     $(".prev-step").click(function (e) {
 
         var $active = $('.wizard .nav-tabs li.active');

@@ -96,6 +96,10 @@ require "../navbar_up.php";
                                     <a href="#step4" data-toggle="tab" aria-controls="step4" role="tab">
                                       <span class="round-tab">4</span> <i>Riepilogo</i></a>
                                 </li>
+                                <li role="presentation" class="disabled">
+                                    <a href="#step5" data-toggle="tab" aria-controls="step5" role="tab">
+                                      <span class="round-tab">5</span> <i>Esito</i></a>
+                                </li>
                             </ul>
                         </div>
 
@@ -120,8 +124,17 @@ require "../navbar_up.php";
                                         </div>
                                     </div>
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="default-btn next-step">Continua</button></li>
+                                        <li><button type="button" class="btn btn-success next-step">Continua</button></li>
                                     </ul>
+                                    <div class="col-md-12">
+                                        <blockquote>
+                                          <p class="text-info">
+                                            Possono registrarsi al servizio i <strong>residenti</strong> ed i <strong>domiciliati</strong> per i soli indirizzi
+                                            e numeri civici che risultano sul territorio delle <strong>aree ad ALTA pericolosità per RISCHIO IDRAULICO</strong>
+                                            che abitano al <strong>piano strada</strong> o <strong>sottostrada</strong> del Comune di Genova (piano di protezione civile).
+                                          </p>
+                                        </blockquote>
+                                  </div>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step2">
                                     <h4 class="text-center">Dati generali dell'utente</h4>
@@ -164,7 +177,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Numero di telefono</label>
-                                            <input class="form-control" type="text" name="numero" id="numero" placeholder="Inserisci un recapito telefonico">
+                                            <input class="form-control" type="text" data-form="contatto" name="numero" id="numero" placeholder="Inserisci un recapito telefonico">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(RICHIESTO)</span>
                                             <!-- <div class="alert alert-danger" role="alert">
@@ -178,7 +191,7 @@ require "../navbar_up.php";
                                         <!-- Usare classe has-warning per enfatizzare i campi obbligatori  -->
                                         <div class="form-group has-warning has-feedback">
                                             <label>Tipo telefono</label>
-                                            <select class="form-control" name="tipo" id="tipo" placeholder="">
+                                            <select class="form-control" data-form="contatto" name="tipo" id="tipo" placeholder="">
                                               <option></option>
                                               <option value="FISSO">FISSO</option>
                                               <option value="CELLULARE">CELLULARE</option>
@@ -188,29 +201,31 @@ require "../navbar_up.php";
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group">
+                                        <div class="form-group has-warning has-feedback">
                                             <label>Comprensione dei messaggi vocali</label>
-                                            <select class="form-control" name="lingua" id="lingua" placeholder="">
+                                            <select class="form-control" data-form="contatto" name="lingua" id="lingua" placeholder="">
                                               <option></option>
                                               <option value="BUONA SE IN LINGUA ITALIANA">BUONA SE IN LINGUA ITALIANA</option>
                                               <option value="BUONA SOLO SE IN LINGUA STRANIERA">BUONA SOLO SE IN LINGUA STRANIERA</option>
                                               <option value="AUDIOLESO o NON UDENTE">AUDIOLESO o NON UDENTE</option>
                                             </select>
+                                            <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                                            <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Lingua straniera</label>
-                                            <select class="form-control" name="linguaNoItalia" id="linguaNoItalia" placeholder="">
+                                            <select class="form-control" data-form="contatto" name="linguaNoItalia" id="linguaNoItalia" placeholder="">
                                               <option></option>
                                             </select>
                                         </div>
                                     </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="default-btn prev-step">In dietro</button></li>
-                                        <!-- <li><button type="button" class="default-btn next-step skip-btn">Skip</button></li> -->
-                                        <li><button type="button" class="default-btn next-step" id="submitStep2">Continua</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
+                                        <li><button type="button" class="btn btn-warning skip-step skip-btn">Skip</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitStep2">Continua</button></li>
                                     </ul>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step3">
@@ -219,7 +234,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label>Posizione</label>
-                                            <select class="form-control" name="posizione" id="posizione" placeholder="">
+                                            <select class="form-control" data-form="recapito" name="posizione" id="posizione" placeholder="">
                                               <option></option>
                                               <option value="STRADA">STRADA</option>
                                               <option value="SOTTOSTRADA">SOTTOSTRADA</option>
@@ -233,7 +248,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label>Vulnerabilità personale</label>
-                                            <select class="form-control" name="vulnerabilita" id="vulnerabilita" placeholder="">
+                                            <select class="form-control" data-form="recapito" name="vulnerabilita" id="vulnerabilita" placeholder="">
                                               <option></option>
                                               <option value="SOSTENIBILE">SOSTENIBILE</option>
                                               <option value="MATERIALE">MATERIALE</option>
@@ -246,7 +261,7 @@ require "../navbar_up.php";
                                     <div class="col-md-6">
                                         <div class="form-group has-warning has-feedback">
                                             <label>Telefono amministratore</label>
-                                            <input class="form-control" type="text" name="tel_amministratore" id="tel_amministratore" placeholder="">
+                                            <input class="form-control" type="text" data-form="recapito" name="amministratore" id="amministratore" placeholder="">
                                             <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                             <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                         </div>
@@ -255,28 +270,30 @@ require "../navbar_up.php";
                                         <div class="form-group has-warning has-feedback">
                                             <label>Telefono proprietario</label>
                                             <div class="custom-file">
-                                              <input class="form-control" type="text" name="tel_proprietario" id="tel_proprietario" placeholder="">
+                                              <input class="form-control" type="text" data-form="recapito" name="proprietario" id="proprietario" placeholder="">
                                               <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
                                               <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
-                                        <div class="form-group">
+                                        <div class="form-group has-warning has-feedback">
                                             <label>Tipo utente</label>
                                             <!-- <input class="form-control" type="text" name="tipo" placeholder=""> -->
-                                            <select class="form-control" name="tipo" placeholder="">
+                                            <select class="form-control" data-form="nucleo" name="tipo" id="utente-tipo" placeholder="">
                                               <option></option>
                                               <option value="RESIDENTE">RESIDENTE</option>
                                               <option value="NON RESIDENTE">NON RESIDENTE</option>
                                             </select>
+                                            <span class="glyphicon glyphicon-asterisk form-control-feedback" aria-hidden="true"></span>
+                                            <span id="inputWarning2Status" class="sr-only">(warning)</span>
                                         </div>
                                     </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="default-btn prev-step">In dietro</button></li>
-                                        <!-- <li><button type="button" class="default-btn next-step skip-btn">Skip</button></li> -->
-                                        <li><button type="button" class="default-btn next-step" id="submitStep3">Continua</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
+                                        <li><button type="button" class="btn btn-warning skip-step skip-btn">Skip</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitStep3" disabled>Continua</button></li>
                                     </ul>
 
                                     <div class="col-md-12">
@@ -308,110 +325,156 @@ require "../navbar_up.php";
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step4">
                                     <h4 class="text-center">Riepilogo delle informazioni</h4>
-                                    <!-- <div class="all-info-container">
+
+
+                                    <div class="all-info-container">
                                         <div class="list-content">
-                                            <a href="#listone" data-toggle="collapse" aria-expanded="false" aria-controls="listone">Collapse 1 <i class="fa fa-chevron-down"></i></a>
-                                            <div class="collapse" id="listone">
+                                            <a href="#listone" data-toggle="collapse" aria-expanded="false" aria-controls="listone">Dati generali dell'utente <i class="fa fa-chevron-down"></i></a>
+                                            <div class="collapse in" id="listone">
                                                 <div class="list-box">
                                                     <div class="row">
 
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>First and Last Name *</label>
-                                                                <input class="form-control" type="text"  name="name" placeholder="" disabled="disabled">
+                                                                <label>Nome</label>
+                                                                <input class="form-control" type="text" name="nome" data-form="utente" data-binded disabled>
                                                             </div>
                                                         </div>
 
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>Phone Number *</label>
-                                                                <input class="form-control" type="text" name="name" placeholder="" disabled="disabled">
+                                                                <label>Cognome</label>
+                                                                <input class="form-control" type="text" name="cognome" data-form="utente" data-binded disabled>
                                                             </div>
                                                         </div>
 
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="list-content">
-                                            <a href="#listtwo" data-toggle="collapse" aria-expanded="false" aria-controls="listtwo">Collapse 2 <i class="fa fa-chevron-down"></i></a>
-                                            <div class="collapse" id="listtwo">
-                                                <div class="list-box">
                                                     <div class="row">
 
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>Address 1 *</label>
-                                                                <input class="form-control" type="text" name="name" placeholder="" disabled="disabled">
+                                                                <label>Codice fiscale</label>
+                                                                <input class="form-control" type="text" data-form="utente" name="codiceFiscale" data-binded disabled>
                                                             </div>
                                                         </div>
 
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>City / Town *</label>
-                                                                <input class="form-control" type="text" name="name" placeholder="" disabled="disabled">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label>Country *</label>
-                                                                <select name="country2" class="form-control" id="country2" disabled="disabled">
-                                                                    <option value="NG" selected="selected">Nigeria</option>
-                                                                    <option value="NU">Niue</option>
-                                                                    <option value="NF">Norfolk Island</option>
-                                                                    <option value="KP">North Korea</option>
-                                                                    <option value="MP">Northern Mariana Islands</option>
-                                                                    <option value="NO">Norway</option>
-                                                                </select>
+                                                                <label>Email</label>
+                                                                <input class="form-control" type="text" data-form="utente" name="eMail" data-binded disabled>
                                                             </div>
                                                         </div>
 
+                                                    </div>
+                                                    <div class="row">
 
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Numero di telefono</label>
+                                                                <input class="form-control" type="text" data-form="contatto" name="numero" data-binded disabled>
+                                                            </div>
+                                                        </div>
 
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>Legal Form</label>
-                                                                <select name="legalform2" class="form-control" id="legalform2" disabled="disabled">
-                                                                    <option value="" selected="selected">-Select an Answer-</option>
-                                                                    <option value="AG">Limited liability company</option>
-                                                                    <option value="GmbH">Public Company</option>
-                                                                    <option value="GbR">No minimum capital, unlimited liability of partners, non-busines</option>
-                                                                </select>
+                                                                <label>Tipo telefono</label>
+                                                                <input class="form-control" type="text" data-form="contatto" name="tipo" data-binded disabled>
                                                             </div>
                                                         </div>
+
+                                                    </div>
+                                                    <div class="row">
+
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>Business Registration No.</label>
-                                                                <input class="form-control" type="text" name="name" placeholder="" disabled="disabled">
+                                                                <label>Comprensione dei messaggi vocali</label>
+                                                                <input class="form-control" type="text" data-form="contatto" name="lingua" data-binded disabled>
                                                             </div>
                                                         </div>
+
                                                         <div class="col-md-6">
                                                             <div class="form-group">
-                                                                <label>Registered</label>
-                                                                <select name="vat2" class="form-control" id="vat2" disabled="disabled">
-                                                                    <option value="" selected="selected">-Select an Answer-</option>
-                                                                    <option value="yes">Yes</option>
-                                                                    <option value="no">No</option>
-                                                                </select>
+                                                                <label>Lingua straniera</label>
+                                                                <input class="form-control" type="text" data-form="contatto" name="linguaNoItalia" data-binded disabled>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label>Seller</label>
-                                                                <input class="form-control" type="text" name="name" placeholder="" disabled="disabled">
-                                                            </div>
-                                                        </div>
+
+                                                    </div>
+                                                    <div class="row">
+
                                                         <div class="col-md-12">
                                                             <div class="form-group">
-                                                                <label>Company Name *</label>
-                                                                <input class="form-control" type="password" name="name" placeholder="" disabled="disabled">
+                                                                <label>Tipo utente</label>
+                                                                <input class="form-control" type="text" data-form="nucleo" name="tipo" data-binded disabled>
                                                             </div>
                                                         </div>
+
                                                     </div>
+
+
+
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="list-content">
+                                            <a href="#listtwo" data-toggle="collapse" aria-expanded="false" aria-controls="listtwo">Dati indirizzo <i class="fa fa-chevron-down"></i></a>
+                                            <div class="collapse in" id="listtwo">
+                                                <div class="list-box">
+                                                    <div class="row">
+
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <label>Indirizzo</label>
+                                                                <input class="form-control" type="text" data-form="recapito" name="indirizzoCompleto" id="indirizzoCompleto" disabled>
+                                                            </div>
+                                                        </div>
+
+                                                        <input class="form-control hidden" type="text" data-form="recapito" name="idVia" id="idVia" disabled>
+                                                        <input class="form-control hidden" type="text" data-form="recapito" name="numeroCivico" id="numeroCivico" disabled>
+                                                        <input class="form-control hidden" type="text" data-form="recapito" name="esponente" id="esponente" disabled>
+                                                        <input class="form-control hidden" type="text" data-form="recapito" name="colore" id="colore" disabled>
+
+                                                    </div>
+                                                    <div class="row">
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Telefono amministratore</label>
+                                                                <input class="form-control" type="text" data-form="recapito" name="amministratore" data-binded disabled>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Telefono proprietario</label>
+                                                                <input class="form-control" type="text" data-form="recapito" name="proprietario" data-binded disabled>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="row">
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Posizione</label>
+                                                                <input class="form-control" type="text" data-form="recapito" name="posizione" data-binded disabled>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Vulnerabilità personale</label>
+                                                                <input class="form-control" type="text" data-form="recapito" name="vulnerabilita" data-binded disabled>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- <div class="list-content">
                                             <a href="#listthree" data-toggle="collapse" aria-expanded="false" aria-controls="listthree">Collapse 3 <i class="fa fa-chevron-down"></i></a>
                                             <div class="collapse" id="listthree">
                                                 <div class="list-box">
@@ -435,13 +498,16 @@ require "../navbar_up.php";
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div> -->
+                                        </div> -->
+                                    </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="default-btn prev-step">In dietro</button></li>
-                                        <li><button type="button" class="default-btn next-step">Sottoscrivi</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitSubscribe">Sottoscrivi</button></li>
                                     </ul>
+                                </div>
+                                <div class="tab-pane" role="tabpanel" id="step5">
+                                    <h4 class="text-center">Esito</h4>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
