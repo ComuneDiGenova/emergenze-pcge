@@ -3,7 +3,9 @@
 const maxFeatures = '50'
 const help_className = "help-block";
 
-const BASEURL = 'http://localhost:8000/emergenze/'
+// const BASEURL = 'http://localhost:8000/emergenze/'
+
+const BASEURL = config.BASEURL
 
 const STRADARIOURL = 'https://mappe.comune.genova.it/geoserver/wfs'
   + '?service=WFS&version=1.1.0&request=GetFeature&outputFormat=application%2Fjson&typeName=SITGEO:V_ASTE_STRADALI_TOPONIMO_SUB&sortBy=ID&srsName=EPSG:4326&startIndex=0';
@@ -182,6 +184,7 @@ function form1_setup() {
         for ( const [kk, vv] of Object.entries(item.properties) ) {
             document.getElementById(kk).value = vv;
         };
+        document.getElementById("submitStep1").removeAttribute('disabled');
     });
 
 };
@@ -307,17 +310,45 @@ function subscribe_setup() {
         return Promise.all([
             fetch(BASEURL+"utente", collectPayload(form, 'utente', true)).then(response => response.json()),
             fetch(BASEURL+"civico", collectPayload(form, 'recapito', true)).then(response => response.json()),
-        ]).then(result => {
+        ]).then(results1 => {
             // TODO
 
-            let contattoPayload = collectPayload(form, 'contatto');
-            let componentePayload = collectPayload(form, 'nucleo')
+            const [utente, civico] = results1;
+
+            // console.log(utente);
+            // console.log(civico);
+
+            let contattoPayload = collectPayload(form, 'contatto', true);
+            let componentePayload = collectPayload(form, 'nucleo', true)
+
+            contattoPayload.body.append('idUtente', utente.id);
+            componentePayload.body.append('idUtente', utente.id);
+            componentePayload.body.append('idCivico', civico.id);
+
+            // console.log(contattoPayload);
+            // console.log(componentePayload);
 
             // TODO: await next call
             Promise.all([
-                fetch(BASEURL+"telefono", contattoPayload).then(response => response.json()),
-                fetch(BASEURL+"componente", componentePayload).then(response => response.json())
-            ]).then(results => {});
+                fetch(BASEURL+"telefono", contattoPayload),
+                fetch(BASEURL+"componente", componentePayload)
+            ]).then(results2 => {
+                const [telResponse, roleResponse] = results2;
+                console.log(telResponse, roleResponse);
+                if (telResponse.status==200 && roleResponse.status==200) {
+                    document.getElementById("successPanel").removeAttribute("hidden");
+                } else {
+                    document.getElementById("failPanel").removeAttribute("hidden");
+                };
+                // switch ([telResponse.status, roleResponse.status]) {
+                //     case ([200, 200]):
+                //         document.getElementById("successPanel").removeAttribute("hidden");
+                //         break;
+                //     default:
+                //         document.getElementById("failPanel").removeAttribute("hidden");
+                //         break;
+                // };
+            });
 
             return true
         });
@@ -350,7 +381,7 @@ function wiz_setup () {
 
     $(".next-step").click(function (e) {
 
-        if (e.target.id) {
+        if (e.target.id && e.target.id in window.events) {
             e.target.parentElement.parentElement.parentElement.querySelectorAll("input, select").forEach(el => {
                 el.parentElement.querySelectorAll(`.${help_className}`).forEach(el => el.remove());
                 el.parentElement.classList.remove('has-error');

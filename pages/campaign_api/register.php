@@ -113,6 +113,7 @@ require "../navbar_up.php";
                                                 <label>Toponimo</label>
                                                 <input class="form-control advancedAutoComplete" type="text" autocomplete="on"
                                                     placeholder="ricerca per toponimo" id="toponimo" name="toponimo">
+                                                <span class="help-block">Seleziona tra i toponimo possibili proposti dalla ricerca.</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -120,11 +121,14 @@ require "../navbar_up.php";
                                                 <label>Civico</label>
                                                 <input class="form-control advancedAutoComplete" type="text" autocomplete="on"
                                                     placeholder="ricerca civico" id="civico" name="civico" disabled>
+                                                <span class="help-block">Seleziona tra i civici possibili proposti dalla ricerca.</span>
                                             </div>
                                         </div>
                                     </div>
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="btn btn-success next-step">Continua</button></li>
+                                        <li><button id="submitStep1" type="button" class="btn btn-success next-step" disabled>
+                                            <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            Continua</button></li>
                                     </ul>
                                     <div class="col-md-12">
                                         <blockquote>
@@ -223,9 +227,13 @@ require "../navbar_up.php";
                                     </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">
+                                            <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            In dietro</button></li>
                                         <li><button type="button" class="btn btn-warning skip-step skip-btn">Skip</button></li>
-                                        <li><button type="button" class="btn btn-success next-step" id="submitStep2">Continua</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitStep2">
+                                            <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            Continua</button></li>
                                     </ul>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step3">
@@ -291,9 +299,13 @@ require "../navbar_up.php";
                                     </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">
+                                            <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            In dietro</button></li>
                                         <li><button type="button" class="btn btn-warning skip-step skip-btn">Skip</button></li>
-                                        <li><button type="button" class="btn btn-success next-step" id="submitStep3" disabled>Continua</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitStep3" disabled>
+                                            <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            Continua</button></li>
                                     </ul>
 
                                     <div class="col-md-12">
@@ -502,22 +514,48 @@ require "../navbar_up.php";
                                     </div>
 
                                     <ul class="list-inline pull-right">
-                                        <li><button type="button" class="btn btn-default prev-step">In dietro</button></li>
-                                        <li><button type="button" class="btn btn-success next-step" id="submitSubscribe">Sottoscrivi</button></li>
+                                        <li><button type="button" class="btn btn-default prev-step">
+                                            <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            In dietro</button></li>
+                                        <li><button type="button" class="btn btn-success next-step" id="submitSubscribe">
+                                            <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                            Sottoscrivi</button></li>
                                     </ul>
                                 </div>
                                 <div class="tab-pane" role="tabpanel" id="step5">
                                     <h4 class="text-center">Esito</h4>
+
+                                    <div class="jumbotron" id="successPanel" hidden>
+                                      <h1>
+                                          <i class="fa fa-flag-checkered" aria-hidden="true"></i>
+                                          Complimenti!</h1>
+                                      <p>Operazione conclusa con successo</p>
+                                    </div>
+                                    <div class="panel panel-danger" id="failPanel" hidden>
+                                        <div class="panel-heading">
+                                            Riscontrati problemi nella registrazione!</div>
+                                        <div class="panel-body">
+                                            Attenzione riscontrati problemi nella registrazione!
+                                            Se il problema persiste si prega di contattare l'assistenza.
+                                        </div>
+                                        <!-- <div class="panel-footer">Panel footer</div> -->
+                                    </div>
+
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
 
                         </form>
                     </div>
+                    <!-- <button type="button" class="btn btn-warning">Warning</button> -->
+                    <a type="button" class="btn btn-warning" href="./dashboard_menu.php">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        Torna alla dashboard Chiamate</a>
                 </div>
             </div>
         </div>
     </section>
+      <script type="text/javascript" defer src="config.js"></script>
       <script type="text/javascript" defer src="register.js"></script>
     </body>
 
