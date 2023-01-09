@@ -4,10 +4,7 @@
   "version": "3.3.7+1",
   "homepage": "http://startbootstrap.com/template-overviews/sb-admin-2",
   "author": "Start Bootstrap",
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE"
-  },
+  "license": "MIT",
   "devDependencies": {
     "browser-sync": "^2.13.0",
     "gulp": "^3.9.1",
@@ -22,6 +19,7 @@
     "url": "git://github.com/BlackrockDigital/startbootstrap-sb-admin-2.git"
   },
   "dependencies": {
-    "print-js": "^1.0.63"
+    "print-js": "^1.0.63",
+    "@prettier/plugin-php": "0.14.3"
   }
 }
