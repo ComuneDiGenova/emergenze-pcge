@@ -1,3 +1,3 @@
 const config = {
-    BASEURL: 'http://localhost:8000/emergenze/'
+    BASEURL: 'https://emergenze-apit.comune.genova.it/emergenze/'
 };
