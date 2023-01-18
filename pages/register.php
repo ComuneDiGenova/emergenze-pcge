@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="../vendor//leaflet-search/src/leaflet-search.css">
         <link rel="stylesheet" href="register.css">
 
-        <title>Test document</title>
+        <title>Register</title>
         <?php
         function js_console_log($message) {
             $current_file = basename(__FILE__);
@@ -378,7 +378,8 @@
                                                             soli appartamenti situati
                                                             al <strong>piano strada</strong> o
                                                             <strong>sottostrada</strong> dei
-                                                            civici che risultano ad alta pericolosità idraulica.</p>
+                                                            civici che risultano ad alta pericolosità idraulica.
+                                                        </p>
                                                     </blockquote>
                                                     <blockquote>
                                                         <p class="text-info">
