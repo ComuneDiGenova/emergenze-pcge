@@ -38,3 +38,7 @@ width: 100%;
 .create_campaign {
 margin-right: 10px;
 }
+.form-group.autoComplete:hover > .bootstrap-autocomplete.dropdown-menu, .form-group.autoComplete:focus >
+.bootstrap-autocomplete.dropdown-menu {
+display: inline;
+}
