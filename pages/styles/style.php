@@ -26,3 +26,15 @@ color: #337ab7;
 .bootstrap-table .table>thead>tr>th {
 vertical-align: center;
 }
+body {
+margin-top: 100px;
+}
+
+.select,
+#locale {
+width: 100%;
+}
+
+.create_campaign {
+margin-right: 10px;
+}
