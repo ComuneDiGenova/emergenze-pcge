@@ -187,14 +187,6 @@
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="camp_tab">
                             <h1 id="dashboard_header">Dashboard chiamate</h1>
-                            <!-- <div class="container" id="API_bttn_camp_container">
-                        <input type="text" class="form-control" id="camp_id" placeholder="ID of campaign to visualize ">
-                        <button class="btn btn-primary" id="button_vis_campaign" type="button">Visualise campaign
-                        </button>
-                        <hr class="hr" />
-
-                    </div> -->
-
                             <div class="container" id="API_date_container">
                                 <!-- <h3 id="date_header">Seleziona un periodo di ricerca</h3> -->
 
@@ -214,19 +206,6 @@
                                         </button>
                                     </span>
                                 </div>
-
-                                <!-- <div class="input-group input-daterange date datepicker">
-                            <div class="input-group-addon">Dal</div>
-                            <input type="text" placeholder="Select start date" class="form-control" value="2020-04-05"
-                                id="ui_date_start">
-                            <div class="input-group-addon">a</div>
-                            <input type="text" placeholder="Select end date" class="form-control" value="2022-04-19"
-                                id="ui_date_end">
-                        </div>
-                        <button class="btn btn-primary" id="button_campaign_from_to" type="button">Get campaign
-                            from/to</button> -->
-                                <!-- <hr class="hr" /> -->
-
                             </div>
                             <!-- Add an outline for container -->
                             <!-- Data table for campaigns -->
@@ -244,9 +223,6 @@
                                 <hr class="hr" />
                                 <h3 id="camp_list_header">Campaign list</h3>
                                 <div id="camp_toolbar">
-                                    <!-- <button id="button_vis" class="btn btn-primary">
-                    <i class="fa fa-eye"></i> Visualize selected campaigns
-                </button> -->
                                 </div>
                                 <table class="table-hover" id="camp_table_time" data-togle="table"
                                     data-toolbar="camp_toolbar">
