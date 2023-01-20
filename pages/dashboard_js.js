@@ -11,6 +11,7 @@ const $header_cmp_list = $("#camp_list_header");
 const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
+const $test_numbers = $("#test_phone_numbers");
 
 //* API URL
 // const python_api_url =
@@ -19,7 +20,7 @@ const $message_table = $("#msg_table");
 
 const python_api_url = `${config.BASEURL}user_campaign/`;
 
-const genova_api_url = config.BASEURL
+const genova_api_url = config.BASEURL;
 
 // default values for the date picker
 let date_start_picked = "2020-06-01";
@@ -102,10 +103,13 @@ $button_create_campaign.click(async () => {
   const voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
+  const $test_numbers = $("#test_phone_numbers").val();
+
   const message_returned = await retr_message(
     python_api_url,
     $msg_id_input,
   );
+
   // pyApi will create a new message if the message_id if no ID is given
   // retr_message call does not return
   let msg_dict = {
@@ -114,6 +118,7 @@ $button_create_campaign.click(async () => {
     message_note: $msg_note,
     voice: voice_picked,
     group: group_number,
+    test_numbers_list: $test_numbers,
   };
   // if message_returned is null, then the message does not exist in the database
   // send the message_text/note to the backend so it will create new message
@@ -240,6 +245,7 @@ async function create_campaign(
     message_note: "Test messagio per alert sistema",
     group: "1",
     voice: voice_picked,
+    phone_numbers: "333333333",
   },
 ) {
   let form_data = new FormData();
@@ -248,7 +254,10 @@ async function create_campaign(
   form_data.append("message_ID", dict_of_options.message_ID);
   form_data.append("group", dict_of_options.group);
   form_data.append("voice_gender", dict_of_options.voice);
-
+  form_data.append(
+    "test_phone_numbers",
+    dict_of_options.phone_numbers,
+  );
   const requestOptions = {
     method: "POST",
     body: form_data,

@@ -21,6 +21,7 @@
         define('REQ_PATH', __DIR__ . '/req.php');
         define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
         define('CONTEGGI_DASHBOARD_PATH', __DIR__ . '/conteggi_dashboard.php');
+        define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
         define('NAVBAR_UP_PATH', __DIR__ . '/navbar_up.php');
         define('NAVBAR_LEFT_PATH', __DIR__ . '/navbar_left.php');
         define('FOOTER_PATH', __DIR__ . '/footer.php');
@@ -29,6 +30,7 @@
         try {
             safe_import(REQ_PATH);
             safe_import(CHECK_EVENTO_PATH);
+            // safe_import(FAKE_SPID);
             safe_import(CONTEGGI_DASHBOARD_PATH);
             if ($profilo_sistema == 10) {
                 header("location: ./index_nverde.php");
