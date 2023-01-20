@@ -119,6 +119,11 @@
                                         <input type="text" class="form-control" id="msg_note"
                                             placeholder="Inserisci una descrizione utile a identificare il messaggio">
                                     </div>
+                                    <div class="form-group">
+                                        <label for="comment">Numeri di telefono:</label>
+                                        <textarea class="form-control" rows="5" id="test_phone_numbers"
+                                            placeholder="Inserisci numeri di telefono separati da uno spazio e lancia una campagna di test"></textarea>
+                                    </div>
 
                                 </form>
                                 <div class="btn-group" data-toggle="buttons">
