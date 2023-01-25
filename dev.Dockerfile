@@ -20,7 +20,7 @@ RUN update-alternatives --config python
 RUN service memcached restart
 
 RUN groupadd -g $GID -o $UNAME
-RUN useradd -o -m -u $UID -g $GID -s /bin/bash $UNAME
+RUN useradd -l -o -m -u $UID -g $GID -s /bin/bash $UNAME
 
 # RUN groupadd -r $user && useradd -m -r -g $user $user
 

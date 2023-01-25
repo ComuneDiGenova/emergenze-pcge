@@ -19,7 +19,9 @@ services:
   db-listener:
     env_file:
       - .env
-    build: .
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
     network_mode: host
     stdin_open: true
     tty: true

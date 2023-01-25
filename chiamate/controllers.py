@@ -108,6 +108,7 @@ not_yet_implemented = {
 
 
 @action("lingue", method=['GET'])
+@action.uses(cors)
 def lingue():
     """ Restituisce le lingue accettate """
     raise HTTP(200,
