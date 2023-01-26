@@ -211,13 +211,13 @@ function integerToRoman($integer) {
     <![endif]-->
 
 <!-- jQuery -->
-<script src="/../vendor/jquery/jquery.min.js"></script>
+<script src="../vendor/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap js -->
-<script src="/../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
 
 <!-- Bootstrap table -->
-<script src="/../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
+<script src="../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
 
 <!-- ✅ load jquery UI ✅ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"
