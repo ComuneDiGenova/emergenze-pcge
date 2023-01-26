@@ -110,6 +110,11 @@ ALERTSYSTEM_ENDPOINT = None
 ALERTSYSTEM_USERNAME = None
 ALERTSYSTEM_PASSWORD = None
 
+WSO2_URL = 'https://apitest.comune.genova.it:28243'
+WSO2_VBT_ROOT = 'GestioneEmergenze'
+WSO2_KEY = ''
+WSO2_SECRET = ''
+
 # try import private settings
 try:
     from .settings_private import *

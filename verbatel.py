@@ -13,6 +13,63 @@ from .common import logger, logging
 
 import json
 from itertools import chain
+from datetime import datetime
+from datetime import timedelta
+from urllib.parse import urljoin
+
+def ujoin(*parts):
+    reduce(urljoin, parts)
+
+class Wso2():
+
+    url = settings.WSO2_URL
+    root = settings.WSO2_VBT_ROOT
+
+    def __init__(self) -> None:
+        self.key = settings.WSO2_KEY
+        self.secret = settings.WSO2_SECRET
+        self._token = None
+        self.expire = None
+
+    @property
+    def access_token(self) -> str:
+
+        if self._token is None or self.expire <= datetime.now():
+            response = requests.get(
+                urljoin(self.url, 'manageToken/getToken'),
+                params = {'key': self.key, 'secret': self.secret})
+            info = response.json()
+            self.expire = datetime.now() + timedelta(seconds=info['expires_in'])
+            self._token = info['access_token']
+        else:
+            logger.debug(f"Token will expire in {(self.expire-datetime.now()).total_seconds():d} seconds.")
+
+        return self._token
+
+    @property
+    def headers(self) -> dict:
+        return {
+            'Authorization': f'Bearer {self.access_token}',
+        }
+
+    def get(self, endpoint: str, params: dict = None) -> requests.Response:
+        """ """
+        return requests.get(urljoin(self.url, '/'.join((self.root, endpoint,))), params=params, headers=self.headers)
+
+    def put(self, endpoint: str, data: dict = None) -> requests.Response:
+        return requests.put(urljoin(self.url, '/'.join((self.root, endpoint,))), data=data, headers=self.headers)
+
+    def post(self, endpoint, data: dict = None, json: dict = None) -> requests.Response:
+        return requests.post(
+            urljoin(self.url, '/'.join((self.root, endpoint,))),
+            data = data,
+            json = json,
+            headers = self.headers
+        )
+    
+
+proxy = Wso2()
+        
 
 class VerbatelError(requests.exceptions.HTTPError):
     """ """
@@ -32,6 +89,11 @@ class Verbatel(object):
 
         url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
         return '/'.join(chain((url.rstrip('/'), cls.root,), map(lambda ee: f'{ee}', endpoints)))
+
+    @classmethod
+    def _path(cls, *endpoints):
+        """ """
+
 
     @staticmethod
     def _payload(**kwargs):
@@ -54,11 +116,14 @@ class Verbatel(object):
                 try:
                     out=json.loads(response.json())
                 except TypeError:
-                    logger.info("Single decode")
+                    logger.debug("Single decode")
                     return response.json()
                 else:
-                    logger.info("Double decode")
+                    logger.debug("Double decode")
                     return out
+
+    # @classmethod
+    # def call(cls, func, *endpoints, )
 
     @classmethod
     def create(cls, *endpoints, encode=True, json=False, **payload):
@@ -71,10 +136,15 @@ class Verbatel(object):
         logger.debug(f'"{_url}"')
         logger.debug(data)
         if json is True:
-            response = requests.post(_url, json=data) # <---
+            response = proxy.post('GestioneEmergenzeTest/api/'+cls.root, json=data) # <---
         else:
-            response = requests.post(_url, data=data) # <---
-        return cls.__nout(response)
+            response = proxy.post('GestioneEmergenzeTest/api/'+cls.root, data=data) # <---
+        try:
+            return cls.__nout(response)
+        except requests.exceptions.HTTPError as err:
+            import pdb; pdb.set_trace()
+            raise
+            pass
 
     @classmethod
     def update(cls, *endpoints, **payload):
@@ -83,7 +153,7 @@ class Verbatel(object):
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.put(_url, data=data) # <---
+        response = proxy.put(_url, data=data) # <---
         return cls.__nout(response)
 
     @classmethod
@@ -93,7 +163,7 @@ class Verbatel(object):
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.get(_url, params=data) # <---
+        response = proxy.get(_url, params=data) # <---
         return cls.__nout(response)
 
 class Evento(Verbatel):
@@ -164,6 +234,13 @@ def syncEvento(mio_evento):
 #     # DEPRECATED
 #     mia_segnalazione = segnalazione.fetch(id=id)
 #     return Intervento.create(**mia_segnalazione)
+
+def test():
+    # from apps.emergenze.verbatel import Evento
+    from apps.emergenze import evento
+    ee = evento.fetch(paginate=1)
+    evt = next(ee)
+    Evento.create(**evt)
 
 if __name__=='__main__':
 
