@@ -15,7 +15,7 @@ const $test_numbers = $("#test_phone_numbers");
 
 //* API URL
 const python_api_url = `${config.BASE_URL}user_campaign/`;
-const genova_api_url = `${config.BASE_URL}`;
+const genova_api_url = `${config.DB_URL}`;
 
 // default values for the date picker
 let date_start_picked = "2020-06-01";
@@ -32,14 +32,6 @@ $.fn.bootstrapDP = datepicker;
 // Loads the userlist when document is loaded
 $(retr_user_list(genova_api_url));
 // Init date picker with JQuery
-
-// $("#datepicker").datepicker({
-//   // startDate: -1000,
-//   // todayBtn: "linked",
-//   // clearBtn: true,
-//   // language: "it",
-//   // autoclose: true,
-// });
 
 $(() => {
   $ui_date_end.datepicker({
@@ -92,8 +84,6 @@ $ui_date_end.on("change", () => {
   date_picked.date_end = date_end_picked;
 });
 
-// TODO change this to radio buttons
-// JQuery style of registering listeners
 // TODO refactor to pure funtion style
 
 //* Main API calls
@@ -101,7 +91,6 @@ $ui_date_end.on("change", () => {
 // ? Create campaign on backend will take message_ID if it is specified, otherwise it will take message_text/note and create a new message
 // ? It does not chec if the message already exists in the database when given message_ID
 $button_create_campaign.on("click", async () => {
-  const $msg_id_input = $("#msg_id").val();
   const $msg_note = $("#msg_note").val();
   const $msg_text = $("#msg_content").val();
   const group_number = document.querySelector(
@@ -111,10 +100,6 @@ $button_create_campaign.on("click", async () => {
     "input[name='voice_options']:checked",
   ).value;
   const $test_numbers = $("#test_phone_numbers").val();
-  const message_returned = await retr_message(
-    python_api_url,
-    $msg_id_input,
-  );
   // pyApi will create a new message if the message_id if no ID is given
   // retr_message call does not return
   let form_data = new FormData();
@@ -122,24 +107,6 @@ $button_create_campaign.on("click", async () => {
   form_data.append("message_note", $msg_note);
   form_data.append("group", group_number);
   form_data.append("voice_gender", voice_picked);
-  // form_data.append("test_phone_numbers", $test_numbers);
-  // if message_returned is null, then the message does not exist in the database
-  // send the message_text/note to the backend so it will create new message
-  if (message_returned == null) {
-    if ($msg_note == "") {
-      alert("Please insert a message or select a message id");
-      return;
-    }
-    // form_data.append("message_ID", null);
-  }
-  // if message_returned is not null, then the message exists in the database
-  // send the message_id to the backend so it will use the existing message
-  else {
-    form_data.append("message_ID", $msg_id_input);
-    form_data.append("message_text", message_returned.message.note);
-  }
-  // If bad ID is sent the backend will not check if the message exists in the database
-  console.log("Object for creating a message", form_data.values);
   await create_campaign(python_api_url, form_data);
   alert(`Campaign: Sent!`);
 });

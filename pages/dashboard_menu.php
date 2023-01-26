@@ -105,13 +105,6 @@
                             <div class="container" id="API_bttn_msg_container">
                                 <form>
                                     <div class="form-group">
-                                        <label for="comment">Codice identificativo del messaggio:</label>
-                                        <input type="text" class="form-control" id="msg_id" placeholder="ID">
-                                        <span class="help-block">OPZIONALE: valore utile per la modifica di messaggi
-                                            caricati in
-                                            precedenza.</span>
-                                    </div>
-                                    <div class="form-group">
                                         <label for="comment">Testo del messaggio:</label>
                                         <textarea class="form-control" rows="5" id="msg_content"
                                             placeholder="Contenuto del messaggio"></textarea>
