@@ -49,6 +49,7 @@ def validation_error(**errors):
 
     body = {
         "detail": error_message(**errors),
+        "errors": errors,
         "instance": "string",
         "status": status,
         "title": "Errore di convalida",
@@ -108,7 +109,7 @@ not_yet_implemented = {
 
 
 @action("lingue", method=['GET'])
-@action.uses(cors)
+@action.uses(cors, db)
 def lingue():
     """ Restituisce le lingue accettate """
     raise HTTP(200,
@@ -231,10 +232,12 @@ def utente():
     if not 'dataRegistrazione' in request.POST:
         request.POST['dataRegistrazione'] = db.utente.dataRegistrazione.default()
 
+    dbio = not 'rollback' in request.POST
+
     record = db.utente(codiceFiscale=request.POST.get('codiceFiscale'))
     form = Form(db.utente,
         record = record,
-        deletable = False, # dbio=False,
+        deletable = False, dbio=dbio,
         form_name = 'utente',
         csrf_protection = False
     )
@@ -265,8 +268,10 @@ def utente():
 def telefono():
     """ Registrazione contatto telefonico """
 
+    dbio = not 'rollback' in request.POST
+
     form = Form(db.contatto,
-        deletable = False, # dbio=False,
+        deletable = False, dbio=dbio,
         form_name = 'telefono',
         csrf_protection = False
     )
@@ -325,9 +330,12 @@ def telefono2(contatto_id, utente_id=None, telefono=None):
 def civico():
     """ Registrazione nuovo civico """
 
+    dbio = not 'rollback' in request.POST
+
+    record = db.recapito(id=request.POST.get('id'))
     form = Form(db.recapito,
         record = request.POST.get('id'),
-        deletable = False, # dbio=False,
+        deletable = False, dbio=dbio,
         form_name = 'civico',
         csrf_protection = False
     )
@@ -337,7 +345,8 @@ def civico():
             # 200
             # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
             # in base a quanto definito nei validatori
-            return {k: v for k,v in form.vars.items() if db.recapito[k].readable}
+            # return form.vars
+            return {k: v for k,v in form.vars.items() if k=='rollback' or db.recapito[k].readable}
     elif form.errors:
         # 400
         return validation_error(**form.errors)

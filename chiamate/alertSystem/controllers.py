@@ -294,7 +294,6 @@ def user_campaign_delete_older_message():
             "result": f"Message {message_id_delete} deleted from database",
         }
 
-
 @action("user_campaign/_create_campaign", method=["POST", "OPTIONS"])
 @action.uses(cors)
 def user_campaign_create():
