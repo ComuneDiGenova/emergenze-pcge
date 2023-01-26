@@ -14,13 +14,8 @@ const $message_table = $("#msg_table");
 const $test_numbers = $("#test_phone_numbers");
 
 //* API URL
-// const python_api_url =
-//   "http://localhost:8000/emergenze/user_campaign/";
-// const genova_api_url = "https://emergenze-apit.comune.genova.it/";
-
-const python_api_url = `${config.BASEURL}user_campaign/`;
-
-const genova_api_url = config.BASEURL;
+const python_api_url = `${config.BASE_URL}user_campaign/`;
+const genova_api_url = `${config.BASE_URL}`;
 
 // default values for the date picker
 let date_start_picked = "2020-06-01";
@@ -29,11 +24,23 @@ let date_picked = {
   date_start: date_start_picked,
   date_end: date_end_picked,
 };
-// default values for voice gender
+// return $.fn.datepicker to previously assigned value
+var datepicker = $.fn.datepicker.noConflict();
+// give $().bootstrapDP the bootstrap-datepicker functionality
+$.fn.bootstrapDP = datepicker;
 
 // Loads the userlist when document is loaded
 $(retr_user_list(genova_api_url));
 // Init date picker with JQuery
+
+// $("#datepicker").datepicker({
+//   // startDate: -1000,
+//   // todayBtn: "linked",
+//   // clearBtn: true,
+//   // language: "it",
+//   // autoclose: true,
+// });
+
 $(() => {
   $ui_date_end.datepicker({
     dateFormat: "yy-mm-dd",
@@ -54,7 +61,7 @@ $(() => {
 $(() => {
   $ui_date_start.datepicker({
     dateFormat: "yy-mm-dd",
-    defaultDate: new Date(),
+    defaultDate: new Date(2020, 1, 1),
     maxDate: new Date(),
     minDate: new Date(2020, 1, 1),
     changeYear: true,
@@ -70,14 +77,14 @@ $(() => {
 });
 
 // Registering listeners for the date pickers on change event
-$ui_date_start.change(() => {
+$ui_date_start.on("change", () => {
   // date_start = "2022-01-10 10:10"
   // Convert the date to the format of the API
   date_start_picked = $ui_date_start.val();
   console.log("Start date_picked_>", date_start_picked);
   date_picked.date_start = date_start_picked;
 });
-$ui_date_end.change(() => {
+$ui_date_end.on("change", () => {
   // date_start = "2022-01-10 10:10"
   // Convert the date to the format of the API
   date_end_picked = $ui_date_end.val();
@@ -90,10 +97,10 @@ $ui_date_end.change(() => {
 // TODO refactor to pure funtion style
 
 //* Main API calls
-// ? Create capmaign API call takes in 5 parameters. There is default behaviour on backend if something is not specified.
-// ? Create capmaign on backend will take message_ID if it is specified, otherwise it will take message_text/note and create a new message
+// ? Create campaign API call takes in 5 parameters. There is default behaviour on backend if something is not specified.
+// ? Create campaign on backend will take message_ID if it is specified, otherwise it will take message_text/note and create a new message
 // ? It does not chec if the message already exists in the database when given message_ID
-$button_create_campaign.click(async () => {
+$button_create_campaign.on("click", async () => {
   const $msg_id_input = $("#msg_id").val();
   const $msg_note = $("#msg_note").val();
   const $msg_text = $("#msg_content").val();
@@ -104,22 +111,18 @@ $button_create_campaign.click(async () => {
     "input[name='voice_options']:checked",
   ).value;
   const $test_numbers = $("#test_phone_numbers").val();
-
   const message_returned = await retr_message(
     python_api_url,
     $msg_id_input,
   );
-
   // pyApi will create a new message if the message_id if no ID is given
   // retr_message call does not return
-  let msg_dict = {
-    message_text: $msg_text,
-    message_ID: $msg_id_input,
-    message_note: $msg_note,
-    voice: voice_picked,
-    group: group_number,
-    test_numbers_list: $test_numbers,
-  };
+  let form_data = new FormData();
+  form_data.append("message_text", $msg_text);
+  form_data.append("message_note", $msg_note);
+  form_data.append("group", group_number);
+  form_data.append("voice_gender", voice_picked);
+  // form_data.append("test_phone_numbers", $test_numbers);
   // if message_returned is null, then the message does not exist in the database
   // send the message_text/note to the backend so it will create new message
   if (message_returned == null) {
@@ -127,25 +130,26 @@ $button_create_campaign.click(async () => {
       alert("Please insert a message or select a message id");
       return;
     }
-    msg_dict.message_ID = null;
+    // form_data.append("message_ID", null);
   }
   // if message_returned is not null, then the message exists in the database
   // send the message_id to the backend so it will use the existing message
   else {
-    msg_dict.message_text = message_returned.message.note;
+    form_data.append("message_ID", $msg_id_input);
+    form_data.append("message_text", message_returned.message.note);
   }
   // If bad ID is sent the backend will not check if the message exists in the database
-  console.log("Object for creating a message", msg_dict);
-  await create_campaign(python_api_url, msg_dict);
+  console.log("Object for creating a message", form_data.values);
+  await create_campaign(python_api_url, form_data);
   alert(`Campaign: Sent!`);
 });
 
 // JQuery registering listeners for the buttons
-$button_message_list.click(async () => {
+$button_message_list.on("click", async () => {
   await retr_message_list(python_api_url);
   await listen_delete();
 });
-$button_vis_campaign.click(() => {
+$button_vis_campaign.on("click", () => {
   $campaign_id_to_visualize = $("#camp_id").val();
   if ($campaign_id_to_visualize == "") {
     alert("Please insert a campaign id first");
@@ -153,14 +157,8 @@ $button_vis_campaign.click(() => {
   }
   vis_campaign(python_api_url, $campaign_id_to_visualize);
 });
-// $button_vis_multi_campaign.click(() => {
-//   const $camp_table = $("#camp_table_time");
-//   let ids = getIdSelections($camp_table);
-//   console.log("ids", ids);
-//   // vis_campaign(python_api_url, $campaign_id_to_visualize);
-// });
 
-$button_get_camapaign.click(() => {
+$button_get_camapaign.on("click", () => {
   const date_picked = {
     date_start: $ui_date_start.val(),
     date_end: $ui_date_end.val(),
@@ -168,7 +166,7 @@ $button_get_camapaign.click(() => {
   console.log("Date picked", date_picked);
   get_campaign_from_to(python_api_url, date_picked);
 });
-$button_create_message.click(() => {
+$button_create_message.on("click", () => {
   voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
@@ -182,7 +180,7 @@ $button_create_message.click(() => {
 });
 
 /** Returns the list of messages from the database and puts it in the BS table*/
-async function retr_message(root_div, message_id) {
+async function retr_message(root_url, message_id) {
   const request_options = {
     method: "GET",
     redirect: "follow",
@@ -193,7 +191,7 @@ async function retr_message(root_div, message_id) {
     return console.log("message_id is empty");
   }
   let message_dict = null;
-  await fetch(`${root_div}_retrive_message_list`, request_options)
+  await fetch(`${root_url}_retrive_message_list`, request_options)
     .then((asyn_response) => asyn_response.json())
     .then((async_result) => {
       const message_list = async_result.result;
@@ -216,7 +214,7 @@ async function retr_message(root_div, message_id) {
 }
 
 /** Deletes the message from the database*/
-function delete_message(root_div, message_id = "1") {
+function delete_message(root_url, message_id = "1") {
   const form_data = new FormData();
   form_data.append("message_id_delete", message_id);
   const request_options = {
@@ -225,7 +223,7 @@ function delete_message(root_div, message_id = "1") {
     redirect: "follow",
   };
 
-  fetch(`${root_div}_delete_older_message`, request_options)
+  fetch(`${root_url}_delete_older_message`, request_options)
     .then((response) => response.json())
     .then((result) => console.log(result))
     .catch((error) => {
@@ -238,33 +236,18 @@ function delete_message(root_div, message_id = "1") {
 
 /** Calls the backend to create a new campaign*/
 async function create_campaign(
-  root_div,
-  dict_of_options = {
-    message_ID: "",
-    message_text: "Test messagio per alert sistema",
-    message_note: "Test messagio per alert sistema",
-    group: "1",
-    voice: voice_picked,
-    phone_numbers: "333333333",
-  },
+  root_url,
+  form_data_to_send = new FormData(),
 ) {
-  let form_data = new FormData();
-  form_data.append("message_text", dict_of_options.message_text);
-  form_data.append("message_note", dict_of_options.message_note);
-  form_data.append("message_ID", dict_of_options.message_ID);
-  form_data.append("group", dict_of_options.group);
-  form_data.append("voice_gender", dict_of_options.voice);
-  form_data.append(
-    "test_phone_numbers",
-    dict_of_options.phone_numbers,
-  );
   const requestOptions = {
     method: "POST",
-    body: form_data,
-    // redirect: "follow",
+    body: form_data_to_send,
   };
-
-  fetch(`${python_api_url}_create_capmaign`, requestOptions)
+  console.log(
+    "This the fetch address",
+    `${root_url}_create_campaign`,
+  );
+  fetch(`${root_url}_create_campaign`, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       console.log(result);
@@ -275,7 +258,7 @@ async function create_campaign(
 /** Creates new message in the database*/
 //! This is vunerable to SQL injection
 function create_message(
-  root_div,
+  root_url,
   dict_of_options = {
     message: "Sono romano, grana padano!",
     voice_gender: "M",
@@ -295,7 +278,7 @@ function create_message(
     body: formdata,
     // redirect: 'follow',
   };
-  fetch(`${root_div}_create_message`, request_options)
+  fetch(`${root_url}_create_message`, request_options)
     .then((asyn_response) => asyn_response.json())
     .then((async_result) => {
       console.log("async_result from alertpy", async_result);
@@ -310,10 +293,6 @@ function create_message(
 /** This function operates on bootstrap table delete button for deletions of rows*/
 async function listen_delete() {
   $(() => {
-    // $button_del.prop(
-    //   "disabled",
-    //   !$message_table.bootstrapTable("getSelections").length,
-    // );
     $button_del.click(() => {
       console.log("Button_del clicked");
       let ids = getIdSelections($message_table);
@@ -364,13 +343,9 @@ async function create_campaign_from_table_msg(e, value, row, index) {
   const voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
-  const msg_dict = {
-    message_text: "Empty message",
-    voice: voice_picked,
-    group: group_number,
-  };
-  msg_dict.message_text = row.message_note;
-  await create_campaign(python_api_url, msg_dict);
+  form_data = new FormData();
+  form_data.append("message_ID", row.message_id);
+  await create_campaign(python_api_url, form_data);
   alert(
     "You have created a campaign from message, row: " +
       JSON.stringify(row),
@@ -400,7 +375,7 @@ window.operateEvents = {
 function create_tables(table_name, dict_of_columns) {}
 
 /**Retrieves list of messages in JSON format */
-async function retr_message_list(root_div) {
+async function retr_message_list(root_url) {
   $dashboard_text.text("Retriving message list!");
   const $bstr_message = $("#bstr_message");
   const request_options = {
@@ -409,7 +384,7 @@ async function retr_message_list(root_div) {
   };
   // Retrieve the list of messages from url with GET method
   // and then put it ien the div in table format
-  fetch(`${root_div}_retrive_message_list`, request_options)
+  fetch(`${root_url}_retrive_message_list`, request_options)
     .then((asyn_response) => asyn_response.json())
     .then((async_result) => {
       const message_list = async_result.result;
@@ -529,7 +504,7 @@ function getIdSelections($table_name) {
 }
 /**Get info about campaign with {ID} in JSON format */
 function vis_campaign(
-  root_div,
+  root_url,
   campaign_id = "vo6274305ad55304.39423618",
 ) {
   $dashboard_text.text(`Visualizing ${campaign_id} campaign info!`);
@@ -541,7 +516,7 @@ function vis_campaign(
   };
   // Retrieve the list of messages from url with GET method with user defnided ID
   // and then put it in the div in table format
-  fetch(`${root_div + campaign_id}`, request_options)
+  fetch(`${root_url + campaign_id}`, request_options)
     .then((async_response) => async_response.json())
     .then((async_result) => {
       $bstr_campaign.show();
@@ -665,7 +640,7 @@ function vis_campaign(
 }
 
 /** Get users list info in JSON format */
-function retr_user_list(root_div) {
+function retr_user_list(root_url) {
   $dashboard_text.text("Retriving users list!");
   const $bstr_div = $("#bstr_user");
   const $user_table = $("#user_table_1");
@@ -673,7 +648,7 @@ function retr_user_list(root_div) {
     method: "GET",
     redirect: "follow",
   };
-  fetch(`${root_div}soggettiVulnerabili/`, request_options)
+  fetch(`${root_url}soggettiVulnerabili`, request_options)
     .then((async_response) => async_response.json())
     .then((async_anwser) => {
       $bstr_div.show();
@@ -751,7 +726,7 @@ function retr_user_list(root_div) {
 
 /** Retrieves campaign in given timeframe. Creates bootstrap table and fills the data */
 function get_campaign_from_to(
-  root_div = "http://localhost:8000/",
+  root_url = "http://localhost:8000/",
   date_dict = {
     date_start: "2020-06-01",
     date_end: "2022-01-31",
@@ -773,7 +748,7 @@ function get_campaign_from_to(
     redirect: "follow",
   };
 
-  fetch(`${root_div}_get_campaign_from_to`, requestOptions)
+  fetch(`${root_url}_get_campaign_from_to`, requestOptions)
     .then((async_response) => async_response.json())
     .then((async_anwser) => {
       $bstr_div_camp.show();

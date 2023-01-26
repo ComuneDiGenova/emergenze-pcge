@@ -29,8 +29,8 @@
         define('CONTATORI_EVENTO_EMBED_PATH', __DIR__ . '/contatori_evento_embed.php');
         try {
             safe_import(REQ_PATH);
-            safe_import(CHECK_EVENTO_PATH);
-            // safe_import(FAKE_SPID);
+            // safe_import(CHECK_EVENTO_PATH);
+            safe_import(FAKE_SPID);
             safe_import(CONTEGGI_DASHBOARD_PATH);
             if ($profilo_sistema == 10) {
                 header("location: ./index_nverde.php");
@@ -198,15 +198,14 @@
                                 <!-- <h3 id="date_header">Seleziona un periodo di ricerca</h3> -->
 
                                 <label for="basic-url">Seleziona un periodo di ricerca</label>
-                                <div class="input-group input-daterange date datepicker">
+                                <div class="input-group input-daterange">
                                     <span class="input-group-addon">Dal</span>
-                                    <input type="text" placeholder="Select start date" class="form-control"
-                                        value="2020-04-05" id="ui_date_start">
+                                    <input placeholder="Select start date" class="form-control" id="ui_date_start"
+                                        autocomplete="off">
                                     <span class="input-group-addon">al</span>
-                                    <input type="text" placeholder="Select end date" class="form-control"
-                                        value="2022-04-19" id="ui_date_end">
+                                    <input placeholder="Select end date" class="form-control" id="ui_date_end"
+                                        autocomplete="off">
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button">Go!</button>
                                         <button class="btn btn-primary" id="button_campaign_from_to" type="button">
                                             <i class="fa fa-table" aria-hidden="true"></i>
                                             Recupera informazioni

@@ -84,49 +84,71 @@ function integerToRoman($integer) {
 <link href="../vendor/font-awesome-animation/dist/font-awesome-animation.css" rel="stylesheet" type="text/css">
 
 <style type="text/css">
-    #wrapper {
-        /*padding-top:50px;*/
-        padding-top: $(
-            '.navbar').height()
-    }
+#wrapper {
+    /*padding-top:50px;*/
+    padding-top: $('.navbar').height()
+}
 
 
-    .sidebar {
-        overflow-y: scroll;
-        position: fixed;
-        margin-top: 0px;
-        z-index: 1;
-    }
+.sidebar {
+    overflow-y: scroll;
+    position: fixed;
+    margin-top: 0px;
+    z-index: 1;
+}
 
-    .panel-allerta {
-        border-color: <?php echo $color_allerta; ?>;
-    }
+.panel-allerta {
+    border-color:
+        <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>.panel-heading {
-        border-color: <?php echo $color_allerta; ?>;
-        color: white;
-        background-color: <?php echo $color_allerta; ?>;
-    }
+.panel-allerta>.panel-heading {
+    border-color:
+        <?php echo $color_allerta;
+    ?>;
+    color: white;
+    background-color:
+        <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>a {
-        color: <?php echo $color_allerta; ?>;
-    }
+.panel-allerta>a {
+    color:
+        <?php echo $color_allerta;
+    ?>;
+}
 
-    .panel-allerta>a:hover {
-        color: #337ab7;
-        /* <?php echo $color_allerta; ?>;*/
-    }
-
-
-    .dot {
-        height: 25px;
-        width: 25px;
-        /*background-color: #bbb;*/
-        border-radius: 50%;
-        display: inline-block;
-    }
+.panel-allerta>a:hover {
+    color: #337ab7;
+    /* <?php echo $color_allerta; ?>
+        ;
+        */
+}
 
 
+.dot {
+    height: 25px;
+    width: 25px;
+    /*background-color: #bbb;*/
+    border-radius: 50%;
+    display: inline-block;
+}
+
+
+.fa {
+    -webkit-print-color-adjust: exact;
+}
+
+.fas {
+    -webkit-print-color-adjust: exact;
+}
+
+
+
+@media print {
+
+    /* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
     .fa {
         -webkit-print-color-adjust: exact;
     }
@@ -135,62 +157,49 @@ function integerToRoman($integer) {
         -webkit-print-color-adjust: exact;
     }
 
-
-
-    @media print {
-
-        /* commentata riga 191 del file bootstrap.css per consentire la stampa dei colori*/
-        .fa {
-            -webkit-print-color-adjust: exact;
-        }
-
-        .fas {
-            -webkit-print-color-adjust: exact;
-        }
-
-        p.bodyText {
-            font-family: georgia,
-                times,
-                serif;
-            -webkit-print-color-adjust: exact;
-            color-adjust: exact;
-        }
-
-        .rows-print-as-pages .row {
-            page-break-before: auto;
-        }
-
-        .btn {
-            display: none;
-        }
-
-
-        table,
-        table tr td,
-        table tr th {
-            page-break-inside: avoid;
-        }
-
-        .collapse {
-            display: block !important;
-            height: auto !important;
-        }
-
-
-        #break {
-            page-break-before: always;
-        }
-
-        .fa-inverse {
-            color: #fff !important;
-        }
-
-        .noprint {
-            display: none
-        }
-
-
+    p.bodyText {
+        font-family: georgia,
+            times,
+            serif;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
     }
+
+    .rows-print-as-pages .row {
+        page-break-before: auto;
+    }
+
+    .btn {
+        display: none;
+    }
+
+
+    table,
+    table tr td,
+    table tr th {
+        page-break-inside: avoid;
+    }
+
+    .collapse {
+        display: block !important;
+        height: auto !important;
+    }
+
+
+    #break {
+        page-break-before: always;
+    }
+
+    .fa-inverse {
+        color: #fff !important;
+    }
+
+    .noprint {
+        display: none
+    }
+
+
+}
 </style>
 
 
@@ -202,8 +211,19 @@ function integerToRoman($integer) {
     <![endif]-->
 
 <!-- jQuery -->
-<script src="../vendor/jquery/jquery.min.js"></script>
+<script src="/../vendor/jquery/jquery.min.js"></script>
 
+<!-- Bootstrap js -->
+<script src="/../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Bootstrap table -->
+<script src="/../vendor/bootstrap-table/dist/bootstrap-table.js"></script>
+
+<!-- ✅ load jquery UI ✅ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"
+    integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link href="https://code.jquery.com/ui/1.12.1/themes/excite-bike/jquery-ui.css" rel="stylesheet">
 <!-- GRAFICI d3js -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
