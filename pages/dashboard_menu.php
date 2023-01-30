@@ -233,8 +233,11 @@
             </div>
         </div>
         <!-- defer blocks execution of script untill document is loaded -->
+        <!-- <script type="text/javascript" src="..\node_modules\dayjs\dayjs.min.js"></script> -->
         <script type="text/javascript" defer src="config.js"></script>
-        <script type="text/javascript" defer src="dashboard_js.js"></script>
+        <!-- <script type="text/javascript" defer src="dashboard_js.js"></script> -->
+        <script type="module" defer src="dashboard_js.js"></script>
+        <script type="module" src="dashboard_api.js"></script>
         <?php
         safe_import(FOOTER_PATH);
         safe_import(REQ_BOTTOM_PATH);

@@ -32,3 +32,4 @@ pages/eventi/avvio_bot_coc.sh
 
 pages/campagin_api/index.php
 node_modules
+pages/config.js
