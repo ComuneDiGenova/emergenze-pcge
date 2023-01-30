@@ -49,7 +49,6 @@ def validation_error(**errors):
 
     body = {
         "detail": error_message(**errors),
-        "errors": errors,
         "instance": "string",
         "status": status,
         "title": "Errore di convalida",
@@ -109,7 +108,7 @@ not_yet_implemented = {
 
 
 @action("lingue", method=['GET'])
-@action.uses(cors, db)
+@action.uses(cors)
 def lingue():
     """ Restituisce le lingue accettate """
     raise HTTP(200,
@@ -232,12 +231,10 @@ def utente():
     if not 'dataRegistrazione' in request.POST:
         request.POST['dataRegistrazione'] = db.utente.dataRegistrazione.default()
 
-    dbio = not 'rollback' in request.POST
-
     record = db.utente(codiceFiscale=request.POST.get('codiceFiscale'))
     form = Form(db.utente,
         record = record,
-        deletable = False, dbio=dbio,
+        deletable = False, # dbio=False,
         form_name = 'utente',
         csrf_protection = False
     )
@@ -270,8 +267,11 @@ def telefono():
 
     dbio = not 'rollback' in request.POST
 
+    if not dbio:
+        db.contatto.idUtente.requires = IS_EMPTY_OR(db.contatto.idUtente.requires)
+
     form = Form(db.contatto,
-        deletable = False, dbio=dbio,
+        deletable = False, dbio=False,
         form_name = 'telefono',
         csrf_protection = False
     )
@@ -332,7 +332,11 @@ def civico():
 
     dbio = not 'rollback' in request.POST
 
-    record = db.recapito(id=request.POST.get('id'))
+    if not dbio:
+        db.recapito.indirizzoCompleto.requires = None
+        db.recapito.idVia.requires = None
+        db.recapito.numeroCivico.requires = None
+
     form = Form(db.recapito,
         record = request.POST.get('id'),
         deletable = False, dbio=dbio,
@@ -345,8 +349,7 @@ def civico():
             # 200
             # TODO: Trovare una soluzione trasversale a tutti i campi (tipo render)
             # in base a quanto definito nei validatori
-            # return form.vars
-            return {k: v for k,v in form.vars.items() if k=='rollback' or db.recapito[k].readable}
+            return {k: v for k,v in form.vars.items()}
     elif form.errors:
         # 400
         return validation_error(**form.errors)
@@ -370,8 +373,14 @@ def civico():
 def componente():
     """ Registrazione nuovo componente nucleo famigliare """
 
+    dbio = not 'rollback' in request.POST
+
+    if not dbio:
+        db.nucleo.idUtente.requires = IS_EMPTY_OR(db.nucleo.idUtente.requires)
+        db.nucleo.idCivico.requires = IS_EMPTY_OR(db.nucleo.idCivico.requires)
+
     form = Form(db.nucleo,
-        deletable = False, # dbio=False,
+        deletable = False, dbio=False,
         form_name = 'componente',
         csrf_protection = False
     )
