@@ -288,7 +288,8 @@ def after_insert_stato_presidio(presidio_id, stato_presidio_id, timeref):
             (db.stato_presidio.stato_presidio_id==stato_presidio_id) &
             (db.stato_presidio.timeref==timeref)
         ).select(
-            db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
+            db.pattuglia_pm.pattuglia_id.with_alias("idSquadra"),
+            limitby = (0,1,)
         ).first()
 
         if not pattuglia is None:

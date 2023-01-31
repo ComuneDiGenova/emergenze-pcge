@@ -12,7 +12,7 @@ WSO2_VBT_ROOT = 'GestioneEmergenze/api'
 
 VBT_PROT = "http"
 VBT_HOST = "192.168.153.84"
-VBT_PATH = "GestioneEmergenzeTest/api"
+VBT_ROOT = "GestioneEmergenzeTest/api"
 
 class AccessTokenManager(object):
     url = WSO2_URL
@@ -95,7 +95,7 @@ if __name__=='__main__':
 
     info_evento = {'id': 174, 'inizio': '2023-01-18T17:43:56', 'fine': '2023-01-23T15:42:59.165413', 'fine_sospensione': None, 'chiusura': '2023-01-23T15:42:36.501646', 'valido': False, 'descrizione': 'Nivologico', 'municipi': ['Bassa Val Bisagno', 'Centro est', 'Centro Ovest', 'Levante', 'Media Val Bisagno', 'Medio Levante', 'Medio Ponente', 'Ponente', 'Val Polcevera'], 'foc': [{'fine': '2023-01-19T06:00:00', 'colore': '#009aff', 'inizio': '2023-01-18T14:00:00', 'descrizione': 'Attenzione'}], 'allerte': None, 'note': [{'nota': 'possibile neve notte tra 18 e 19 gennaio 23'}], 'stato': 'chiuso'}
 
-    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/Eventi')
+    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_ROOT}/Eventi')
     print(f"Chiamata all'URL: {vbt_url}")
     response_from_verbatel = requests.post(vbt_url, data=info_evento)
     print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")

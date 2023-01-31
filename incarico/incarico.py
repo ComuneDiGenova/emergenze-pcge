@@ -193,18 +193,23 @@ def fetch(id):
     id @integer : Id incarico
     """
 
-    result = db(
+    dbset = db(
         (db.stato_incarico.stato_id==db.tipo_stato_incarico.id) & \
         (db.stato_incarico.incarico_id==db.incarico.id) & \
         (db.join_segnalazione_incarico.incarico_id==db.incarico.id) & \
         (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
         (db.segnalante.id == db.segnalazione.segnalante_id) & \
         (db.segnalazione.evento_id == db.evento.id) & \
-        (db.incarico.id==id) & \
+        # (db.incarico.id==id) & \
         # "verbatel.segnalazioni_da_verbatel.intervento_id is null" & \
         # "verbatel.interventi.intervento_id is null" & \
         "eventi.t_eventi.valido is not false"
-    ).select(
+    )
+
+    if not id is None:
+        dbset = dbset(db.incarico.id==id)
+
+    result = dbset.select(
         db.incarico.id.with_alias('id'),
         db.incarico.start.with_alias('inizio'),
         db.incarico.stop.with_alias('fine'),
@@ -256,7 +261,6 @@ def fetch(id):
     # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
     # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
 
-import time
 
 def after_insert_incarico(id):
     logger.debug(f"after insert incarico")
@@ -332,7 +336,6 @@ def after_update_incarico(id):
             id = nfo.lavorazione_id,
             profilo_id = settings.PM_PROFILO_ID
         )
-
 
         if not lavorazione is None:
             logger.debug('Aggiornamento Lavorazione')

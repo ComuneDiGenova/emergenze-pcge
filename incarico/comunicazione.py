@@ -13,7 +13,7 @@ def render(row):
     """ """
 
     out = {
-        # 'idIntervento': row.idIntervento,
+        'idIntervento': row.idIntervento,
         'operatore': 'operatore di PC',
         'testo': row.testo,
         # 'files': [allegato]
@@ -47,12 +47,15 @@ def fetch(incarico_id, timeref=None):
     # )
 
     dbset = db(db.presidio)(
-        (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
+        # (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
         (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) & \
         # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
         f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}'"
         # (db.presidio.profilo_id=='6')
     )
+
+    if not incarico_id is None:
+        dbset = dbset(db.comunicazione_incarico_inviata.incarico_id==incarico_id)
 
     if not timeref is None:
         dbset = dbset(db.comunicazione_incarico_inviata.timeref==timeref)
