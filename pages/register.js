@@ -5,7 +5,7 @@ const help_className = "help-block";
 
 // const BASEURL = 'http://localhost:8000/emergenze/'
 
-const BASEURL = config.BASEURL
+const BASEURL = config.BASE_URL
 
 const STRADARIOURL = 'https://mappe.comune.genova.it/geoserver/wfs'
   + '?service=WFS&version=1.1.0&request=GetFeature&outputFormat=application%2Fjson&typeName=SITGEO:V_ASTE_STRADALI_TOPONIMO_SUB&sortBy=ID&srsName=EPSG:4326&startIndex=0';
@@ -255,7 +255,7 @@ function form2_setup() {
         return Promise.all([
             fetch(BASEURL+"utente", collectPayload(form, 'utente')).then(response => response.json()),
             fetch(BASEURL+"telefono", collectPayload(form, 'contatto')).then(response => response.json()),
-          ]).then(results => validate(results, form))
+        ]).then(results => validate(results, form))
     };
 
     const elemId = 'submitStep2'
@@ -307,20 +307,20 @@ function subscribe_setup() {
 
     function submitSubscribe () {
         const form = document.getElementById("step4");
+        let utenteData = collectPayload(form, 'utente', true);
+        utenteData.body.append('iscrizione', 'Protezione civile');
         return Promise.all([
-            fetch(BASEURL+"utente", collectPayload(form, 'utente', true)).then(response => response.json()),
+            fetch(BASEURL+"utente", utenteData).then(response => response.json()),
             fetch(BASEURL+"civico", collectPayload(form, 'recapito', true)).then(response => response.json()),
         ]).then(results1 => {
             // TODO
 
             const [utente, civico] = results1;
 
-            // console.log(utente);
-            // console.log(civico);
-
             let contattoPayload = collectPayload(form, 'contatto', true);
             let componentePayload = collectPayload(form, 'nucleo', true)
 
+            console.log(civico)
             contattoPayload.body.append('idUtente', utente.id);
             componentePayload.body.append('idUtente', utente.id);
             componentePayload.body.append('idCivico', civico.id);

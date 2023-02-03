@@ -273,9 +273,9 @@
                                                     <li><button type="button" class="btn btn-default prev-step">
                                                             <i class="fa fa-step-backward" aria-hidden="true"></i>
                                                             In dietro</button></li>
-                                                    <li><button type="button"
+                                                    <!-- <li><button type="button"
                                                             class="btn btn-warning skip-step skip-btn">Skip</button>
-                                                    </li>
+                                                    </li> -->
                                                     <li><button type="button" class="btn btn-success next-step"
                                                             id="submitStep2">
                                                             <i class="fa fa-step-forward" aria-hidden="true"></i>
@@ -362,9 +362,9 @@
                                                     <li><button type="button" class="btn btn-default prev-step">
                                                             <i class="fa fa-step-backward" aria-hidden="true"></i>
                                                             In dietro</button></li>
-                                                    <li><button type="button"
+                                                    <!-- <li><button type="button"
                                                             class="btn btn-warning skip-step skip-btn">Skip</button>
-                                                    </li>
+                                                    </li> -->
                                                     <li><button type="button" class="btn btn-success next-step"
                                                             id="submitStep3" disabled>
                                                             <i class="fa fa-step-forward" aria-hidden="true"></i>

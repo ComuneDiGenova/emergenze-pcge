@@ -21,71 +21,94 @@ const python_api_url = `${config.BASE_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
 
 // default values for the date picker
-let date_start_picked = "2020-06-01";
-let date_end_picked = "2022-01-31";
+const default_end = new Date();
+const default_start = new Date();
+
+default_start.setDate(1);
+default_start.setMonth(default_start.getMonth()-1);
+
+let date_start_picked = default_start;
+let date_end_picked = default_end;
+
 let date_picked = {
   date_start: date_start_picked,
   date_end: date_end_picked,
 };
 // return $.fn.datepicker to previously assigned value
-var datepicker = $.fn.datepicker.noConflict();
+// var datepicker = $.fn.datepicker.noConflict();
 // give $().bootstrapDP the bootstrap-datepicker functionality
-$.fn.bootstrapDP = datepicker;
+// $.fn.bootstrapDP = datepicker;
 
 // Loads the userlist when document is loaded
 $(retr_user_list(genova_api_url));
 // Init date picker with JQuery
 
+// Bootstrap datepicker support different options than jQuery-UI
+// https://bootstrap-datepicker.readthedocs.io/en/v1.9.0/options.html
 $(() => {
+  $ui_date_start.val(`${date_start_picked.getDate()}/${date_start_picked.getMonth()+1}/${date_start_picked.getFullYear()}`)
+$ui_date_end.val(`${date_end_picked.getDate()}/${date_end_picked.getMonth()+1}/${date_end_picked.getFullYear()}`)
   $ui_date_end.datepicker({
-    dateFormat: "yy-mm-dd",
-    defaultDate: new Date(),
-    maxDate: new Date(),
-    minDate: new Date(2020, 1, 1),
-    changeYear: true,
-    // changeMonth: true,
-    todayHighlight: true,
-    autoSize: true,
-    autoclose: true,
-    clearBtn: true,
-    language: "en",
-    orientation: "bottom auto",
-    showAnim: "fadeIn",
+    format: "dd/mm/yyyy",
+    defaultViewDate: default_end
+    // defaultDate: new Date(),
+    // maxDate: new Date(),
+    // minDate: new Date(2020, 1, 1),
+    // changeYear: true,
+    // // changeMonth: true,
+    // todayHighlight: true,
+    // autoSize: true,
+    // autoclose: true,
+    // clearBtn: true,
+    // language: "en",
+    // orientation: "bottom auto",
+    // showAnim: "fadeIn",
+  }).on('changeDate', function(e) {
+    // `e` here contains the extra attributes
+    date_picked.date_end = e.date;
+    console.log(date_picked);
   });
 });
 $(() => {
   $ui_date_start.datepicker({
-    dateFormat: "yy-mm-dd",
-    defaultDate: new Date(2020, 1, 1),
-    maxDate: new Date(),
-    minDate: new Date(2020, 1, 1),
-    changeYear: true,
-    // changeMonth: true,
-    todayHighlight: true,
-    autoSize: true,
-    autoclose: true,
-    clearBtn: true,
-    language: "en",
-    orientation: "bottom auto",
-    showAnim: "fadeIn",
+    format: "dd/mm/yyyy",
+    defaultViewDate: default_start
+    // defaultDate: new Date(2020, 1, 1),
+    // maxDate: new Date(),
+    // minDate: new Date(2020, 1, 1),
+    // changeYear: true,
+    // // changeMonth: true,
+    // todayHighlight: true,
+    // autoSize: true,
+    // autoclose: true,
+    // clearBtn: true,
+    // language: "en",
+    // orientation: "bottom auto",
+    // showAnim: "fadeIn",
+  }).on('changeDate', function(e) {
+    // `e` here contains the extra attributes
+    date_picked.date_start = e.date;
+    console.log(date_picked);
   });
 });
 
-// Registering listeners for the date pickers on change event
-$ui_date_start.on("change", () => {
-  // date_start = "2022-01-10 10:10"
-  // Convert the date to the format of the API
-  date_start_picked = $ui_date_start.val();
-  console.log("Start date_picked_>", date_start_picked);
-  date_picked.date_start = date_start_picked;
-});
-$ui_date_end.on("change", () => {
-  // date_start = "2022-01-10 10:10"
-  // Convert the date to the format of the API
-  date_end_picked = $ui_date_end.val();
-  console.log("End date_picked_>", date_end_picked);
-  date_picked.date_end = date_end_picked;
-});
+// // Registering listeners for the date pickers on change event
+// $ui_date_start.on("change", () => {
+//   // date_start = "2022-01-10 10:10"
+//   // Convert the date to the format of the API
+//   date_start_picked = new Date($ui_date_start.val()).toJSON().split('T')[0];
+
+//   console.log("Start date_picked_>", date_start_picked);
+//   date_picked.date_start = date_start_picked;
+// });
+// $ui_date_end.on("change", () => {
+//   // date_start = "2022-01-10 10:10"
+//   // Convert the date to the format of the API
+//   date_end_picked = new Date($ui_date_end.val()).toJSON().split('T')[0];
+//   console.log("End date_picked_>", date_end_picked);
+//   console.log(end_picker.getDate());
+//   date_picked.date_end = date_end_picked;
+// });
 
 // TODO refactor to pure funtion style
 
@@ -130,11 +153,11 @@ $button_vis_campaign.on("click", () => {
 });
 
 $button_get_camapaign.on("click", () => {
-  const date_picked = {
-    date_start: $ui_date_start.val(),
-    date_end: $ui_date_end.val(),
-  };
-  console.log("Date picked", date_picked);
+  // const date_picked = {
+  //   date_start: new Date($ui_date_start.val()).toJSON().split('T')[0],
+  //   date_end: new Date($ui_date_end.val()).toJSON().split('T')[0],
+  // };
+  // console.log("Date picked", date_picked);
   get_campaign_from_to(python_api_url, date_picked);
 });
 $button_create_message.on("click", () => {
@@ -703,16 +726,12 @@ function retr_user_list(root_url) {
 
 /** Retrieves campaign in given timeframe. Creates bootstrap table and fills the data */
 function get_campaign_from_to(
-  root_url = "http://localhost:8000/",
-  date_dict = {
-    date_start: "2020-06-01",
-    date_end: "2022-01-31",
-  },
+  root_url = "http://localhost:8000/"
 ) {
   const $bstr_div_camp = $("#bstr_camp");
   const $camp_table = $("#camp_table_time");
-  const date_start = date_dict.date_start + " 12:00";
-  const date_end = date_dict.date_end + " 12:00";
+  const date_start = `${date_picked.date_start.getFullYear()}-${date_picked.date_start.getMonth()+1}-${date_picked.date_start.getDate()} 12:00:00`;
+  const date_end = `${date_picked.date_end.getFullYear()}-${date_picked.date_end.getMonth()+1}-${date_picked.date_end.getDate()} 12:00:00`;
   $header_cmp_list.text(
     `Campaign dashboard from ${date_start} to ${date_end}`,
   );
