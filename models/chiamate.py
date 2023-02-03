@@ -75,7 +75,7 @@ db.define_table(
         required=True,
         notnull=True,
         requires=[
-            IS_NOT_EMPTY(),
+            IS_NOT_EMPTY(error_message="Valore richiesto"),
             IS_MATCH(
                 "^[\D]*$", error_message="Caratteri non validi"
             ),
@@ -86,7 +86,7 @@ db.define_table(
         required=True,
         notnull=True,
         requires=[
-            IS_NOT_EMPTY(),
+            IS_NOT_EMPTY(error_message="Valore richiesto"),
             IS_MATCH(
                 "^[\D]*$", error_message="Caratteri non validi"
             ),
@@ -142,7 +142,7 @@ db.define_table(
 )
 
 db.utente.codiceFiscale.requires = requires = [
-    IS_NOT_EMPTY(),
+    IS_NOT_EMPTY(error_message="Valore richiesto"),
     isValidCf(),
     # IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
 ]
@@ -153,7 +153,7 @@ db.define_table(
         "numero",
         required=True,
         notnull=True,
-        requires=isValidPhoneNumber(),
+        requires=[IS_NOT_EMPTY(error_message="Valore richiesto"), isValidPhoneNumber()],
         rname="telefono",
     ),
     Field(
@@ -341,7 +341,7 @@ db.define_table(
         label="Ruolo",
         comment="Indica che ruolo ha la persona all'interno del nucleo abitativo",
         requires=[
-            IS_NOT_EMPTY(),
+            IS_NOT_EMPTY(error_message="Valore richiesto"),
             IS_IN_SET(
                 ["CAPO FAMIGLIA", "RESIDENTE", "NON RESIDENTE"]
             ),
@@ -375,7 +375,7 @@ db.define_table(
         required=True,
         notnull=True,
         requires=[
-            IS_NOT_EMPTY(),
+            IS_NOT_EMPTY(error_message="Valore richiesto"),
             IS_MATCH(
                 "^[\D]*$", error_message="Caratteri non validi"
             ),
@@ -386,7 +386,7 @@ db.define_table(
         required=True,
         notnull=True,
         requires=[
-            IS_NOT_EMPTY(),
+            IS_NOT_EMPTY(error_message="Valore richiesto"),
             IS_MATCH(
                 "^[\D]*$", error_message="Caratteri non validi"
             ),

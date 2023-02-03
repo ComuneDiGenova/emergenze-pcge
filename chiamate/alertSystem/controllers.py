@@ -56,6 +56,7 @@ def general_error_message(
 
 
 @action("user_campaign/_get_campaign_from_to", method=["POST"])
+@action.uses(cors)
 def user_campaign_get_campaign_from_to():
     """user_campaign_get_campaign_from_to _summary_
 
@@ -122,7 +123,8 @@ def user_campaign_get_campaign_from_to():
 
 
 # // TODO retrieve reposne status as well
-@action("user_campaign/_retrive_message_list", method=["GET"])
+@action("user_campaign/_retrive_message_list", method=["GET", "OPTIONS"])
+@action.uses(cors)
 def user_campaign_retrive_message_list():
     """user_campaign_retrive_message_list _summary_
 
@@ -156,6 +158,7 @@ def user_campaign_retrive_message_list():
 
 
 @action("user_campaign/_create_message", method=["POST"])
+@action.uses(cors)
 def user_campaign_create_message():
     """user_campaign_create_message _summary_
 
@@ -179,7 +182,7 @@ def user_campaign_create_message():
         deletable=False,
         dbio=False,
         # hidden = {'rollback': False},
-        form_name="_create_capmaign",
+        form_name="_create_message",
         csrf_protection=False,
     )
     if form.accepted:
@@ -219,6 +222,7 @@ def user_campaign_create_message():
 
 
 @action("user_campaign/<campaign_id>", method=["GET"])
+@action.uses(cors)
 def user_campaign_get_campaign(campaign_id: str):
     """This is a test function to test the campaign creation"""
     (
@@ -249,6 +253,7 @@ def user_campaign_get_campaign(campaign_id: str):
     "user_campaign/_delete_older_message",
     method=["DELETE"],
 )
+@action.uses(cors)
 def user_campaign_delete_older_message():
     """user_campaign_delete_older_message _summary_
 
@@ -289,8 +294,8 @@ def user_campaign_delete_older_message():
             "result": f"Message {message_id_delete} deleted from database",
         }
 
-
-@action("user_campaign/_create_campaign", method=["POST"])
+@action("user_campaign/_create_campaign", method=["POST", "OPTIONS"])
+@action.uses(cors)
 def user_campaign_create():
     """user_campaign_create _summary_
 
@@ -316,11 +321,12 @@ def user_campaign_create():
             ),
             Field("message_note"),
             Field("message_ID"),
+            Field("test_phone_numbers")
         ],
         deletable=False,
         dbio=False,
         # hidden = {'rollback': False},
-        form_name="_create_capmaign",
+        form_name="_create_campaign",
         csrf_protection=False,
     )
 
@@ -336,24 +342,29 @@ def user_campaign_create():
         voice_for_character: model.Carattere = getattr(
             model.Carattere, voice_gender
         )
-        # TODO HTTP response status
-        result_from_database = db(
-            (db.soggetti_vulnerabili.gruppo == group_numer)
-        ).select(
-            db.soggetti_vulnerabili.telefono,
-        )
-        if result_from_database is None:
-            general_error_message(
-                form=form,
-                error_message=".Bad Request. Empty result_from_database is None",
+        if not form.vars["test_phone_numbers"]:
+
+            # TODO HTTP response status
+            result_from_database = db(
+                (db.soggetti_vulnerabili.gruppo == group_numer)
+            ).select(
+                db.soggetti_vulnerabili.telefono,
             )
-        telephone_numbers = [
-            ii.telefono for ii in result_from_database
-        ]
-        # telephone_numbers = ["3494351325"]
-        telephone_numbers = [
-            ii.lstrip("+39") for ii in telephone_numbers
-        ]
+            if result_from_database is None:
+                general_error_message(
+                    form=form,
+                    error_message=".Bad Request. Empty result_from_database is None",
+                )
+            telephone_numbers = [
+                ii.telefono for ii in result_from_database
+            ]
+            telephone_numbers = ["3494351325"]
+            # telephone_numbers = [
+            #     ii.lstrip("+39") for ii in telephone_numbers
+            # ]
+        else:
+            telephone_numbers = form.vars["test_phone_numbers"].split(' ')
+
         logger.debug(
             f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
         )
