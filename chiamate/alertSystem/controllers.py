@@ -368,7 +368,7 @@ def user_campaign_create():
         logger.debug(
             f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
         )
-        return {"telephone_numbers": telephone_numbers}
+        # return {"telephone_numbers": telephone_numbers}
         # * if there is no message ID given create a new message
         if form.vars["message_ID"] is None:
             if form.vars["message_note"] is None:

@@ -47,7 +47,7 @@ def validation_error(**errors):
 
     status = 400
 
-    body = {
+    body : dict = {
         "detail": error_message(**errors),
         "instance": "string",
         "status": status,
@@ -271,7 +271,7 @@ def telefono():
         db.contatto.idUtente.requires = IS_EMPTY_OR(db.contatto.idUtente.requires)
 
     form = Form(db.contatto,
-        deletable = False, dbio=False,
+        deletable = False, dbio=dbio,
         form_name = 'telefono',
         csrf_protection = False
     )
@@ -380,7 +380,7 @@ def componente():
         db.nucleo.idCivico.requires = IS_EMPTY_OR(db.nucleo.idCivico.requires)
 
     form = Form(db.nucleo,
-        deletable = False, dbio=False,
+        deletable = False, dbio=dbio,
         form_name = 'componente',
         csrf_protection = False
     )
