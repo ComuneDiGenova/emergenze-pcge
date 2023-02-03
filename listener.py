@@ -387,9 +387,10 @@ def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
     while True:
+        logger.info('Starting!')
         set_listen()
         # sleep until there is some data
-        logger.debug('Waiting for notifications!')
+        logger.info('Waiting for notifications!')
         select.select([db._adapter.connection],[],[])
         logger.debug('Catched!')
 
