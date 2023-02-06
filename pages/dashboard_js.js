@@ -658,7 +658,11 @@ function retr_user_list(root_url) {
           user_id: item.id,
           user_name: item.nome,
           user_surname: item.cognome,
+          indirizzo: item.indirizzo,
+          numero_civico: item.numero_civico,
+          telefono: item.telefono,
           user_group: item.gruppo,
+          sorgente: item.sorgente
         };
       });
       $user_table.bootstrapTable("destroy").bootstrapTable({
@@ -672,21 +676,49 @@ function retr_user_list(root_url) {
           },
           {
             field: "user_name",
-            title: "User name",
+            title: "Nome",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "user_surname",
-            title: "User surname",
+            title: "Cognome",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
+            field: "indirizzo",
+            title: "Indirizzo",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "numero_civico",
+            title: "Civico",
+            align: "center",
+            valign: "middle",
+            sortable: false,
+          },
+          {
+            field: "telefono",
+            title: "Telefono",
+            align: "center",
+            valign: "middle",
+            sortable: false,
+          },
+          {
             field: "user_group",
             title: "User group",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "sorgente",
+            title: "Fonte dati",
             align: "center",
             valign: "middle",
             sortable: true,

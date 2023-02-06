@@ -468,6 +468,10 @@
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
+                            <li class="nav-item active">
+								<a class="nav-link" href="dashboard_menu.php" title="Gestione campagne AlertSystem">
+                                    <i class="fa fa-phone-square" aria-hidden="true"></i> Campagne AlertSystem</a>
+							</li>
                         </li>
                         
                         <?php } ?>
