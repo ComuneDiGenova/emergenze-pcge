@@ -242,7 +242,9 @@ def user_campaign_get_campaign(campaign_id: str):
             "alertsystem_response_status": alertsystem_response_status,
             "result": vis_campaign,
         }
-    vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
+    # vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
+    # vis_campaign = list(map(lambda vals: dict(zip(vis_campaign[0], vals)), vis_campaign[1:]))
+    vis_campaign = [dict(zip(vis_campaign[0], foo)) for foo in vis_campaign[1:]]
     return {
         "result": vis_campaign,
         "alertsystem_response_status": alertsystem_response_status,
@@ -251,7 +253,7 @@ def user_campaign_get_campaign(campaign_id: str):
 
 @action(
     "user_campaign/_delete_older_message",
-    method=["DELETE"],
+    method=["DELETE", "OPTIONS"],
 )
 @action.uses(cors)
 def user_campaign_delete_older_message():
@@ -294,7 +296,7 @@ def user_campaign_delete_older_message():
             "result": f"Message {message_id_delete} deleted from database",
         }
 
-@action("user_campaign/_create_campaign", method=["POST", "OPTIONS"])
+@action("user_campaign/_create_campaign", method=["POST"])
 @action.uses(cors)
 def user_campaign_create():
     """user_campaign_create _summary_
@@ -309,11 +311,11 @@ def user_campaign_create():
             Field(
                 "group",
                 "integer",
-                requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, 3)),
+                requires=IS_EMPTY_OR(IS_INT_IN_RANGE(1, 4)),
             ),
             Field(
                 "message_text",
-                requires=IS_NOT_EMPTY(),
+                # requires=IS_NOT_EMPTY(),
             ),
             Field(
                 "voice_gender",
@@ -390,7 +392,7 @@ def user_campaign_create():
             )
         # * if there is a message ID given, create campaign with this message ID
         else:
-            message_id = int(form.vars("message_ID"))
+            message_id = int(form.vars["message_ID"])
         (
             campagin_tuple,
             alertsystem_response_status,
