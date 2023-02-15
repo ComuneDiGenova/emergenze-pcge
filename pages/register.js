@@ -69,6 +69,11 @@ function collectPayload(form, key, saveData) {
 };
 
 function form1_setup() {
+
+    document.getElementById('internoCivico').addEventListener('input', function (e) {
+        document.getElementById('interno').value = e.target.value;
+    });
+
     $('#toponimo').autoComplete({
         resolver: 'custom',
         noResultsText: 'Nessun risultato trovato!',
@@ -180,7 +185,7 @@ function form1_setup() {
             }
         }
     }).on("autocomplete.select ", (evt, item)=>{
-        console.log(item.properties);
+        // console.log(item.properties);
         for ( const [kk, vv] of Object.entries(item.properties) ) {
             document.getElementById(kk).value = vv;
         };
@@ -320,7 +325,7 @@ function subscribe_setup() {
             let contattoPayload = collectPayload(form, 'contatto', true);
             let componentePayload = collectPayload(form, 'nucleo', true)
 
-            console.log(civico)
+            // console.log(civico)
             contattoPayload.body.append('idUtente', utente.id);
             componentePayload.body.append('idUtente', utente.id);
             componentePayload.body.append('idCivico', civico.id);
