@@ -8,6 +8,7 @@ from mptools.frameworks.py4web import shampooform as sf
 from py4web import action, request, abort, redirect, URL, Field
 from py4web.utils.form import Form
 from pydal.validators import *
+
 # from pydal.validators import Validator
 
 from alertsystem import model
@@ -29,6 +30,9 @@ from ...common import (
     alertsystem_config,
 )
 
+logger.debug(f"This is the alertsystem_config\n {alertsystem_config}")
+
+
 def general_error_message(
     form: Form,
     error_message: str = "Bad Request",
@@ -47,6 +51,7 @@ def general_error_message(
         body=json.dumps(error_body),
         headers={"Content-Type": "application/json"},
     )
+
 
 # ?------------------------------------------------------------
 # ?------------------------------------------------------------
@@ -123,7 +128,9 @@ def user_campaign_get_campaign_from_to():
 
 
 # // TODO retrieve reposne status as well
-@action("user_campaign/_retrive_message_list", method=["GET", "OPTIONS"])
+@action(
+    "user_campaign/_retrive_message_list", method=["GET", "OPTIONS"]
+)
 @action.uses(cors)
 def user_campaign_retrive_message_list():
     """user_campaign_retrive_message_list _summary_
@@ -137,7 +144,22 @@ def user_campaign_retrive_message_list():
         message_list,
         alertsystem_response_status,
     ) = alert_do.visualizza_messaggi(cfg=alertsystem_config)
-    message_list = dict((x.id_messaggio, x) for x in message_list)
+    try:
+        message_list = dict((x.id_messaggio, x) for x in message_list)
+    except TypeError as e:
+        logger.debug(f"\tError: {e}")
+        logger.debug(
+            f"\tError while getting list of messages: {pformat(alertsystem_response_status, indent=4, width=1)}"
+        )
+        logger.debug(f"\tMessage list might be empty: {message_list}")
+        logger.debug(
+            f"This is the alertsystem_config\n {alertsystem_config}"
+        )
+        return {
+            "result": message_list,
+            "alertsystem_response_status": alertsystem_response_status,
+        }
+
     logger.debug(
         f"\talertsystem_config: {pformat(alertsystem_config, indent=4, width=1)}"
     )
@@ -244,7 +266,9 @@ def user_campaign_get_campaign(campaign_id: str):
         }
     # vis_campaign = dict(zip(vis_campaign[0], vis_campaign[1]))
     # vis_campaign = list(map(lambda vals: dict(zip(vis_campaign[0], vals)), vis_campaign[1:]))
-    vis_campaign = [dict(zip(vis_campaign[0], foo)) for foo in vis_campaign[1:]]
+    vis_campaign = [
+        dict(zip(vis_campaign[0], foo)) for foo in vis_campaign[1:]
+    ]
     return {
         "result": vis_campaign,
         "alertsystem_response_status": alertsystem_response_status,
@@ -296,6 +320,7 @@ def user_campaign_delete_older_message():
             "result": f"Message {message_id_delete} deleted from database",
         }
 
+
 @action("user_campaign/_create_campaign", method=["POST"])
 @action.uses(cors)
 def user_campaign_create():
@@ -323,7 +348,7 @@ def user_campaign_create():
             ),
             Field("message_note"),
             Field("message_ID"),
-            Field("test_phone_numbers")
+            Field("test_phone_numbers"),
         ],
         deletable=False,
         dbio=False,
@@ -345,7 +370,6 @@ def user_campaign_create():
             model.Carattere, voice_gender
         )
         if not form.vars["test_phone_numbers"]:
-
             # TODO HTTP response status
             result_from_database = db(
                 (db.soggetti_vulnerabili.gruppo == group_numer)
@@ -365,7 +389,9 @@ def user_campaign_create():
             #     ii.lstrip("+39") for ii in telephone_numbers
             # ]
         else:
-            telephone_numbers = form.vars["test_phone_numbers"].split(' ')
+            telephone_numbers = form.vars["test_phone_numbers"].split(
+                " "
+            )
 
         logger.debug(
             f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
@@ -406,5 +432,44 @@ def user_campaign_create():
             "result": campagin_tuple,
             "alertsystem_response_status": alertsystem_response_status,
         }
+    else:
+        general_error_message(form=form)
+
+
+@action("user_campaign/_test_voice", method=["POST"])
+@action.uses(cors)
+def user_test_voice():
+    form = Form(
+        [
+            Field(
+                "operation",
+                requires=IS_IN_SET(["PREVIEW", "CREA"]),
+            ),
+            Field(
+                "message_text",
+                requires=IS_NOT_EMPTY(),
+            ),
+            Field(
+                "voice_gender",
+                requires=IS_IN_SET(["M", "F"]),
+            ),
+            Field("message_note"),
+        ],
+        deletable=False,
+        dbio=False,
+        ## hidden = {'rollback': False},
+        form_name="_test_voice",
+        csrf_protection=False,
+    )
+    if form.accepted:
+        operation_type: str = form.vars["operation"]
+        message_text: str = form.vars["message_text"]
+        voice_gender: str = form.vars["voice_gender"]
+        message_note: str = form.vars["message_note"]
+        return "Success"
+    #     (return_message : tuple, as_response : dict) = alert_do.test_voce(    operation: model.ASVoiceSynthOperation,
+    # text: str,
+    # voice: model.Carattere,
+    # note: str = "Test voice synthesizer")
     else:
         general_error_message(form=form)
