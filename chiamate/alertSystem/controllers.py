@@ -439,11 +439,15 @@ def user_campaign_create():
 @action("user_campaign/_test_voice", method=["POST"])
 @action.uses(cors)
 def user_test_voice():
+    """It returns (depending on operation_type):
+    messagio, crediti_utilizzati, testo, note
+    OR
+    URL link with forced donwload of the audio file"""
     form = Form(
         [
             Field(
                 "operation",
-                requires=IS_IN_SET(["PREVIEW", "CREA"]),
+                requires=IS_IN_SET(["Preview", "Crea"]),
             ),
             Field(
                 "message_text",
@@ -464,12 +468,25 @@ def user_test_voice():
     if form.accepted:
         operation_type: str = form.vars["operation"]
         message_text: str = form.vars["message_text"]
-        voice_gender: str = form.vars["voice_gender"]
+        voice_gender: str = form.vars.get("voice_gender")
+        # voice_for_character: model.Carattere = getattr(
+        #     model.Carattere, voice_gender
+        # )
         message_note: str = form.vars["message_note"]
-        return "Success"
-    #     (return_message : tuple, as_response : dict) = alert_do.test_voce(    operation: model.ASVoiceSynthOperation,
-    # text: str,
-    # voice: model.Carattere,
-    # note: str = "Test voice synthesizer")
+
+        (
+            return_message,
+            alertsystem_response_status,
+        ) = alert_do.voice_synthesizer(
+            cfg=alertsystem_config,
+            operation=operation_type,
+            text=message_text,
+            voice=voice_gender,
+            note=message_note,
+        )
+        return {
+            "result": return_message,
+            "alertsystem_response_status": alertsystem_response_status,
+        }
     else:
         general_error_message(form=form)
