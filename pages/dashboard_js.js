@@ -1,9 +1,7 @@
 // import { format_dashboard_date } from "./dashboard_api.js";
-
 // Add in dayjs plugin, because writng code is for noobs
 import { format_date, convert_to_date } from "./dashboard_api.js";
 // Cashe the DOM elements
-const $dashboard_text = $("#dashboard_text");
 const $button_message_list = $("#button_msg_list");
 const $button_vis_campaign = $("#button_vis_campaign");
 // const $button_vis_multi_campaign = $("#button_vis");
@@ -25,7 +23,7 @@ const default_end = new Date();
 const default_start = new Date();
 
 default_start.setDate(1);
-default_start.setMonth(default_start.getMonth()-1);
+default_start.setMonth(default_start.getMonth() - 1);
 
 let date_start_picked = default_start;
 let date_end_picked = default_end;
@@ -34,10 +32,6 @@ let date_picked = {
   date_start: date_start_picked,
   date_end: date_end_picked,
 };
-// return $.fn.datepicker to previously assigned value
-// var datepicker = $.fn.datepicker.noConflict();
-// give $().bootstrapDP the bootstrap-datepicker functionality
-// $.fn.bootstrapDP = datepicker;
 
 // Loads the userlist when document is loaded
 $(retr_user_list(genova_api_url));
@@ -46,69 +40,63 @@ $(retr_user_list(genova_api_url));
 // Bootstrap datepicker support different options than jQuery-UI
 // https://bootstrap-datepicker.readthedocs.io/en/v1.9.0/options.html
 $(() => {
-  $ui_date_start.val(`${date_start_picked.getDate()}/${date_start_picked.getMonth()+1}/${date_start_picked.getFullYear()}`)
-$ui_date_end.val(`${date_end_picked.getDate()}/${date_end_picked.getMonth()+1}/${date_end_picked.getFullYear()}`)
-  $ui_date_end.datepicker({
-    format: "dd/mm/yyyy",
-    defaultViewDate: default_end
-    // defaultDate: new Date(),
-    // maxDate: new Date(),
-    // minDate: new Date(2020, 1, 1),
-    // changeYear: true,
-    // // changeMonth: true,
-    // todayHighlight: true,
-    // autoSize: true,
-    // autoclose: true,
-    // clearBtn: true,
-    // language: "en",
-    // orientation: "bottom auto",
-    // showAnim: "fadeIn",
-  }).on('changeDate', function(e) {
-    // `e` here contains the extra attributes
-    date_picked.date_end = e.date;
-    console.log(date_picked);
-  });
+  $ui_date_start.val(
+    `${date_start_picked.getDate()}/${
+      date_start_picked.getMonth() + 1
+    }/${date_start_picked.getFullYear()}`,
+  );
+  $ui_date_end.val(
+    `${date_end_picked.getDate()}/${
+      date_end_picked.getMonth() + 1
+    }/${date_end_picked.getFullYear()}`,
+  );
+  $ui_date_end
+    .datepicker({
+      format: "dd/mm/yyyy",
+      defaultViewDate: default_end,
+      todayHighlight: true,
+      endDate: new Date(),
+      startDate: new Date(2020, 1, 1),
+      todayBtn: true,
+      clearBtn: true,
+      changeYear: true,
+      changeMonth: true,
+      autoSize: true,
+      language: "en",
+      orientation: "bottom auto",
+      showAnim: "fadeIn",
+      showOnFocus: true,
+    })
+    .on("changeDate", function (e) {
+      // `e` here contains the extra attributes
+      date_picked.date_end = e.date;
+      console.log(date_picked);
+    });
 });
 $(() => {
-  $ui_date_start.datepicker({
-    format: "dd/mm/yyyy",
-    defaultViewDate: default_start
-    // defaultDate: new Date(2020, 1, 1),
-    // maxDate: new Date(),
-    // minDate: new Date(2020, 1, 1),
-    // changeYear: true,
-    // // changeMonth: true,
-    // todayHighlight: true,
-    // autoSize: true,
-    // autoclose: true,
-    // clearBtn: true,
-    // language: "en",
-    // orientation: "bottom auto",
-    // showAnim: "fadeIn",
-  }).on('changeDate', function(e) {
-    // `e` here contains the extra attributes
-    date_picked.date_start = e.date;
-    console.log(date_picked);
-  });
+  $ui_date_start
+    .datepicker({
+      format: "dd/mm/yyyy",
+      defaultViewDate: default_start,
+      endDate: new Date(),
+      startDate: new Date(2020, 1, 1),
+      todayHighlight: true,
+      todayBtn: true,
+      clearBtn: true,
+      changeYear: true,
+      changeMonth: true,
+      autoSize: true,
+      language: "en",
+      orientation: "bottom auto",
+      showAnim: "fadeIn",
+      showOnFocus: true,
+    })
+    .on("changeDate", function (e) {
+      // `e` here contains the extra attributes
+      date_picked.date_start = e.date;
+      console.log(date_picked);
+    });
 });
-
-// // Registering listeners for the date pickers on change event
-// $ui_date_start.on("change", () => {
-//   // date_start = "2022-01-10 10:10"
-//   // Convert the date to the format of the API
-//   date_start_picked = new Date($ui_date_start.val()).toJSON().split('T')[0];
-
-//   console.log("Start date_picked_>", date_start_picked);
-//   date_picked.date_start = date_start_picked;
-// });
-// $ui_date_end.on("change", () => {
-//   // date_start = "2022-01-10 10:10"
-//   // Convert the date to the format of the API
-//   date_end_picked = new Date($ui_date_end.val()).toJSON().split('T')[0];
-//   console.log("End date_picked_>", date_end_picked);
-//   console.log(end_picker.getDate());
-//   date_picked.date_end = date_end_picked;
-// });
 
 // TODO refactor to pure funtion style
 
@@ -153,11 +141,6 @@ $button_vis_campaign.on("click", () => {
 });
 
 $button_get_camapaign.on("click", () => {
-  // const date_picked = {
-  //   date_start: new Date($ui_date_start.val()).toJSON().split('T')[0],
-  //   date_end: new Date($ui_date_end.val()).toJSON().split('T')[0],
-  // };
-  // console.log("Date picked", date_picked);
   get_campaign_from_to(python_api_url, date_picked);
 });
 $button_create_message.on("click", () => {
@@ -259,7 +242,7 @@ function create_message(
     note: "Gter_test_JS",
   },
 ) {
-  $dashboard_text.text("Creating message!");
+  console.log("create_message called");
   let formdata = new FormData();
   if (dict_of_options.message === "") {
     dict_of_options.message = "EMPTY MESSAGE";
@@ -276,8 +259,7 @@ function create_message(
     .then((asyn_response) => asyn_response.json())
     .then((async_result) => {
       console.log("async_result from alertpy", async_result);
-      document.getElementById("dashboard_text").innerHTML =
-        "Message created!";
+      console.log("Message created!");
       // It calls the function to retrieve the list of messages from the database
       retr_message_list(python_api_url);
     })
@@ -370,7 +352,7 @@ function create_tables(table_name, dict_of_columns) {}
 
 /**Retrieves list of messages in JSON format */
 async function retr_message_list(root_url) {
-  $dashboard_text.text("Retriving message list!");
+  console.log("retr_message_list called");
   const $bstr_message = $("#bstr_message");
   const request_options = {
     method: "GET",
@@ -507,7 +489,7 @@ function vis_campaign(
   root_url,
   campaign_id = "vo6274305ad55304.39423618",
 ) {
-  $dashboard_text.text(`Visualizing ${campaign_id} campaign info!`);
+  console.log(`Visualizing ${campaign_id} campaign info!`);
   const $bstr_campaign = $("#bstr_camp_vis");
   const $campaign_table = $("#camp_table");
   const request_options = {
@@ -643,7 +625,8 @@ function vis_campaign(
 
 /** Get users list info in JSON format */
 function retr_user_list(root_url) {
-  $dashboard_text.text("Retriving users list!");
+  console.log(`Retriving users list from ${root_url}`);
+  console.log("Retriving users list!");
   const $bstr_div = $("#bstr_user");
   const $user_table = $("#user_table_1");
   const request_options = {
@@ -664,7 +647,7 @@ function retr_user_list(root_url) {
           numero_civico: item.numero_civico,
           telefono: item.telefono,
           user_group: item.gruppo,
-          sorgente: item.sorgente
+          sorgente: item.sorgente,
         };
       });
       $user_table.bootstrapTable("destroy").bootstrapTable({
@@ -751,21 +734,24 @@ function retr_user_list(root_url) {
       });
     })
     .catch((error) => {
+      console.log(`Retriving users list from ${root_url}`);
       console.error("error", error);
       console.log(
-        "Error in retriving user list! Check VPN connection!",
+        "Error in retriving user list!!!! Check VPN connection!",
       );
     });
 }
 
 /** Retrieves campaign in given timeframe. Creates bootstrap table and fills the data */
-function get_campaign_from_to(
-  root_url = "http://localhost:8000/"
-) {
+function get_campaign_from_to(root_url = "http://localhost:8000/") {
   const $bstr_div_camp = $("#bstr_camp");
   const $camp_table = $("#camp_table_time");
-  const date_start = `${date_picked.date_start.getFullYear()}-${date_picked.date_start.getMonth()+1}-${date_picked.date_start.getDate()} 12:00:00`;
-  const date_end = `${date_picked.date_end.getFullYear()}-${date_picked.date_end.getMonth()+1}-${date_picked.date_end.getDate()} 12:00:00`;
+  const date_start = `${date_picked.date_start.getFullYear()}-${
+    date_picked.date_start.getMonth() + 1
+  }-${date_picked.date_start.getDate()} 12:00:00`;
+  const date_end = `${date_picked.date_end.getFullYear()}-${
+    date_picked.date_end.getMonth() + 1
+  }-${date_picked.date_end.getDate()} 12:00:00`;
   $header_cmp_list.text(
     `Campaign dashboard from ${date_start} to ${date_end}`,
   );
