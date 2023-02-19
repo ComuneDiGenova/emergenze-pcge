@@ -16,54 +16,41 @@
             echo '<script>console.log(' . "\"{$current_file}: {$message}\"" . ')</script>';
         }
         function safe_import($const_path) {
-            js_console_log('checking: '.$const_path);
+            js_console_log('checking: ' . $const_path);
             file_exists($const_path) ? require($const_path) : js_console_log($const_path . ' does not exist');
         }
         define('REQ_PATH', __DIR__ . '/req.php');
-        // require('./check_evento.php');
-        define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
+        // define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
         // define('CONTEGGI_DASHBOARD_PATH', __DIR__ . '/conteggi_dashboard.php');
-        // define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
+        define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
         define('NAVBAR_UP_PATH', __DIR__ . '/navbar_up.php');
         define('NAVBAR_LEFT_PATH', __DIR__ . '/navbar_left.php');
         define('FOOTER_PATH', __DIR__ . '/footer.php');
         define('REQ_BOTTOM_PATH', __DIR__ . '/req_bottom.php');
         define('CONTATORI_EVENTO_EMBED_PATH', __DIR__ . '/contatori_evento_embed.php');
         define('FORBIDDEN_PATH', __DIR__ . '/divieto_accesso.php');
-
         try {
-            
+
             safe_import(REQ_PATH);
             // Loading check_evento.php using safe_import does not load useful variable defined in it (i.e. $CF or $nome...)
             // safe_import(CHECK_EVENTO_PATH);
-            require(CHECK_EVENTO_PATH);
-            // safe_import(FAKE_SPID);
+            // require(CHECK_EVENTO_PATH);
+            safe_import(FAKE_SPID);
             // safe_import(CONTEGGI_DASHBOARD_PATH);
-            // header("location: ./index_nverde.php");
-            // if ($profilo_sistema == 10) {
-            //     header("location: ./index_nverde.php");
-            // }
-            // elseif ($profilo_sistema >= 1) {
-            //     header("location: ./divieto_accesso.php");
-            // }
         } catch (ErrorException $e) {
             echo 'test_page.php: Eror in head' . $e->getMessage();
         }
-        // die();
-        // finally {
-        //     js_console_log('Finally loaded head');
-        // }
-        // $check_operatore=0;
         ?>
     </head>
 
     <body>
+
         <?php
-            if ($profilo_sistema > 3) {
-                echo "<script>location.href='./divieto_accesso.php';</script>";
-            };
+        if ($profilo_sistema > 3) {
+            echo "<script>location.href='./divieto_accesso.php';</script>";
+        }
+        ;
         ?>
-            
         <div id="wrapper">
             <div id="navbar1">
                 <?php
@@ -74,20 +61,17 @@
             safe_import(NAVBAR_LEFT_PATH);
             ?>
             <div id="page-wrapper">
+                <!-- //  -->
                 <!-- PUT YOUR PAGE HERE -->
-
+                <!-- // -->
                 <div class="container" id="foretext_container">
                     <div class="page-header">
                         <h1>Dashboard <small>Informazioni relative al servizio di allerta meteo di Protezione
                                 Civile</small>
                         </h1>
                     </div>
-                    <p id="dashboard_text">This is a dashboard for the Python API. You can use it to send messages to
-                        the users
-                        of the application. You can also visualise the campaign and get the list of users.</p>
                 </div>
                 <div class="container" id="tabs_container">
-
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#user_tab" aria-controls="users" role="tab"
@@ -142,18 +126,18 @@
                                     <div class="btn-group" data-toggle="buttons">
                                         <label class="btn btn-primary active">
                                             <input type="radio" value=2 name="group_option" id="radio_grp_2" checked>
-                                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                                materiale</input>
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            materiale</input>
                                         </label>
                                         <label class="btn btn-primary">
                                             <input type="radio" value=3 name="group_option" id="radio_grp_3">
-                                                <i class="fa fa-wheelchair" aria-hidden="true"></i>
-                                                personale</input>
+                                            <i class="fa fa-wheelchair" aria-hidden="true"></i>
+                                            personale</input>
                                         </label>
                                         <label class="btn btn-primary">
                                             <input type="radio" value=1 name="group_option" id="radio_grp_1">
-                                                <i class="fa fa-handshake" aria-hidden="true"></i>
-                                                sostenibile</input>
+                                            <i class="fa fa-handshake" aria-hidden="true"></i>
+                                            sostenibile</input>
                                         </label>
                                     </div>
                                 </div>
@@ -162,39 +146,44 @@
                                 <div class="form-group">
                                     <label for="comment">Voce messaggio:</label>
                                     <div class="btn-group">
-                                    <div class="btn-group" data-toggle="buttons">
-                                        <label class="btn btn-primary active" id="voice_picker_female">
-                                            <input type="radio" value="F" name="voice_options" checked>
-                                            <i class="fa fa-female" aria-hidden="true"></i>
-                                            Femminile</input>
-                                        </label>
-                                        <label class="btn btn-primary" id="voice_picker_male">
-                                            <input type="radio" value="M" name="voice_options">
-                                            <i class="fa fa-male" aria-hidden="true"></i>
-                                            Maschile</input>
-                                        </label>
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-primary active" id="voice_picker_female">
+                                                <input type="radio" value="F" name="voice_options" checked>
+                                                <i class="fa fa-female" aria-hidden="true"></i>
+                                                Femminile</input>
+                                            </label>
+                                            <label class="btn btn-primary" id="voice_picker_male">
+                                                <input type="radio" value="M" name="voice_options">
+                                                <i class="fa fa-male" aria-hidden="true"></i>
+                                                Maschile</input>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
-                                </div>
-                                
-                                <div class="btn-group">
-                                    <div class="btn-group" data-toggle="buttons">
+                                <div class="btn-group btn-group-justified" role="group">
+                                    <div class="btn-group" role="group">
                                         <button class="btn btn-success" type="submit" id="button_create_message">
                                             <i class="fa fa-edit" aria-hidden="true"></i>
                                             <!-- <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> -->
                                             Crea nuovo messaggio
                                         </button>
                                     </div>
-                                    <!-- <div class="col-2 text-left" role="group"> -->
-
-                                </div>
-                                <div class="btn-group" data-toggle="buttons">
-                                    <button class="btn btn-warning" type="submit" id="button_create_campaign"
-                                        data-toggle="tooltip" data-placement="bottom"
-                                        title="Crea campagna a partire dal messaggio">
-                                        <i class="fa fa-bullhorn" aria-hidden="true"></i>
-                                        Lancia campagna di chiamate da messaggio
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-warning" type="submit" id="button_create_campaign"
+                                            data-toggle="tooltip" data-placement="bottom"
+                                            title="Crea campagna a partire dal messaggio">
+                                            <i class="fa fa-bullhorn" aria-hidden="true"></i>
+                                            Lancia campagna di chiamate da messaggio
+                                        </button>
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-info" type="submit" id="button_test_message"
+                                            data-toggle="tooltip" data-placement="bottom"
+                                            title="Creare un messaggio e ascoltarlo">
+                                            <i class="fa fa-headphones" aria-hidden="true"></i>
+                                            Test del messaggio
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- Add an outline for container -->
                                 <!-- Data table for messages -->
@@ -265,14 +254,14 @@
         </div>
         <!-- defer blocks execution of script untill document is loaded -->
         <!-- <script type="text/javascript" src="..\node_modules\dayjs\dayjs.min.js"></script> -->
-        <script type="text/javascript" defer src="config.js"></script>
-        <!-- <script type="text/javascript" defer src="dashboard_js.js"></script> -->
-        <script type="module" defer src="dashboard_js.js"></script>
-        <script type="module" src="dashboard_api.js"></script>
         <?php
         safe_import(FOOTER_PATH);
         safe_import(REQ_BOTTOM_PATH);
         ?>
+        <script type="text/javascript" defer src="config.js"></script>
+        <!-- <script type="text/javascript" defer src="dashboard_js.js"></script> -->
+        <script type="module" defer src="dashboard_js.js"></script>
+        <script type="module" src="dashboard_api.js"></script>
     </body>
 
 </html>
