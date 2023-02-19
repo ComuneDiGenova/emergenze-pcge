@@ -184,6 +184,13 @@
                                             Test del messaggio
                                         </button>
                                     </div>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-info" type="submit" id="button_play_message"
+                                            data-toggle="tooltip" data-placement="bottom" title="Play the message">
+                                            <i class=" fa fa-headphones" aria-hidden="true"></i>
+                                            Play the message
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- Add an outline for container -->
                                 <!-- Data table for messages -->

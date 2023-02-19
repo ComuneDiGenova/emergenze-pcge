@@ -1,6 +1,10 @@
 // import { format_dashboard_date } from "./dashboard_api.js";
 // Add in dayjs plugin, because writng code is for noobs
-import { format_date, convert_to_date } from "./dashboard_api.js";
+import {
+  format_date,
+  convert_to_date,
+  test_voice,
+} from "./dashboard_api.js";
 // Cashe the DOM elements
 const $button_message_list = $("#button_msg_list");
 const $button_vis_campaign = $("#button_vis_campaign");
@@ -8,14 +12,15 @@ const $button_vis_campaign = $("#button_vis_campaign");
 const $button_get_camapaign = $("#button_campaign_from_to");
 const $button_create_campaign = $("#button_create_campaign");
 const $button_create_message = $("#button_create_message");
+const $button_test_message = $("#button_test_message");
 const $button_del = $("#button_delete");
 const $header_cmp_list = $("#camp_list_header");
 const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
-
+const $play_button = $("#button_play_message");
 //* API URL
-const python_api_url = `${config.BASE_URL}user_campaign/`;
+const python_api_url = `${config.LOCAL_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
 
 // default values for the date picker
@@ -27,7 +32,6 @@ default_start.setMonth(default_start.getMonth() - 1);
 
 let date_start_picked = default_start;
 let date_end_picked = default_end;
-
 let date_picked = {
   date_start: date_start_picked,
   date_end: date_end_picked,
@@ -101,6 +105,34 @@ $(() => {
 // TODO refactor to pure funtion style
 
 //* Main API calls
+$button_test_message.on("click", async () => {
+  // It takes operation type, message text, voice gender and message note
+  const $msg_note = $("#msg_note").val();
+  const $msg_text = $("#msg_content").val();
+  const voice_picked = document.querySelector(
+    "input[name='voice_options']:checked",
+  ).value;
+  const operation_type = "Preview";
+  let form_data = new FormData();
+  form_data.append("message_text", $msg_text);
+  form_data.append("message_note", $msg_note);
+  form_data.append("operation", operation_type);
+  form_data.append("voice_gender", voice_picked);
+  const audio_url = await test_voice(python_api_url, form_data);
+  alert(`Voice: Tested!`);
+  $play_button.on("click", async () => {
+    try {
+      const audio_file = new Audio(audio_url);
+      // Load the audio file asynchronously
+      await audio_file.load();
+      // Play the audio_file
+      audio_file.play();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+});
+
 // ? Create campaign API call takes in 5 parameters. There is default behaviour on backend if something is not specified.
 // ? Create campaign on backend will take message_ID if it is specified, otherwise it will take message_text/note and create a new message
 // ? It does not chec if the message already exists in the database when given message_ID
@@ -155,40 +187,6 @@ $button_create_message.on("click", () => {
   console.log("Object for message:", msg_dict);
   create_message(python_api_url, msg_dict);
 });
-
-/** Returns the list of messages from the database and puts it in the BS table*/
-async function retr_message(root_url, message_id) {
-  const request_options = {
-    method: "GET",
-    redirect: "follow",
-  };
-  // Retrieve the list of messages from url with GET method
-  // and then put it ien the div in table format
-  if (message_id == "") {
-    return console.log("message_id is empty");
-  }
-  let message_dict = null;
-  await fetch(`${root_url}_retrive_message_list`, request_options)
-    .then((asyn_response) => asyn_response.json())
-    .then((async_result) => {
-      const message_list = async_result.result;
-      return Object.entries(message_list).forEach(([key, value]) => {
-        // message_list.forEach((element) => {
-        if (key == message_id) {
-          message_dict = {};
-          message_dict.message = value;
-        }
-      });
-    })
-    .catch((error) => console.log("error", error));
-  if (message_dict != null) {
-    return message_dict;
-  }
-  console.log(
-    `Element with id ${message_id} was not found. Creating new message!`,
-  );
-  return null;
-}
 
 /** Deletes the message from the database*/
 function delete_message(root_url, message_id = "1") {
