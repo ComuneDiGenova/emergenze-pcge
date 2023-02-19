@@ -1,3 +1,7 @@
+// import { format_dashboard_date } from "./dashboard_api.js";
+
+// Add in dayjs plugin, because writng code is for noobs
+import { format_date, convert_to_date } from "./dashboard_api.js";
 // Cashe the DOM elements
 const $dashboard_text = $("#dashboard_text");
 const $button_message_list = $("#button_msg_list");
@@ -11,78 +15,100 @@ const $header_cmp_list = $("#camp_list_header");
 const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
-const $test_numbers = $("#test_phone_numbers");
 
 //* API URL
 const python_api_url = `${config.BASE_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
 
 // default values for the date picker
-let date_start_picked = "2020-06-01";
-let date_end_picked = "2022-01-31";
+const default_end = new Date();
+const default_start = new Date();
+
+default_start.setDate(1);
+default_start.setMonth(default_start.getMonth()-1);
+
+let date_start_picked = default_start;
+let date_end_picked = default_end;
+
 let date_picked = {
   date_start: date_start_picked,
   date_end: date_end_picked,
 };
 // return $.fn.datepicker to previously assigned value
-var datepicker = $.fn.datepicker.noConflict();
+// var datepicker = $.fn.datepicker.noConflict();
 // give $().bootstrapDP the bootstrap-datepicker functionality
-$.fn.bootstrapDP = datepicker;
+// $.fn.bootstrapDP = datepicker;
 
 // Loads the userlist when document is loaded
 $(retr_user_list(genova_api_url));
 // Init date picker with JQuery
 
+// Bootstrap datepicker support different options than jQuery-UI
+// https://bootstrap-datepicker.readthedocs.io/en/v1.9.0/options.html
 $(() => {
+  $ui_date_start.val(`${date_start_picked.getDate()}/${date_start_picked.getMonth()+1}/${date_start_picked.getFullYear()}`)
+$ui_date_end.val(`${date_end_picked.getDate()}/${date_end_picked.getMonth()+1}/${date_end_picked.getFullYear()}`)
   $ui_date_end.datepicker({
-    dateFormat: "yy-mm-dd",
-    defaultDate: new Date(),
-    maxDate: new Date(),
-    minDate: new Date(2020, 1, 1),
-    changeYear: true,
-    // changeMonth: true,
-    todayHighlight: true,
-    autoSize: true,
-    autoclose: true,
-    clearBtn: true,
-    language: "en",
-    orientation: "bottom auto",
-    showAnim: "fadeIn",
+    format: "dd/mm/yyyy",
+    defaultViewDate: default_end
+    // defaultDate: new Date(),
+    // maxDate: new Date(),
+    // minDate: new Date(2020, 1, 1),
+    // changeYear: true,
+    // // changeMonth: true,
+    // todayHighlight: true,
+    // autoSize: true,
+    // autoclose: true,
+    // clearBtn: true,
+    // language: "en",
+    // orientation: "bottom auto",
+    // showAnim: "fadeIn",
+  }).on('changeDate', function(e) {
+    // `e` here contains the extra attributes
+    date_picked.date_end = e.date;
+    console.log(date_picked);
   });
 });
 $(() => {
   $ui_date_start.datepicker({
-    dateFormat: "yy-mm-dd",
-    defaultDate: new Date(2020, 1, 1),
-    maxDate: new Date(),
-    minDate: new Date(2020, 1, 1),
-    changeYear: true,
-    // changeMonth: true,
-    todayHighlight: true,
-    autoSize: true,
-    autoclose: true,
-    clearBtn: true,
-    language: "en",
-    orientation: "bottom auto",
-    showAnim: "fadeIn",
+    format: "dd/mm/yyyy",
+    defaultViewDate: default_start
+    // defaultDate: new Date(2020, 1, 1),
+    // maxDate: new Date(),
+    // minDate: new Date(2020, 1, 1),
+    // changeYear: true,
+    // // changeMonth: true,
+    // todayHighlight: true,
+    // autoSize: true,
+    // autoclose: true,
+    // clearBtn: true,
+    // language: "en",
+    // orientation: "bottom auto",
+    // showAnim: "fadeIn",
+  }).on('changeDate', function(e) {
+    // `e` here contains the extra attributes
+    date_picked.date_start = e.date;
+    console.log(date_picked);
   });
 });
 
-// Registering listeners for the date pickers on change event
-$ui_date_start.on("change", () => {
-  // date_start = "2022-01-10 10:10"
-  // Convert the date to the format of the API
-  date_start_picked = $ui_date_start.val();
-  console.log("Start date_picked_>", date_start_picked);
-  date_picked.date_start = date_start_picked;
-});
-$ui_date_end.on("change", () => {
-  // date_start = "2022-01-10 10:10"
-  // Convert the date to the format of the API
-  date_end_picked = $ui_date_end.val();
-  console.log("End date_picked_>", date_end_picked);
-  date_picked.date_end = date_end_picked;
-});
+// // Registering listeners for the date pickers on change event
+// $ui_date_start.on("change", () => {
+//   // date_start = "2022-01-10 10:10"
+//   // Convert the date to the format of the API
+//   date_start_picked = new Date($ui_date_start.val()).toJSON().split('T')[0];
+
+//   console.log("Start date_picked_>", date_start_picked);
+//   date_picked.date_start = date_start_picked;
+// });
+// $ui_date_end.on("change", () => {
+//   // date_start = "2022-01-10 10:10"
+//   // Convert the date to the format of the API
+//   date_end_picked = new Date($ui_date_end.val()).toJSON().split('T')[0];
+//   console.log("End date_picked_>", date_end_picked);
+//   console.log(end_picker.getDate());
+//   date_picked.date_end = date_end_picked;
+// });
 
 // TODO refactor to pure funtion style
 
@@ -107,6 +133,7 @@ $button_create_campaign.on("click", async () => {
   form_data.append("message_note", $msg_note);
   form_data.append("group", group_number);
   form_data.append("voice_gender", voice_picked);
+  form_data.append("test_phone_numbers", $test_numbers);
   await create_campaign(python_api_url, form_data);
   alert(`Campaign: Sent!`);
 });
@@ -126,15 +153,15 @@ $button_vis_campaign.on("click", () => {
 });
 
 $button_get_camapaign.on("click", () => {
-  const date_picked = {
-    date_start: $ui_date_start.val(),
-    date_end: $ui_date_end.val(),
-  };
-  console.log("Date picked", date_picked);
+  // const date_picked = {
+  //   date_start: new Date($ui_date_start.val()).toJSON().split('T')[0],
+  //   date_end: new Date($ui_date_end.val()).toJSON().split('T')[0],
+  // };
+  // console.log("Date picked", date_picked);
   get_campaign_from_to(python_api_url, date_picked);
 });
 $button_create_message.on("click", () => {
-  voice_picked = document.querySelector(
+  const voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
   const msg_dict = {
@@ -282,11 +309,11 @@ function op_formttr_msg_list(value, row, index) {
   const remove_msg_class = "remove_msg";
   const create_campaign_class = "create_campaign";
   return [
-    `<a class="${create_campaign_class}" href="javascript:void(0)" title="Create campaign from this message">`,
+    `<a class="btn btn-warning ${create_campaign_class}" href="javascript:void(0)" title="Create campaign from this message">`,
     `<i class="fa fa-bullhorn"></i>`,
     "</a>",
     ,
-    `<a class="${remove_msg_class}" href="javascript:void(0)" title="Remove this message from database">`,
+    `<a class="btn btn-danger ${remove_msg_class}" href="javascript:void(0)" title="Remove this message from database">`,
     `<i class="fa fa-trash"></i>`,
     "</a>",
   ].join("");
@@ -296,7 +323,7 @@ function op_formttr_msg_list(value, row, index) {
 function op_formttr_cmp_list(value, row, index) {
   const visualize_campaign_class = "vis_camp_event";
   return [
-    `<a class="${visualize_campaign_class}" href="javascript:void(0)" title="Visualize">`,
+    `<a class="btn btn-primary ${visualize_campaign_class}" href="javascript:void(0)" title="Visualize">`,
     `<i class="fa fa-eye"></i>`,
     "</a>",
   ].join("");
@@ -310,7 +337,7 @@ async function create_campaign_from_table_msg(e, value, row, index) {
   const voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
-  form_data = new FormData();
+  let form_data = new FormData();
   form_data.append("message_ID", row.message_id);
   await create_campaign(python_api_url, form_data);
   alert(
@@ -358,7 +385,13 @@ async function retr_message_list(root_url) {
       const message_list_dict = [];
       Object.entries(message_list).forEach(([key, value]) => {
         message_list_dict.push({
-          message_date: value.data_creazione,
+          message_date: convert_to_date(
+            format_date(
+              value.data_creazione,
+              "DD-MM-YYYY HH:mm:ss",
+              "YYYY/MM/DD HH:mm:ss",
+            ),
+          ),
           message_dimension: value.dimensione,
           message_duration: value.durata,
           message_id: value.id_messaggio,
@@ -378,32 +411,32 @@ async function retr_message_list(root_url) {
           },
           {
             field: "message_id",
-            title: "Item ID",
+            title: "ID",
             align: "center",
             valign: "middle",
           },
           {
             field: "message_date",
-            title: "Message Date",
+            title: "Data messaggio",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "message_note",
-            title: "Message note",
+            title: "Note",
             align: "center",
           },
           {
             field: "message_duration",
-            title: "Message duration",
+            title: "Durata",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "message_dimension",
-            title: "Message dimension",
+            title: "Dimensioni",
             align: "center",
             valign: "middle",
             sortable: true,
@@ -488,92 +521,94 @@ function vis_campaign(
     .then((async_result) => {
       $bstr_campaign.show();
       const campaign_json = async_result.result;
-      const campaign_list_dict = [
-        {
-          campaign_id: campaign_json.IdCampagna,
-          campaign_telephone: campaign_json.NumeroTelefonico,
-          campaign_note: campaign_json.IdentificativoCampagna,
-          campaign_type: campaign_json.Tipo,
-          campaign_duration: campaign_json.Durata,
-          campaign_start_date: campaign_json.DataCampagna,
-          campaign_end_date: campaign_json.DataChiamata,
-          campaign_status: campaign_json.Esito,
-          campaign_identifier: campaign_json.Identificativo,
-        },
-      ];
+      const campaign_list_dict = async_result.result;
+      console.log(async_result.result);
+      // const campaign_list_dict = [
+      //   {
+      //     campaign_id: campaign_json.IdCampagna,
+      //     campaign_telephone: campaign_json.NumeroTelefonico,
+      //     campaign_note: campaign_json.IdentificativoCampagna,
+      //     campaign_type: campaign_json.Tipo,
+      //     campaign_duration: campaign_json.Durata,
+      //     campaign_start_date: campaign_json.DataCampagna,
+      //     campaign_end_date: campaign_json.DataChiamata,
+      //     campaign_status: campaign_json.Esito,
+      //     campaign_identifier: campaign_json.Identificativo,
+      //   },
+      // ];
       $campaign_table.bootstrapTable("destroy").bootstrapTable({
         columns: [
+          // {
+          //   field: "state",
+          //   checkbox: true,
+          //   // Not used because the header columns are 1 not 2
+          //   // rowspan: 2,
+          //   align: "center",
+          //   valign: "middle",
+          // },
+          // {
+          //   field: "Identificativo",
+          //   title: "ID",
+          //   align: "center",
+          //   valign: "middle",
+          // },
           {
-            field: "state",
-            checkbox: true,
-            // Not used because the header columns are 1 not 2
-            // rowspan: 2,
+            field: "NumeroTelefonico",
+            title: "Telefono",
             align: "center",
             valign: "middle",
+            sortable: true,
           },
+          // {
+          //   field: "IdentificativoCampagna",
+          //   title: "Note",
+          //   align: "center",
+          // },
+          // {
+          //   field: "Tipo",
+          //   title: "Tipo campagna",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: true,
+          // },
           {
-            field: "campaign_id",
-            title: "Campaign ID",
+            field: "Durata",
+            title: "Durata campagna",
             align: "center",
             valign: "middle",
+            sortable: true,
           },
+          // {
+          //   field: "DataCampagna",
+          //   title: "Inizio campagna",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: true,
+          // },
           {
-            field: "campaign_telephone",
-            title: "Campaign telephone",
+            field: "DataChiamata",
+            title: "Data/Ora chiamata",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
-            field: "campaign_note",
-            title: "Campaign note",
-            align: "center",
-          },
-          {
-            field: "campaign_type",
-            title: "Campaign type",
+            field: "Esito",
+            title: "Esito chiamata",
             align: "center",
             valign: "middle",
             sortable: true,
           },
+          // {
+          //   field: "IdentificativoCampagna",
+          //   title: "Identificativo",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: true,
+          // },
           {
-            field: "campaign_duration",
-            title: "Campaign duration",
-            align: "center",
-            valign: "middle",
-            sortable: true,
-          },
-          {
-            field: "campaign_start_date",
-            title: "Campaign start date",
-            align: "center",
-            valign: "middle",
-            sortable: true,
-          },
-          {
-            field: "campaign_end_date",
-            title: "Campaign end date",
-            align: "center",
-            valign: "middle",
-            sortable: true,
-          },
-          {
-            field: "campaign_status",
-            title: "Campaign status",
-            align: "center",
-            valign: "middle",
-            sortable: true,
-          },
-          {
-            field: "campaign_identifier",
-            title: "Campaign identifier",
-            align: "center",
-            valign: "middle",
-            sortable: true,
-          },
-          {
-            field: "campaign_contacts_num",
-            title: "Campaign contacts amount",
+            field: "Contatti",
+            title: "Contatti",
             align: "center",
             valign: "middle",
             sortable: true,
@@ -625,7 +660,11 @@ function retr_user_list(root_url) {
           user_id: item.id,
           user_name: item.nome,
           user_surname: item.cognome,
+          indirizzo: item.indirizzo,
+          numero_civico: item.numero_civico,
+          telefono: item.telefono,
           user_group: item.gruppo,
+          sorgente: item.sorgente
         };
       });
       $user_table.bootstrapTable("destroy").bootstrapTable({
@@ -639,21 +678,49 @@ function retr_user_list(root_url) {
           },
           {
             field: "user_name",
-            title: "User name",
+            title: "Nome",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "user_surname",
-            title: "User surname",
+            title: "Cognome",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
+            field: "indirizzo",
+            title: "Indirizzo",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "numero_civico",
+            title: "Civico",
+            align: "center",
+            valign: "middle",
+            sortable: false,
+          },
+          {
+            field: "telefono",
+            title: "Telefono",
+            align: "center",
+            valign: "middle",
+            sortable: false,
+          },
+          {
             field: "user_group",
             title: "User group",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "sorgente",
+            title: "Fonte dati",
             align: "center",
             valign: "middle",
             sortable: true,
@@ -693,16 +760,12 @@ function retr_user_list(root_url) {
 
 /** Retrieves campaign in given timeframe. Creates bootstrap table and fills the data */
 function get_campaign_from_to(
-  root_url = "http://localhost:8000/",
-  date_dict = {
-    date_start: "2020-06-01",
-    date_end: "2022-01-31",
-  },
+  root_url = "http://localhost:8000/"
 ) {
   const $bstr_div_camp = $("#bstr_camp");
   const $camp_table = $("#camp_table_time");
-  const date_start = date_dict.date_start + " 12:00";
-  const date_end = date_dict.date_end + " 12:00";
+  const date_start = `${date_picked.date_start.getFullYear()}-${date_picked.date_start.getMonth()+1}-${date_picked.date_start.getDate()} 12:00:00`;
+  const date_end = `${date_picked.date_end.getFullYear()}-${date_picked.date_end.getMonth()+1}-${date_picked.date_end.getDate()} 12:00:00`;
   $header_cmp_list.text(
     `Campaign dashboard from ${date_start} to ${date_end}`,
   );
@@ -734,48 +797,48 @@ function get_campaign_from_to(
       console.log(camp_list_dict);
       $camp_table.bootstrapTable("destroy").bootstrapTable({
         columns: [
-          {
-            field: "state",
-            checkbox: true,
-            // Not used because the header columns are 1 not 2
-            // rowspan: 2,
-            align: "center",
-            valign: "middle",
-          },
-          {
-            field: "camp_id",
-            title: "Campaign ID",
-            align: "center",
-            valign: "middle",
-          },
-          {
-            field: "camp_type",
-            title: "Type",
-            align: "center",
-            valign: "middle",
-          },
+          // {
+          //   field: "state",
+          //   checkbox: true,
+          //   // Not used because the header columns are 1 not 2
+          //   // rowspan: 2,
+          //   align: "center",
+          //   valign: "middle",
+          // },
+          // {
+          //   field: "camp_id",
+          //   title: "Campaign ID",
+          //   align: "center",
+          //   valign: "middle",
+          // },
+          // {
+          //   field: "camp_type",
+          //   title: "Tipo campagna",
+          //   align: "center",
+          //   valign: "middle",
+          // },
           {
             field: "camp_date",
-            title: "Campaign Date",
+            title: "Data campagna",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "camp_identifier",
-            title: "Campaign note",
+            title: "Note",
             align: "center",
           },
           {
             field: "camp_user",
-            title: "Campaign user",
+            title: "Utente",
             align: "center",
             valign: "middle",
             sortable: true,
           },
           {
             field: "camp_contact",
-            title: "Campaign contact",
+            title: "Contatti",
             align: "center",
             valign: "middle",
             sortable: true,

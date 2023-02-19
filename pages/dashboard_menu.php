@@ -16,38 +16,54 @@
             echo '<script>console.log(' . "\"{$current_file}: {$message}\"" . ')</script>';
         }
         function safe_import($const_path) {
+            js_console_log('checking: '.$const_path);
             file_exists($const_path) ? require($const_path) : js_console_log($const_path . ' does not exist');
         }
         define('REQ_PATH', __DIR__ . '/req.php');
+        // require('./check_evento.php');
         define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
-        define('CONTEGGI_DASHBOARD_PATH', __DIR__ . '/conteggi_dashboard.php');
-        define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
+        // define('CONTEGGI_DASHBOARD_PATH', __DIR__ . '/conteggi_dashboard.php');
+        // define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
         define('NAVBAR_UP_PATH', __DIR__ . '/navbar_up.php');
         define('NAVBAR_LEFT_PATH', __DIR__ . '/navbar_left.php');
         define('FOOTER_PATH', __DIR__ . '/footer.php');
         define('REQ_BOTTOM_PATH', __DIR__ . '/req_bottom.php');
         define('CONTATORI_EVENTO_EMBED_PATH', __DIR__ . '/contatori_evento_embed.php');
+        define('FORBIDDEN_PATH', __DIR__ . '/divieto_accesso.php');
+
         try {
+            
             safe_import(REQ_PATH);
+            // Loading check_evento.php using safe_import does not load useful variable defined in it (i.e. $CF or $nome...)
             // safe_import(CHECK_EVENTO_PATH);
-            safe_import(FAKE_SPID);
-            safe_import(CONTEGGI_DASHBOARD_PATH);
-            if ($profilo_sistema == 10) {
-                header("location: ./index_nverde.php");
-            }
-            elseif ($profilo_sistema > 8) {
-                header("location: ./divieto_accesso.php");
-            }
+            require(CHECK_EVENTO_PATH);
+            // safe_import(FAKE_SPID);
+            // safe_import(CONTEGGI_DASHBOARD_PATH);
+            // header("location: ./index_nverde.php");
+            // if ($profilo_sistema == 10) {
+            //     header("location: ./index_nverde.php");
+            // }
+            // elseif ($profilo_sistema >= 1) {
+            //     header("location: ./divieto_accesso.php");
+            // }
         } catch (ErrorException $e) {
             echo 'test_page.php: Eror in head' . $e->getMessage();
         }
+        // die();
         // finally {
         //     js_console_log('Finally loaded head');
         // }
+        // $check_operatore=0;
         ?>
     </head>
 
     <body>
+        <?php
+            if ($profilo_sistema > 3) {
+                echo "<script>location.href='./divieto_accesso.php';</script>";
+            };
+        ?>
+            
         <div id="wrapper">
             <div id="navbar1">
                 <?php
@@ -121,31 +137,46 @@
                                     </div>
 
                                 </form>
-                                <div class="btn-group" data-toggle="buttons">
-                                    <label class="btn btn-primary active">
-                                        <input type="radio" value=1 name="group_option" id="radio_grp_1" checked> Group
-                                        1
-                                    </label>
-                                    <label class="btn btn-primary">
-                                        <input type="radio" value=2 name="group_option" id="radio_grp_2"> Group 2
-                                    </label>
+                                <div class="form-group">
+                                    <label for="comment">Vulnerabilità:</label>
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-primary active">
+                                            <input type="radio" value=2 name="group_option" id="radio_grp_2" checked>
+                                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                materiale</input>
+                                        </label>
+                                        <label class="btn btn-primary">
+                                            <input type="radio" value=3 name="group_option" id="radio_grp_3">
+                                                <i class="fa fa-wheelchair" aria-hidden="true"></i>
+                                                personale</input>
+                                        </label>
+                                        <label class="btn btn-primary">
+                                            <input type="radio" value=1 name="group_option" id="radio_grp_1">
+                                                <i class="fa fa-handshake" aria-hidden="true"></i>
+                                                sostenibile</input>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <!-- Buttons voice -->
-                                <div class="btn-group">
+                                <div class="form-group">
+                                    <label for="comment">Voce messaggio:</label>
+                                    <div class="btn-group">
                                     <div class="btn-group" data-toggle="buttons">
                                         <label class="btn btn-primary active" id="voice_picker_female">
                                             <input type="radio" value="F" name="voice_options" checked>
                                             <i class="fa fa-female" aria-hidden="true"></i>
-                                            Female voice</input>
+                                            Femminile</input>
                                         </label>
                                         <label class="btn btn-primary" id="voice_picker_male">
                                             <input type="radio" value="M" name="voice_options">
                                             <i class="fa fa-male" aria-hidden="true"></i>
-                                            Male voice</input>
+                                            Maschile</input>
                                         </label>
                                     </div>
                                 </div>
+                                </div>
+                                
                                 <div class="btn-group">
                                     <div class="btn-group" data-toggle="buttons">
                                         <button class="btn btn-success" type="submit" id="button_create_message">
@@ -160,18 +191,18 @@
                                 <div class="btn-group" data-toggle="buttons">
                                     <button class="btn btn-warning" type="submit" id="button_create_campaign"
                                         data-toggle="tooltip" data-placement="bottom"
-                                        title="Create campaign with the message contents specified">
+                                        title="Crea campagna a partire dal messaggio">
                                         <i class="fa fa-bullhorn" aria-hidden="true"></i>
-                                        Crea messaggio e lancia campagna di chiamate
+                                        Lancia campagna di chiamate da messaggio
                                     </button>
                                 </div>
                                 <!-- Add an outline for container -->
                                 <!-- Data table for messages -->
                                 <div class="container" id="bstr_message" style="display: none;">
-                                    <h3 id="msg_list_header">Messages visualization</h3>
+                                    <h3 id="msg_list_header">Lista messaggi</h3>
                                     <div id="msg_toolbar">
                                         <button id="button_delete" class="btn btn-danger">
-                                            <i class="fa fa-trash"></i> Delete selected messages
+                                            <i class="fa fa-trash"></i> Rimuovi i messaggi selezionati
                                         </button>
                                     </div>
                                     <table class="table-hover " id="msg_table" data-togle="table"
@@ -233,8 +264,11 @@
             </div>
         </div>
         <!-- defer blocks execution of script untill document is loaded -->
+        <!-- <script type="text/javascript" src="..\node_modules\dayjs\dayjs.min.js"></script> -->
         <script type="text/javascript" defer src="config.js"></script>
-        <script type="text/javascript" defer src="dashboard_js.js"></script>
+        <!-- <script type="text/javascript" defer src="dashboard_js.js"></script> -->
+        <script type="module" defer src="dashboard_js.js"></script>
+        <script type="module" src="dashboard_api.js"></script>
         <?php
         safe_import(FOOTER_PATH);
         safe_import(REQ_BOTTOM_PATH);

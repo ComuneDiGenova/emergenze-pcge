@@ -30,7 +30,9 @@
         define('CONTATORI_EVENTO_EMBED_PATH', __DIR__ . '/contatori_evento_embed.php');
         try {
             safe_import(REQ_PATH);
-            safe_import(CHECK_EVENTO_PATH);
+            // Loading check_evento.php using safe_import does not load useful variable defined in it (i.e. $CF or $nome...)
+            // safe_import(CHECK_EVENTO_PATH);
+            require(CHECK_EVENTO_PATH);
             safe_import(CONTEGGI_DASHBOARD_PATH);
             if ($profilo_sistema == 10) {
                 header("location: ./index_nverde.php");
@@ -49,6 +51,11 @@
     </head>
 
     <body>
+        <?php
+            if ($profilo_sistema > 3) {
+                echo "<script>location.href='./divieto_accesso.php';</script>";
+            };
+        ?>
         <div id="wrapper">
             <div id="navbar1">
                 <?php
@@ -109,7 +116,7 @@
                                             <div class="tab-pane active" role="tabpanel" id="step1">
                                                 <h4 class="text-center">Dati Indirizzo</h4>
                                                 <div class="row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-8">
                                                         <div class="form-group autoComplete">
                                                             <label>Toponimo</label>
                                                             <input class="form-control advancedAutoComplete" type="text"
@@ -120,7 +127,7 @@
                                                                 dalla ricerca.</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-2">
                                                         <div class="form-group autoComplete">
                                                             <label>Civico</label>
                                                             <input class="form-control advancedAutoComplete" type="text"
@@ -129,6 +136,14 @@
                                                             <span class="help-block">Seleziona tra i civici possibili
                                                                 proposti
                                                                 dalla ricerca.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <label>Interno</label>
+                                                            <input class="form-control" type="text"
+                                                                placeholder="specificare interno"
+                                                                id="internoCivico" name="internoCivico">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -273,9 +288,9 @@
                                                     <li><button type="button" class="btn btn-default prev-step">
                                                             <i class="fa fa-step-backward" aria-hidden="true"></i>
                                                             In dietro</button></li>
-                                                    <li><button type="button"
+                                                    <!-- <li><button type="button"
                                                             class="btn btn-warning skip-step skip-btn">Skip</button>
-                                                    </li>
+                                                    </li> -->
                                                     <li><button type="button" class="btn btn-success next-step"
                                                             id="submitStep2">
                                                             <i class="fa fa-step-forward" aria-hidden="true"></i>
@@ -362,9 +377,9 @@
                                                     <li><button type="button" class="btn btn-default prev-step">
                                                             <i class="fa fa-step-backward" aria-hidden="true"></i>
                                                             In dietro</button></li>
-                                                    <li><button type="button"
+                                                    <!-- <li><button type="button"
                                                             class="btn btn-warning skip-step skip-btn">Skip</button>
-                                                    </li>
+                                                    </li> -->
                                                     <li><button type="button" class="btn btn-success next-step"
                                                             id="submitStep3" disabled>
                                                             <i class="fa fa-step-forward" aria-hidden="true"></i>
@@ -550,13 +565,22 @@
                                                             <div class="list-box">
                                                                 <div class="row">
 
-                                                                    <div class="col-md-12">
+                                                                    <div class="col-md-10">
                                                                         <div class="form-group">
                                                                             <label>Indirizzo</label>
                                                                             <input class="form-control" type="text"
                                                                                 data-form="recapito"
                                                                                 name="indirizzoCompleto"
                                                                                 id="indirizzoCompleto" disabled>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <div class="form-group">
+                                                                            <label>Interno</label>
+                                                                            <input class="form-control" type="text"
+                                                                                data-form="recapito"
+                                                                                name="interno"
+                                                                                id="interno" disabled>
                                                                         </div>
                                                                     </div>
 

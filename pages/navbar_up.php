@@ -96,12 +96,12 @@ if (!isset($subtitle)) {
             }
             ?>
 
-                        <li class="nav-item active">
+                        <!-- <li class="nav-item active">
                             <a class="nav-link" title="Elenco soggetti vulnerabili" href="soggetti_vulnerabili.php"><i class="fas fa-address-book"></i></a>
-                        </li>
-                        <li class="nav-item active">
+                        </li> -->
+                        <!-- <li class="nav-item active">
                             <a class="nav-link" title="Gestione campagne AlertSystem" href="dashboard_menu.php"><i class="fa fa-phone-square" aria-hidden="true"></i></a>
-                        </li>
+                        </li> -->
 
 
 				<?php
