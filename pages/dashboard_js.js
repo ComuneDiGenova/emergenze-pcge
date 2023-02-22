@@ -3,7 +3,7 @@
 import {
   format_date,
   convert_to_date,
-  test_voice,
+  get_message_mp3_url,
 } from "./dashboard_api.js";
 // Cashe the DOM elements
 const $button_message_list = $("#button_msg_list");
@@ -13,12 +13,12 @@ const $button_get_camapaign = $("#button_campaign_from_to");
 const $button_create_campaign = $("#button_create_campaign");
 const $button_create_message = $("#button_create_message");
 const $button_test_message = $("#button_test_message");
+const $button_download_mp3 = $("#button_download_mp3");
 const $button_del = $("#button_delete");
 const $header_cmp_list = $("#camp_list_header");
 const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
-const $play_button = $("#button_play_message");
 //* API URL
 const python_api_url = `${config.LOCAL_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
@@ -112,25 +112,28 @@ $button_test_message.on("click", async () => {
   const voice_picked = document.querySelector(
     "input[name='voice_options']:checked",
   ).value;
+  // Hardcoded operation type because we are testing the message
   const operation_type = "Preview";
   let form_data = new FormData();
+  if ($msg_text === "") {
+    alert("Please enter a message text first");
+    return;
+  }
   form_data.append("message_text", $msg_text);
   form_data.append("message_note", $msg_note);
   form_data.append("operation", operation_type);
   form_data.append("voice_gender", voice_picked);
-  const audio_url = await test_voice(python_api_url, form_data);
-  alert(`Voice: Tested!`);
-  $play_button.on("click", async () => {
-    try {
-      const audio_file = new Audio(audio_url);
-      // Load the audio file asynchronously
-      await audio_file.load();
-      // Play the audio_file
-      audio_file.play();
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  try {
+    const audio_url = await get_message_mp3_url(
+      python_api_url,
+      form_data,
+    );
+    console.log(`Audio URL: ${audio_url}`);
+    $button_download_mp3.attr("disabled", false);
+    $button_download_mp3.attr("href", audio_url);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // ? Create campaign API call takes in 5 parameters. There is default behaviour on backend if something is not specified.
