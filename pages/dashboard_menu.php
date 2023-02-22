@@ -182,7 +182,7 @@
                                     <div class="btn-group" role="group">
                                         <button class="btn btn-info btn-auto" type="submit" id="button_test_message"
                                             data-toggle="tooltip" data-placement="bottom"
-                                            title="Creare un messaggio e ascoltarlo">
+                                            title="Creare un messaggio di prova per ascoltarlo in seguito">
                                             <i class="fa fa-plus" aria-hidden="true"></i>
                                             Test del messaggio
                                         </button>
