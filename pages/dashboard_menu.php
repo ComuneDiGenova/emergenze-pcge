@@ -9,6 +9,7 @@
         <meta name="author" content="szymon">
         <link rel="stylesheet" href="styles/style.php" media="screen">
         <link rel="stylesheet" href="../vendor//leaflet-search/src/leaflet-search.css">
+        <link rel="stylesheet" href="./styles/dashboard_menu.css">
         <title>Dashboard</title>
         <?php
         function js_console_log($message) {
@@ -41,6 +42,7 @@
             echo 'test_page.php: Eror in head' . $e->getMessage();
         }
         ?>
+
     </head>
 
     <body>
@@ -160,36 +162,36 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="btn-group btn-group-justified" role="group">
+                                <div class="btn-toolbar" role="toolbar">
                                     <div class="btn-group" role="group">
-                                        <button class="btn btn-success" type="submit" id="button_create_message">
+                                        <button class="btn btn-success btn-auto" type="submit"
+                                            id="button_create_message">
                                             <i class="fa fa-edit" aria-hidden="true"></i>
                                             <!-- <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> -->
                                             Crea nuovo messaggio
                                         </button>
                                     </div>
                                     <div class="btn-group" role="group">
-                                        <button class="btn btn-warning" type="submit" id="button_create_campaign"
-                                            data-toggle="tooltip" data-placement="bottom"
+                                        <button class="btn btn-warning btn-auto" type="submit"
+                                            id="button_create_campaign" data-toggle="tooltip" data-placement="bottom"
                                             title="Crea campagna a partire dal messaggio">
                                             <i class="fa fa-bullhorn" aria-hidden="true"></i>
                                             Lancia campagna di chiamate da messaggio
                                         </button>
                                     </div>
                                     <div class="btn-group" role="group">
-                                        <button class="btn btn-info" type="submit" id="button_test_message"
+                                        <button class="btn btn-info btn-auto" type="submit" id="button_test_message"
                                             data-toggle="tooltip" data-placement="bottom"
                                             title="Creare un messaggio e ascoltarlo">
-                                            <i class="fa fa-headphones" aria-hidden="true"></i>
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
                                             Test del messaggio
                                         </button>
-                                    </div>
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-info" type="submit" id="button_play_message"
-                                            data-toggle="tooltip" data-placement="bottom" title="Play the message">
-                                            <i class=" fa fa-headphones" aria-hidden="true"></i>
-                                            Play the message
-                                        </button>
+                                        <a class="btn btn-info btn-auto" href="#" id="button_download_mp3"
+                                            data-toggle="tooltip" data-placement="bottom"
+                                            title="Scarica il messaggio mp3" disabled>
+                                            <i class=" fa fa-download" aria-hidden="true"></i>
+                                            Scarica il messaggio mp3
+                                        </a>
                                     </div>
                                 </div>
                                 <!-- Add an outline for container -->
