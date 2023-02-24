@@ -86,7 +86,8 @@ export async function get_message_mp3_url(python_api_url, form_data) {
       `Error while fetching the url link! status:\n${response.status}`,
     );
   } else {
+    // this returns an object: [time_of_request, url]
     const serialized_result = await response.json();
-    return serialized_result.result;
+    return serialized_result.result[1];
   }
 }
