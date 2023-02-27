@@ -323,9 +323,9 @@
                                                         <select class="form-control" data-form="recapito"
                                                             name="vulnerabilita" id="vulnerabilita" placeholder="">
                                                             <option></option>
-                                                            <option value="SOSTENIBILE">SOSTENIBILE</option>
-                                                            <option value="MATERIALE">MATERIALE</option>
-                                                            <option value="PERSONALE">PERSONALE</option>
+                                                            <option value="SOSTENIBILE">SOSTENIBILE (Gruppo 1)</option>
+                                                            <option value="MATERIALE">MATERIALE (Gruppo 2)</option>
+                                                            <option value="PERSONALE">PERSONALE (Gruppo 3)</option>
                                                         </select>
                                                         <span
                                                             class="glyphicon glyphicon-exclamation-sign form-control-feedback text-primary"

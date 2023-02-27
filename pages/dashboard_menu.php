@@ -21,7 +21,7 @@
             file_exists($const_path) ? require($const_path) : js_console_log($const_path . ' does not exist');
         }
         define('REQ_PATH', __DIR__ . '/req.php');
-        // define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
+        define('CHECK_EVENTO_PATH', __DIR__ . '/check_evento.php');
         // define('CONTEGGI_DASHBOARD_PATH', __DIR__ . '/conteggi_dashboard.php');
         define('FAKE_SPID', __DIR__ . '/check_event_fake.php');
         define('NAVBAR_UP_PATH', __DIR__ . '/navbar_up.php');
@@ -31,12 +31,13 @@
         define('CONTATORI_EVENTO_EMBED_PATH', __DIR__ . '/contatori_evento_embed.php');
         define('FORBIDDEN_PATH', __DIR__ . '/divieto_accesso.php');
         try {
-
-            safe_import(REQ_PATH);
+            // TODO Re-do the imports into proper variable scope
+            // require_once checks if the path has been imported already - if not then it works like require
+            require_once REQ_PATH;
             // Loading check_evento.php using safe_import does not load useful variable defined in it (i.e. $CF or $nome...)
             // safe_import(CHECK_EVENTO_PATH);
-            // require(CHECK_EVENTO_PATH);
-            safe_import(FAKE_SPID);
+            require_once CHECK_EVENTO_PATH;
+            // safe_import(FAKE_SPID);
             // safe_import(CONTEGGI_DASHBOARD_PATH);
         } catch (ErrorException $e) {
             echo 'test_page.php: Eror in head' . $e->getMessage();
@@ -183,7 +184,7 @@
                                         <button class="btn btn-info btn-auto" type="submit" id="button_test_message"
                                             data-toggle="tooltip" data-placement="bottom"
                                             title="Creare un messaggio di prova per ascoltarlo in seguito">
-                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            <i class="fa fa-deaf" aria-hidden="true"></i>
                                             Test del messaggio
                                         </button>
                                         <a class="btn btn-info btn-auto" href="#" id="button_download_mp3"

@@ -20,7 +20,7 @@ const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
 //* API URL
-const python_api_url = `${config.LOCAL_URL}user_campaign/`;
+const python_api_url = `${config.BASE_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
 
 // default values for the date picker
@@ -128,7 +128,8 @@ $button_test_message.on("click", async () => {
       python_api_url,
       form_data,
     );
-    console.log(`Audio URL: ${audio_url}`);
+    new Audio(audio_url).play();
+    // console.log(`Audio URL: ${audio_url}`);
     $button_download_mp3.attr("disabled", false);
     $button_download_mp3.attr("href", audio_url);
   } catch (error) {
@@ -490,7 +491,7 @@ function vis_campaign(
   root_url,
   campaign_id = "vo6274305ad55304.39423618",
 ) {
-  console.log(`Visualizing ${campaign_id} campaign info!`);
+  // console.log(`Visualizing ${campaign_id} campaign info!`);
   const $bstr_campaign = $("#bstr_camp_vis");
   const $campaign_table = $("#camp_table");
   const request_options = {
@@ -499,26 +500,31 @@ function vis_campaign(
   };
   // Retrieve the list of messages from url with GET method with user defnided ID
   // and then put it in the div in table format
-  fetch(`${root_url + campaign_id}`, request_options)
-    .then((async_response) => async_response.json())
-    .then((async_result) => {
-      $bstr_campaign.show();
-      const campaign_json = async_result.result;
-      const campaign_list_dict = async_result.result;
-      console.log(async_result.result);
-      // const campaign_list_dict = [
-      //   {
-      //     campaign_id: campaign_json.IdCampagna,
-      //     campaign_telephone: campaign_json.NumeroTelefonico,
-      //     campaign_note: campaign_json.IdentificativoCampagna,
-      //     campaign_type: campaign_json.Tipo,
-      //     campaign_duration: campaign_json.Durata,
-      //     campaign_start_date: campaign_json.DataCampagna,
-      //     campaign_end_date: campaign_json.DataChiamata,
-      //     campaign_status: campaign_json.Esito,
-      //     campaign_identifier: campaign_json.Identificativo,
-      //   },
-      // ];
+
+  Promise.all([
+    fetch(`${root_url + campaign_id}`, request_options),
+    fetch(`${genova_api_url}soggettiVulnerabili`, {method: "GET", redirect: "follow"})
+  ]).then(responses => Promise.all(responses.map(response => response.json()))).then((values) => {
+      const anagrafica_by_tel = values[1].result.reduce((acc, curr) => {
+          acc[curr.telefono.replace('+39', '')] = curr;
+          return acc;    
+      }, {});
+      // console.log(anagrafica_by_tel);
+      const campaign_list_dict = Object.values(values[0].result.sort((elc, elf) => {
+          if ( elc.DataCampagna < elf.DataCampagna ) {
+              return 0;
+          } else if ( elc.DataCampagna < elf.DataCampagna ) {
+              return -1;
+          } else { return 1; };
+      }).reduce((acc, curr) => {
+          acc[curr.NumeroTelefonico] = curr;
+          return acc;
+      }, {})).map((cmp)=>{
+          // console.log(cmp.NumeroTelefonico);
+          console.log(anagrafica_by_tel[cmp.NumeroTelefonico]);
+          return {...cmp, ...anagrafica_by_tel[cmp.NumeroTelefonico]}
+      });
+      // console.log(campaign_list_dict);
       $campaign_table.bootstrapTable("destroy").bootstrapTable({
         columns: [
           // {
@@ -543,6 +549,13 @@ function vis_campaign(
             sortable: true,
           },
           // {
+          //   field: "telefono",
+          //   title: "Telefono",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: true,
+          // },
+          // {
           //   field: "IdentificativoCampagna",
           //   title: "Note",
           //   align: "center",
@@ -556,7 +569,7 @@ function vis_campaign(
           // },
           {
             field: "Durata",
-            title: "Durata campagna",
+            title: "Durata",
             align: "center",
             valign: "middle",
             sortable: true,
@@ -577,10 +590,11 @@ function vis_campaign(
           },
           {
             field: "Esito",
-            title: "Esito chiamata",
+            title: "Esito",
             align: "center",
             valign: "middle",
             sortable: true,
+            filterControl: 'select',
           },
           // {
           //   field: "IdentificativoCampagna",
@@ -589,18 +603,70 @@ function vis_campaign(
           //   valign: "middle",
           //   sortable: true,
           // },
+          // {
+          //   field: "Contatti",
+          //   title: "Contatti",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: true,
+          // },
           {
-            field: "Contatti",
-            title: "Contatti",
+            field: "nome",
+            title: "Nome",
             align: "center",
             valign: "middle",
             sortable: true,
           },
+          {
+            field: "cognome",
+            title: "Cognome",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "gruppo",
+            title: "Gruppo",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "indirizzo",
+            title: "Indirizzo",
+            align: "center",
+            valign: "middle",
+            sortable: true,
+          },
+          {
+            field: "numero_civico",
+            title: "civ.",
+            align: "center",
+            valign: "middle",
+            sortable: false,
+          },
+          // {
+          //   field: "sorgente",
+          //   title: "Sorgente",
+          //   align: "center",
+          //   valign: "middle",
+          //   sortable: false,
+          // },
+
         ],
         data: campaign_list_dict,
         uniqueId: "campaign_id",
         striped: true,
         sortable: true,
+        sortOrder: "desc",
+        sortName: "DataChiamata",
+        filterControl: true,
+        // showMultiSort: true,
+        // multiSortStrictSort: true,
+        // sortPriority: [
+        //   {"sortName": "numero", "sortOrder": "asc"},
+        //   {"sortName": "DataChiamata", "sortOrder": "desc"},
+        // ],
         pageNumber: 1,
         pageSize: 10,
         pageList: [10, 25, 50, 100],
@@ -620,8 +686,133 @@ function vis_campaign(
           "pdf",
         ],
       });
-    })
-    .catch((error) => console.log("error", error));
+      $bstr_campaign.show();
+      
+  });
+
+  // fetch(`${root_url + campaign_id}`, request_options)
+  //   .then((async_response) => async_response.json())
+  //   .then((async_result) => {
+  //     $bstr_campaign.show();
+  //     // const campaign_json = async_result.result;
+  //     const campaign_list_dict = async_result.result;
+  //     console.log(async_result.result);
+  //     // const campaign_list_dict = [
+  //     //   {
+  //     //     campaign_id: campaign_json.IdCampagna,
+  //     //     campaign_telephone: campaign_json.NumeroTelefonico,
+  //     //     campaign_note: campaign_json.IdentificativoCampagna,
+  //     //     campaign_type: campaign_json.Tipo,
+  //     //     campaign_duration: campaign_json.Durata,
+  //     //     campaign_start_date: campaign_json.DataCampagna,
+  //     //     campaign_end_date: campaign_json.DataChiamata,
+  //     //     campaign_status: campaign_json.Esito,
+  //     //     campaign_identifier: campaign_json.Identificativo,
+  //     //   },
+  //     // ];
+  //     $campaign_table.bootstrapTable("destroy").bootstrapTable({
+  //       columns: [
+  //         // {
+  //         //   field: "state",
+  //         //   checkbox: true,
+  //         //   // Not used because the header columns are 1 not 2
+  //         //   // rowspan: 2,
+  //         //   align: "center",
+  //         //   valign: "middle",
+  //         // },
+  //         // {
+  //         //   field: "Identificativo",
+  //         //   title: "ID",
+  //         //   align: "center",
+  //         //   valign: "middle",
+  //         // },
+  //         {
+  //           field: "NumeroTelefonico",
+  //           title: "Telefono",
+  //           align: "center",
+  //           valign: "middle",
+  //           sortable: true,
+  //         },
+  //         // {
+  //         //   field: "IdentificativoCampagna",
+  //         //   title: "Note",
+  //         //   align: "center",
+  //         // },
+  //         // {
+  //         //   field: "Tipo",
+  //         //   title: "Tipo campagna",
+  //         //   align: "center",
+  //         //   valign: "middle",
+  //         //   sortable: true,
+  //         // },
+  //         {
+  //           field: "Durata",
+  //           title: "Durata campagna",
+  //           align: "center",
+  //           valign: "middle",
+  //           sortable: true,
+  //         },
+  //         // {
+  //         //   field: "DataCampagna",
+  //         //   title: "Inizio campagna",
+  //         //   align: "center",
+  //         //   valign: "middle",
+  //         //   sortable: true,
+  //         // },
+  //         {
+  //           field: "DataChiamata",
+  //           title: "Data/Ora chiamata",
+  //           align: "center",
+  //           valign: "middle",
+  //           sortable: true,
+  //         },
+  //         {
+  //           field: "Esito",
+  //           title: "Esito chiamata",
+  //           align: "center",
+  //           valign: "middle",
+  //           sortable: true,
+  //         },
+  //         // {
+  //         //   field: "IdentificativoCampagna",
+  //         //   title: "Identificativo",
+  //         //   align: "center",
+  //         //   valign: "middle",
+  //         //   sortable: true,
+  //         // },
+  //         {
+  //           field: "Contatti",
+  //           title: "Contatti",
+  //           align: "center",
+  //           valign: "middle",
+  //           sortable: true,
+  //         },
+  //       ],
+  //       data: campaign_list_dict,
+  //       uniqueId: "campaign_id",
+  //       striped: true,
+  //       sortable: true,
+  //       pageNumber: 1,
+  //       pageSize: 10,
+  //       pageList: [10, 25, 50, 100],
+  //       searchHighlight: true,
+  //       pagination: true,
+  //       search: true,
+  //       showToggle: true,
+  //       showExport: true,
+  //       exportDataType: "all",
+  //       exportTypes: [
+  //         "csv",
+  //         "txt",
+  //         "sql",
+  //         "doc",
+  //         "excel",
+  //         "xlsx",
+  //         "pdf",
+  //       ],
+  //     });
+  //   })
+  //   .catch((error) => console.log("error", error));
 }
 
 /** Get users list info in JSON format */
