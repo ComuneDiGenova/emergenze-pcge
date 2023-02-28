@@ -443,3 +443,15 @@ def soggetti_vulnerabili(page=None, paginate=10):
         'result': result.as_list(),
         'results': len(result)
     }
+
+@action("soggettiVulnerabili/xls-<id:int>/", method=['DELETE'])
+@action.uses(cors, db)
+def disattiva_soggetti_vulnerabili(id):
+    """ """
+
+    rec = db.recupero[id]
+
+    if rec is None: no_content()
+
+    res = rec.update_record(is_active=False)
+    return {'result': res}
