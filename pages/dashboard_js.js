@@ -19,6 +19,7 @@ const $header_cmp_list = $("#camp_list_header");
 const $ui_date_start = $("#ui_date_start");
 const $ui_date_end = $("#ui_date_end");
 const $message_table = $("#msg_table");
+const $user_table = $("#user_table_1");
 //* API URL
 const python_api_url = `${config.BASE_URL}user_campaign/`;
 const genova_api_url = `${config.DB_URL}`;
@@ -304,6 +305,16 @@ function op_formttr_msg_list(value, row, index) {
 }
 
 /** Operator format for the bootstrap table campaign list. Adds icons and <a> tags to buttons */
+function op_formttr_usr_list(value, row, index) {
+  const btn_active_class = (row.user_id.startsWith('xls-') ? '': ' disabled' )
+  return [
+    `<button class="btn btn-danger${btn_active_class} disable_user" title="Disattiva">`,
+    `<i class="fa fa-ban"></i>`,
+    "</button>",
+  ].join("");
+}
+
+/** Operator format for the bootstrap table campaign list. Adds icons and <a> tags to buttons */
 function op_formttr_cmp_list(value, row, index) {
   const visualize_campaign_class = "vis_camp_event";
   return [
@@ -347,6 +358,18 @@ window.operateEvents = {
     vis_campaign(python_api_url, row.camp_id);
     // alert("You have visualized row: " + JSON.stringify(row.camp_id));
   },
+  "click .disable_user": function (e, value, row, index) {
+      if ( confirm("Sicuro di voler disabilitare questo utente?") ) {
+        fetch(`${genova_api_url}soggettiVulnerabili/${row.user_id}`, {method: "DELETE"}).then((response) => response.json()).then((res)=>{
+            $user_table.bootstrapTable("remove", {
+                field: "user_id",
+                values: [row.user_id],
+            });
+        }).catch((error) => console.log("error", error))
+      };
+
+      
+  }
 };
 
 // todo: make a generic function for creating bs tables
@@ -820,7 +843,7 @@ function retr_user_list(root_url) {
   console.log(`Retriving users list from ${root_url}`);
   console.log("Retriving users list!");
   const $bstr_div = $("#bstr_user");
-  const $user_table = $("#user_table_1");
+  // const $user_table = $("#user_table_1");
   const request_options = {
     method: "GET",
     redirect: "follow",
@@ -900,6 +923,14 @@ function retr_user_list(root_url) {
             valign: "middle",
             sortable: true,
           },
+          {
+            field: "operate",
+            title: "Azioni",
+            align: "center",
+            clickToSelect: false,
+            events: operateEvents,
+            formatter: op_formttr_usr_list,
+          },
         ],
         data: user_list_dict,
         uniqueId: "user_id",
@@ -925,13 +956,13 @@ function retr_user_list(root_url) {
         ],
       });
     })
-    .catch((error) => {
-      console.log(`Retriving users list from ${root_url}`);
-      console.error("error", error);
-      console.log(
-        "Error in retriving user list!!!! Check VPN connection!",
-      );
-    });
+    // .catch((error) => {
+    //   console.log(`Retriving users list from ${root_url}`);
+    //   console.error("error", error);
+    //   console.log(
+    //     "Error in retriving user list!!!! Check VPN connection!",
+    //   );
+    // });
 }
 
 /** Retrieves campaign in given timeframe. Creates bootstrap table and fills the data */

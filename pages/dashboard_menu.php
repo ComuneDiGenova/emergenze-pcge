@@ -127,20 +127,20 @@
                                 <div class="form-group">
                                     <label for="comment">Vulnerabilità:</label>
                                     <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-primary">
+                                            <input type="radio" value=1 name="group_option" id="radio_grp_1">
+                                            <i class="fa fa-handshake" aria-hidden="true"></i>
+                                            sostenibile (Gruppo 1)</input>
+                                        </label>
                                         <label class="btn btn-primary active">
                                             <input type="radio" value=2 name="group_option" id="radio_grp_2" checked>
                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                            materiale</input>
+                                            materiale (Gruppo 2)</input>
                                         </label>
                                         <label class="btn btn-primary">
                                             <input type="radio" value=3 name="group_option" id="radio_grp_3">
                                             <i class="fa fa-wheelchair" aria-hidden="true"></i>
-                                            personale</input>
-                                        </label>
-                                        <label class="btn btn-primary">
-                                            <input type="radio" value=1 name="group_option" id="radio_grp_1">
-                                            <i class="fa fa-handshake" aria-hidden="true"></i>
-                                            sostenibile</input>
+                                            personale (Gruppo 3)</input>
                                         </label>
                                     </div>
                                 </div>
