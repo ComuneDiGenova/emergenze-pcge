@@ -1,10 +1,12 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #   Gter Copyleft 2018
 #   Roberto Marzocchi
 
 import os
-import urllib2
+#import urllib2 #problema con python3
+import ssl
+import urllib.request, urllib.error
 import xml.etree.ElementTree as et
 
 import psycopg2
@@ -16,15 +18,18 @@ sito_allerta="http://www.allertaliguria.gov.it"
 abs_path_bollettini="/opt/rh/httpd24/root/var/www/html"
 
 
- 
-
-
 def scarica_bollettino(tipo,nome,ora):
     if os.path.isfile("{}/bollettini/{}/{}".format(abs_path_bollettini,tipo,nome))==False:
         if ora!='NULL':
             data_read=datetime.datetime.strptime(ora,"%Y%m%d%H%M")
-            print data_read
-        f = urllib2.urlopen("{}/docs/{}".format(sito_allerta,nome))
+            print(data_read)
+        try:
+            f = urllib.request.urlopen("{}/docs/{}".format(sito_allerta,nome))
+        except urllib.error.URLError:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            f = urllib.request.urlopen("{}/docs/{}".format(sito_allerta,nome), context=ctx)
         data = f.read()
         with open("{}/bollettini/{}/{}".format(abs_path_bollettini,tipo,nome), "wb") as code:
             code.write(data)
