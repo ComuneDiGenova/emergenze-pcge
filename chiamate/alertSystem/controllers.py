@@ -384,10 +384,10 @@ def user_campaign_create():
             telephone_numbers = [
                 ii.telefono for ii in result_from_database
             ]
-            telephone_numbers = ["3494351325"]
-            # telephone_numbers = [
-            #     ii.lstrip("+39") for ii in telephone_numbers
-            # ]
+            # telephone_numbers = [""] # <- put here some test phone number
+            telephone_numbers = [
+                ii.lstrip("+39") for ii in telephone_numbers
+            ]
         else:
             telephone_numbers = form.vars["test_phone_numbers"].split(
                 " "
@@ -424,7 +424,7 @@ def user_campaign_create():
             alertsystem_response_status,
         ) = alert_do.genera_campagna(
             cfg=alertsystem_config,
-            id_prescelto_campagna="TESTGTERpresceltocampagna",
+            id_prescelto_campagna="Campagna_PCGE",
             id_messaggio=message_id,
             lista_numeri_telefonici=telephone_numbers,
         )
