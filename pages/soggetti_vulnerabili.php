@@ -92,14 +92,14 @@ require('navbar_up.php');
 							  data-data-field="result">
 							  <thead>
 							    <tr>
-							      <th data-field="id">ID</th>
-							      <th data-field="cognome">Cognome</th>
-							      <th data-field="nome">Nome</th>
-										<th data-field="indirizzo">Indirizzo</th>
-										<th data-field="numero_civico">Civico</th>
-										<th data-field="telefono">Telefono</th>
-										<th data-field="gruppo">Gruppo</th>
-										<th data-field="sorgente">Sorgente</th>
+									<th data-field="id">ID</th>
+									<th data-field="cognome">Cognome</th>
+									<th data-field="nome">Nome</th>
+									<th data-field="indirizzo">Indirizzo</th>
+									<th data-field="numero_civico">Civico</th>
+									<th data-field="telefono">Telefono</th>
+									<th data-field="gruppo">Gruppo</th>
+									<th data-field="sorgente">Sorgente</th>
 							    </tr>
 							  </thead>
 							</table>

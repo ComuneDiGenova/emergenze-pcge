@@ -1,7 +1,7 @@
 <?php 
 
 if (isset($_POST['LightON'])){
-    $Comando0='cd /opt/rh/httpd24/root/var/www/html/aggiornamento_DB';
+    $Comando0 = 'cd /opt/rh/httpd24/root/var/www/html/aggiornamento_DB';
     $Comando ='/home/local/COMGE/egter01/miniconda3/envs/dbupdate/bin/python /opt/rh/httpd24/root/var/www/html/aggiornamento_DB/postgis_update.py 2>&1';
     //echo $Comando;
     //exit;
@@ -14,7 +14,7 @@ if (isset($_POST['LightON'])){
     echo $error;
     //$error = shell_exec("ls");
     //echo "<br><br><br> output error:|".$error."|\n";
-}	
+}
 
 $subtitle="Log aggiornamenti";
 $page = $_SERVER['PHP_SELF'];
@@ -85,7 +85,7 @@ require('navbar_up.php');
                     <form method="post">
 							<button class="btn btn-primary" name="LightON"> <i class="fas fa-sync-alt"></i> Aggiornamento manuale</button> 
 							<div style="color:red">Attenzione! L'aggiornamento manuale comporta la disattivazione temporanea di Altri Servizi</div>
-                            </form>
+                                                        </form>
 							<?php 
 							} else {
 								echo '<hr><h4><i class="fas fa-minus-circle"></i> L\'utente non è autorizzato a lanciare l\'update manuale</h4>';

@@ -13,8 +13,6 @@ import psycopg2
 from conn import *
 
 import datetime
-import telepot
-import json
 
 import config
 
