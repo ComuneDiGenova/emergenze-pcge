@@ -118,9 +118,9 @@
                                             placeholder="Inserisci una descrizione utile a identificare il messaggio">
                                     </div>
                                     <div class="form-group">
-                                        <label for="comment">Numeri di telefono:</label>
+                                        <label for="comment">Numeri di telefono SOLO per campagne TEST:</label>
                                         <textarea class="form-control" rows="5" id="test_phone_numbers"
-                                            placeholder="Inserisci numeri di telefono separati da uno spazio e lancia una campagna di test"></textarea>
+                                            placeholder="Inserisci numeri di telefono separati da uno spazio e lancia una campagna di TEST. Se questo campo viene compilato nessun altro numero oltre a quelli specificati verrà contattato!"></textarea>
                                     </div>
 
                                 </form>
