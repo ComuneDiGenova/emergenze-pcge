@@ -16,10 +16,10 @@ $subtitle = "Dashboard o pagina iniziale";
         <?php
         require("./req.php");
         require(explode("emergenze-pcge", getcwd())[0] . "emergenze-pcge/conn.php");
-        require("./check_event_fake.php");
-        require("../conn.php");
+        // require("./check_event_fake.php");
+        // require("../conn.php");
 
-        // require("./check_evento.php");
+        require("./check_evento.php");
         require("./conteggi_dashboard.php");
 
 
