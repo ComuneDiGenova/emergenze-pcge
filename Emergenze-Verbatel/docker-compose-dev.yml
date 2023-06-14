@@ -1,0 +1,32 @@
+version: "3"
+services:
+
+  backend:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    network_mode: host
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/home/py4web/apps/emergenze
+      - ${UPLOADS}:/home/py4web/apps/emergenze/emergenze_uploads
+    command: py4web run --password_file password.txt --host 0.0.0.0 --port 8000 apps
+    restart: unless-stopped
+
+  db-listener:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    network_mode: host
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/home/py4web/apps/emergenze
+      - ${UPLOADS}:/home/py4web/apps/emergenze/emergenze_uploads
+    command: py4web call apps emergenze.listener.listen
+    restart: unless-stopped
