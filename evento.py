@@ -55,10 +55,12 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
     # Join
 
     dbset = db(
+	(db.municipio.codice!='0') & \
         (db.evento.id==db.join_tipo_evento.evento_id) & \
         (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id) & \
         (db.evento.id==db.join_municipio.evento_id) & \
-        (db.municipio.id==db.join_municipio.municipio_id)
+	'geodb.municipi."id"::integer = eventi.join_municipi.id_municipio'
+        # (db.municipio.id==db.join_municipio.municipio_id::integer)
     )
 
     left = (
@@ -79,12 +81,12 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
 
     # Filter
 
-    # dbset = dbset(
-    #     # SOLO EVENTI VALIDI
-    #     (f"{db.evento._rname}.valido is null" | (db.evento.valido == True)) & \
-    #     (db.tipo_foc.valido==True) # & \
-    #     # (db.tipo_allerta.valido==True)
-    # )
+    dbset = dbset(
+        # SOLO EVENTI VALIDI
+        (f"{db.evento._rname}.valido is null" | (db.evento.valido == True)) & \
+        (db.tipo_foc.valido==True) # & \
+        # (db.tipo_allerta.valido==True)
+    )
 
     if not id is None:
         dbset = dbset(db.evento.id==id)

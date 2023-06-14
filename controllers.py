@@ -634,7 +634,7 @@ def modifica_intervento(intervento_id=None):
     )
 
     db.intervento.intervento_id.requires = IS_INT_IN_RANGE(
-        intervento_info.idmin, intervento_info.idmax + 1
+        (intervento_info.idmin or 0), (intervento_info.idmax or 0) + 1
     )
 
     db.stato_incarico.stato_id.requires = IS_EMPTY_OR(
