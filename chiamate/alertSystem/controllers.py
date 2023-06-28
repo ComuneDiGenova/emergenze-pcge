@@ -424,7 +424,11 @@ def user_campaign_create():
             alertsystem_response_status,
         ) = alert_do.genera_campagna(
             cfg=alertsystem_config,
+<<<<<<< Updated upstream
             id_prescelto_campagna="Campagna_PCGE",
+=======
+            id_prescelto_campagna="PCGE",
+>>>>>>> Stashed changes
             id_messaggio=message_id,
             lista_numeri_telefonici=telephone_numbers,
         )
