@@ -444,6 +444,18 @@ def soggetti_vulnerabili(page=None, paginate=10):
         'results': len(result)
     }
 
+@action("soggettiVulnerabili/db-<id:int>/", method=['DELETE', 'OPTIONS'])
+@action.uses(cors, db)
+def disattiva_soggetti_vulnerabili2(id):
+    
+    rec = db.utente[id]
+    if rec is None: no_content()
+    
+    res = db(db.utente.id==id).delete()
+    
+    {'result': res}
+    
+
 @action("soggettiVulnerabili/xls-<id:int>/", method=['DELETE', 'OPTIONS'])
 @action.uses(cors, db)
 def disattiva_soggetti_vulnerabili(id):
