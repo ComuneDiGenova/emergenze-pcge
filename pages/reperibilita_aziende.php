@@ -180,13 +180,16 @@ require('navbar_up.php');
 		
 		<?php
 		if (substr($cod_profilo_squadra,0,2)=='uo' OR (int)substr($cod_profilo_squadra,-1,1)>1){
-					
-			$query2="SELECT * FROM users.v_utenti_esterni v 
-			WHERE id1=".(int)substr($cod_profilo_squadra,-1)."
-			ORDER BY cognome";
+			// regexp che estrae solo numeri da una stringa
+			$id1 = preg_replace('/[^0-9]/', '', $cod_profilo_squadra);
+			
+			$query2="SELECT * FROM users.v_utenti_esterni 
+						WHERE id1=$id1
+						ORDER BY cognome;";
 		}
+
 		$result2 = pg_query($conn, $query2);
-		//echo $query2;
+		// echo $query2;
 		?>
 		
 			 <div class="form-group  ">
