@@ -16,6 +16,8 @@ import datetime
 
 import config
 
+import telepot
+
 # Il token non è aggiornato su GitHub per evitare usi impropri
 TOKEN = config.TOKEN
 TOKENCOC = config.TOKEN_COC
