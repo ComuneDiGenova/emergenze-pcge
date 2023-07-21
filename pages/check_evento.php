@@ -336,7 +336,7 @@ while($r = pg_fetch_assoc($result)) {
 						      <div class="modal-header">
 						        <button type="button" class="close" data-dismiss="modal">&times;</button>
 						        <h4 class="modal-title">Informativa ex artt.13 e 14 del Regolamento U.E. 2016/679 per le attività previste
- nell’ambito del <i>nuovo sistema informativo unico di gestione delle emergenze</i></h4>
+ nell'ambito del <i>nuovo sistema informativo unico di gestione delle emergenze</i></h4>
 						      </div>
 						      <div class="modal-body">
 							   <?php require './informativa_dpo.php'; ?>
@@ -380,17 +380,17 @@ while($r = pg_fetch_assoc($result)) {
 	if ($profilo_sistema < 8 and $profilo_ok!=''){
 		$profilo_squadre=$profilo_ok;
 	} else {
-		//$profilo_squadre=$uo_inc;
+		
 		if ($uo_inc=='uo_1' or $uo_inc=='uo_8') {  // Gruppo Genova e convenzionate come squadre sono equiparati ad un operatore di PC
 			$profilo_squadre=3;
+		} else if ($uo_inc=='uo_10') {
+			$profilo_squadre=$uo_inc;
 		} else {
 			if (isset($periferico_inc)){
 				$profilo_squadre=$periferico_inc;
 			}
 		}
 	}
-	
-	
 	
 	
 	$query2="SELECT * FROM varie.v_incarichi_mail WHERE profilo = '".$profilo_squadre."';";
