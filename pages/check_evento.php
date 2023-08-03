@@ -391,7 +391,7 @@ while($r = pg_fetch_assoc($result)) {
 			}
 		}
 	}
-	
+	# test comment
 	
 	$query2="SELECT * FROM varie.v_incarichi_mail WHERE profilo = '".$profilo_squadre."';";
 	//echo $query2;
