@@ -100,6 +100,7 @@ require('navbar_up.php');
 									<th data-field="telefono">Telefono</th>
 									<th data-field="gruppo">Gruppo</th>
 									<th data-field="sorgente">Sorgente</th>
+									<th data-field="validita">Validità</th>
 							    </tr>
 							  </thead>
 							</table>

@@ -854,6 +854,7 @@ function retr_user_list(root_url) {
       $bstr_div.show();
       const user_list_json = async_anwser.result;
       const user_list_dict = user_list_json.map((item) => {
+        const validita = {true: 'SI', false: 'NO', null: ''}
         return {
           user_id: item.id,
           user_name: item.nome,
@@ -863,6 +864,7 @@ function retr_user_list(root_url) {
           telefono: item.telefono,
           user_group: item.gruppo,
           sorgente: item.sorgente,
+          validita: validita[item.validita]
         };
       });
       $user_table.bootstrapTable("destroy").bootstrapTable({
@@ -922,6 +924,13 @@ function retr_user_list(root_url) {
             align: "center",
             valign: "middle",
             sortable: true,
+          },
+          {
+            field: "validita",
+            title: "Validità",
+            align: "center",
+            valign: "middle",
+            sortable: false,
           },
           {
             field: "operate",
