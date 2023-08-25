@@ -438,9 +438,10 @@ db.define_table(
     Field("numero_civico", rname="numerocivico"),
     Field("gruppo"),
     Field("sorgente"),
+    Field("validita"),
     primarykey=["id"],
     migrate=False,
-    rname=f"{SCHEMA}.soggetti_vulnerabili",
+    rname=f"{SCHEMA}.soggetti_vulnerabili_validi",
 )
 
 db.recupero._enable_record_versioning()
