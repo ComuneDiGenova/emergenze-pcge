@@ -930,7 +930,7 @@ function retr_user_list(root_url) {
             title: "Validità",
             align: "center",
             valign: "middle",
-            sortable: false,
+            sortable: true,
           },
           {
             field: "operate",
