@@ -384,10 +384,12 @@ def user_campaign_create():
             telephone_numbers = [
                 ii.telefono for ii in result_from_database
             ]
+            logger.debug(
+                f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
+            )
             # telephone_numbers = [""] # <- put here some test phone number
-            telephone_numbers = [
-                ii.lstrip("+39") for ii in telephone_numbers
-            ]
+            telephone_numbers = map(lambda ii: ii[len('+39'):] if ii.startswith('+39') else ii, telephone_numbers)
+
         else:
             telephone_numbers = form.vars["test_phone_numbers"].split(
                 " "
@@ -411,7 +413,7 @@ def user_campaign_create():
                 note_messaggio=message_type,
             )
             if message_tuple is None:
-                general_error_message(form=form)
+                general_error_message(form=form, error_message=f"AlertSystem response status: {alertsystem_response_status}")
             message_id = int(message_tuple[0])
             logger.debug(
                 f"\n This is message_tuple : {pformat(message_tuple, indent=4, width=1)}"
@@ -433,6 +435,7 @@ def user_campaign_create():
             "alertsystem_response_status": alertsystem_response_status,
         }
     else:
+        raise Exception('Foo message')
         general_error_message(form=form)
 
 
