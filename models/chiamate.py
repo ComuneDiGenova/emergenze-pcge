@@ -417,6 +417,8 @@ db.define_table(
         notnull=True,
         requires=IS_IN_SET(["1", "2", "3"]),
     ),
+    Field('residenza', 'boolean'),
+    Field('codice_fiscale'),
     Field(
         "is_active",
         "boolean",
