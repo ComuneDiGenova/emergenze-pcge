@@ -113,9 +113,14 @@
                                             placeholder="Contenuto del messaggio"></textarea>
                                     </div>
                                     <div class="form-group">
-                                        <label for="comment">Note:</label>
+                                        <label for="comment">Note al messaggio:</label>
                                         <input type="text" class="form-control" id="msg_note"
                                             placeholder="Inserisci una descrizione utile a identificare il messaggio">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="comment">Note alla campagna:</label>
+                                        <input type="text" class="form-control" id="msg_campaign"
+                                            placeholder="Inserisci una descrizione utile a identificare la campagna">
                                     </div>
                                     <div class="form-group">
                                         <label for="comment">Numeri di telefono SOLO per campagne TEST:</label>
