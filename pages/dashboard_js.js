@@ -144,6 +144,7 @@ $button_test_message.on("click", async () => {
 $button_create_campaign.on("click", async () => {
   const $msg_note = $("#msg_note").val();
   const $msg_text = $("#msg_content").val();
+  const msg_campaign = $("#msg_campaign").val();
   const group_number = document.querySelector(
     "input[name='group_option']:checked",
   ).value;
@@ -156,11 +157,12 @@ $button_create_campaign.on("click", async () => {
   let form_data = new FormData();
   form_data.append("message_text", $msg_text);
   form_data.append("message_note", $msg_note);
+  form_data.append("campaign_note", msg_campaign);
   form_data.append("group", group_number);
   form_data.append("voice_gender", voice_picked);
   form_data.append("test_phone_numbers", $test_numbers);
   await create_campaign(python_api_url, form_data);
-  alert(`Campaign: Sent!`);
+  // alert(`Campaign: Sent!`);
 });
 
 // JQuery registering listeners for the buttons
@@ -207,9 +209,7 @@ function delete_message(root_url, message_id = "1") {
     .then((response) => response.json())
     .then((result) => console.log(result))
     .catch((error) => {
-      alert(
-        `Error while deleting the message from database: ${error}`,
-      );
+      alert(`Error while deleting the message from database: ${error}`);
       console.log("error", error);
     });
 }
@@ -223,16 +223,25 @@ async function create_campaign(
     method: "POST",
     body: form_data_to_send,
   };
-  console.log(
-    "This the fetch address",
-    `${root_url}_create_campaign`,
-  );
+
   fetch(`${root_url}_create_campaign`, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       console.log(result);
+      if (result['alertsystem_response_status']) {
+        if (result['alertsystem_response_status']['type']=='O') {
+          alert(`${result['alertsystem_response_status']['descrizione']}`);
+        } else if (result['alertsystem_response_status']['type']=='E') {
+          alert(`Errore: ${result['alertsystem_response_status']['descrizione']}`);
+        }
+      } else if (result['error_status']) {
+        alert(`Errore: ${result['error_status']}`);
+      }
     })
-    .catch((error) => console.log("error", error));
+    .catch((error) => {
+      alert(`Attenzione invio campagna fallito!\nSe il problema persiste contattare l'assistenza.`);
+
+    });
 }
 
 /** Creates new message in the database*/
@@ -245,7 +254,6 @@ function create_message(
     note: "Gter_test_JS",
   },
 ) {
-  console.log("create_message called");
   let formdata = new FormData();
   if (dict_of_options.message === "") {
     dict_of_options.message = "EMPTY MESSAGE";
@@ -333,12 +341,17 @@ async function create_campaign_from_table_msg(e, value, row, index) {
     "input[name='voice_options']:checked",
   ).value;
   let form_data = new FormData();
+  const msg_campaign = $("#msg_campaign").val();
+
+  form_data.append("campaign_note", msg_campaign);
   form_data.append("message_ID", row.message_id);
+  form_data.append("group", group_number);
+  
   await create_campaign(python_api_url, form_data);
-  alert(
-    "You have created a campaign from message, row: " +
-      JSON.stringify(row),
-  );
+  // alert(
+  //   "You have created a campaign from message, row: " +
+  //     JSON.stringify(row),
+  // );
 }
 
 /**  Operates <a> tags events in bootstrap tables*/
