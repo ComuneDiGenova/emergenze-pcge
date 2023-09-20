@@ -59,8 +59,8 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
         (db.evento.id==db.join_tipo_evento.evento_id) & \
         (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id) & \
         (db.evento.id==db.join_municipio.evento_id) & \
-	'geodb.municipi."id"::integer = eventi.join_municipi.id_municipio'
-        # (db.municipio.id==db.join_municipio.municipio_id::integer)
+	    # 'geodb.municipi."id"::integer = eventi.join_municipi.id_municipio'
+        (db.municipio.id==db.join_municipio.municipio_id)
     )
 
     left = (

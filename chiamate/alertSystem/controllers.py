@@ -347,6 +347,9 @@ def user_campaign_create():
                 requires=IS_EMPTY_OR(IS_IN_SET(["M", "F"])),
             ),
             Field("message_note"),
+            Field("campaign_note",
+                # requires=IS_ALPHANUMERIC()
+            ),
             Field("message_ID"),
             Field("test_phone_numbers"),
         ],
@@ -358,59 +361,58 @@ def user_campaign_create():
     )
 
     if form.accepted:
-        if form.vars["voice_gender"] is None:
-            voice_gender: str = "F"
-        else:
-            voice_gender: str = form.vars.get("voice_gender")
+        
+        voice_gender: str = form.vars.get("voice_gender", 'F') or 'F'
 
         group_numer: int = form.vars["group"]
         message_text: str = form.vars["message_text"]
-        message_type: str = form.vars.get("message_note")
+        message_type: str = form.vars.get("message_note", 'default') or 'default'
+        message_campaign: str = form.vars.get("campaign_note", message_type) or message_type
         voice_for_character: model.Carattere = getattr(
             model.Carattere, voice_gender
         )
+
         if not form.vars["test_phone_numbers"]:
-            # TODO HTTP response status
+            
             result_from_database = db(
                 (db.soggetti_vulnerabili.gruppo == group_numer)
             ).select(
                 db.soggetti_vulnerabili.telefono,
             )
-            if result_from_database is None:
+            logger.debug(
+                f"result: {result_from_database}"
+            )
+
+            
+            if len(result_from_database)==0:
                 general_error_message(
                     form=form,
-                    error_message=".Bad Request. Empty result_from_database is None",
+                    error_message=f"Bad Request. Nessun record appartenente al gruppo {group_numer}",
                 )
-            telephone_numbers = [
-                ii.telefono for ii in result_from_database
-            ]
-            logger.debug(
-                f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
+
+            telephone_numbers = map(
+                lambda rr: rr.telefono if not rr.telefono.startswith('+39') else rr.telefono[len('+39'):],
+                result_from_database
             )
-            # telephone_numbers = [""] # <- put here some test phone number
-            telephone_numbers = map(lambda ii: ii[len('+39'):] if ii.startswith('+39') else ii, telephone_numbers)
 
         else:
-            telephone_numbers = form.vars["test_phone_numbers"].split(
-                " "
-            )
+            telephone_numbers = form.vars["test_phone_numbers"].split(" ")
 
+        telephone_numbers = list(telephone_numbers)
         logger.debug(
-            f"\n telephone_numbers: {pformat(telephone_numbers, indent=4, width=1)}"
+            f"telephone_numbers: {telephone_numbers}"
         )
-        # return {"telephone_numbers": telephone_numbers}
-        # * if there is no message ID given create a new message
+
         if form.vars["message_ID"] is None:
-            if form.vars["message_note"] is None:
-                message_type: str = "default"
+
             (
                 message_tuple,
                 alertsystem_response_status,
             ) = alert_do.crea_messaggio(
-                cfg=alertsystem_config,
-                testo_messaggio=message_text,
-                carattere_voce=voice_for_character,
-                note_messaggio=message_type,
+                cfg = alertsystem_config,
+                testo_messaggio = message_text,
+                carattere_voce = voice_for_character,
+                note_messaggio = message_type,
             )
             if message_tuple is None:
                 general_error_message(form=form, error_message=f"AlertSystem response status: {alertsystem_response_status}")
@@ -421,14 +423,16 @@ def user_campaign_create():
         # * if there is a message ID given, create campaign with this message ID
         else:
             message_id = int(form.vars["message_ID"])
+
+        logger.debug([message_campaign, message_id, telephone_numbers])
         (
             campagin_tuple,
             alertsystem_response_status,
         ) = alert_do.genera_campagna(
-            cfg=alertsystem_config,
-            id_prescelto_campagna="PCGE",
-            id_messaggio=message_id,
-            lista_numeri_telefonici=telephone_numbers,
+            cfg = alertsystem_config,
+            id_prescelto_campagna = message_campaign,
+            id_messaggio = message_id,
+            lista_numeri_telefonici = telephone_numbers,
         )
         return {
             "result": campagin_tuple,

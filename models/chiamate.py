@@ -417,6 +417,8 @@ db.define_table(
         notnull=True,
         requires=IS_IN_SET(["1", "2", "3"]),
     ),
+    Field('residenza', 'boolean'),
+    Field('codice_fiscale'),
     Field(
         "is_active",
         "boolean",
@@ -438,9 +440,10 @@ db.define_table(
     Field("numero_civico", rname="numerocivico"),
     Field("gruppo"),
     Field("sorgente"),
+    Field("validita"),
     primarykey=["id"],
     migrate=False,
-    rname=f"{SCHEMA}.soggetti_vulnerabili",
+    rname=f"{SCHEMA}.soggetti_vulnerabili_validi",
 )
 
 db.recupero._enable_record_versioning()

@@ -426,8 +426,8 @@ def cancellaComponente(utente_id=None, civico_id=None, motivo=None):
         )
 
 
-@action("soggettiVulnerabili/<page:int>/<paginate:int>/", method=['GET'])
-@action("soggettiVulnerabili/<page:int>/", method=['GET'])
+@action("soggettiVulnerabili/<page:int>/<paginate:int>/", method=['GET', 'OPTIONS'])
+@action("soggettiVulnerabili/<page:int>/", method=['GET', 'OPTIONS'])
 @action("soggettiVulnerabili/", method=['GET', 'OPTIONS'])
 @action.uses(cors, db)
 def soggetti_vulnerabili(page=None, paginate=10):
@@ -445,6 +445,7 @@ def soggetti_vulnerabili(page=None, paginate=10):
     }
 
 @action("soggettiVulnerabili/db-<id:int>/", method=['DELETE', 'OPTIONS'])
+@action("soggettiVulnerabili/fc-<id:int>/", method=['DELETE', 'OPTIONS'])
 @action.uses(cors, db)
 def disattiva_soggetti_vulnerabili2(id):
     
@@ -457,6 +458,7 @@ def disattiva_soggetti_vulnerabili2(id):
     
 
 @action("soggettiVulnerabili/xls-<id:int>/", method=['DELETE', 'OPTIONS'])
+@action("soggettiVulnerabili/pc-<id:int>/", method=['DELETE', 'OPTIONS'])
 @action.uses(cors, db)
 def disattiva_soggetti_vulnerabili(id):
     """ """
