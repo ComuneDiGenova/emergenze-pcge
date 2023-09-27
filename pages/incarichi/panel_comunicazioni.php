@@ -140,9 +140,11 @@ while($r_comunicazioni = pg_fetch_assoc($result_comunicazioni)) {
 <?php
 //echo $profilo_sistema;
 //echo 'profilo';
+echo $r["id_segnalazione"];
 if ($profilo_sistema <=2){
 	if ($check_segnalazione==1){
-		$query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$id. ";";
+		// $query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$id. ";";
+		$query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$r["id_segnalazione"]. ";";
 		//echo $query_riservate;
 		$result_riservate=pg_query($conn, $query_riservate);
 		$check_messaggi_riservate=0;
