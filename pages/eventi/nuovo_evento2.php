@@ -7,7 +7,6 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 require ('../note_ambiente.php');
 
 
-
 $query_max= "SELECT max(id) FROM eventi.t_eventi;";
 $result_max = pg_query($conn, $query_max);
 while($r_max = pg_fetch_assoc($result_max)) {
@@ -17,6 +16,7 @@ while($r_max = pg_fetch_assoc($result_max)) {
 		$new_id=1;	
 	}
 }
+
 
 echo "id nuovo evento = ".$new_id;
 echo "id = ".$id;
@@ -35,9 +35,6 @@ $result = pg_query($conn, $query);
 echo "<br>";
 
 
-
-
-
 $check = isset($_POST['check']) ? $_POST['check'] : array();
 foreach($check as $municipio) {
   //echo $municipio . '<br/>';
@@ -47,20 +44,14 @@ foreach($check as $municipio) {
 }
 
 
-
-
-
-
 if ($_POST["note"]){
 	$query="INSERT INTO eventi.t_note_eventi (id_evento, nota) VALUES(".$new_id.", '".$_POST["note"]."')";
 	echo $query;
 	$result = pg_query($conn, $query);
+	$nota = $_POST["note"];
+} else {
+	$nota = "";
 }
-
-
-
-//exit;
-
 
 
 $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('users','".$_SESSION["operatore"] ."', 'Creazione evento n. ".$new_id."');";
@@ -73,6 +64,7 @@ while($r = pg_fetch_assoc($result)) {
 	$notifiche=$r['notifiche'];
 	$descrizione_tipo=$r['descrizione'];
 }
+
 
 echo $notifiche;
 //exit;
@@ -98,7 +90,7 @@ echo "<br>";
 // \xE2\x9A\xA0 warning
 // \xE2\x80\xBC punti esclamativi
 
-$messaggio="\xE2\x9A\xA0 \xF0\x9F\x86\x95 E' stato creato un nuovo evento di tipo ".$descrizione_tipo." (id=".$new_id."), consultare il programma ".$link." ";
+$messaggio="\xE2\x9A\xA0 \xF0\x9F\x86\x95 E' stato creato un nuovo evento di tipo ".$descrizione_tipo.", ".$nota." (id=".$new_id."), consultare il programma ".$link." ";
 if ($notifiche =='f'){
 	$messaggio= $messaggio ." (\xE2\x84\xB9 ricevi questo messaggio in quanto operatore di Protezione Civile \xE2\x84\xB9)";
 }
