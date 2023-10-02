@@ -1,71 +1,68 @@
 <?php
 
+// Avvio della sessione
 session_start();
+
+// Importazione file per la validazione degli input e connessione al db
 require('../validate_input.php');
+include explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
 
-include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
+// Prende il valore "id" dalla query string e lo protegge da SQL injection
+$id = pg_escape_string($_GET["id"]);
+$id = str_replace("'", "", $id);
 
-$id=$_GET["id"];
-
-$id=str_replace("'", "", $id);
-
-$query="UPDATE eventi.t_eventi SET valido=NULL, data_ora_chiusura=now() where id=$id;";
+// Aggiornamento tabella "t_eventi"
+$query = "UPDATE eventi.t_eventi SET valido=NULL, data_ora_chiusura=now() WHERE id=$id;";
 echo $query;
-//exit;
 $result = pg_query($conn, $query);
 
-
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('users','".$_SESSION["operatore"] ."', 'Chiusura evento ".$_POST['id']."- step 0');";
+// inserimento log
+$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('users', '" . $_SESSION["operatore"] . "', 'Chiusura evento " . $_POST['id'] . " - step 0');";
 $result = pg_query($conn, $query_log);
 
+// Query per selezionare la nota da "t_note_eventi" con l'ID dell'evento
+$query = "SELECT nota FROM eventi.t_note_eventi WHERE id_evento=$id;";
 
-//notifiche telegram 
-require('../token_telegram.php');
-
-require('../send_message_telegram.php');
-
-
-
-$query="SELECT descrizione FROM eventi.v_eventi WHERE id=".$id.";";
+// Esegui la query e recupera la nota
 $result = pg_query($conn, $query);
-while($r = pg_fetch_assoc($result)) {
-	$descrizione_tipo=$r['descrizione'];
+while ($r = pg_fetch_assoc($result)) {
+    $nota = $r['nota'];
 }
 
+// Query per selezionare la descrizione da "v_eventi" con l'ID dell'evento
+$query = "SELECT descrizione FROM eventi.v_eventi WHERE id=" . $id . ";";
 
-$query_telegram="SELECT telegram_id from users.utenti_sistema where id_profilo <= 3 and telegram_id !='' and telegram_attivo='t';";
+// Esegui la query e recupera la descrizione
+$result = pg_query($conn, $query);
+while ($r = pg_fetch_assoc($result)) {
+    $descrizione_tipo = $r['descrizione'];
+}
 
-//echo $query_telegram;
-//echo "<br>";
+// Includi i file necessari per le notifiche Telegram
+require('../token_telegram.php');
+require('../send_message_telegram.php');
 
-// https://apps.timwhitlock.info/emoji/tables/unicode
-// \xE2\x9A\xA0 warning
-// \xE2\x80\xBC punti esclamativi
+// Query per selezionare gli utenti Telegram
+$query_telegram = "SELECT telegram_id FROM users.utenti_sistema WHERE id_profilo <= 3 AND telegram_id != '' AND telegram_attivo='t';";
 
-$messaggio="\xF0\x9F\x94\x90	 L'evento di tipo ".$descrizione_tipo." (id=".$id.") e' stato messo in chiusura.";
-$messaggio= $messaggio ." Non sara' piu' possibile inserire nuove segnalazioni, ma solo elaborare quelle già inserite a sistema.";
-$messaggio= $messaggio ." (ricevi questo messaggio in quanto operatore di Protezione Civile)";
-$messaggio= $messaggio ." \xF0\x9F\x94\x90";
+// formattazione messaggio
+$messaggio = "\xF0\x9F\x94\x90 L'evento di tipo " . $descrizione_tipo . ", " . $nota . " (id=" . $id . ") è stato messo in chiusura.";
+$messaggio = $messaggio . " Non sarà più possibile inserire nuove segnalazioni, ma solo elaborare quelle già inserite a sistema.";
+$messaggio = $messaggio . " (ricevi questo messaggio in quanto operatore di Protezione Civile) \xF0\x9F\x94\x90";
 
 echo $messaggio;
 echo "<br>";
+
+// Esegui la query dei contatti Telegram
 $result_telegram = pg_query($conn, $query_telegram);
-while($r_telegram = pg_fetch_assoc($result_telegram)) {
-	//echo $r_telegram['telegram_id'];
-	//$chat_id = $r_telegram['telegram_id'];
-	sendMessage($r_telegram['telegram_id'], $messaggio , $token);
+while ($r_telegram = pg_fetch_assoc($result_telegram)) {
+    sendMessage($r_telegram['telegram_id'], $messaggio, $token);
 }
 
-
-
-
-//$idfascicolo=str_replace('A','',$idfascicolo);
-//$idfascicolo=str_replace('B','',$idfascicolo);
 echo "<br>";
 echo $query_log;
 
-//exit;
-header("location: ../dettagli_evento_c.php?e=".$id."");
-
+// Reindirizza alla pagina dei dettagli dell'evento
+header("location: ../dettagli_evento_c.php?e=" . $id . "");
 
 ?>
