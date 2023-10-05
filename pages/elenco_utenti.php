@@ -1,6 +1,5 @@
 <?php 
 
-// commento
 $subtitle="Elenco utenti";
 
 
