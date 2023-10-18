@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /home/local/COMGE/egter01/miniconda3/bin/python
 # -*- coding: utf-8 -*-
 #   Gter Copyleft 2018
 #   Roberto Marzocchi
