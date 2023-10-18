@@ -578,15 +578,15 @@ async def comunication(message: types.Message,state=FSMContext):
     """
     
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)   
-    query_telegram_id= "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
+    query_telegram_id = "select * from users.v_utenti_sistema where telegram_id ='{}'".format(message.chat.id)
     
     registered_user = esegui_query(con,query_telegram_id,'s')
     
-    if registered_user ==1:
+    if registered_user == 1:
         await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e non è possibile capire se il tuo utente è registrato nel sistema:
                             \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
     
-    elif len(registered_user) !=0:
+    elif len(registered_user) != 0:
         
         q1='''select * from users.v_componenti_squadre vcs left join users.v_squadre_notifica vsn on vcs.id_squadra ::text = vsn.id ::text 
                 where vcs.matricola_cf ='{}' and  (vsn.id_incarico_interno is not null or vsn.id_sopralluogo is not null or vsn.id_sm is not null) and vcs.data_end is null'''.format(registered_user[0][0])
@@ -753,7 +753,7 @@ async def process_presa(message: types.Message, state: FSMContext):
     inizio_incarico = datetime.now() + timedelta(minutes=int(data['orario']))
     inizio_preview = inizio_incarico.replace(second=0, microsecond=0)
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-    query_incarico2= '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione
+    query_incarico2 = '''select us.matricola_cf, vc.id, vc.nome_squadra, viilu.id, vii.id_lavorazione, vii.id_profilo, vii.id_segnalazione
             from users.utenti_sistema us 
             left join users.v_componenti_squadre vc on us.matricola_cf = vc.matricola_cf 
             left join segnalazioni.v_incarichi_interni_last_update viilu on vc.id::text = viilu.id_squadra::text

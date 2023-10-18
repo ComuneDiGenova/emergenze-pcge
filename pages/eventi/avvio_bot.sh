@@ -8,8 +8,7 @@
 # Default-Stop:      0 1 6
 # Short-Description: Script di avvio del telegram bot
 # Description:       Script di avvio del telegram bot
-#                    bla bla bla 
-#                    bla bla bla
+
 ### END INIT INFO
 
 # variables containing paths to the configuration files 
@@ -29,11 +28,11 @@ sleep 20
 
 #python3 $CONF/forever.py $CONF/pc_bot_multithread_demo.py
 
-#server di test
-#/usr/local/bin/python3.8 $CONF/forever.py $CONF/bot_sistema_emergenze.py
 
-#server in esercizio
-/opt/rh/rh-python38/root/usr/bin/python3.8 $CONF/forever.py $CONF/bot_sistema_emergenze.py
+/home/local/COMGE/egter01/miniconda3/envs/bottg/bin/python $CONF/forever.py $CONF/bot_sistema_emergenze.py
+
+
+#/opt/rh/rh-python38/root/usr/bin/python3.8 $CONF/forever.py $CONF/bot_sistema_emergenze.py
 
 echo "FINE SCRIPT AVVIO TELGRAM BOT DAEMON"
 
