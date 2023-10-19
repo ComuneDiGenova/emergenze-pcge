@@ -30,7 +30,7 @@ from ...common import (
     alertsystem_config,
 )
 
-logger.debug(f"This is the alertsystem_config\n {alertsystem_config}")
+# logger.debug(f"This is the alertsystem_config\n {alertsystem_config}")
 
 
 def general_error_message(
@@ -219,11 +219,11 @@ def user_campaign_create_message():
             alertsystem_response_status,
         ) = alert_do.crea_messaggio(
             cfg=alertsystem_config,
-            testo_messaggio=message_text,
+            testo_messaggio=message_text.encode('utf8').decode('latin1'),
             carattere_voce=voice_for_character,
             note_messaggio=message_type,
         )
-        logger.debug(f"\talertsystem_config: {alertsystem_config}")
+        # logger.debug(f"\talertsystem_config: {alertsystem_config}")
         logger.debug(f"\tstatus: {alertsystem_response_status}")
         logger.debug(f"\n{pformat(message_tuple, indent=4, width=1)}")
         alertsystem_response_status_kk = (
@@ -487,7 +487,7 @@ def user_test_voice():
         ) = alert_do.voice_synthesizer(
             cfg=alertsystem_config,
             operation=operation_type,
-            text=message_text,
+            text=message_text.encode('utf8').decode('latin1'),
             voice=voice_gender,
             note=message_note,
         )
