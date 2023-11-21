@@ -94,6 +94,7 @@ require('navbar_up.php');
       					<input type="checkbox" class="check" id="checkAll" checked> <b>Tutti i municipi</b>
     					</label>
   					</div>
+            
 				<?php            
             $query2="SELECT codice_mun, nome_munic From geodb.municipi;";
 	        $result2 = pg_query($conn, $query2);
@@ -112,6 +113,22 @@ require('navbar_up.php');
 
 
                    </div>
+
+<div class="form-group">
+    <label for="exampleInputAmount">Inizio evento</label>
+    <div class="input-group date">
+    
+    <input
+      placeholder="Quando inizia l'evento?" class="form-control" id="ui_date_start"
+      type="text
+      autocomplete="off">
+
+    <div class="input-group-addon">
+        <span class="glyphicon glyphicon-th"></span>
+    </div>
+</div>
+  </div>
+
            
            
            <div class="form-group">
@@ -154,7 +171,10 @@ require('navbar_up.php');
 
 require('./footer.php');
 
+require('./nuovo_evento_js.php');
+
 require('./req_bottom.php');
+
 
 
 ?>
