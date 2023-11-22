@@ -79,22 +79,51 @@ require('navbar_up.php');
             while($r2 = pg_fetch_assoc($result2)) { 
                 $valore=  $r2['id']. ";".$r2['descrizione'];            
             ?>
-                        
                     <option name="cod" value="<?php echo $r2['id'];?>" ><?php echo $r2['descrizione'];?></option>
              <?php } ?>
 
              </select>            
              </div>
-             
-             
-             
+
+             <div class="form-group">
+                <label for="tipo_evento">Inizio evento:</label>
+             <div class="row">
+                <div class="col-xs-8">
+                  <div class="input-group date" style="width: -webkit-fill-available">
+                    <input id="ui_date_start" type="text" class="form-control" placeholder="Seleziona la data di inizio evento">
+                  </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+                <div class="col-xs-2">
+                  <div class="input-group" style="width: -webkit-fill-available">
+                  <select class="form-control">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+</select>
+                  </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+                <div class="col-xs-2">
+                  <div class="input-group" style="width: -webkit-fill-available">
+                    <select class="form-control">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+</select>
+                  </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+              </div><!-- /.row -->
+
+
               <div class="form-group">
               <div class="checkbox">
     					<label>
       					<input type="checkbox" class="check" id="checkAll" checked> <b>Tutti i municipi</b>
     					</label>
   					</div>
-            
 				<?php            
             $query2="SELECT codice_mun, nome_munic From geodb.municipi;";
 	        $result2 = pg_query($conn, $query2);
@@ -113,22 +142,6 @@ require('navbar_up.php');
 
 
                    </div>
-
-<div class="form-group">
-    <label for="exampleInputAmount">Inizio evento</label>
-    <div class="input-group date">
-    
-    <input
-      placeholder="Quando inizia l'evento?" class="form-control" id="ui_date_start"
-      type="text
-      autocomplete="off">
-
-    <div class="input-group-addon">
-        <span class="glyphicon glyphicon-th"></span>
-    </div>
-</div>
-  </div>
-
            
            
            <div class="form-group">
@@ -170,11 +183,8 @@ require('navbar_up.php');
 <?php 
 
 require('./footer.php');
-
 require('./nuovo_evento_js.php');
-
 require('./req_bottom.php');
-
 
 
 ?>
