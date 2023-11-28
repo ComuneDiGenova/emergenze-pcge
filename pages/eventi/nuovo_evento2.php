@@ -23,7 +23,8 @@ echo "id = ".$id;
 echo "<br>";
 
 
-$query="INSERT INTO eventi.t_eventi (id) VALUES(".$new_id.")";
+$query="INSERT INTO eventi.t_eventi (id, data_ora_inizio_evento) VALUES (".$new_id.", '".$_POST["data_ora_inizio"]."')";
+
 echo $query;
 $result = pg_query($conn, $query);
 echo "<br>";
@@ -38,7 +39,7 @@ echo "<br>";
 $check = isset($_POST['check']) ? $_POST['check'] : array();
 foreach($check as $municipio) {
   //echo $municipio . '<br/>';
-  $query="INSERT INTO eventi.join_municipi (id_evento, id_municipio, data_ora_inizio) VALUES(".$new_id.", ".$municipio.",now())";
+  $query="INSERT INTO eventi.join_municipi (id_evento, id_municipio, data_ora_inizio) VALUES(".$new_id.", ".$municipio.", '".$_POST["data_ora_inizio"]."')";
   echo $query . '<br/>';
   $result = pg_query($conn, $query);
 }
