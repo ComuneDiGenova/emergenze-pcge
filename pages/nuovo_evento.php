@@ -85,6 +85,7 @@ require('navbar_up.php');
              </select>            
              </div>
 
+             <input type="hidden" id="data_ora_inizio" name="data_ora_inizio" value="">
              <div class="form-group">
                 <label for="tipo_evento">Inizio evento:</label>
              <div class="row">
@@ -95,24 +96,25 @@ require('navbar_up.php');
                 </div><!-- /.col-lg-6 -->
                 <div class="col-xs-2">
                   <div class="input-group" style="width: -webkit-fill-available">
-                  <select class="form-control">
-  <option>1</option>
-  <option>2</option>
-  <option>3</option>
-  <option>4</option>
-  <option>5</option>
-</select>
+                  <select class="form-control" id="ui_hh_start" value="<?php echo date('H'); ?>">
+                  <?php
+                    for ($x = 0; $x <= 23; $x++) {
+
+                      echo "<option". ( date('H')==$x ? ' selected' : '' ) .">" . str_pad($x, 2, "0", STR_PAD_LEFT) . "</option>";
+                    }
+                  ?>
+                  </select>
                   </div><!-- /input-group -->
                 </div><!-- /.col-lg-6 -->
                 <div class="col-xs-2">
                   <div class="input-group" style="width: -webkit-fill-available">
-                    <select class="form-control">
-  <option>1</option>
-  <option>2</option>
-  <option>3</option>
-  <option>4</option>
-  <option>5</option>
-</select>
+                    <select class="form-control" id="ui_mm_start">
+                    <?php
+                      for ($x = 0; $x <= 59; $x++) {
+                        echo "<option". ( date('i')==$x ? ' selected' : '' ) .">" . str_pad($x, 2, "0", STR_PAD_LEFT) . "</option>";
+                      }
+                    ?>
+                    </select>
                   </div><!-- /input-group -->
                 </div><!-- /.col-lg-6 -->
               </div><!-- /.row -->
