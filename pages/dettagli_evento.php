@@ -63,7 +63,8 @@ require('navbar_up.php');
 	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> ';
 					// echo new DateTime();
 					$date_now = new DateTime();
-					if ($start[$i]>=$date_now) {echo 'Evento in corso';} else {
+					$start_time = new DateTime($start[$i]);
+					if ($start_time<$date_now) {echo 'Evento in corso';} else {
 						echo 'Evento programmato al '.$start[$i];
 					};
 					
@@ -81,7 +82,7 @@ require('navbar_up.php');
 					
 					echo '<div class="col-lg-4"><div style="text-align: center;"><h3 id=timer'.$i.' > </h3></div></div>';
 					?>
-	   					<?php if($start[$i]>$date_now): ?>
+	   					<?php if($start_time<$date_now): ?>
 							<script>
 							// Set the date we're counting down to
 							//var countDownDate = new Date("Jan 5, 2019 15:37:25").getTime();
@@ -154,7 +155,7 @@ require('navbar_up.php');
 							
 	   					
 	   					echo '<div class="col-lg-3" id="sospensione'.$evento_attivo.'"><br>';
-						if ($profilo_sistema <= 2 and $start[$i]>=$date_now){
+						if ($profilo_sistema <= 2 and $start_time<$date_now){
 							//sospensione
 							//echo $sospensione[$i];
 							//echo " - OGGI:";
