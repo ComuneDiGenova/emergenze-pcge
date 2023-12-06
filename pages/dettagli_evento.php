@@ -47,18 +47,27 @@ require('navbar_up.php');
             <br>
                 
                <?php
-               if ($check_evento==1){
+			   
+			   if ($check_evento==1) {
+					// echo $check_evento."<br>";
 					$len=count($eventi_attivi);	               
 				   
 				   for ($k=0;$k<$len;$k++){
-					   //echo $eventi_attivi[$k]."<br>";
+					//    echo $eventi_attivi[$k]."<br>";
 						if ($eventi_attivi[$k]==$evento_attivo){
 							$i=$k;
 						}
 				   }
 				   // for ($i=0;$i<$len;$i++){
 	               	echo '<div class="row">';
-	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> Evento in corso  <small>(id='.$evento_attivo.')</small>';
+	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> ';
+					// echo new DateTime();
+					$date_now = new DateTime();
+					if ($start[$i]>=$date_now) {echo 'Evento in corso';} else {
+						echo 'Evento programmato al '.$start[$i];
+					};
+					
+					echo '<small>(id='.$evento_attivo.')</small>';
 	               	echo ' - <a href="reportistica.php?id='.$evento_attivo.'" class="btn btn-info"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report 8h';
 					if($profilo_sistema<=2){
 						echo ' (stampa)';
@@ -69,9 +78,10 @@ require('navbar_up.php');
 						echo ' (stampa)';
 					}
 					echo '</a></h2></div>';
-	   					echo '<div class="col-lg-4"><div style="text-align: center;"><h3 id=timer'.$i.' > </h3></div></div>';
-	   					?>
-	   					<?php //echo $start[$i]; ?>
+					
+					echo '<div class="col-lg-4"><div style="text-align: center;"><h3 id=timer'.$i.' > </h3></div></div>';
+					?>
+	   					<?php if($start[$i]>$date_now): ?>
 							<script>
 							// Set the date we're counting down to
 							//var countDownDate = new Date("Jan 5, 2019 15:37:25").getTime();
@@ -106,7 +116,8 @@ require('navbar_up.php');
 							    document.getElementById("timer<?php echo $i; ?>").innerHTML = "EXPIRED";
 							  }
 							}, 1000);
-							</script>	   					
+							</script>
+							<?php endif; ?>
 	   					<?php
 						$query_v="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$evento_attivo." and data_ora_fine > now();";
 	   					//echo $query;
@@ -143,7 +154,7 @@ require('navbar_up.php');
 							
 	   					
 	   					echo '<div class="col-lg-3" id="sospensione'.$evento_attivo.'"><br>';
-						if ($profilo_sistema <= 2){
+						if ($profilo_sistema <= 2 and $start[$i]>=$date_now){
 							//sospensione
 							//echo $sospensione[$i];
 							//echo " - OGGI:";
