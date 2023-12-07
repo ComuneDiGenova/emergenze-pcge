@@ -29,12 +29,11 @@ def render(row):
             'file': encoded_string
         }
 
-
-
         out['files'] = [allegato]
 
     return out
 
+check = f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}' or {db.intervento._rname}.incarico_id is not null"
 
 def fetch(incarico_id, timeref=None):
     """ """
@@ -48,10 +47,8 @@ def fetch(incarico_id, timeref=None):
 
     dbset = db(db.presidio)(
         (db.comunicazione_incarico_inviata.incarico_id==incarico_id) & \
-        (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) & \
-        # (db.incarico.id==db.comunicazione_incarico_inviata.incarico_id) #& \
-        f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}'"
-        # (db.presidio.profilo_id=='6')
+        (db.comunicazione_incarico_inviata.incarico_id==db.intervento.incarico_id) # & \
+        # f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}'"
     )
 
     if not timeref is None:
@@ -62,6 +59,8 @@ def fetch(incarico_id, timeref=None):
         # .with_alias('operatore'),
         db.comunicazione_incarico_inviata.testo.with_alias('testo'),
         db.comunicazione_incarico_inviata.allegato,
+        check,
+        left = db.intervento.on(db.incarico.id==db.intervento.incarico_id),
         orderby = ~db.comunicazione_incarico_inviata.timeref
     ).first()
 
@@ -73,7 +72,7 @@ def fetch(incarico_id, timeref=None):
     #     orderby = ~db.comunicazione.timeref
     # ).first()
 
-    return rec and (rec.idIntervento, render(rec),)
+    return rec and (rec[check], render(rec),)
 
 def after_insert_comunicazione(*args, **kwargs):
     """ """
