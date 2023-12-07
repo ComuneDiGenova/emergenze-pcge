@@ -118,6 +118,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
+check = f"{db.incarico._rname}.id_uo ilike 'com_PO%' or {db.intervento._rname}.incarico_id is not null"
 
 def render(row):
 
@@ -185,6 +186,7 @@ def render(row):
         dataInserimento =  row.inizio and row.inizio.isoformat(),
         longitudine = lon,
         latitudine = lat,
+        check = row[check],
         **localizzazione
     )
 
@@ -231,6 +233,7 @@ def fetch(id):
         db.segnalante.nome.with_alias('reclamante'),
         db.segnalante.telefono.with_alias('telefono'),
         # db.profilo_utilizatore.id,
+        check,
         distinct = 'segnalazioni.t_segnalazioni."id"',
         orderby = (
             db.segnalazione.id,
@@ -240,7 +243,7 @@ def fetch(id):
         ),
         left = (
             # db.intervento.on(db.intervento.id==db.segnalazione_da_vt.intervento_id),
-            # db.incarico.on(db.incarico.id==db.intervento.incarico_id),
+            db.intervento.on(db.incarico.id==db.intervento.incarico_id),
             db.segnalazione.on(db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione.id),
             db.segnalazione_lavorazione.on(db.join_segnalazione_lavorazione.lavorazione_id==db.segnalazione_lavorazione.id),
             db.civico.on(
@@ -251,7 +254,8 @@ def fetch(id):
         ),
         limitby = (0,1,)
     ).first()
-    invia = (result and result.incarico.uo_id.startswith('com_PO'))
+    # invia = (result and result.incarico.uo_id.startswith('com_PO'))
+    invia = (result and result.check)
     return invia, result and render(result)
     # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
     # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
