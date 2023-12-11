@@ -137,9 +137,12 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.utente",
 )
+
+# db.utente._enable_record_versioning()
 
 db.utente.codiceFiscale.requires = requires = [
     IS_NOT_EMPTY(error_message="Valore richiesto"),
@@ -206,9 +209,12 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.contatto",
 )
+
+# db.contatto._enable_record_versioning()
 
 db.define_table(
     "recapito",
@@ -312,9 +318,12 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.recapito",
 )
+
+# db.recapito._enable_record_versioning()
 
 db.define_table(
     "nucleo",
@@ -364,9 +373,12 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.componente",
 )
+
+# db.nucleo._enable_record_versioning()
 
 db.define_table(
     "recupero",
@@ -429,6 +441,8 @@ db.define_table(
     migrate=False,
     rname=f"{SCHEMA}.recupero",
 )
+
+# Vista soggetti vulnerabili validi
 
 db.define_table(
     "soggetti_vulnerabili",
