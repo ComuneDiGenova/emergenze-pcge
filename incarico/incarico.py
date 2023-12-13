@@ -118,7 +118,9 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
-check = f"{db.incarico._rname}.id_uo ilike 'com_PO%' or {db.intervento._rname}.incarico_id is not null"
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%' or {db.intervento._rname}.incarico_id is not null)::bool"
+
+# check = db.incarico.uo_id.startswith('com_PO') or f'{db.intervento._rname}.incarico_id is not null'
 
 def render(row):
 
@@ -255,7 +257,7 @@ def fetch(id):
         limitby = (0,1,)
     ).first()
     # invia = (result and result.incarico.uo_id.startswith('com_PO'))
-    invia = (result and result.check)
+    invia = (result and result[check])
     return invia, result and render(result)
     # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
     # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
