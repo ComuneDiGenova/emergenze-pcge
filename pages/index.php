@@ -206,8 +206,13 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterIncarichi"
                                                                     data-visible="true">Incarichi<br>in corso</th>
+                                                                <th data-field="responsabile_incarico" data-sortable="false"
+                                                                    data-halign="center" data-valign="center"
+                                                                    data-visible="true">Responsabile<br>Incarico</th>
                                                                 <th data-field="num" data-sortable="false"
                                                                     data-visible="true">Num<br>segn</th>
+                                                                <th data-field="notizie" data-sortable="false"
+                                                                    data-visible="true">Notizie</th>
                                                             </tr>
                                                         </thead>
                                                         <script>
@@ -220,6 +225,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     return '<i class="fas fa-exclamation" title="da eleaborare" style="color:#ff0000"></i>';
                                                                 }
                                                             }
+
                                                             function nameFormatterIncarichi(value) {
                                                                 if (value == 't') {
                                                                     return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i></div>';
@@ -227,6 +233,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
                                                                 }
                                                             }
+
                                                             function nameFormatterEdit(value) {
 
                                                                 return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
@@ -294,9 +301,14 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 data-formatter="nameFormatterIncarichi"
                                                                 data-visible="true">
                                                                 Incarichi<br>in corso</th>
+                                                            <th data-field="responsabile_incarico" data-sortable="false"
+                                                                data-halign="center" data-valign="center"
+                                                                data-visible="true">Responsabile<br>Incarico</th>
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
                                                                 Num<br>segn</th>
+                                                            <th data-field="notizie" data-sortable="false"
+                                                                data-visible="true">Notizie</th>
                                                         </tr>
                                                     </thead>
                                                     <script>
@@ -319,6 +331,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
                                                             }
                                                         }
+
 
                                                         function nameFormatterEdit(value) {
 
