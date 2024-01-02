@@ -452,9 +452,11 @@ def disattiva_soggetti_vulnerabili2(id):
     rec = db.utente[id]
     if rec is None: no_content()
     
-    res = db(db.utente.id==id).delete()
+    uu = db(db.utente.id==id).delete()
+    cc = db(db.contatto.idUtente==id).delete()
+    nn = db(db.nucleo.idUtente==id).delete()
     
-    {'result': res}
+    {'result': {'utenti': uu, 'contatti': cc}}
     
 
 @action("soggettiVulnerabili/xls-<id:int>/", method=['DELETE', 'OPTIONS'])

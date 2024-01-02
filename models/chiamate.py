@@ -140,9 +140,10 @@ db.define_table(
     Field('is_active', 'boolean',
         writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.utente",
+    migrate = db._migrate
 )
 
-# db.utente._enable_record_versioning()
+db.utente._enable_record_versioning()
 
 db.utente.codiceFiscale.requires = requires = [
     IS_NOT_EMPTY(error_message="Valore richiesto"),
@@ -212,9 +213,10 @@ db.define_table(
     Field('is_active', 'boolean',
         writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.contatto",
+    migrate = True
 )
 
-# db.contatto._enable_record_versioning()
+db.contatto._enable_record_versioning()
 
 db.define_table(
     "recapito",
@@ -323,7 +325,7 @@ db.define_table(
     rname=f"{SCHEMA}.recapito",
 )
 
-# db.recapito._enable_record_versioning()
+db.recapito._enable_record_versioning()
 
 db.define_table(
     "nucleo",
@@ -378,7 +380,7 @@ db.define_table(
     rname=f"{SCHEMA}.componente",
 )
 
-# db.nucleo._enable_record_versioning()
+db.nucleo._enable_record_versioning()
 
 db.define_table(
     "recupero",
