@@ -33,7 +33,8 @@ def render(row):
 
     return out
 
-check = f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}' or {db.intervento._rname}.incarico_id is not null"
+check = f"segnalazioni.t_sopralluoghi_mobili.id_profilo='{settings.PM_PROFILO_ID}'"
+# check += " or {db.intervento._rname}.incarico_id is not null"
 
 def fetch(incarico_id, timeref=None):
     """ """

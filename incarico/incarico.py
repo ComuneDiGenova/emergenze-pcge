@@ -118,7 +118,8 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
-check = f"({db.incarico._rname}.id_uo ilike 'com_PO%' or {db.intervento._rname}.incarico_id is not null)::bool"
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%'"
+# check += " or {db.intervento._rname}.incarico_id is not null)::bool"
 
 # check = db.incarico.uo_id.startswith('com_PO') or f'{db.intervento._rname}.incarico_id is not null'
 
@@ -245,7 +246,7 @@ def fetch(id):
         ),
         left = (
             # db.intervento.on(db.intervento.id==db.segnalazione_da_vt.intervento_id),
-            db.intervento.on(db.incarico.id==db.intervento.incarico_id),
+            # db.intervento.on(db.incarico.id==db.intervento.incarico_id),
             db.segnalazione.on(db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione.id),
             db.segnalazione_lavorazione.on(db.join_segnalazione_lavorazione.lavorazione_id==db.segnalazione_lavorazione.id),
             db.civico.on(
