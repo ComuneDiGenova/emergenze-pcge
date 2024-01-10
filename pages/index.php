@@ -424,9 +424,10 @@ $subtitle = "Dashboard o pagina iniziale";
                                         <div class="col-lg-12">
                                             <div class="table-responsive">
 
+
                                                 <table id="pres" class="table-hover" data-toggle="table"
                                                     data-url="./tables/griglia_sopralluoghi_mobili.php?f=prima_pagina"
-                                                    data-show-export="true" data-search="false"
+                                                    data-show-export="false" data-search="false"
                                                     data-click-to-select="true" data-pagination="true"
                                                     data-sidePagination="true" data-show-refresh="true"
                                                     data-show-toggle="false" data-show-columns="true"
@@ -524,26 +525,22 @@ $subtitle = "Dashboard o pagina iniziale";
                     </div>
                     <!-- /.row -->
                     <?php
+                    // segnalazioni totali
                     $query = "SELECT count(id) FROM segnalazioni.v_segnalazioni;";
                     $result = pg_query($conn, $query);
                     while ($r = pg_fetch_assoc($result)) {
                         $segn_tot = $r["count"];
                     }
+
                     // segnalazioni in lavorazione
                     $query = "SELECT count(id) FROM segnalazioni.v_segnalazioni WHERE in_lavorazione='t';";
                     $result = pg_query($conn, $query);
                     while ($r = pg_fetch_assoc($result)) {
                         $segn_lav = $r["count"];
                     }
+                    
                     require("contatori_evento_embed.php");
                     ?>
-
-
-
-
-
-
-
 
                 </div>
                 <!-- /#page-wrapper -->

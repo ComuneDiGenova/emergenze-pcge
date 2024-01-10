@@ -335,9 +335,9 @@ if (!$mail->send()) {
 	
 	//sleep(30);
 	if ($id!=''){
-    	header("refresh:12;url=../dettagli_segnalazione.php?id=".$segn);
+    	header("url=../dettagli_segnalazione.php?id=".$segn);
     } else {
-    	header("refresh:12;url=../dettagli_provvedimento_cautelare.php?id=".$id_pc);
+    	header("url=../dettagli_provvedimento_cautelare.php?id=".$id_pc);
     }
 } else {
     echo "Message sent!";

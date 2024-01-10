@@ -217,7 +217,7 @@ if ($notifiche =='t') {
 			echo '<a href="../dettagli_evento.php">link</a> per saltare l\'attesa.</h3>' ;
 		} */
 
-		header("refresh:15;url=../dettagli_evento.php?e=".$new_id);
+		header("refresh:1;url=../dettagli_evento.php?e=".$new_id);
 		
 		//sleep(30);
 		/* if ($id!=''){

@@ -189,7 +189,8 @@
 			$query = $query. "from report.t_coordinamento r ";
 			$query = $query. " LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
 			if ($id != '') {
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+					"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}
@@ -490,7 +491,8 @@
 			$query = $query. "LEFT JOIN varie.v_dipendenti d ON r.matricola_cf=d.matricola ";
 		    if ($id != '') {
 				//$query = $query. "where data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+				"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}
@@ -791,7 +793,8 @@
 			$query = $query. " from report.t_presidio_territoriale r ";
 			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
 			if ($id != '') {
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+				"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}
@@ -1088,8 +1091,14 @@
 			$query = $query. "r.data_end-r.data_start > '10 hours' as warning_time ";
 			$query = $query. " from report.t_tecnico_pc r ";
 			$query = $query. "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
+
 			if ($id != '') {
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query . "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+					"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
+
+				// $query = $query. "where (data_start < (SELECT data_ora_chiusura FROM eventi.t_eventi where id =".$id.
+				// 	") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.
+				// 	") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}
@@ -1392,7 +1401,8 @@
 			$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
 			$query = $query. "LEFT JOIN varie.dipendenti d ON r.matricola_cf=d.matricola ";
 			if ($id != '') {
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+					"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}
@@ -1704,7 +1714,8 @@
 			$query = $query. "LEFT JOIN users.v_utenti_esterni u ON r.matricola_cf=u.cf ";
 			$query = $query. "LEFT JOIN varie.dipendenti d ON r.matricola_cf=d.matricola ";
 			if ($id != '') {
-				$query = $query. "where (data_start < (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") OR (select data_ora_chiusura FROM eventi.t_eventi where id =".$id.") is null) and data_start > (select data_ora_inizio_evento FROM eventi.t_eventi where id =".$id.") ";
+				$query = $query. "WHERE data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id.")".
+				"or (data_start > (SELECT data_ora_chiusura FROM eventi.t_eventi where id = ".$id."))";
 			} else {
 				$query = $query. "where data_start < now() and data_end > now() ";
 			}

@@ -1,10 +1,6 @@
-<?php
-
-
-
-?>
-
 <!-- riga iniziale con i contatori -->
+
+<!-- !!!!!! LE VARIABILI SONO DEFINITE IN CHECK_EVENTO.PHP !!!!!!-->
 <div class="row">
     <!-- EVENTI IN CORSO -->
 <div class="col-lg-3 col-md-6">
@@ -20,18 +16,14 @@
                     </div>
                 </div>
             </div>
-            <!--a href="./dettagli_evento.php"-->
                 <div class="panel-footer">
-                    <!--span class="pull-left">
-                    Clicca su "gestione eventi" per visualizzare i dettagli</span-->
                     <?php
                                 if ($check_evento==1){
-                                            $len=count($eventi_attivi);	               
+                                            $len=count($eventi_attivii nel);	               
                                     for ($i=0;$i<$len;$i++){
                                     ?><li>					                                  
                                             <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
-                                            Dettagli evento 
-                                            - Id=<?php echo $eventi_attivi[$i];?>
+                                            <?php echo $nota_eventi_attivi[$i][1]." (Id - ".$eventi_attivi[$i].")";?>
                                             </a>
                                     </li>
                                     <?php
@@ -41,7 +33,6 @@
                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                     <div class="clearfix"></div>
                 </div>
-            <!--/a-->
         </div>
     </div>
 

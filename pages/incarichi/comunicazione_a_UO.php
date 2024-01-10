@@ -245,23 +245,23 @@ $mail->AltBody = 'This is a plain-text message body';
 //$mail->addAttachment('images/phpmailer_mini.png');
 //send the message, check for errors
 //echo "<br>OK 2<br>";
-if (!$mail->send()) {
-    echo "<h3>Problema nell'invio della mail: " . $mail->ErrorInfo;
-	?>
-	<script> //alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script>
-	<?php
-	//echo '<br>La comunicazione è stata correttamente inserita a sistema, ma si è riscontrato un problema nell\'invio della mail.';
-	echo '<div style="text-align: center;"><img src="../../img/no_mail_com.png" width="75%" alt=""></div>';
-	echo '<br>Entro 10" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
-	echo '<a href="../dettagli_incarico.php?id='.$id.'">link</a> per saltare l\'attesa.</h3>' ;
-	//sleep(30);
-    header("refresh:10;url=../dettagli_incarico.php?id=".$id);
-} else {
-    echo "Message sent!";
-	header("location: ../dettagli_incarico.php?id=".$id);
-}
+// if (!$mail->send()) {
+//     echo "<h3>Problema nell'invio della mail: " . $mail->ErrorInfo;
+// 	?>
+// 	<script> //alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script>
+// 	<?php
+// 	//echo '<br>La comunicazione è stata correttamente inserita a sistema, ma si è riscontrato un problema nell\'invio della mail.';
+// 	echo '<div style="text-align: center;"><img src="../../img/no_mail_com.png" width="75%" alt=""></div>';
+// 	echo '<br>Entro 10" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
+// 	echo '<a href="../dettagli_incarico.php?id='.$id.'">link</a> per saltare l\'attesa.</h3>' ;
+// 	//sleep(30);
+//     header("refresh:10;url=../dettagli_incarico.php?id=".$id);
+// } else {
+//     echo "Message sent!";
+// 	header("location: ../dettagli_incarico.php?id=".$id);
+// }
 //exit;
-//header("location: ../dettagli_incarico.php?id=".$id);
+header("location: ../dettagli_incarico.php?id=".$id);
 
 
 ?>

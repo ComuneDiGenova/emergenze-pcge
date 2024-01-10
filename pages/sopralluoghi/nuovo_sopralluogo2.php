@@ -325,7 +325,7 @@ if (!$mail->send()) {
 	echo '<br><h1>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
 	echo '<a href="../dettagli_sopralluogo.php?id='.$id_sopralluogo.'">link</a> per saltare l\'attesa.</h1>' ;
 	//sleep(30);
-    header("refresh:12;url=../dettagli_sopralluogo.php?id=".$id_sopralluogo);
+    header("url=../dettagli_sopralluogo.php?id=".$id_sopralluogo);
 } else {
     echo "Message sent!";
 	header("location: ../dettagli_sopralluogo.php?id=".$id_sopralluogo);

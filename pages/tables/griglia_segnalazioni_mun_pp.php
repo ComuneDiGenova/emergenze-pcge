@@ -23,7 +23,7 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT s.id, s.criticita, s.id_evento,
-       s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, st_x(s.geom) as lon, st_y(s.geom) as lat, s.incarichi 
+       s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, st_x(s.geom) as lon, st_y(s.geom) as lat, s.incarichi, s.id_profilo
        FROM segnalazioni.v_segnalazioni_lista_pp s
        JOIN segnalazioni.join_segnalazioni_in_lavorazione j ON s.id_lavorazione=j.id_segnalazione_in_lavorazione ".$filter." and j.sospeso='t';";
     

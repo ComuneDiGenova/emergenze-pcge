@@ -263,7 +263,7 @@ if (!$mail->send()) {
 	//echo '<br>La comunicazione è stata correttamente inserita a sistema, ma si è riscontrato un problema nell\'invio della mail.';
 	echo '<a href="../dettagli_incarico_interno.php?id='.$id.'">link</a> per saltare l\'attesa.</h1>' ;
 	//sleep(30);
-    header("refresh:10;url=../dettagli_incarico_interno.php?id=".$id);
+    header("url=../dettagli_incarico_interno.php?id=".$id);
 } else {
     echo "Message sent!";
 	header("location: ../dettagli_incarico_interno.php?id=".$id);

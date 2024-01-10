@@ -275,23 +275,20 @@ $mail->AltBody = 'This is a plain-text message body';
 //send the message, check for errors
 //echo "<br>OK 2<br>";
 if (!$mail->send()) {
-    //echo "<h3>Problema nell'invio della mail: " . $mail->ErrorInfo;
-   //echo "<h3>Problema nell'invio della mail";
-   echo '<div style="text-align: center;"><img src="../../img/no_mail.png" width="75%" alt=""></div>';
-	//echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
-	echo '<br><h1>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
+//    echo '<div style="text-align: center;"><img src="../../img/no_mail.png" width="75%" alt=""></div>';
+	
+// 	echo '<br><h1>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
+	
+// 	if ($id!=''){
+//     	echo '<a href="../dettagli_segnalazione.php?id='.$segn.'">link</a> per saltare l\'attesa.</h1>' ;
+//     } else {
+//     	echo '<a href="../dettagli_provvedimento_cautelare.php?id='.$id_pc.'">link</a> per saltare l\'attesa.</h1>' ;
+//     }
 	
 	if ($id!=''){
-    	echo '<a href="../dettagli_segnalazione.php?id='.$segn.'">link</a> per saltare l\'attesa.</h1>' ;
+    	header("url=../dettagli_segnalazione.php?id=".$segn); // mettere refresh:12 se si vuole ripristinare la pagina di comunicazione
     } else {
-    	echo '<a href="../dettagli_provvedimento_cautelare.php?id='.$id_pc.'">link</a> per saltare l\'attesa.</h1>' ;
-    }
-	
-	//sleep(30);
-	if ($id!=''){
-    	header("refresh:12;url=../dettagli_segnalazione.php?id=".$segn);
-    } else {
-    	header("refresh:12;url=../dettagli_provvedimento_cautelare.php?id=".$id_pc);
+    	header("url=../dettagli_provvedimento_cautelare.php?id=".$id_pc); // mettere refresh:12 se si vuole ripristinare la pagina di comunicazione
     }
 } else {
     echo "Message sent!";
