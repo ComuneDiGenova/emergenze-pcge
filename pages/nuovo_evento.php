@@ -87,7 +87,7 @@ require('navbar_up.php');
 
              <input type="hidden" id="data_ora_inizio" name="data_ora_inizio" value="">
              <div class="form-group">
-                <label for="tipo_evento">Inizio evento:</label>
+                <label for="tipo_evento">Inizio evento (SPERIMENTALE):</label>
              <div class="row">
                 <div class="col-xs-8">
                   <div class="input-group date" style="width: -webkit-fill-available">

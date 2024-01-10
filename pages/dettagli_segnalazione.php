@@ -922,7 +922,7 @@ require('navbar_up.php');
 
 
 
-								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico</button>
+								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico interno</button>
 									</form>
 
 							  </div>

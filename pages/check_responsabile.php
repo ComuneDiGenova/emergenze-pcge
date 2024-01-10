@@ -7,7 +7,7 @@ if ($id_profilo<=3 and $id_profilo>0){
 } else if($id_profilo==5) {
 	echo "<h4><br><b>Centrale responsabile</b>: Municipio ".$id_municipio."";
 } else if($id_profilo==6) {
-	echo "<h4><br><b>Cetrale responsabile</b>: Distretto ".$id_municipio."";
+	echo "<h4><br><b>Centrale responsabile</b>: Distretto ".$id_municipio."";
 }
 
 //echo $check_operatore;

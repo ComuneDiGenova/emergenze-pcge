@@ -65,7 +65,7 @@ if($_POST['id_oggetto_rischio']!='') {
 } else if($_POST['codvia']!='') {
 	$id_oggetto_rischio = $_POST['codvia'];
 } else {
-	echo "ERRORE: Non è specificato l'ID dell'oggetto a rischio";
+	echo "ERRORE: Non ï¿½ specificato l'ID dell'oggetto a rischio";
 	exit;
 }
 
@@ -522,10 +522,10 @@ $mail->Subject = 'Urgente - Nuovo provvedimento cautelare assegnato tramite il S
 //$mail->Subject = 'PHPMailer SMTP without auth test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$body =  'Hai ricevuto questo messaggio in quanto è stato assegnato un nuovo provvedimento cautelare <br>. Ti preghiamo di non rispondere a questa mail automatica, bensì di visualizzare i dettagli del provvedimento cautelare accedendo 
+$body =  'Hai ricevuto questo messaggio in quanto ï¿½ stato assegnato un nuovo provvedimento cautelare <br>. Ti preghiamo di non rispondere a questa mail automatica, bensï¿½ di visualizzare i dettagli del provvedimento cautelare accedendo 
  con le tue credenziali alla pagina <a href="'.$link.'/pages/dettagli_provvedimento_cautelare.php?id='.$id_provvedimento.'" >'.$link.'</a> (il Sistem a di Gestione delle Emergenze del Comune di Genova).
- <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail è registrato a sistema. 
- Per modificare queste impostazioni è possibile inviare una mail a salaemergenzepc@comune.genova.it ';
+ <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail ï¿½ registrato a sistema. 
+ Per modificare queste impostazioni ï¿½ possibile inviare una mail a salaemergenzepc@comune.genova.it ';
 
   
 require('../informativa_privacy_mail.php');
@@ -550,7 +550,7 @@ if (!$mail->send()) {
 	echo '<br>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
 	echo '<a href="../dettagli_provvedimento_cautelare.php?id='.$id_provvedimento.'">link</a> per saltare l\'attesa.</h3>' ;
 	//sleep(30);
-    header("refresh:15;url=../dettagli_provvedimento_cautelare.php?id=".$id_provvedimento);
+    header("url=../dettagli_provvedimento_cautelare.php?id=".$id_provvedimento);
 } else {
     echo "Message sent!";
 	header("location: ../dettagli_provvedimento_cautelare.php?id=".$id_provvedimento);

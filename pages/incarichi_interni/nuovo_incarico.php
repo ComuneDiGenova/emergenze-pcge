@@ -282,12 +282,12 @@ if (!$mail->send()) {
 	?>
 	<!--script> alert(<?php echo "Problema nell'invio della mail: " . $mail->ErrorInfo;?>) </script-->
 	<?php
-	//echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
+	gua//echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
    echo '<div style="text-align: center;"><img src="../../img/no_mail.png" width="75%" alt=""></div>';
    echo '<br><h1>Entro 15" verrai re-indirizzato alla pagina della tua segnalazione, clicca al seguente ';
 	echo '<a href="../dettagli_segnalazione.php?id='.$segn.'">link</a> per saltare l\'attesa.</h1>' ;
 	//sleep(30);
-    header("refresh:12;url=../dettagli_segnalazione.php?id=".$segn);
+    header("url=../dettagli_segnalazione.php?id=".$segn); // mettere refresh:12 se si vuole ripristinare la pagina di comunicazione
 } else {
     echo "Message sent!";
 	header("location: ../dettagli_segnalazione.php?id=".$segn);

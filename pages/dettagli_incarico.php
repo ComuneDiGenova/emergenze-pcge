@@ -439,7 +439,7 @@ require('navbar_up.php');
 					<?php 
 					if ($check_uo==1 or $check_operatore==1){
 					?>
-					<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#comunicazione_da_UO"><i class="fas fa-comment"></i> Invia comunicazione a Centrale</button>
+					<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#comunicazione_da_UO"><i class="fas fa-comment"></i> Invia comunicazione a Centrale PC</button>
 					<?php }
 					if ($check_operatore==1){
 					?>

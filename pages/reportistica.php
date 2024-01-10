@@ -139,7 +139,7 @@ require('navbar_up.php');
 				echo '<h2>'.$nota_evento.'</h2>'; 
 			}
 			echo '<b>Municipi interessati</b>: ';
-			$query3="SELECT  b.nome_munic From eventi.join_municipi a,geodb.municipi b  WHERE a.id_evento=".$id." and a.id_municipio::integer=b.codice_mun::integer;";
+			$query3="SELECT  b.nome_munic FROM eventi.join_municipi a,geodb.municipi b  WHERE a.id_evento=".$id." and a.id_municipio::integer=b.codice_mun::integer;";
 			//echo $query3;
 			$result3 = pg_query($conn, $query3);
 			$k=0;

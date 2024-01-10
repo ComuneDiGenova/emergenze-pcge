@@ -125,16 +125,19 @@ if($check_error==1) {
 	echo 'Clicca <a href="../dettagli_segnalazione.php?id='.$id.'">qua</a> per tornare alla pagina della segnalazione';
 	exit;
 }
+
+header("location: ../dettagli_segnalazione.php?id=".$id);
 ?>
 <script>
 	//alert('Segnalazione in chiusura');
 </script>
-<?php
+
+<!-- <?php
 //header("location: ../dettagli_segnalazione.php?id=".$id);
 
 echo '<div style="text-align: center;"><img src="../../img/Elipsis.gif" width="25%" alt=""></div>';
-//echo '<br>L\'incarico &egrave stato correttamente assegnato, ma si &egrave riscontrato un problema nell\'invio della mail.';
-echo '<br><h1><i class="fas fa-times"></i> Segnalazione chiusa. Entro 5" verrai re-indirizzato alla prima pagina</h1>';
 
-header("refresh:5;url=../index.php");
-?>
+echo '<br><h1><i class="fas fa-times"></i> Segnalazione chiusa. Verrai re-indirizzato alla prima pagina</h1>';
+
+header("refresh:1;url=../index.php");
+?> -->
