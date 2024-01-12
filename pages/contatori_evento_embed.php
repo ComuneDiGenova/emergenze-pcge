@@ -19,7 +19,7 @@
                 <div class="panel-footer">
                     <?php
                                 if ($check_evento==1){
-                                            $len=count($eventi_attivii nel);	               
+                                            $len=count($eventi_attivi);	               
                                     for ($i=0;$i<$len;$i++){
                                     ?><li>					                                  
                                             <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
