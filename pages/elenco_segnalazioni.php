@@ -442,7 +442,7 @@ function copybuttonwfs() {
     
  function nameFormatterEdit(value) {
         
-		return '<a class="btn btn-warning" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
+		return '<a class="btn btn-warning" target="_blank" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
  
     }
 	
