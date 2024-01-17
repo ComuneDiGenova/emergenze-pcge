@@ -457,9 +457,29 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
         logger.debug(in_lavorazione is False)
 
 
+def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
+    """ """
+    row = db(
+        (db.join_segnalazione_lavorazione.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        # (db.segnalazione.id==db.join_segnalazione_incarico.segnalazione_id) & \
+        (db.incarico.id==db.join_segnalazione_incarico.incarico_id) & \
+        (db.incarico.id==db.intervento.incarico_id) & \
+        (db.join_segnalazione_lavorazione.lavorazione_id==id_lavorazione)
+    ).select(
+        db.intervento.intervento_id.with_alias('intervento_id'),
+        limitby = (0,1,)
+    ).first()
+    
+    if not row is None:
+        logger.debug(f'Invio notifica storico segnalazione: {messaggio_log}')
+        Intervento.message(
+            row.intervento_id,
+            operatore = 'operatore di PC',
+            testo = messaggio_log
+        )
 
 def after_insert_lavorazione(id):
-    """ DEPRECATO
+    """ DEPRECATO ma usato rimuovere con cautela
     id @integer : Id della nuova lavorazione
     """
     pass

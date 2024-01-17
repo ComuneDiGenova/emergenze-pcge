@@ -149,6 +149,30 @@ def create_sql_function_lavorazione(schema, function_name, notification_name, pa
 
     db.executesql(sql_notify_new_item)
 
+def create_sql_function_storico_vavorazione(schema:str, function_name:str, notification_name:str, payload:list, action:str) -> None:
+    """
+    """
+    
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id_lavorazione', NEW.{payload[0]},
+                 'messaggio_log', NEW.{payload[1]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
+
 def create_sql_trigger(schema, table, function_name, trigger_name, action):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
 
@@ -205,6 +229,7 @@ segnalaz = [
     ['segnalazioni', 'stato_sopralluoghi_mobili', ['id_sopralluogo', 'id_stato_sopralluogo', 'data_ora_stato']],
     ['eventi', 't_eventi', 'id'],
     ['segnalazioni', 't_segnalazioni_in_lavorazione', ['id', 'in_lavorazione']],
+    ['segnalazioni', 't_storico_segnalazioni_in_lavorazione', ['id_segnalazione_in_lavorazione', 'log_aggiornamento']],
     ]
 
 def setup():
@@ -298,6 +323,19 @@ def setup_segn():
         trigger_name_u_lavorazione,
         "UPDATE"
     )
+
+    function_name_n_storico_vavorazione = f"notify_new_{segnalaz[8][1]}"
+    notification_name_n_storico_vavorazione = f"new_{segnalaz[8][1]}_added"
+    trigger_name_n_storico_vavorazione = f"after_insert_{segnalaz[8][1]}"
+    create_sql_function_storico_vavorazione(
+        segnalaz[8][0],
+        function_name_n_storico_vavorazione,
+        notification_name_n_storico_vavorazione,
+        segnalaz[8][2], "INSERT")
+    create_sql_trigger(
+        segnalaz[8][0],
+        segnalaz[8][1],
+        function_name_n_storico_vavorazione, trigger_name_n_storico_vavorazione, "INSERT")
 
     db.commit()
 
