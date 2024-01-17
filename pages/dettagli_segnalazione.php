@@ -28,7 +28,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
     <meta name="description" content="">
     <meta name="author" content="roberto" >
 
-    <title>Gestione emergenze</title>
+    <title>Segnalazione <?php echo $id;?></title>
 <?php 
 require('./req.php');
 
