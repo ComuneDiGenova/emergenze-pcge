@@ -118,7 +118,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
-check = f"({db.incarico._rname}.id_uo ilike 'com_PO%'"
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
 # check += " or {db.intervento._rname}.incarico_id is not null)::bool"
 
 # check = db.incarico.uo_id.startswith('com_PO') or f'{db.intervento._rname}.incarico_id is not null'
@@ -281,7 +281,9 @@ def after_insert_incarico(id):
                 incarico_id = id
             )
 
-def after_update_incarico(id):
+def after_update_incarico(id:int) -> None:
+    """ """
+
     logger.debug(f"after update incarico")
     intervento = db.intervento(incarico_id=id)
 
@@ -292,6 +294,13 @@ def after_update_incarico(id):
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = Intervento.update(intervento.intervento_id, **mio_incarico)
+    # else:
+    #     _, mio_incarico = fetch(id)
+    #     if mio_incarico['stato']==3:
+    #         incarico_id = mio_incarico.pop('idSegnalazione')
+    #         response = Intervento.update(intervento.intervento_id, **mio_incarico)
+    #         return
+        
 
     # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
     # altri incarichi aperti, in tal caso chiudere la Segnalazione

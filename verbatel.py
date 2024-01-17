@@ -54,10 +54,10 @@ class Verbatel(object):
                 try:
                     out=json.loads(response.json())
                 except TypeError:
-                    logger.info("Single decode")
+                    logger.debug("Single decode")
                     return response.json()
                 else:
-                    logger.info("Double decode")
+                    logger.debug("Double decode")
                     return out
 
     @classmethod

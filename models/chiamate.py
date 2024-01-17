@@ -213,7 +213,7 @@ db.define_table(
     Field('is_active', 'boolean',
         writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.contatto",
-    migrate = True
+    migrate = db._migrate
 )
 
 db.contatto._enable_record_versioning()
@@ -323,6 +323,7 @@ db.define_table(
     Field('is_active', 'boolean',
         writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.recapito",
+    migrate = db._migrate
 )
 
 db.recapito._enable_record_versioning()
@@ -378,6 +379,7 @@ db.define_table(
     Field('is_active', 'boolean',
         writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.componente",
+    migrate = db._migrate
 )
 
 db.nucleo._enable_record_versioning()
@@ -440,7 +442,7 @@ db.define_table(
         readable=False,
         default=True,
     ),
-    migrate=False,
+    migrate = db._migrate,
     rname=f"{SCHEMA}.recupero",
 )
 
@@ -458,7 +460,7 @@ db.define_table(
     Field("sorgente"),
     Field("validita"),
     primarykey=["id"],
-    migrate=False,
+    migrate = db._migrate,
     rname=f"{SCHEMA}.soggetti_vulnerabili_validi",
 )
 
