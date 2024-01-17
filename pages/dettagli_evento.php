@@ -14,7 +14,7 @@ $subtitle="Dettagli evento, allerte e F.O.C."
     <meta name="description" content="">
     <meta name="author" content="roberto" >
 
-    <title>Gestione emergenze</title>
+    
 <?php 
 require('./req.php');
 
@@ -23,8 +23,9 @@ require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 require('./check_evento.php');
 
 $evento_attivo=pg_escape_string($_GET['e']);
-
 ?>
+
+<title>Evento <?php echo $evento_attivo;?></title>
     
 </head>
 
