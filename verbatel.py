@@ -46,7 +46,7 @@ class Verbatel(object):
         except requests.exceptions.HTTPError:
             logger.warning(response.status_code)
             logger.error(response.text)
-            raise
+            # raise
         else:
             if response.headers['Content-Length']=='0':
                 return

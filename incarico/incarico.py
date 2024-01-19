@@ -276,10 +276,14 @@ def after_insert_incarico(id):
             # Invio info a PL
             response = Intervento.create(**mio_incarico)
             # Registro
-            db.intervento.insert(
+            if db.intervento(
                 intervento_id = response['idIntervento'],
                 incarico_id = id
-            )
+            ) is None:
+                db.intervento.insert(
+                    intervento_id = response['idIntervento'],
+                    incarico_id = id
+                )
 
 def after_update_incarico(id:int) -> None:
     """ """

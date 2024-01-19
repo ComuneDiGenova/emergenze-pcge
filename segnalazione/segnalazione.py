@@ -459,24 +459,27 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
 
 def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
     """ """
-    row = db(
+    dbset = db(
         (db.join_segnalazione_lavorazione.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
         # (db.segnalazione.id==db.join_segnalazione_incarico.segnalazione_id) & \
         (db.incarico.id==db.join_segnalazione_incarico.incarico_id) & \
         (db.incarico.id==db.intervento.incarico_id) & \
         (db.join_segnalazione_lavorazione.lavorazione_id==id_lavorazione)
-    ).select(
+    )
+    row = dbset.select(
         db.intervento.intervento_id.with_alias('intervento_id'),
         limitby = (0,1,)
     ).first()
-    
+    logger.debug(dbset._select(db.intervento.intervento_id.with_alias('intervento_id'), limitby=(0,1,)))
+    logger.debug(f"Intercettato inserimento storico segnalazione: lavorazione: {id_lavorazione}\n messaggio: {messaggio_log}")
     if not row is None:
         logger.debug(f'Invio notifica storico segnalazione: {messaggio_log}')
-        Intervento.message(
+        response = Intervento.message(
             row.intervento_id,
             operatore = 'operatore di PC',
             testo = messaggio_log
         )
+        logger.debug(response)
 
 def after_insert_lavorazione(id):
     """ DEPRECATO ma usato rimuovere con cautela
