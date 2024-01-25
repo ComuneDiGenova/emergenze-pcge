@@ -177,7 +177,7 @@ require('navbar_up.php');
 			<th data-field="descrizione_uo" data-sortable="true"  data-visible="true">Referente<br>incarico</th>
             <!--th data-field="note" data-sortable="false" data-visible="true" >Note</th-->
             <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit" data-visible="true" >Dettagli</th>            
-				<th data-field="id_segnalazione" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Segnalazione</th>
+			<th data-field="id_segnalazione" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Segnalazione</th>
     </tr>
 </thead>
 
@@ -201,8 +201,18 @@ require('navbar_up.php');
 <script>
 
 function presidiFormatter(value,row) {
+        console.log(row)
         if (value==2){
-        		return '<i class="fas fa-play" title="'+row.descrizione_stato+'" style="color:#5cb85c"></i>';
+                let playcolor;
+                let playtitle;
+                if (row.time_start) {
+                    playcolor = '#5cb85c';
+                    playtitle = row.descrizione_stato;
+                } else {
+                    playcolor = 'orange';
+                    playtitle = 'Ricevuto';
+                }
+        		return '<i class="fas fa-play" title="'+playtitle+'" style="color:'+playcolor+'"></i>';
         } else if (value==3) {
         	   return '<i class="fas fa-check" title="'+row.descrizione_stato+'" style="color:#5cb85c" ></i>';
         } else if (value==1){

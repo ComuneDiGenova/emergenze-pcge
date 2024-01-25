@@ -148,8 +148,8 @@ require('navbar_up.php');
 						<?php 
 						$lon=$r['lon'];
 						$lat=$r['lat'];
-            		$id_lavorazione=$r['id_lavorazione'];
-            		$id_civico=$r['id_civico'];
+						$id_lavorazione=$r['id_lavorazione'];
+						$id_civico=$r['id_civico'];
 						$geom=$r['geom'];
 						$id_municipio=$r['id_municipio'];
 						$id_evento=$r['id_evento'];
@@ -174,9 +174,13 @@ require('navbar_up.php');
 							echo '<i class="fas fa-times-circle"></i> ';
 						}
 						
+						echo 'Stato intervento: ';
+						if ($r['time_start']==null) {
+							echo 'Ricevuto';
+						} else {
+							echo $r['descrizione_stato'];
+						};
 						
-						
-						echo $r['descrizione_stato'];
 						if ($r["parziale"]=='t'){
 							echo '<br><br><i class="fas fa-battery-quarter"></i>  Presa in carico parziale';
 						}
