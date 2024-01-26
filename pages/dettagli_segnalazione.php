@@ -465,13 +465,8 @@ require('navbar_up.php');
 											}
 											
 											echo $r_incarichi['descrizione'];
-											if ($r_incarichi['id_stato_incarico']==2 and !$r_incarichi['time_start']) {
-												echo ' - Ricevuto';
-											} else {
-												echo " - " .$r_incarichi['descrizione_stato'];
-											};
+											echo " - " .$r_incarichi['descrizione_stato'];
 
-											
 											if($r_incarichi['note_ente']!=''){
 												echo " (Note chiusura:" .$r_incarichi['note_ente']. ")";
 											}

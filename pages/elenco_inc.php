@@ -204,13 +204,13 @@ function presidiFormatter(value,row) {
         console.log(row)
         if (value==2){
                 let playcolor;
-                let playtitle;
+                let playtitle = row.descrizione_stato;
                 if (row.time_start) {
                     playcolor = '#5cb85c';
-                    playtitle = row.descrizione_stato;
+                    // playtitle = row.descrizione_stato;
                 } else {
                     playcolor = 'orange';
-                    playtitle = 'Ricevuto';
+                    // playtitle = 'Ricevuto';
                 }
         		return '<i class="fas fa-play" title="'+playtitle+'" style="color:'+playcolor+'"></i>';
         } else if (value==3) {
