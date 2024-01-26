@@ -175,11 +175,7 @@ require('navbar_up.php');
 						}
 						
 						echo 'Stato intervento: ';
-						if ($r['time_start']==null) {
-							echo 'Ricevuto';
-						} else {
-							echo $r['descrizione_stato'];
-						};
+						echo $r['descrizione_stato'];
 						
 						if ($r["parziale"]=='t'){
 							echo '<br><br><i class="fas fa-battery-quarter"></i>  Presa in carico parziale';
