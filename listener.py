@@ -464,7 +464,7 @@ def do_stuff(channel, **payload):
 
         after_insert_stato_presidio(payload['id_sopralluogo'], payload['id_stato_sopralluogo'], payload['data_ora_stato'])
     elif channel in f"new_{segnalaz[6][1]}_updated":
-        mio_evento = evento.fetch(id=payload["id"])
+        mio_evento = evento.fetch(id=payload["id"], _foc_only=False)
 
         if not mio_evento is None:
             out = syncEvento(mio_evento)
