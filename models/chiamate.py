@@ -116,7 +116,7 @@ db.define_table(
         "eMail",
         label="Indirizzo email",
         comment="Email di contatto alternativo ai numeri telefonici",
-        requires=IS_EMAIL(),
+        requires=IS_EMPTY_OR(IS_EMAIL()),
         rname="email",
     ),
     # ...
