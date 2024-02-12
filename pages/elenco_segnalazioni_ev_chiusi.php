@@ -153,8 +153,8 @@ require('./tables/filtri_segnalazioni.php');
 	         //$rows = array();
             //echo '<div class="form-check form-check-inline">';
             echo '<div class="row">';
-	         while($r = pg_fetch_assoc($result)) {
-					echo '<div class="form-check col-md-3">';
+	        while($r = pg_fetch_assoc($result)) {
+				echo '<div class="form-check col-md-3">';
 	            echo '  <input class="form-check-input" type="checkbox" id="filtro_mun" name="filter'.$r['codice_mun'].'"  value=1" >';
 	            echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['codice_mun'].' - '.$r['nome_munic'].'</label>';
 	            echo "</div>";

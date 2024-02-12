@@ -163,7 +163,8 @@ require('navbar_up.php');
 						if ($r["id_stato_incarico"]==1){
 							echo '<i class="fas fa-pause" style="color:orange"></i> ';
 						} else if  ($r["id_stato_incarico"]==2) {
-							if ($r['time_start']!=null) {
+							// if ($r['time_preview']<null)
+							if ($r['time_start']!=null or $r['started']) {
 								echo '<i class="fas fa-play" style="color:green"></i> ';
 							} else {
 								echo '<i class="fas fa-play" style="color:orange"></i> ';
