@@ -202,10 +202,10 @@ require('navbar_up.php');
 
 function presidiFormatter(value,row) {
         console.log(row)
-        if (value==2){
+        if (value==2) {
                 let playcolor;
                 let playtitle = row.descrizione_stato;
-                if (row.time_start) {
+                if ( row.time_start || row.started=='t') {
                     playcolor = '#5cb85c';
                     // playtitle = row.descrizione_stato;
                 } else {

@@ -56,7 +56,7 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT id, id_profilo, id_evento, data_ora_invio, id_stato_incarico, descrizione_stato, 
-	descrizione, note_ente, descrizione_uo, id_segnalazione, time_preview, time_start 
+	descrizione, note_ente, descrizione_uo, id_segnalazione, time_preview, time_start, started
 	From segnalazioni.v_incarichi_last_update 
 	where id_stato_incarico < 3 ".$filter." ;";
     
