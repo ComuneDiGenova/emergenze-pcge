@@ -58,11 +58,11 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT id_stato_incarico, id_profilo, descrizione_stato, descrizione, id_evento, time_start, 
-	time_preview, time_stop, id, max(id_segnalazione) From segnalazioni.v_incarichi_interni_eventi_chiusi_last_update where id > 1 ".$filter." 
+	time_preview, time_stop, id, max(id_segnalazione) as id_segnalazione From segnalazioni.v_incarichi_interni_eventi_chiusi_last_update where id > 1 ".$filter." 
 	group by id_stato_incarico, id_profilo, descrizione_stato, descrizione, id_evento, time_start, 
 	time_preview, time_stop, id
 	UNION SELECT id_stato_incarico, id_profilo, descrizione_stato, descrizione, id_evento, time_start, 
-	time_preview, time_stop, id, max(id_segnalazione) From segnalazioni.v_incarichi_interni_last_update 
+	time_preview, time_stop, id, max(id_segnalazione) as id_segnalazione From segnalazioni.v_incarichi_interni_last_update 
 	where id_stato_incarico in (3,4) ".$filter." 
 	group by id_stato_incarico, id_profilo, descrizione_stato, descrizione, id_evento, time_start, 
 	time_preview, time_stop, id 
