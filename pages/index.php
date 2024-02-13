@@ -133,7 +133,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                         </thead>
                                                         <script>
                                                             function nameFormatterEditL(value) {
-                                                                return '<a class="btn btn-warning" title="Visualizza dettagli" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
+                                                                return '<a class="btn btn-warning" title="Visualizza dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
                                                             }
                                                             function nameFormatterRischio(value) {
                                                                 if (value == 't') {
@@ -236,7 +236,7 @@ $subtitle = "Dashboard o pagina iniziale";
 
                                                             function nameFormatterEdit(value) {
 
-                                                                return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
+                                                                return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
 
                                                             }
 
@@ -335,7 +335,7 @@ $subtitle = "Dashboard o pagina iniziale";
 
                                                         function nameFormatterEdit(value) {
 
-                                                            return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
+                                                            return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
 
                                                         }
 
