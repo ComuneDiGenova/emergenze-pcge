@@ -61,8 +61,7 @@
                                     for ($i=0;$i<$len;$i++){
                                     ?><li>					                                  
                                             <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
-                                            <i class="fas fa-chart-line"></i> Dettagli evento 
-                                            - Id=<?php echo $eventi_attivi[$i];?>
+                                            <i class="fas fa-chart-line"></i> <?php echo $nota_evento[$i];?> (Id: <?php echo $eventi_attivi[$i];?>)
                                             </a>
                                     </li>
                                     <?php
