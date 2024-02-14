@@ -212,14 +212,14 @@ function presidiFormatter2(value,row) {
 
  function nameFormatterEdit(value) {
         
-		return '<a class="btn btn-warning" href=./dettagli_incarico_interno.php?id='+value+'> <i class="fas fa-edit"></i> </a>';
+		return '<a class="btn btn-warning" target=”_blank” href=./dettagli_incarico_interno.php?id='+value+'> <i class="fas fa-edit"></i> </a>';
  
     }
 
 
  function nameFormatterEdit1(value) {
         if (value){
-			return '<a class="btn btn-warning" href=./dettagli_segnalazione.php?id='+value+'> <i class="fas fa-search"></i> </a>';
+			return '<a class="btn btn-warning" target=”_blank” href=./dettagli_segnalazione.php?id='+value+'> <i class="fas fa-search"></i> </a>';
 		} else {
 			return '-';
 		}
