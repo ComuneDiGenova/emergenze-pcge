@@ -14,20 +14,31 @@ $color_allerta='#5cb85c';
 $profilo_sistema=0;
 //require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
-$query1="SELECT * From \"eventi\".\"t_eventi\" WHERE valido='TRUE' ORDER BY id;";
+$query1 = "SELECT e.id as id, e.data_ora_inizio_evento as data_ora_inizio_evento,
+					e.fine_sospensione as fine_sospensione, ne.nota  as nota
+			from eventi.t_eventi as e
+			inner join eventi.t_note_eventi as ne
+			on e.id = ne.id_evento
+			where e.valido is TRUE
+			ORDER BY e.id;";
+
+// $query1="SELECT * From eventi.t_eventi WHERE valido is TRUE ORDER BY id;";
+
 $result1 = pg_query($conn, $query1);
 $contatore_eventi=0;
 
 while($r1 = pg_fetch_assoc($result1)) {
 	$check_evento=1; // controllo se evento in corso inizializzato a 1
 	$contatore_eventi=$contatore_eventi+1;
-	$eventi_attivi[]=$r1["id"];
 	$start[]=$r1["data_ora_inizio_evento"];
 	$sospensione[]=$r1["fine_sospensione"];
 	date_default_timezone_set('Europe/Rome');  // Set timezone.
 	$now_time=date("Y/m/d H:i:s");
 	$oggi = strtotime($now_time);
 	$dataScadenza = strtotime($r1["fine_sospensione"]);
+	$eventi_attivi[]=$r1["id"];
+	$nota_evento[] = $r1["nota"];
+
 	if ($dataScadenza > $oggi){
 		$check_pausa=$check_pausa+1;
 		$sospeso[]=1;

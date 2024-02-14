@@ -65,7 +65,7 @@ require('navbar_up.php');
 					// echo new DateTime();
 					$date_now = new DateTime();
 					$start_time = new DateTime($start[$i]);
-					if ($start_time<$date_now) {echo 'Evento in corso';} else {
+					if ($start_time<$date_now) {echo 'Evento in corso ';} else {
 						echo 'Evento programmato al '.$start[$i];
 					};
 					
