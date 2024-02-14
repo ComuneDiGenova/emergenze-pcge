@@ -133,10 +133,13 @@ require('navbar_up.php');
 					<option  id="percorso" name="percorso" value="">Seleziona il presidio mobile</option>
 					<?php
 					
-					$query2="SELECT p.percorso  FROM geodb.v_presidi_mobili p
-							WHERE trim(p.percorso) NOT IN 
-							(select  trim(descrizione)from segnalazioni.t_sopralluoghi_mobili WHERE time_stop is null)
-							order by p.percorso; --by substring(p.percorso,1,1), substring(p.percorso,2,2)::int;";
+					$query2='SELECT DISTINCT p.percorso
+                    FROM geodb.v_presidi_mobili p
+                    INNER JOIN segnalazioni.t_sopralluoghi_mobili sm
+                    ON sm.descrizione ilike \'%\' || trim(p.percorso) || \'%\'
+                    WHERE sm.time_stop IN NULL
+                    ORDER BY p.percorso;';
+                    
 					$result2 = pg_query($conn, $query2);
 					 
 					while($r2 = pg_fetch_assoc($result2)) { 
