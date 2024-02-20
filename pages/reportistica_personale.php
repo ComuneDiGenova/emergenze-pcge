@@ -34,6 +34,15 @@ function roundToQuarterHour($now){
 	//echo 'ora finale: '.$rounded.'</br>';
 	return $rounded;
 }
+
+function roundToQuarterHour2($now = null) {
+    if ($now === null) {
+        $now = time();
+    }
+    $rounded = floor($now / 900) * 900;
+    return $rounded;
+}
+
 //require('./tables/griglia_dipendenti_save.php');
 require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
@@ -1405,91 +1414,85 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<?php
 				
+				$_ora0 = roundToQuarterHour2();
+				$ora0 = date("d/m", $_ora0)."<br>".date("H:i", $_ora0);
 
-				$now = getdate();
-				//echo $now;
-				// foreach ($now as $key => $value) {
-				// 	echo $key.'</br>';
-				// 	echo $value.'</br>';
-				// }
-				$ora0 = roundToQuarterHour($now);
-				//echo $ora0;
-				//echo "<br><br>";
-				$data = getdate(strtotime('- 60 minutes'));
-				$ora1 = roundToQuarterHour($data);
+				$_ora1 = roundToQuarterHour2(strtotime('- 60 minutes'));
+				$ora1 = date("d/m", $_ora1)."<br>".date("H:i", $_ora1);
 				
-				$data = getdate(strtotime('- 120 minutes'));
-				$ora2 = roundToQuarterHour($data);
+				$_ora2 = roundToQuarterHour2(strtotime('- 120 minutes'));
+				$ora2 = date("d/m", $_ora2)."<br>".date("H:i", $_ora2);
 				
-				$data = getdate(strtotime('- 180 minutes'));
-				$ora3 = roundToQuarterHour($data);
+				$_ora3 = roundToQuarterHour2(strtotime('- 180 minutes'));
+				$ora3 = date("d/m", $_ora3)."<br>".date("H:i", $_ora3);
 				
-				$data = getdate(strtotime('- 240 minutes'));
-				$ora4 = roundToQuarterHour($data);
+				$_ora4 = roundToQuarterHour2(strtotime('- 240 minutes'));
+				$ora4 = date("d/m", $_ora4)."<br>".date("H:i", $_ora4);
 				
-				$data = getdate(strtotime('- 300 minutes'));
-				$ora5 = roundToQuarterHour($data);
+				$_ora5 = roundToQuarterHour2(strtotime('- 300 minutes'));
+				$ora5 = date("d/m", $_ora5)."<br>".date("H:i", $_ora5);
 				
-				$data = getdate(strtotime('- 360 minutes'));
-				$ora6 = roundToQuarterHour($data);
+				$_ora6 = roundToQuarterHour2(strtotime('- 360 minutes'));
+				$ora6 = date("d/m", $_ora6)."<br>".date("H:i", $_ora6);
+				
+				$_ora7 = roundToQuarterHour2(strtotime('- 420 minutes'));
+				$ora7 = date("d/m", $_ora7)."<br>".date("H:i", $_ora7);
+				
+				$_ora8 = roundToQuarterHour2(strtotime('- 480 minutes'));
+				$ora8 = date("d/m", $_ora8)."<br>".date("H:i", $_ora8);
+				
+				$_ora9 = roundToQuarterHour2(strtotime('- 540 minutes'));
+				$ora9 = date("d/m", $_ora9)."<br>".date("H:i", $_ora9);
 
-				$data = getdate(strtotime('- 420 minutes'));
-				$ora7 = roundToQuarterHour($data);
+				$_ora10 = roundToQuarterHour2(strtotime('- 600 minutes'));
+				$ora10 = date("d/m", $_ora10)."<br>".date("H:i", $_ora10);
 				
-				$data = getdate(strtotime('- 480 minutes'));
-				$ora8 = roundToQuarterHour($data);
+				$_ora11 = roundToQuarterHour2(strtotime('- 660 minutes'));
+				$ora11 = date("d/m", $_ora11)."<br>".date("H:i", $_ora0);
 				
-				$data = getdate(strtotime('- 540 minutes'));
-				$ora9 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 600 minutes'));
-				$ora10 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 660 minutes'));
-				$ora11 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 720 minutes'));
-				$ora12 = roundToQuarterHour($data);
+				$_ora12 = roundToQuarterHour2(strtotime('- 720 minutes'));
+				$ora12 = date("d/m", $_ora12)."<br>".date("H:i", $_ora12);
 
-				$data = getdate(strtotime('- 780 minutes'));
-				$ora13 = roundToQuarterHour($data);
+				$_ora13 = roundToQuarterHour2(strtotime('- 780 minutes'));
+				$ora13 = date("d/m", $_ora13)."<br>".date("H:i", $_ora13);
 				
-				$data = getdate(strtotime('- 840 minutes'));
-				$ora14 = roundToQuarterHour($data);
+				$_ora14 = roundToQuarterHour2(strtotime('- 840 minutes'));
+				$ora14 = date("d/m", $_ora14)."<br>".date("H:i", $_ora14);
 				
-				$data = getdate(strtotime('- 900 minutes'));
-				$ora15 = roundToQuarterHour($data);
+				$_ora15 = roundToQuarterHour2(strtotime('- 900 minutes'));
+				$ora15 = date("d/m", $_ora15)."<br>".date("H:i", $_ora15);
 				
-				$data = getdate(strtotime('- 960 minutes'));
-				$ora16 = roundToQuarterHour($data);
+				$_ora16 = roundToQuarterHour2(strtotime('- 960 minutes'));
+				$ora16 = date("d/m", $_ora16)."<br>".date("H:i", $_ora16);
 
-				$data = getdate(strtotime('- 1020 minutes'));
-				$ora17 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 1080 minutes'));
-				$ora18 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 1140 minutes'));
-				$ora19 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 1200 minutes'));
-				$ora20 = roundToQuarterHour($data);
+				$_ora17 = roundToQuarterHour2(strtotime('- 1020 minutes'));
+				$ora17 = date("d/m", $_ora17)."<br>".date("H:i", $_ora17);
 
-				$data = getdate(strtotime('- 1260 minutes'));
-				$ora21 = roundToQuarterHour($data);
+				$_ora18 = roundToQuarterHour2(strtotime('- 1080 minutes'));
+				$ora18 = date("d/m", $_ora18)."<br>".date("H:i", $_ora18);
 				
-				$data = getdate(strtotime('- 1320 minutes'));
-				$ora22 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 1380 minutes'));
-				$ora23 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 1440 minutes'));
-				$ora24 = roundToQuarterHour($data);
+				$_ora19 = roundToQuarterHour2(strtotime('- 1140 minutes'));
+				$ora19 = date("d/m", $_ora19)."<br>".date("H:i", $_ora19);
+
+				$_ora20 = roundToQuarterHour2(strtotime('- 1200 minutes'));
+				$ora20 = date("d/m", $_ora20)."<br>".date("H:i", $_ora20);
+
+				$_ora21 = roundToQuarterHour2(strtotime('- 1260 minutes'));
+				$ora21 = date("d/m", $_ora21)."<br>".date("H:i", $_ora21);
+
+				$_ora22 = roundToQuarterHour2(strtotime('- 1320 minutes'));
+				$ora22 = date("d/m", $_ora22)."<br>".date("H:i", $_ora22);
+
+				$_ora23 = roundToQuarterHour2(strtotime('- 1380 minutes'));
+				$ora23 = date("d/m", $_ora23)."<br>".date("H:i", $_ora23);
+
+				$_ora24 = roundToQuarterHour2(strtotime('- 1440 minutes'));
+				$ora24 = date("d/m", $_ora24)."<br>".date("H:i", $_ora24);
 				
 				?>
                 <h3>Monitoraggio (Letture Mire e Idrometri nelle 24 ore precedenti)</h3>
 				<h4>Letture Mire e Rivi </h4>
+				<h5><a name="mire-tab1">Tab. 1</a>: acquisizioni dalle <?php echo date("H:i", $_ora24) ?> alle <?php echo date("H:i", $_ora16) ?> (<a title="Vai alle acquisizioni più recenti" href="#mire-tab2"><i class="fas fa-angle-down"></i></a>)</h5>
 				<!--div id="tabella"-->
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report_esteso.php" 
 				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
@@ -1520,7 +1523,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
 						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<!-- <th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
 						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
 						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
@@ -1535,6 +1538,106 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
 						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th> -->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+				<h5><a name="mire-tab2">Tab. 2</a>: acquisizioni dalle <?php echo date("H:i", $_ora15) ?> alle <?php echo date("H:i", $_ora8) ?> (<a title="Vai alle acquisizioni più recenti" href="#mire-tab3"><i class="fas fa-angle-down"></i></a>)</h5>
+				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th> -->
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
+						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<!-- <th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th> -->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+				<h5><a name="mire-tab3">Tab. 3</a>: acquisizioni dalle <?php echo date("H:i", $_ora7) ?> alle <?php echo date("H:i", $_ora0) ?> (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab2"><i class="fas fa-angle-up"></i></a>)</h5>
+				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
+						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th> -->
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
 						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
 						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
@@ -1542,6 +1645,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 				</table><br>
 				<h4>Valori Idrometri ARPAL </h4>
 				<!--div id="tabella"-->
+				<h5><a name="idro-arpal-tab1">Tab. 1</a>: acquisizioni dalle <?php echo date("H:i", $_ora24) ?> alle <?php echo date("H:i", $_ora17) ?> (<a href="#idro-arpal-tab2" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
 				<table  id="t_idro_arpal" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report_esteso.php" 
 				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
 				data-search="true" data-click-to-select="true" data-show-print="true"  
@@ -1570,7 +1674,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<!-- <th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
 						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
 						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
@@ -1585,14 +1689,115 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
 						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
 						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
 						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
+				<h5><a name="idro-arpal-tab2">Tab. 2</a>: acquisizioni dalle <?php echo date("H:i", $_ora16) ?> alle <?php echo date("H:i", $_ora9) ?> (<a href="#idro-arpal-tab3" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
+				<table  id="t_idro_arpal" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th> -->
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
+						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
+						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+				<h5><a name="idro-arpal-tab3">Tab. 3</a>: acquisizioni dalle <?php echo date("H:i", $_ora8) ?> alle <?php echo date("H:i", $_ora0) ?> (<a href="#idro-arpal-tab2" title="Vai alle acquisizioni meno recenti"><i class="fas fa-angle-up"></i></a>)</h5>
+				<table  id="t_idro_arpal" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th> -->
+						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
+						<!-- <th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th> -->
+					</tr>
+				</thead>
+				</table><br>
 				<h4>Valori Idrometri COMUNE </h4>
 				<!--div id="tabella"-->
+				<h5><a name="idro-tab1">Tab. 1</a>: acquisizioni dalle <?php echo date("H:i", $_ora24) ?> alle <?php echo date("H:i", $_ora17) ?> (<a href="#idro-tab2" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
 				<table  id="t_idro_com" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report_esteso.php" 
 				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
 				data-search="true" data-click-to-select="true" data-show-print="true"  
@@ -1621,7 +1826,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<!-- <th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
 						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
 						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
@@ -1636,12 +1841,115 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
 						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
 						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
 						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
+
+				<h5><a name="idro-tab2">Tab. 2</a>: acquisizioni dalle <?php echo date("H:i", $_ora16) ?> alle <?php echo date("H:i", $_ora9) ?> (<a href="#idro-tab3" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
+				<table  id="t_idro_com" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th> -->
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
+						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
+						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+
+				<h5><a name="idro-tab3">Tab. 3</a>: acquisizioni dalle <?php echo date("H:i", $_ora8) ?> alle <?php echo date("H:i", $_ora0) ?> (<a href="#idro-tab2" title="Vai alle acquisizioni meno recenti"><i class="fas fa-angle-up"></i></a>)</h5>
+				<table  id="t_idro_com" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report_esteso.php" 
+				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
+						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
+						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
+						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
+						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
+						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
+						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
+						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th> -->
+						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+
 				<script>
 // function nameFormatterInsert(value, row) {
 // 	if(row.tipo != 'IDROMETRO COMUNE' && row.tipo != 'IDROMETRO ARPA'){
