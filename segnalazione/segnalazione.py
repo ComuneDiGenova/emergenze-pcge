@@ -456,6 +456,7 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
     else:
         logger.debug(in_lavorazione is False)
 
+from ..tools import log_segnalazioni2message
 
 def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
     """ """
@@ -474,10 +475,11 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
     logger.debug(f"Intercettato inserimento storico segnalazione: lavorazione: {id_lavorazione}\n messaggio: {messaggio_log}")
     if not row is None:
         logger.debug(f'Invio notifica storico segnalazione: {messaggio_log}')
+        testo_messaggio = log_segnalazioni2message(messaggio_log)
         response = Intervento.message(
             row.intervento_id,
             operatore = 'operatore di PC',
-            testo = messaggio_log
+            testo = testo_messaggio
         )
         logger.debug(response)
 
