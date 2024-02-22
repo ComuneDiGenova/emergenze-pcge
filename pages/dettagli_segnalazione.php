@@ -434,18 +434,18 @@ require('navbar_up.php');
 									      <div class="panel-body"-->
 										<?php
 										// cerco l'id_lavorazione
-										$query_incarichi="SELECT id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start";
+										$query_incarichi="SELECT DISTINCT id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start, started";
 										if($check_evento_aperto==1){
 											$query_incarichi= $query_incarichi." FROM segnalazioni.v_incarichi_last_update WHERE id_lavorazione=".$id_lavorazione;
 										} else if($check_evento_aperto==0){
 											$query_incarichi= $query_incarichi." FROM segnalazioni.v_incarichi_eventi_chiusi_last_update WHERE id_lavorazione=".$id_lavorazione;
 										}
-										$query_incarichi= $query_incarichi." GROUP BY id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start;";
+										// $query_incarichi= $query_incarichi." GROUP BY id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start;";
 										
-										//echo $query_incarichi;
+										// echo $query_incarichi;
 										$result_incarichi=pg_query($conn, $query_incarichi);
 										$i=0;
-										while($r_incarichi = pg_fetch_assoc($result_incarichi)) {
+										while ($r_incarichi = pg_fetch_assoc($result_incarichi)) {
 											if ($i>0){
 												echo "<hr>";
 											}
@@ -453,7 +453,7 @@ require('navbar_up.php');
 											if ($r_incarichi['id_stato_incarico']==1){
 												echo '<i class="fa fa-exclamation fa-fw" style="color:red"></i> ';
 											} else if ($r_incarichi['id_stato_incarico']==2){
-												if ($r_incarichi['time_start']) {
+												if ($r_incarichi['time_start'] || $r_incarichi['started']=='t') {
 													echo '<i class="fa fa-check" style="color:green"></i> ';
 												} else {
 													echo '<i class="fa fa-check" style="color:orange"></i> ';
