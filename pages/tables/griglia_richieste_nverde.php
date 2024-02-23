@@ -9,14 +9,14 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT id_evento, to_char(r.data_ora, 'YYYY/MM/DD HH24:MI:SS'::text) AS data_ora,
-r.descrizione, concat (s.nome_cognome, ' ' , s.telefono,' ', s.note) as segnalante,
-t.descrizione as tipo_segnalante
-	FROM segnalazioni.t_richieste_nverde r
-	JOIN segnalazioni.t_segnalanti s ON r.id_segnalante=s.id
-	JOIN segnalazioni.tipo_segnalanti t ON t.id=s.id_tipo_segnalante
-	JOIN eventi.t_eventi e ON e.id = r.id_evento
-	 WHERE e.valido = true OR e.valido IS NULL
-  ORDER BY r.data_ora desc, r.id_evento;";
+					r.descrizione, concat (s.nome_cognome, ' ' , s.telefono,' ', s.note) as segnalante,
+					t.descrizione as tipo_segnalante, n_verde
+			FROM segnalazioni.t_richieste_nverde r
+			JOIN segnalazioni.t_segnalanti s ON r.id_segnalante=s.id
+			JOIN segnalazioni.tipo_segnalanti t ON t.id=s.id_tipo_segnalante
+			JOIN eventi.t_eventi e ON e.id = r.id_evento
+			WHERE e.valido = true OR e.valido IS NULL
+			ORDER BY r.data_ora desc, r.id_evento;";
     
     //echo $query;
 	$result = pg_query($conn, $query);
@@ -33,7 +33,7 @@ t.descrizione as tipo_segnalante
 		//print $rows;
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		echo "[{\"NOTE\":\"No data\"}]";
 	}
 }
 

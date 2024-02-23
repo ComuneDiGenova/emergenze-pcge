@@ -15,15 +15,12 @@ $id=str_replace("'", "", $id);
 
 $uo_inserimento = $_POST["uo_ins"];
 
-$descrizione= str_replace("'", "''", $_POST["descrizione_richiesta"]);
-$nome= str_replace("'", "''", $_POST["nome"]);
-//$cognome= str_replace("'", "''", $_POST["cognome"]);
-$altro= str_replace("'", "''", $_POST["altro"]);
-$note_segnalante= str_replace("'", "''", $_POST["note_segnalante"]);
-
-
-
-
+$descrizione = str_replace("'", "''", $_POST["descrizione_richiesta"]);
+$nome = str_replace("'", "''", $_POST["nome"]);
+$altro = str_replace("'", "''", $_POST["altro"]);
+$note_segnalante = str_replace("'", "''", $_POST["note_segnalante"]);
+$id_evento = $_POST["evento"];
+$nverde = $_POST["nverde"];
 
 
 //echo "La gestione della segnalazione e' attualmente in fase di sviluppo. Ci scusiamo per il disagio<br>";
@@ -87,31 +84,30 @@ while($r_max = pg_fetch_assoc($result_max)) {
 	}
 }
 
-echo $id_richiesta;
+// DEBUG
+// echo $id_richiesta;
 echo "<br>";
 
 
+// $query="INSERT INTO segnalazioni.t_richieste_nverde(id, uo_ins, id_segnalante, descrizione, id_evento, id_operatore ";
+// $query=$query.") VALUES ("; 
+// $query=$query." ".$id_richiesta.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["evento"].",'".$_SESSION["operatore"]."' ";
+// $query=$query.");";
 
+$query="INSERT INTO segnalazioni.t_richieste_nverde(id, uo_ins, id_segnalante, descrizione, id_evento, id_operatore, n_verde)
+		VALUES ({$id_richiesta}, '{$uo_inserimento}', {$id_segnalante}, '{$descrizione}', {$id_evento}, '{$id_operatore}', '{$nverde}');";
 
-$query="INSERT INTO segnalazioni.t_richieste_nverde(id, uo_ins, id_segnalante, descrizione, id_evento, id_operatore ";
-$query=$query.") VALUES ("; 
-$query=$query." ".$id_richiesta.", '".$uo_inserimento."', ".$id_segnalante.",'".$descrizione."',".$_POST["evento"].",'".$_SESSION["operatore"]."' ";
-$query=$query.");";
+// DEBUG
+// echo $query;
+// exit;
 
-echo $query;
-//exit;
 $result = pg_query($conn, $query);
+echo $result;
 echo "<br>";
 
 
-
-
-
-
-
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$_SESSION["operatore"] ."', 'Inserita richiesta nverde ".$id_richiesta."');";
+$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$id_operatore ."', 'Inserita richiesta nverde ".$id_richiesta."');";
 $result = pg_query($conn, $query_log);
-
 
 
 //$idfascicolo=str_replace('A','',$idfascicolo);
@@ -119,8 +115,7 @@ $result = pg_query($conn, $query_log);
 echo "<br>";
 echo $query_log;
 
-//exit;
-//header("location: ../dettagli_segnalazione.php?id=".$id_segnalazione);
+
 header("location: ../elenco_richieste.php");
 
 ?>
