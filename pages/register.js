@@ -84,12 +84,18 @@ function form1_setup() {
             //     return {text: item}},
             search: function (qry, callback) {
               var myHeaders = new Headers();
+              myHeaders.append('Content-Type', 'application/json');
+              // myHeaders.append('sec-fetch-site', 'cross-site');
+              // myHeaders.append('Sec-Fetch-Dest', 'https://mappe.comune.genova.it');
               // myHeaders.append("Cookie", "GS_FLOW_CONTROL=GS_CFLOW_-5bffe80a:18557f2f12c:-4e9f");
 
               var requestOptions = {
                   method: 'GET',
                   headers: myHeaders,
-                  redirect: 'follow'
+                  redirect: 'follow',
+                  mode: 'cors',
+                  referrerPolicy: 'no-referrer-when-downgrade',
+                  // referrerPolicy: 'origin', // "origin-when-cross-origin" // strict-origin-when-cross-origin, no-referrer-when-downgrade, no-referrer, origin, same-origin...
               };
 
               let url = STRADARIOURL + `&cql_filter=(NOMEVIA+ILIKE+%27%25${qry}%25%27)&maxFeatures=${maxFeatures}`;
@@ -110,7 +116,9 @@ function form1_setup() {
                       }
                   }));
                   callback(options);
-              })
+              }).catch(error => {
+        console.error('Fetch error:', error);
+    });
               // .catch(error => console.log('error', error));
                 // let's do a custom ajax call
                 // $.ajax(
@@ -143,6 +151,7 @@ function form1_setup() {
 
               var requestOptions = {
                   method: 'GET',
+                  mode: 'cors',
                   headers: myHeaders,
                   redirect: 'follow'
               };

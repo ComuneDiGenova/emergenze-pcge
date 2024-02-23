@@ -7,10 +7,15 @@ if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
-	$query="SELECT concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome,
+	$query="SELECT
+	case
+		when p.note is null then p.nome
+		else concat(p.nome,' (', replace(p.note,'LOCALITA',''),')')
+	end as nome,
+	-- concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome,
 	p.tipo,
 	p.id::character varying, 
-	max(l.data_ora) as last_update,
+	date_trunc('second', max(l.data_ora)) as last_update,
 	(select max(id_lettura) 
 	 from geodb.lettura_mire  
 	 where num_id_mira = p.id and 

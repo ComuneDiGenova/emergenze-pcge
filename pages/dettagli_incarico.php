@@ -148,8 +148,8 @@ require('navbar_up.php');
 						<?php 
 						$lon=$r['lon'];
 						$lat=$r['lat'];
-            		$id_lavorazione=$r['id_lavorazione'];
-            		$id_civico=$r['id_civico'];
+						$id_lavorazione=$r['id_lavorazione'];
+						$id_civico=$r['id_civico'];
 						$geom=$r['geom'];
 						$id_municipio=$r['id_municipio'];
 						$id_evento=$r['id_evento'];
@@ -163,7 +163,8 @@ require('navbar_up.php');
 						if ($r["id_stato_incarico"]==1){
 							echo '<i class="fas fa-pause" style="color:orange"></i> ';
 						} else if  ($r["id_stato_incarico"]==2) {
-							if ($r['time_start']!=null) {
+							// if ($r['time_preview']<null)
+							if ($r['time_start']!=null or $r['started']) {
 								echo '<i class="fas fa-play" style="color:green"></i> ';
 							} else {
 								echo '<i class="fas fa-play" style="color:orange"></i> ';
@@ -174,9 +175,9 @@ require('navbar_up.php');
 							echo '<i class="fas fa-times-circle"></i> ';
 						}
 						
-						
-						
+						echo 'Stato intervento: ';
 						echo $r['descrizione_stato'];
+						
 						if ($r["parziale"]=='t'){
 							echo '<br><br><i class="fas fa-battery-quarter"></i>  Presa in carico parziale';
 						}
