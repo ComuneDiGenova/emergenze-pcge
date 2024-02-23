@@ -12,8 +12,10 @@ if(!$conn) {
 					r.descrizione, concat (s.nome_cognome, ' ' , s.telefono,' ', s.note) as segnalante,
 					t.descrizione as tipo_segnalante, n_verde
 			FROM segnalazioni.t_richieste_nverde r
-			JOIN segnalazioni.t_segnalanti s ON r.id_segnalante=s.id
-			JOIN segnalazioni.tipo_segnalanti t ON t.id=s.id_tipo_segnalante
+				JOIN segnalazioni.t_segnalanti s 
+					ON r.id_segnalante=s.id
+				JOIN segnalazioni.tipo_segnalanti t 
+					ON t.id=s.id_tipo_segnalante
 			JOIN eventi.t_eventi e ON e.id = r.id_evento
 			WHERE e.valido = true OR e.valido IS NULL
 			ORDER BY r.data_ora desc, r.id_evento;";
