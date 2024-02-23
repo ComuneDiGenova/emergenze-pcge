@@ -21,7 +21,7 @@ $subtitle="Dettagli incarico interno n. ".$id;
     <meta name="description" content="">
     <meta name="author" content="roberto" >
 
-    <title>Gestione emergenze</title>
+    <title>Incarico interno <?php echo $id;?></title>
 <?php 
 require('./req.php');
 
