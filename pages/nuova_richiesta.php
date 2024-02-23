@@ -82,7 +82,7 @@ require('navbar_up.php');
              
             <div class="form-group">
                 <label for="nome"> Nome richiedente</label> <font color="red">*</font>
-                <input type="text" id="nome" name="nome" class="form-control" required>
+                <input type="text" id="nome" name="nome" value="Anonimo" class="form-control" required>
                 <small>Se non specificato scrivere <i>Anonimo</i></small>
               </div>
             <div class="form-group">
@@ -189,7 +189,8 @@ require('navbar_up.php');
 			<div class="row">
              	<div class="form-group col-md-6">
 					<label for="nome"> Specifica se si tratta di una richiesta generica (es. sono aperte le Scuole?) 
-					o di una nuova segnalazione da inserire a sistema</label> <font color="red">*</font><br>
+					o di una nuova segnalazione da inserire<font color="red">*</font></label> 
+          <br>
 					<label class="radio-inline"><input type="radio" name="ric" id="rich" required="">Richiesta</label>
 					<label class="radio-inline"><input type="radio" name="ric" id="segn">Segnalazione</label>
 				</div>
