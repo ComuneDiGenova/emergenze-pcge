@@ -31,7 +31,7 @@ function roundToQuarterHour($now){
 		//echo 'minuti if: ' .$minutes.'</br>';
 	}
 
-	$rounded = $now["mday"]."/".$now["mon"]."/".substr($now["year"],-2)."<br>".$now['hours'].":".$minutes;
+	$rounded = $now["mday"]."/".$now["mon"]."<br>".$now['hours'].":".$minutes."<br>";
 	//echo 'ora finale: '.$rounded.'</br>';
 	return $rounded;
 }
@@ -838,6 +838,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 				?>
                 <h3>Monitoraggio (Letture Mire e Idrometri nelle 8 ore precedenti)</h3>
 				<h4>Letture Mire e Rivi </h4>
+				<h5><a name="mire-tab1">Tab. 1</a> (<a href="#mire-tab2">Vai alle acquisizioni più recenti</a>)</h5>
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
 				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
 				data-search="true" data-click-to-select="true" data-show-print="true"  
@@ -866,6 +867,48 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?> 11</th>
 						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?> 10</th>  
 						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?> 9</th>
+						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?> 8</th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?> 7</th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?> 6</th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?> 5</th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?> 4</th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?> 3</th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?> 2</th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?> 1</th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?> 0</th> -->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table>
+				<h5><a name="mire-tab2">Tab. 2</a> ()</h5>
+				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
+				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<!-- <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?> 16</th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?> 15</th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?> 14</th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?> 13</th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?> 12</th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?> 11</th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?> 10</th>
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?> 9</th>   -->
 						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?> 8</th>
 						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?> 7</th>
 						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?> 6</th>
@@ -879,6 +922,8 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					</tr>
 				</thead>
 				</table><br>
+
+
 				<h4>Valori Idrometri ARPAL </h4>
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
 				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
@@ -908,6 +953,47 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
 						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
 						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
+						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
+						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
+						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
+						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
+					</tr>
+				</thead>
+				</table><br>
+				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
+				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+				data-search="true" data-click-to-select="true" data-show-print="true"  
+				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+				data-filter-control="true" data-toolbar="#toolbar">
+        
+				<thead>
+
+					<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
+						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
+						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
+						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
+						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<!-- <th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
+						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
+						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
+						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
+						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
+						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
+						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
+						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th> -->
 						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
 						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
 						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
@@ -921,6 +1007,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					</tr>
 				</thead>
 				</table><br>
+
 				<h4>Valori Idrometri COMUNE </h4>
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
 				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 

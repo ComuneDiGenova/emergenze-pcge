@@ -60,7 +60,7 @@ if(!$conn) {
    $query="SELECT p.name AS nome,
    'IDROMETRO ARPA'::character varying AS tipo,
    l.id_station::text AS id,
-   max(l.data_ora) AT TIME ZONE 'UTC' AT TIME ZONE 'CEST' AS last_update,
+   date_trunc('second', max(l.data_ora)) AT TIME ZONE 'UTC' AT TIME ZONE 'CEST' AS last_update,
    NULL as perc_al_g,
       NULL as perc_al_a,
       NULL as perc_al_r,

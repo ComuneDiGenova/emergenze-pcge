@@ -302,7 +302,7 @@ if (!$mail->send()) {
 
 
 //exit;
-//header("location: ../dettagli_segnalazione.php?id=".$segn);
+header("location: ../dettagli_segnalazione.php?id=".$segn);
 
 
 ?>
