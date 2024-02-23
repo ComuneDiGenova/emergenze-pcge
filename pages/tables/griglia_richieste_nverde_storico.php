@@ -35,7 +35,7 @@ if(!$conn) {
 		//print $rows;
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		echo "[{\"NOTE\":\"No data\"}]";
 	}
 }
 
