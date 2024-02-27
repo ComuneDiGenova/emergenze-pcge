@@ -19,6 +19,12 @@ from .presidio_mobile.squadra import after_insert_stato_presidio
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
+import psycopg2
+import selectors, time
+
+# Non rimuovere!
+db._adapter.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
 def create_sql_function(schema, function_name, notification_name, payload, action):
 
     sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
@@ -476,22 +482,46 @@ def do_stuff(channel, **payload):
         after_insert_t_storico_segnalazioni_in_lavorazione(payload["id_lavorazione"], payload["messaggio_log"])
 
 
+def wait_for_notifications(sleep=1):
+    """ """
+    logger.info('Starting!')
+    logger.info('Waiting for notifications!')
+    queue = []
+    # Creare un oggetto Selector
+    selector = selectors.DefaultSelector()
+
+    # Registrare il file descriptor per la connessione del database per la lettura
+    # (supponendo che db._adapter.connection sia il file descriptor)
+    fileobj = db._adapter.connection
+    selector.register(fileobj, selectors.EVENT_READ)
+    # Ora puoi usare il metodo select() del selettore per controllare se ci sono eventi pronti
+    # per la lettura sul file descriptor della connessione del database
+    events = selector.select(timeout=None)  # Puoi specificare un timeout in secondi se necessario
+    # time.sleep(sleep)
+
+    # events sarà una lista di tuple, ognuna delle quali contiene un oggetto SelectorKey e un mask
+    for key, mask in events:
+        if key.fileobj == fileobj:
+            # Eseguire azioni in base al tipo di evento che è pronto
+            if mask & selectors.EVENT_READ:
+                # L'evento di lettura è pronto sul file descriptor della connessione del database
+                # Esegui le azioni appropriate qui
+                db._adapter.connection.poll()
+                while db._adapter.connection.notifies:
+                    notification = db._adapter.connection.notifies.pop()
+                    # https://github.com/psycopg/psycopg2/issues/686#issuecomment-591725603
+                    # db._adapter.connection.poll()
+                    logger.debug(notification)
+                    yield notification
+
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
+    set_listen()
+    
     while True:
-        logger.info('Starting!')
-        set_listen()
-        # sleep until there is some data
-        logger.info('Waiting for notifications!')
-        select.select([db._adapter.connection],[],[])
-        logger.debug('Catched!')
 
-        db._adapter.connection.poll()
-
-        while db._adapter.connection.notifies:
-
-            notification = db._adapter.connection.notifies.pop(0)
+        for notification in wait_for_notifications():
 
             payload = json.loads(notification.payload)
 
@@ -505,6 +535,7 @@ def listen():
                 logger.critical(full_traceback)
             else:
                 db.commit()
+        
 
 
 if __name__ == '__main__':
