@@ -100,7 +100,6 @@ class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
 
-
 class Intervento(Verbatel):
     """docstring for Intervento."""
     root = 'interventi'
