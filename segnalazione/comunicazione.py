@@ -10,9 +10,16 @@ from ..verbatel import Intervento
 
 import base64
 
-fake_upload = Field('allegato', 'upload',
-    uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
-)
+def get_fake_upload(table):
+    """ """
+    
+    fake_upload = Field('allegato', 'upload',
+        uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
+    )
+    fake_upload.bind(table)
+    return fake_upload
+
+fake_upload = get_fake_upload(db.comunicazione)
 
 comunicazione_fields = [
     db.comunicazione.mittente,
@@ -169,6 +176,7 @@ def render(row):
     return out
 
 check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
+check_da_pm = f"({db.comunicazione._rname}.mittente ilike '%Polizia Locale')"
 
 def fetch(lavorazione_id:int, timeref):
     """ """
@@ -187,15 +195,21 @@ def fetch(lavorazione_id:int, timeref):
         db.intervento.intervento_id.with_alias('idIntervento'),
         db.comunicazione.testo.with_alias('testo'),
         db.comunicazione.allegato.with_alias('allegato'),
-        check
+        db.comunicazione.mittente,
+        check,
+        check_da_pm
     ).first()
 
-    return rec and (rec.idIntervento, rec[check], render(rec),)
+    logger.debug(rec)
+
+    return rec and (rec.idIntervento, [rec[check], rec[check_da_pm]], render(rec),)
 
 
 def after_insert_comunicazione_segnalazione(*args, **kwargs):
     """ """
     result = fetch(*args, **kwargs)
     if not result is None:
-        idIntervento, _, payload = result
-        Intervento.message(idIntervento, **payload)
+        idIntervento, checks, payload = result
+        _, da_pm = checks
+        if not da_pm:
+            Intervento.message(idIntervento, **payload)
