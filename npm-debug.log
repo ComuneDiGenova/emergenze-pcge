@@ -1,0 +1,342 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'i',
+1 verbose cli   '--save-dev',
+1 verbose cli   '@types/jquery' ]
+2 info using npm@3.10.10
+3 info using node@v6.17.1
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readLocalPackageData
+7 silly fetchPackageMetaData @types/jquery
+8 silly fetchNamedPackageData @types/jquery
+9 silly mapToRegistry name @types/jquery
+10 silly mapToRegistry scope (from package name) @types
+11 verbose mapToRegistry no registry URL found in name for scope @types
+12 silly mapToRegistry using default registry
+13 silly mapToRegistry registry https://registry.npmjs.org/
+14 silly mapToRegistry data Result {
+14 silly mapToRegistry   raw: '@types/jquery',
+14 silly mapToRegistry   scope: '@types',
+14 silly mapToRegistry   escapedName: '@types%2fjquery',
+14 silly mapToRegistry   name: '@types/jquery',
+14 silly mapToRegistry   rawSpec: '',
+14 silly mapToRegistry   spec: 'latest',
+14 silly mapToRegistry   type: 'tag' }
+15 silly mapToRegistry uri https://registry.npmjs.org/@types%2fjquery
+16 verbose request uri https://registry.npmjs.org/@types%2fjquery
+17 verbose request no auth needed
+18 info attempt registry request try #1 at 12:59:59
+19 verbose request id 200140c74b7c3efb
+20 verbose etag W/"4476931f2fe1399d06254f0b2076b9be"
+21 verbose lastModified Mon, 23 Aug 2021 08:36:28 GMT
+22 http request GET https://registry.npmjs.org/@types%2fjquery
+23 http 200 https://registry.npmjs.org/@types%2fjquery
+24 verbose headers { date: 'Wed, 25 Jan 2023 11:59:59 GMT',
+24 verbose headers   'content-type': 'application/json',
+24 verbose headers   'transfer-encoding': 'chunked',
+24 verbose headers   connection: 'keep-alive',
+24 verbose headers   'cf-ray': '78f0d88f0ec6b39b-MUC',
+24 verbose headers   'access-control-allow-origin': '*',
+24 verbose headers   'cache-control': 'public, max-age=300',
+24 verbose headers   etag: 'W/"6719ca863f9b9ad1eed9fcb43fb41711"',
+24 verbose headers   'last-modified': 'Sat, 31 Dec 2022 10:03:20 GMT',
+24 verbose headers   vary: 'accept-encoding, accept',
+24 verbose headers   'cf-cache-status': 'HIT',
+24 verbose headers   'x-amz-replication-status': 'COMPLETED',
+24 verbose headers   server: 'cloudflare',
+24 verbose headers   'content-encoding': 'gzip' }
+25 silly get cb [ 200,
+25 silly get   { date: 'Wed, 25 Jan 2023 11:59:59 GMT',
+25 silly get     'content-type': 'application/json',
+25 silly get     'transfer-encoding': 'chunked',
+25 silly get     connection: 'keep-alive',
+25 silly get     'cf-ray': '78f0d88f0ec6b39b-MUC',
+25 silly get     'access-control-allow-origin': '*',
+25 silly get     'cache-control': 'public, max-age=300',
+25 silly get     etag: 'W/"6719ca863f9b9ad1eed9fcb43fb41711"',
+25 silly get     'last-modified': 'Sat, 31 Dec 2022 10:03:20 GMT',
+25 silly get     vary: 'accept-encoding, accept',
+25 silly get     'cf-cache-status': 'HIT',
+25 silly get     'x-amz-replication-status': 'COMPLETED',
+25 silly get     server: 'cloudflare',
+25 silly get     'content-encoding': 'gzip' } ]
+26 verbose get saving @types/jquery to /home/local/COMGE/egter01/.npm/registry.npmjs.org/_40types_252fjquery/.cache.json
+27 verbose correctMkdir /home/local/COMGE/egter01/.npm correctMkdir not in flight; initializing
+28 silly install normalizeTree
+29 silly loadCurrentTree Finishing
+30 silly loadIdealTree Starting
+31 silly install loadIdealTree
+32 silly cloneCurrentTree Starting
+33 silly install cloneCurrentTreeToIdealTree
+34 silly cloneCurrentTree Finishing
+35 silly loadShrinkwrap Starting
+36 silly install loadShrinkwrap
+37 silly loadShrinkwrap Finishing
+38 silly loadAllDepsIntoIdealTree Starting
+39 silly install loadAllDepsIntoIdealTree
+40 silly resolveWithNewModule @types/jquery@3.5.16 checking installable status
+41 silly cache add args [ '@types/jquery', null ]
+42 verbose cache add spec @types/jquery
+43 silly cache add parsed spec Result {
+43 silly cache add   raw: '@types/jquery',
+43 silly cache add   scope: '@types',
+43 silly cache add   escapedName: '@types%2fjquery',
+43 silly cache add   name: '@types/jquery',
+43 silly cache add   rawSpec: '',
+43 silly cache add   spec: 'latest',
+43 silly cache add   type: 'tag' }
+44 silly addNamed @types/jquery@latest
+45 verbose addNamed "latest" is being treated as a dist-tag for @types/jquery
+46 info addNameTag [ '@types/jquery', 'latest' ]
+47 silly mapToRegistry name @types/jquery
+48 silly mapToRegistry scope (from package name) @types
+49 verbose mapToRegistry no registry URL found in name for scope @types
+50 silly mapToRegistry using default registry
+51 silly mapToRegistry registry https://registry.npmjs.org/
+52 silly mapToRegistry data Result {
+52 silly mapToRegistry   raw: '@types/jquery',
+52 silly mapToRegistry   scope: '@types',
+52 silly mapToRegistry   escapedName: '@types%2fjquery',
+52 silly mapToRegistry   name: '@types/jquery',
+52 silly mapToRegistry   rawSpec: '',
+52 silly mapToRegistry   spec: 'latest',
+52 silly mapToRegistry   type: 'tag' }
+53 silly mapToRegistry uri https://registry.npmjs.org/@types%2fjquery
+54 verbose addNameTag registry:https://registry.npmjs.org/@types%2fjquery not in flight; fetching
+55 verbose get https://registry.npmjs.org/@types%2fjquery not expired, no request
+56 silly addNameTag next cb for @types/jquery with tag latest
+57 silly addNamed @types/jquery@3.5.16
+58 verbose addNamed "3.5.16" is a plain semver version for @types/jquery
+59 silly mapToRegistry name @types/jquery
+60 silly mapToRegistry scope (from package name) @types
+61 verbose mapToRegistry no registry URL found in name for scope @types
+62 silly mapToRegistry using default registry
+63 silly mapToRegistry registry https://registry.npmjs.org/
+64 silly mapToRegistry data Result {
+64 silly mapToRegistry   raw: '@types/jquery',
+64 silly mapToRegistry   scope: '@types',
+64 silly mapToRegistry   escapedName: '@types%2fjquery',
+64 silly mapToRegistry   name: '@types/jquery',
+64 silly mapToRegistry   rawSpec: '',
+64 silly mapToRegistry   spec: 'latest',
+64 silly mapToRegistry   type: 'tag' }
+65 silly mapToRegistry uri https://registry.npmjs.org/@types%2fjquery
+66 verbose addRemoteTarball https://registry.npmjs.org/@types/jquery/-/jquery-3.5.16.tgz not in flight; adding
+67 verbose addRemoteTarball [ 'https://registry.npmjs.org/@types/jquery/-/jquery-3.5.16.tgz',
+67 verbose addRemoteTarball   '632131baf30951915b0317d48c98e9890bdf051d' ]
+68 info retry fetch attempt 1 at 13:00:00
+69 info attempt registry request try #1 at 13:00:00
+70 http fetch GET https://registry.npmjs.org/@types/jquery/-/jquery-3.5.16.tgz
+71 http fetch 200 https://registry.npmjs.org/@types/jquery/-/jquery-3.5.16.tgz
+72 silly fetchAndShaCheck shasum 632131baf30951915b0317d48c98e9890bdf051d
+73 verbose addTmpTarball /tmp/npm-30088-37bdef61/registry.npmjs.org/_40types/jquery/-/jquery-3.5.16.tgz not in flight; adding
+74 verbose addTmpTarball already have metadata; skipping unpack for @types/jquery@3.5.16
+75 verbose correctMkdir /home/local/COMGE/egter01/.npm correctMkdir not in flight; initializing
+76 silly cache afterAdd @types/jquery@3.5.16
+77 verbose afterAdd /home/local/COMGE/egter01/.npm/@types/jquery/3.5.16/package/package.json not in flight; writing
+78 verbose correctMkdir /home/local/COMGE/egter01/.npm correctMkdir not in flight; initializing
+79 verbose afterAdd /home/local/COMGE/egter01/.npm/@types/jquery/3.5.16/package/package.json written
+80 silly fetchNamedPackageData @types/sizzle
+81 silly mapToRegistry name @types/sizzle
+82 silly mapToRegistry scope (from package name) @types
+83 verbose mapToRegistry no registry URL found in name for scope @types
+84 silly mapToRegistry using default registry
+85 silly mapToRegistry registry https://registry.npmjs.org/
+86 silly mapToRegistry data Result {
+86 silly mapToRegistry   raw: '@types/sizzle',
+86 silly mapToRegistry   scope: '@types',
+86 silly mapToRegistry   escapedName: '@types%2fsizzle',
+86 silly mapToRegistry   name: '@types/sizzle',
+86 silly mapToRegistry   rawSpec: '',
+86 silly mapToRegistry   spec: 'latest',
+86 silly mapToRegistry   type: 'tag' }
+87 silly mapToRegistry uri https://registry.npmjs.org/@types%2fsizzle
+88 verbose request uri https://registry.npmjs.org/@types%2fsizzle
+89 verbose request no auth needed
+90 info attempt registry request try #1 at 13:00:00
+91 verbose etag W/"3fd1beb91a86a26a78d74b25c6ae61e9"
+92 verbose lastModified Mon, 23 Aug 2021 09:00:04 GMT
+93 http request GET https://registry.npmjs.org/@types%2fsizzle
+94 http 200 https://registry.npmjs.org/@types%2fsizzle
+95 verbose headers { date: 'Wed, 25 Jan 2023 12:00:00 GMT',
+95 verbose headers   'content-type': 'application/json',
+95 verbose headers   'transfer-encoding': 'chunked',
+95 verbose headers   connection: 'keep-alive',
+95 verbose headers   'cf-ray': '78f0d8929a7eb39b-MUC',
+95 verbose headers   'access-control-allow-origin': '*',
+95 verbose headers   age: '91',
+95 verbose headers   'cache-control': 'public, max-age=300',
+95 verbose headers   etag: 'W/"d25efa81df38118ce0f595ff1bbda265"',
+95 verbose headers   'last-modified': 'Mon, 14 Nov 2022 08:29:29 GMT',
+95 verbose headers   vary: 'accept-encoding, accept',
+95 verbose headers   'cf-cache-status': 'HIT',
+95 verbose headers   'x-amz-replication-status': 'PENDING',
+95 verbose headers   server: 'cloudflare',
+95 verbose headers   'content-encoding': 'gzip' }
+96 silly get cb [ 200,
+96 silly get   { date: 'Wed, 25 Jan 2023 12:00:00 GMT',
+96 silly get     'content-type': 'application/json',
+96 silly get     'transfer-encoding': 'chunked',
+96 silly get     connection: 'keep-alive',
+96 silly get     'cf-ray': '78f0d8929a7eb39b-MUC',
+96 silly get     'access-control-allow-origin': '*',
+96 silly get     age: '91',
+96 silly get     'cache-control': 'public, max-age=300',
+96 silly get     etag: 'W/"d25efa81df38118ce0f595ff1bbda265"',
+96 silly get     'last-modified': 'Mon, 14 Nov 2022 08:29:29 GMT',
+96 silly get     vary: 'accept-encoding, accept',
+96 silly get     'cf-cache-status': 'HIT',
+96 silly get     'x-amz-replication-status': 'PENDING',
+96 silly get     server: 'cloudflare',
+96 silly get     'content-encoding': 'gzip' } ]
+97 verbose get saving @types/sizzle to /home/local/COMGE/egter01/.npm/registry.npmjs.org/_40types_252fsizzle/.cache.json
+98 verbose correctMkdir /home/local/COMGE/egter01/.npm correctMkdir not in flight; initializing
+99 silly resolveWithNewModule @types/sizzle@2.3.3 checking installable status
+100 silly cache add args [ '@types/sizzle@*', null ]
+101 verbose cache add spec @types/sizzle@*
+102 silly cache add parsed spec Result {
+102 silly cache add   raw: '@types/sizzle@*',
+102 silly cache add   scope: '@types',
+102 silly cache add   escapedName: '@types%2fsizzle',
+102 silly cache add   name: '@types/sizzle',
+102 silly cache add   rawSpec: '*',
+102 silly cache add   spec: '*',
+102 silly cache add   type: 'range' }
+103 silly addNamed @types/sizzle@*
+104 verbose addNamed "*" is a valid semver range for @types/sizzle
+105 silly addNameRange { name: '@types/sizzle', range: '*', hasData: false }
+106 silly mapToRegistry name @types/sizzle
+107 silly mapToRegistry scope (from package name) @types
+108 verbose mapToRegistry no registry URL found in name for scope @types
+109 silly mapToRegistry using default registry
+110 silly mapToRegistry registry https://registry.npmjs.org/
+111 silly mapToRegistry data Result {
+111 silly mapToRegistry   raw: '@types/sizzle',
+111 silly mapToRegistry   scope: '@types',
+111 silly mapToRegistry   escapedName: '@types%2fsizzle',
+111 silly mapToRegistry   name: '@types/sizzle',
+111 silly mapToRegistry   rawSpec: '',
+111 silly mapToRegistry   spec: 'latest',
+111 silly mapToRegistry   type: 'tag' }
+112 silly mapToRegistry uri https://registry.npmjs.org/@types%2fsizzle
+113 verbose addNameRange registry:https://registry.npmjs.org/@types%2fsizzle not in flight; fetching
+114 verbose get https://registry.npmjs.org/@types%2fsizzle not expired, no request
+115 silly addNameRange number 2 { name: '@types/sizzle', range: '*', hasData: true }
+116 silly addNameRange versions [ '@types/sizzle', [ '2.3.0', '2.3.1', '2.3.2', '2.3.3' ] ]
+117 silly addNamed @types/sizzle@2.3.3
+118 verbose addNamed "2.3.3" is a plain semver version for @types/sizzle
+119 silly cache afterAdd @types/sizzle@2.3.3
+120 verbose afterAdd /home/local/COMGE/egter01/.npm/@types/sizzle/2.3.3/package/package.json not in flight; writing
+121 verbose correctMkdir /home/local/COMGE/egter01/.npm correctMkdir not in flight; initializing
+122 verbose afterAdd /home/local/COMGE/egter01/.npm/@types/sizzle/2.3.3/package/package.json written
+123 silly loadAllDepsIntoIdealTree Finishing
+124 silly loadIdealTree Finishing
+125 silly currentTree startbootstrap-sb-admin-2@3.3.7
+125 silly currentTree └── print-js@1.0.63
+126 silly idealTree startbootstrap-sb-admin-2@3.3.7
+126 silly idealTree ├── @types/jquery@3.5.16
+126 silly idealTree ├── @types/sizzle@2.3.3
+126 silly idealTree └── print-js@1.0.63
+127 silly generateActionsToTake Starting
+128 silly install generateActionsToTake
+129 silly generateActionsToTake Finishing
+130 silly diffTrees action count 2
+131 silly diffTrees add @types/sizzle@2.3.3
+132 silly diffTrees add @types/jquery@3.5.16
+133 silly decomposeActions action count 16
+134 silly decomposeActions fetch @types/sizzle@2.3.3
+135 silly decomposeActions extract @types/sizzle@2.3.3
+136 silly decomposeActions test @types/sizzle@2.3.3
+137 silly decomposeActions preinstall @types/sizzle@2.3.3
+138 silly decomposeActions build @types/sizzle@2.3.3
+139 silly decomposeActions install @types/sizzle@2.3.3
+140 silly decomposeActions postinstall @types/sizzle@2.3.3
+141 silly decomposeActions finalize @types/sizzle@2.3.3
+142 silly decomposeActions fetch @types/jquery@3.5.16
+143 silly decomposeActions extract @types/jquery@3.5.16
+144 silly decomposeActions test @types/jquery@3.5.16
+145 silly decomposeActions preinstall @types/jquery@3.5.16
+146 silly decomposeActions build @types/jquery@3.5.16
+147 silly decomposeActions install @types/jquery@3.5.16
+148 silly decomposeActions postinstall @types/jquery@3.5.16
+149 silly decomposeActions finalize @types/jquery@3.5.16
+150 silly runTopLevelLifecycles Starting
+151 silly executeActions Starting
+152 silly install executeActions
+153 silly doSerial global-install 0
+154 silly doParallel fetch 2
+155 verbose correctMkdir /home/local/COMGE/egter01/.npm/_locks correctMkdir not in flight; initializing
+156 verbose lock using /home/local/COMGE/egter01/.npm/_locks/staging-fa954f63d89aad5d.lock for /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging
+157 silly doParallel extract 2
+158 silly extract @types/sizzle@2.3.3
+159 silly extract @types/jquery@3.5.16
+160 verbose unbuild node_modules/.staging/@types/sizzle-1c792889
+161 verbose unbuild node_modules/.staging/@types/jquery-faf63864
+162 silly gentlyRm /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889 is being purged from base /home/local/COMGE/egter01/emergenze-pcge
+163 verbose gentlyRm don't care about contents; nuking /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889
+164 silly gentlyRm /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864 is being purged from base /home/local/COMGE/egter01/emergenze-pcge
+165 verbose gentlyRm don't care about contents; nuking /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864
+166 verbose tar unpack /home/local/COMGE/egter01/.npm/@types/sizzle/2.3.3/package.tgz
+167 verbose tar unpacking to /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889
+168 silly gentlyRm /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889 is being purged
+169 verbose gentlyRm don't care about contents; nuking /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889
+170 verbose tar unpack /home/local/COMGE/egter01/.npm/@types/jquery/3.5.16/package.tgz
+171 verbose tar unpacking to /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864
+172 silly gentlyRm /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864 is being purged
+173 verbose gentlyRm don't care about contents; nuking /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864
+174 silly gunzTarPerm modes [ '755', '644' ]
+175 silly gunzTarPerm modes [ '755', '644' ]
+176 silly gunzTarPerm extractEntry LICENSE
+177 silly gunzTarPerm modified mode [ 'LICENSE', 511, 493 ]
+178 silly gunzTarPerm extractEntry
+179 silly gunzTarPerm modified mode [ '', 511, 493 ]
+180 silly gunzTarPerm extractEntry README.md
+181 silly gunzTarPerm modified mode [ 'README.md', 511, 493 ]
+182 silly gunzTarPerm extractEntry index.d.ts
+183 silly gunzTarPerm modified mode [ 'index.d.ts', 511, 493 ]
+184 silly gunzTarPerm extractEntry
+185 silly gunzTarPerm modified mode [ '', 511, 493 ]
+186 silly gunzTarPerm extractEntry package.json
+187 silly gunzTarPerm modified mode [ 'package.json', 511, 493 ]
+188 silly gunzTarPerm extractEntry
+189 silly gunzTarPerm modified mode [ '', 511, 493 ]
+190 silly gunzTarPerm extractEntry
+191 silly gunzTarPerm modified mode [ '', 511, 493 ]
+192 silly gentlyRm /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889/node_modules is being purged
+193 verbose gentlyRm don't care about contents; nuking /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/sizzle-1c792889/node_modules
+194 silly gunzTarPerm extractEntry
+195 silly gunzTarPerm modified mode [ '', 511, 493 ]
+196 silly gunzTarPerm extractEntry
+197 silly gunzTarPerm modified mode [ '', 511, 493 ]
+198 silly gunzTarPerm extractEntry
+199 silly gunzTarPerm modified mode [ '', 511, 493 ]
+200 silly gunzTarPerm extractEntry
+201 silly gunzTarPerm modified mode [ '', 511, 493 ]
+202 silly gunzTarPerm extractEntry
+203 silly gunzTarPerm modified mode [ '', 511, 493 ]
+204 silly gunzTarPerm extractEntry
+205 silly gunzTarPerm modified mode [ '', 511, 493 ]
+206 silly gunzTarPerm extractEntry
+207 silly gunzTarPerm modified mode [ '', 511, 493 ]
+208 verbose unlock done using /home/local/COMGE/egter01/.npm/_locks/staging-fa954f63d89aad5d.lock for /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging
+209 silly rollbackFailedOptional Starting
+210 silly rollbackFailedOptional Finishing
+211 silly runTopLevelLifecycles Finishing
+212 silly install printInstalled
+213 verbose stack Error: ENOTDIR: not a directory, open '/home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864/package.json'
+213 verbose stack     at Error (native)
+214 verbose cwd /home/local/COMGE/egter01/emergenze-pcge
+215 error Linux 3.10.0-1160.81.1.el7.x86_64
+216 error argv "/usr/bin/node" "/usr/bin/npm" "i" "--save-dev" "@types/jquery"
+217 error node v6.17.1
+218 error npm  v3.10.10
+219 error path /home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864/package.json
+220 error code ENOTDIR
+221 error errno -20
+222 error syscall open
+223 error ENOTDIR: not a directory, open '/home/local/COMGE/egter01/emergenze-pcge/node_modules/.staging/@types/jquery-faf63864/package.json'
+224 error If you need help, you may report this error at:
+224 error     <https://github.com/npm/npm/issues>
+225 verbose exit [ -20, true ]

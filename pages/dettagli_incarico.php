@@ -8,7 +8,6 @@ session_start();
 $id=$_GET["id"];
 $subtitle=" Dettagli incarico n. ".$id;
 
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +20,7 @@ $subtitle=" Dettagli incarico n. ".$id;
     <meta name="description" content="">
     <meta name="author" content="roberto" >
 
-    <title>Gestione emergenze</title>
+    <title>Incarico <?php echo $id;?></title>
 <?php 
 require('./req.php');
 
