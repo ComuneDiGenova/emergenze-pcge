@@ -346,8 +346,6 @@ require('navbar_up.php');
 						
 						
 						
-						
-						
 						// attenzione all'ordine con cui li controllo (dal maggiore al minore)
 						// -1 non preso in carico
 						// 1 in corso
@@ -425,7 +423,6 @@ require('navbar_up.php');
 													if($check_incarichi_aperti==1) {
 									        			echo	' - <i class="fa fa-play" style="color:green"></i>';
 									        	  	}
-													
 									        ?>
 									        </a>
 									      </h4>
@@ -471,7 +468,7 @@ require('navbar_up.php');
 												echo " (Note chiusura:" .$r_incarichi['note_ente']. ")";
 											}
 											echo " - " .$r_incarichi['descrizione_uo'];
-											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico.php?id=".$r_incarichi['id']."\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
+											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
 										
 							
@@ -547,7 +544,7 @@ require('navbar_up.php');
 												echo " (Note chiusura:" .$r_incarichi['note_ente']. ")";
 											}
 											echo " - " .$r_incarichi['descrizione_uo'];
-											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico_interno.php?id=".$r_incarichi['id']."\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
+											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico_interno.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
 										
 									//echo $check_open_ii;
