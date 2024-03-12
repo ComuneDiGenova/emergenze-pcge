@@ -354,7 +354,7 @@ db.define_table('stato_presidio',
 
 db.define_table('join_presidio_squadra',
     Field('presidio_id', 'reference presidio', rname='id_sopralluogo'),
-    Field('squadra_id', 'rederence squadra', rname='id_squadra'),
+    Field('squadra_id', 'reference squadra', rname='id_squadra'),
     Field('valido', 'boolean'),
     Field('timeref', 'datetime', rname='data_ora'),
     Field('cambio', 'datetime', rname='data_ora_cambio'),

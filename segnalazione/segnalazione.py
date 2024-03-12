@@ -2,10 +2,13 @@
 
 from ..common import settings, db, logger
 from .. import incarico
+from ..verbatel import Intervento
 from pydal import geoPoint
 from pydal.validators import *
 import json
 import datetime
+
+from ..tools import log_segnalazioni2message
 
 DEFAULT_TIPO_SEGNALANTE = 1  # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = (
@@ -426,8 +429,81 @@ def upgrade(
         return lavorazione_id, None
 
 
+def after_update_lavorazione(id:int, in_lavorazione:bool=None):
+    """ Callback su aggiornamento della lavorazione.
+    In caso di chiusura della segnalazione (i.e. lavorazione aggiornata con campo in_lavorazione=False)
+    invio devo inviare a Verbatel informazione di chiusura di tutti gli interventi legati alla segnalazione.
+
+    Args:
+        id (int): Id della lavorazione
+        in_lavorazione (bool, optional): Stato della lavorazione. Defaults to None.
+    """
+    logger.debug(f"Aggiornamento lavorazione {id}, stato di lavorazione: {in_lavorazione}")
+    if in_lavorazione is False:
+        for row in db(
+            (db.join_segnalazione_lavorazione.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+            # (db.segnalazione.id==db.join_segnalazione_incarico.segnalazione_id) & \
+            (db.incarico.id==db.join_segnalazione_incarico.incarico_id) & \
+            (db.incarico.id==db.intervento.incarico_id) & \
+            (db.join_segnalazione_lavorazione.lavorazione_id==id)
+        ).select(
+            db.incarico.id.with_alias('incarico_id'),
+            db.intervento.intervento_id.with_alias('intervento_id'),
+            # recuperare intervento_id
+        ):
+            logger.debug(row)
+            _, mio_incarico = incarico.fetch(row.incarico_id)
+            incarico_id = mio_incarico.pop('idSegnalazione')
+            response = Intervento.update(row.intervento_id, **mio_incarico)
+    else:
+        logger.debug(in_lavorazione is False)
+
+
+def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
+    """ """
+    dbset = db(
+        (db.join_segnalazione_incarico.lavorazione_id==id_lavorazione) & \
+        (db.incarico.id==db.join_segnalazione_incarico.incarico_id)
+        # (db.incarico.id==db.join_segnalazione_incarico.incarico_id)
+        # (db.join_segnalazione_lavorazione.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+        # (db.segnalazione.id==db.join_segnalazione_incarico.segnalazione_id) & \
+        
+        # (db.incarico.id==db.join_segnalazione_incarico.incarico_id) & \
+        # (db.incarico.id==db.intervento.incarico_id) & \
+        # (db.join_segnalazione_lavorazione.lavorazione_id==id_lavorazione)
+    )
+    results = dbset.select(
+        db.intervento.intervento_id.with_alias('intervento_id'),
+        left = (db.incarico.on(db.intervento.incarico_id==db.incarico.id),)
+        # limitby = (0,1,)
+    )
+
+    logger.debug(dbset._select(db.intervento.intervento_id.with_alias('intervento_id'), limitby=(0,1,)))
+    logger.debug(f"Intercettato inserimento storico segnalazione: lavorazione: {id_lavorazione}\n messaggio: {messaggio_log}")
+    testo_messaggio = log_segnalazioni2message(messaggio_log)
+    for row in results:
+        if not row.intervento_id is None:
+            response = Intervento.message(
+                row.intervento_id,
+                operatore = 'operatore di PC',
+                testo = testo_messaggio
+            )
+            logger.debug(response)
+        else:
+            logger.debug(row)
+        
+    # if not row is None:
+    #     logger.debug(f'Invio notifica storico segnalazione: {messaggio_log}')
+    #     testo_messaggio = log_segnalazioni2message(messaggio_log)
+    #     response = Intervento.message(
+    #         row.intervento_id,
+    #         operatore = 'operatore di PC',
+    #         testo = testo_messaggio
+    #     )
+    #     logger.debug(response)
+
 def after_insert_lavorazione(id):
-    """ DEPRECATO
+    """ DEPRECATO ma usato rimuovere con cautela
     id @integer : Id della nuova lavorazione
     """
     pass

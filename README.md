@@ -1,9 +1,22 @@
-# Instruction manual
+# Modulo di interoperabilità
 
-## Configuration
+Modulo di interoperabilità sviluppato sulla base di evolutive di integrazione con sistemi di terze parti:
 
-just create a file called `settings_private.py` with the following content replacing
-the placeholders with the right values:
+* Verbatel
+    Modulo di condivisione incarichi con sistema di gestione interventi della Polizia Locale.
+
+* AlertSystem
+    Modulo di gestione chiamate di allerta mediante il servizio di Comunica Italia.
+
+* API Mire e Idrometri
+    Esposizone dei dati relativi ai livelli dei corsi d'acqua
+
+## Installazione
+
+### Configurazione
+
+Creare parallelamente al file `settings.py` un file `settings_private.py` con il seguente contenuto
+sostituendo i valori corretti ai *placeholder*
 
 ```py
 # -*- coding: utf-8 -*-
@@ -25,29 +38,30 @@ LOGGERS = [
 
 ```
 
-## Docker
+### Compilazione dei moduli
 
-I due file docker-compose-yml e Dockerfile devono stare una cartella sopra al progetto, da modificare la struttura (e questo readme)
+Le istruzioni qui di seguito sono date considerando l'adozione della piattaforma Docker usata per lo sviluppo e la produzione del modulo.
 
-```
-#
-emergenze_verbatel
-|     docker-compose.yml
-|     Dockerfile
-|     requirements.txt
-|____ Emergenze-Verbatel
-     |       __init__.py
-     |_______models
-     |_______static
+* Compilazione dei container
+    ```sh
+    docker-compose -f docker-compose-dev.yml build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+    ```
+* Lancio dei servizi
+    
+    ```bash
+    docker-compose -f docker-compose-dev.yml up -d
+    ```
 
-     ....
+* Chiusura dei servizi
+    ```bash
+    docker-compose -f docker-compose-dev.yml down
+    ```
 
-```
-
-Per accedere all'applicazione cerca da browser <http://localhost:8000/emergenze/evento>
+## Note sull'uso di Docker
 
 <details>
-<summary>Lanciare i comandi dal container e simili</summary>
+
+    <summary>Lanciare i comandi dal container e simili</summary>
 
 Per lanciare un comando da bash nel container
 
@@ -108,35 +122,4 @@ docker-compose down -v
 Per controllare eventuali log:
 ```bash
 docker-compose logs -f
-```
-
-### Problemi
-
-#### Non raggiungibilità portale Gestione Emergenze
-
-Sono segnalati occasionali blocchi degli accessi al portale di Gestione Emergenze
-che a valle dell'autenticazione tramite SPID risponde con un *proxy error*.
-
-Promemoria delle cose da verificare in queste occasioni:
-
-* consumo CPU dei servizi
-* stato di occupazione del filesystem
-* panoramica delle query al db e relativi consumi di risorse
-* ... (altre idee?)
-
-**Soluzione**
-
-Per far ripartire il servizio dovrebbe bastare il riavvio del container web:
-
-```sh
-cd ~/emergenze_verbatel
-sudo docker-compose restart web
-```
-
-o in alternativa per riavviare entrambi i container definiti:
-
-```sh
-cd ~/emergenze_verbatel
-sudo docker-compose down -v
-sudo docker-compose up -d
 ```
