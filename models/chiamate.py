@@ -116,7 +116,7 @@ db.define_table(
         "eMail",
         label="Indirizzo email",
         comment="Email di contatto alternativo ai numeri telefonici",
-        requires=IS_EMAIL(),
+        requires=IS_EMPTY_OR(IS_EMAIL()),
         rname="email",
     ),
     # ...
@@ -137,9 +137,13 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.utente",
+    migrate = db._migrate
 )
+
+db.utente._enable_record_versioning()
 
 db.utente.codiceFiscale.requires = requires = [
     IS_NOT_EMPTY(error_message="Valore richiesto"),
@@ -206,9 +210,13 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.contatto",
+    migrate = db._migrate
 )
+
+db.contatto._enable_record_versioning()
 
 db.define_table(
     "recapito",
@@ -312,9 +320,13 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.recapito",
+    migrate = db._migrate
 )
+
+db.recapito._enable_record_versioning()
 
 db.define_table(
     "nucleo",
@@ -364,9 +376,13 @@ db.define_table(
         readable=False,
         # label=self.param.messages["labels"].get("modified_on"),
     ),
-    migrate=False,
+    Field('is_active', 'boolean',
+        writable=False, readable=False, default=True),
     rname=f"{SCHEMA}.componente",
+    migrate = db._migrate
 )
+
+db.nucleo._enable_record_versioning()
 
 db.define_table(
     "recupero",
@@ -417,6 +433,8 @@ db.define_table(
         notnull=True,
         requires=IS_IN_SET(["1", "2", "3"]),
     ),
+    Field('residenza', 'boolean'),
+    Field('codice_fiscale'),
     Field(
         "is_active",
         "boolean",
@@ -424,9 +442,11 @@ db.define_table(
         readable=False,
         default=True,
     ),
-    migrate=False,
+    migrate = db._migrate,
     rname=f"{SCHEMA}.recupero",
 )
+
+# Vista soggetti vulnerabili validi
 
 db.define_table(
     "soggetti_vulnerabili",
@@ -438,9 +458,10 @@ db.define_table(
     Field("numero_civico", rname="numerocivico"),
     Field("gruppo"),
     Field("sorgente"),
+    Field("validita"),
     primarykey=["id"],
-    migrate=False,
-    rname=f"{SCHEMA}.soggetti_vulnerabili",
+    migrate = db._migrate,
+    rname=f"{SCHEMA}.soggetti_vulnerabili_validi",
 )
 
 db.recupero._enable_record_versioning()

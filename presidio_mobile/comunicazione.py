@@ -9,8 +9,9 @@ from py4web import Field
 import base64
 from pydal.validators import IS_IN_DB
 
-from ..segnalazione.comunicazione import fake_upload, _upload
+from ..segnalazione.comunicazione import get_fake_upload, _upload
 
+fake_upload = get_fake_upload(db.comunicazione_incarico_inviata)
 
 comunicazione_fields = [
     db.log.operatore,
@@ -83,7 +84,7 @@ def render(row):
 def fetch(presidio_id, timeref=None):
     """ """
     dbset = db(db.presidio)(
-        # (db.comunicazione_presidio.presidio_id==presidio_id) & \
+        (db.comunicazione_presidio.presidio_id==presidio_id) & \
         (db.pattuglia_pm.presidio_id==db.comunicazione_presidio.presidio_id)
         # (db.comunicazione_presidio.presidio_id==db.presidio.id) & \
         # (db.squadra.id==db.componente.squadra_id) & \
@@ -91,9 +92,6 @@ def fetch(presidio_id, timeref=None):
         # "segnalazioni.t_sopralluoghi_mobili.id_profilo='6'"
         # (db.componente.matricola==db.agente.matricola)
     )
-
-    if not presidio_id is None:
-        dbset = dbset(db.comunicazione_presidio.presidio_id==presidio_id)
 
     #if not timeref is None:
     #    dbset = dbset(db.comunicazione_presidio.timeref==timeref)

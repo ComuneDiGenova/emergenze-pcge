@@ -51,8 +51,8 @@ db = DAL(
     migrate=settings.DB_MIGRATE,
     fake_migrate=settings.DB_FAKE_MIGRATE,
     decode_credentials=settings.DB_DECODE_CREDENTIALS
-    if hasattr(settings, "DB_DECODE_CREDENTIALS")
-    else False,
+        if hasattr(settings, "DB_DECODE_CREDENTIALS")
+        else False,
 )
 
 # #######################################################

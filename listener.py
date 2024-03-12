@@ -10,7 +10,8 @@ import json
 from .verbatel import syncEvento
 from . import evento
 import traceback
-from .segnalazione import after_insert_lavorazione
+from .segnalazione import after_insert_lavorazione, after_update_lavorazione, after_insert_t_storico_segnalazioni_in_lavorazione
+from .segnalazione.comunicazione import after_insert_comunicazione_segnalazione
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
@@ -18,6 +19,12 @@ from .presidio_mobile.comunicazione import after_insert_comunicazione as after_i
 from .presidio_mobile.squadra import after_insert_stato_presidio
 
 #def create_sql_function(schema, table, function, trigger, notification):
+
+import psycopg2
+import selectors, time
+
+# Non rimuovere!
+db._adapter.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
 def create_sql_function(schema, function_name, notification_name, payload, action):
 
@@ -127,6 +134,52 @@ def create_sql_function_stato_presidio(schema, function_name, notification_name,
 
     db.executesql(sql_notify_new_item)
 
+def create_sql_function_lavorazione(schema, function_name, notification_name, payload, action):
+
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id', NEW.{payload[0]},
+                 'in_lavorazione', NEW.{payload[1]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
+
+def create_sql_function_storico_vavorazione(schema:str, function_name:str, notification_name:str, payload:list, action:str) -> None:
+    """
+    """
+    
+    sql_notify_new_item = f"""CREATE or REPLACE FUNCTION {schema}.{function_name}()
+        RETURNS trigger
+         LANGUAGE 'plpgsql'
+    as $BODY$
+    declare
+    begin
+        if (tg_op = '{action}') then
+            perform pg_notify('{notification_name}',
+            json_build_object(
+                 'id_lavorazione', NEW.{payload[0]},
+                 'messaggio_log', NEW.{payload[1]}
+               )::text);
+        end if;
+
+        return null;
+    end
+    $BODY$;"""
+
+    db.executesql(sql_notify_new_item)
+
 def create_sql_trigger(schema, table, function_name, trigger_name, action):
     clear_trigger_insert = f'DROP TRIGGER IF EXISTS {trigger_name} on "{schema}"."{table}"';
 
@@ -181,7 +234,10 @@ segnalaz = [
     ['segnalazioni','t_comunicazioni_incarichi_inviate',['id_incarico', 'data_ora_stato']],
     ['segnalazioni','t_comunicazioni_sopralluoghi_mobili_inviate',['id_sopralluogo','data_ora_stato']],
     ['segnalazioni', 'stato_sopralluoghi_mobili', ['id_sopralluogo', 'id_stato_sopralluogo', 'data_ora_stato']],
-    ['eventi', 't_eventi', 'id']
+    ['eventi', 't_eventi', 'id'],
+    ['segnalazioni', 't_segnalazioni_in_lavorazione', ['id', 'in_lavorazione']],
+    ['segnalazioni', 't_storico_segnalazioni_in_lavorazione', ['id_segnalazione_in_lavorazione', 'log_aggiornamento']],
+    ['segnalazioni', 't_comunicazioni_segnalazioni', ['id_lavorazione', 'data_ora_stato']]
     ]
 
 def setup():
@@ -258,6 +314,56 @@ def setup_segn():
     create_sql_function(segnalaz[6][0], function_name_u_evento, notification_name_u_evento, segnalaz[6][2], "UPDATE")
     create_sql_trigger(segnalaz[6][0], segnalaz[6][1], function_name_u_evento, trigger_name_u_evento, "UPDATE")
 
+    function_name_u_lavorazione = f"notify_updated_{segnalaz[7][1]}"
+    notification_name_u_lavorazione = f"new_{segnalaz[7][1]}_updated"
+    trigger_name_u_lavorazione = f"after_updated_{segnalaz[7][1]}"
+    create_sql_function_lavorazione(
+        segnalaz[7][0],
+        function_name_u_lavorazione,
+        notification_name_u_lavorazione,
+        segnalaz[7][2],
+        "UPDATE"
+    )
+    create_sql_trigger(
+        segnalaz[7][0],
+        segnalaz[7][1],
+        function_name_u_lavorazione,
+        trigger_name_u_lavorazione,
+        "UPDATE"
+    )
+
+    function_name_n_storico_lavorazione = f"notify_new_{segnalaz[8][1]}"
+    notification_name_n_storico_lavorazione = f"new_{segnalaz[8][1]}_added"
+    trigger_name_n_storico_lavorazione = f"after_insert_{segnalaz[8][1]}"
+    create_sql_function_storico_vavorazione(
+        segnalaz[8][0],
+        function_name_n_storico_lavorazione,
+        notification_name_n_storico_lavorazione,
+        segnalaz[8][2], "INSERT")
+    create_sql_trigger(
+        segnalaz[8][0],
+        segnalaz[8][1],
+        function_name_n_storico_lavorazione, trigger_name_n_storico_lavorazione, "INSERT")
+
+    
+    function_name_n_comunicazione_segnalazione = f"notify_new_{segnalaz[9][1]}"
+    notification_name_n_comunicazione_segnalazione = f"new_{segnalaz[9][1]}_added"
+    trigger_name_n_comunicazione_segnalazione = f"after_insert_{segnalaz[9][1]}"
+    create_sql_function_comunicazione(
+        segnalaz[9][0],
+        function_name_n_comunicazione_segnalazione,
+        notification_name_n_comunicazione_segnalazione,
+        segnalaz[9][2],
+        "INSERT"
+    )
+    create_sql_trigger(
+        segnalaz[9][0],
+        segnalaz[9][1],
+        function_name_n_comunicazione_segnalazione,
+        trigger_name_n_comunicazione_segnalazione,
+        "INSERT"
+    )
+
     db.commit()
 
 # def ciao():
@@ -285,6 +391,12 @@ def set_listen():
 
     listen_u_evento = f"LISTEN new_{segnalaz[6][1]}_updated;"
 
+    listen_u_lavorazione = f"LISTEN new_{segnalaz[7][1]}_updated;"
+    
+    listen_n_storico_lavorazione = f"LISTEN new_{segnalaz[8][1]}_added;"
+    
+    listen_n_comunicazione_segnalazione = f"LISTEN new_{segnalaz[9][1]}_added;"
+
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
     db.executesql(listen_u_foc)
@@ -303,6 +415,11 @@ def set_listen():
     db.executesql(listen_u_stato_presidio)
 
     db.executesql(listen_u_evento)
+    
+    db.executesql(listen_u_lavorazione)
+    
+    db.executesql(listen_n_storico_lavorazione)
+    db.executesql(listen_n_comunicazione_segnalazione)
 
     db.commit()
 
@@ -377,27 +494,61 @@ def do_stuff(channel, **payload):
 
         after_insert_stato_presidio(payload['id_sopralluogo'], payload['id_stato_sopralluogo'], payload['data_ora_stato'])
     elif channel in f"new_{segnalaz[6][1]}_updated":
-        mio_evento = evento.fetch(id=payload["id"])
+        mio_evento = evento.fetch(id=payload["id"], _foc_only=False)
 
         if not mio_evento is None:
             out = syncEvento(mio_evento)
+    
+    elif channel in f"new_{segnalaz[7][1]}_updated":
+        after_update_lavorazione(payload["id"], payload["in_lavorazione"])
+    
+    elif channel in f"new_{segnalaz[8][1]}_added":
+        after_insert_t_storico_segnalazioni_in_lavorazione(payload["id_lavorazione"], payload["messaggio_log"])
 
+    elif channel in f"new_{segnalaz[9][1]}_added":
+        after_insert_comunicazione_segnalazione(payload["id"], payload["data"])
+
+
+def wait_for_notifications(sleep=1):
+    """ """
+    logger.info('Starting!')
+    logger.info('Waiting for notifications!')
+    queue = []
+    # Creare un oggetto Selector
+    selector = selectors.DefaultSelector()
+
+    # Registrare il file descriptor per la connessione del database per la lettura
+    # (supponendo che db._adapter.connection sia il file descriptor)
+    fileobj = db._adapter.connection
+    selector.register(fileobj, selectors.EVENT_READ)
+    # Ora puoi usare il metodo select() del selettore per controllare se ci sono eventi pronti
+    # per la lettura sul file descriptor della connessione del database
+    events = selector.select(timeout=None)  # Puoi specificare un timeout in secondi se necessario
+    # time.sleep(sleep)
+
+    # events sarà una lista di tuple, ognuna delle quali contiene un oggetto SelectorKey e un mask
+    for key, mask in events:
+        if key.fileobj == fileobj:
+            # Eseguire azioni in base al tipo di evento che è pronto
+            if mask & selectors.EVENT_READ:
+                # L'evento di lettura è pronto sul file descriptor della connessione del database
+                # Esegui le azioni appropriate qui
+                db._adapter.connection.poll()
+                while db._adapter.connection.notifies:
+                    notification = db._adapter.connection.notifies.pop()
+                    # https://github.com/psycopg/psycopg2/issues/686#issuecomment-591725603
+                    # db._adapter.connection.poll()
+                    logger.debug(notification)
+                    yield notification
 
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
+    set_listen()
+    
     while True:
-        set_listen()
-        # sleep until there is some data
-        logger.debug('Waiting for notifications!')
-        select.select([db._adapter.connection],[],[])
-        logger.debug('Catched!')
 
-        db._adapter.connection.poll()
-
-        while db._adapter.connection.notifies:
-
-            notification = db._adapter.connection.notifies.pop(0)
+        for notification in wait_for_notifications():
 
             payload = json.loads(notification.payload)
 
@@ -411,6 +562,7 @@ def listen():
                 logger.critical(full_traceback)
             else:
                 db.commit()
+        
 
 
 if __name__ == '__main__':
