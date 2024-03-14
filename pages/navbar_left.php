@@ -16,7 +16,7 @@
                                 </button>
                             </span>
                             </div>
-                            <!-- /input-group -->
+                        <!-- /input-group -->
                         </li-->
                         <?php
 							if(basename($_SERVER['PHP_SELF']) == 'index.php') {
@@ -61,7 +61,7 @@
                                     for ($i=0;$i<$len;$i++){
                                     ?><li>					                                  
                                             <a href="dettagli_evento.php?e=<?php echo $eventi_attivi[$i];?>">
-                                            <i class="fas fa-chart-line"></i> <?php echo $nota_evento[$i];?> (Id: <?php echo $eventi_attivi[$i];?>)
+                                            <i class="fas fa-chart-line"></i> <?php echo $tipo_eventi_attivi[$i][1];?> (Id: <?php echo $eventi_attivi[$i];?>)
                                             </a>
                                     </li>
                                     <?php
