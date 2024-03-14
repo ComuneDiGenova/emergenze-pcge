@@ -34,8 +34,9 @@ def telegram_bot_sendtext(bot_message,chat_id):
     return response.json()
 
 
-testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',use_aliases=True)} Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. 
-            Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
+testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',use_aliases=True)} 
+        Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. 
+        Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
 query='''SELECT u.matricola_cf,
