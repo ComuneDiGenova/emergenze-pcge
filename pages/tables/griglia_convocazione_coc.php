@@ -16,7 +16,6 @@ if ($profilo==3){
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	//$idcivico=$_GET["id"];
 	$query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 								u.nome,
 								u.cognome,
