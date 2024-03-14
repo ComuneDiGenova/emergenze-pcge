@@ -97,21 +97,23 @@ require('navbar_up.php');
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
                     <?php if ($profilo_ok<=3){ 
-                        $query_coc="SELECT distinct on (u.telegram_id) u.matricola_cf,
-                        u.nome,
-                        u.cognome,
-                        jtfc.funzione,
-                        u.telegram_id,
-                        tp.data_invio,
-                        tp.lettura,
-                        tp.data_conferma,
-                        tp.data_invio_conv,
-                        tp.data_conferma_conv,
-                        tp.lettura_conv 
-                        FROM users.utenti_coc u
-                        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-                        join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
-                        order by u.telegram_id, tp.data_invio desc;";
+                        $query_coc="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+                                                        u.nome,
+                                                        u.cognome,
+                                                        jtfc.funzione,
+                                                        u.telegram_id,
+                                                        tp.data_invio,
+                                                        tp.lettura,
+                                                        tp.data_conferma,
+                                                        tp.data_invio_conv,
+                                                        tp.data_conferma_conv,
+                                                        tp.lettura_conv 
+                                    FROM users.utenti_coc u
+                                    RIGHT JOIN users.t_convocazione tp 
+                                        ON u.telegram_id::text = tp.id_telegram::text
+                                    JOIN users.tipo_funzione_coc jtfc 
+                                        ON jtfc.id = u.funzione
+                                    ORDER BY u.telegram_id, tp.data_invio DESC;";
                         $result_coc = pg_prepare($conn, "myquery0", $query_coc);
                         $result_coc = pg_execute($conn, "myquery0", array());
                         while($r = pg_fetch_assoc($result_coc)) {
