@@ -25,7 +25,6 @@ logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=lo
 
 TOKENCOC=config.TOKEN_COC
 
-# TODO manca logica che controlli se la conferma di lettura è stat inviata
 
 def telegram_bot_sendtext(bot_message,chat_id):
     
