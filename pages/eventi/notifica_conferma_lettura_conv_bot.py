@@ -34,35 +34,35 @@ def telegram_bot_sendtext(bot_message,chat_id):
     return response.json()
 
 
+testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',use_aliases=True)} Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. 
+Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 
-
-
-
-
-testo='{} {} Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK.'.format(emoji.emojize(":warning:",use_aliases=True),emoji.emojize(":bell:",use_aliases=True))
-#telegram_bot_sendtext(testo,'306530623')
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
 query='''SELECT u.matricola_cf,
-u.nome,
-u.cognome,
-u.telegram_id,
-tp.data_invio,
-tp.lettura,
-tp.data_conferma,
-tp.data_invio_conv,
-tp.lettura_conv,
-tp.data_conferma_conv
-FROM users.utenti_coc u
-right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-WHERE tp.data_invio_conv = (select max(tp.data_invio_conv) FROM users.t_convocazione tp) and tp.lettura_conv is not true
-GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, tp.data_invio_conv, tp.lettura_conv, tp.data_conferma_conv
-order by tp.data_invio_conv desc;'''
+                u.nome,
+                u.cognome,
+                u.telegram_id,
+                tp.data_invio,
+                tp.lettura,
+                tp.data_conferma,
+                tp.data_invio_conv,
+                tp.lettura_conv,
+                tp.data_conferma_conv
+        FROM users.utenti_coc u
+        RIGHT JOIN users.t_convocazione tp 
+            ON u.telegram_id::text = tp.id_telegram::text
+        WHERE tp.data_invio_conv = (select max(tp.data_invio_conv) 
+        FROM users.t_convocazione tp) and tp.lettura_conv is not true
+        GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, 
+                tp.data_conferma, tp.data_invio, tp.data_invio_conv, 
+                tp.lettura_conv, tp.data_conferma_conv
+        ORDER BY tp.data_invio_conv DESC;'''
 curr = con.cursor()
 con.autocommit = True
 try:
     curr.execute(query)
 except Exception as e:
-    logging.error('Query non eseguita per il seguente motivo: {}'.format(e))
+    logging.error(f'Query non eseguita per il seguente motivo: {e}')
 
 result= curr.fetchall() 
 curr.close()   
@@ -78,6 +78,3 @@ for p in result:
  
     else:
         continue
-
-
-#
