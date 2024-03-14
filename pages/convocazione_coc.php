@@ -114,7 +114,6 @@ while($r = pg_fetch_assoc($result1)) {
   }
 
 
-
 // // $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$operatore ."', 'Inviata comunicazione a PC (incarico interno ".$id.")');";
 // // echo $query_log."<br>";
 // // $result = pg_query($conn, $query_log);
