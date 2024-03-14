@@ -167,7 +167,6 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <!--th data-field="matricola_cf" data-sortable="false"  data-visible="true">CF</th-->
             <th data-field="funzione" data-sortable="false"  data-visible="true">Funzione COC</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th style="word-break:break-all; word-wrap:break-word; " data-field="nome" data-sortable="true"  data-visible="true">Nome</th>           
@@ -179,8 +178,6 @@ require('navbar_up.php');
             <?php
             }
             ?>
-            <!--th data-field="cf" data-sortable="false" data-formatter="nameFormatter1" data-visible="true" >Edit<br>permessi</th-->            
-
     </tr>
 </thead>
 
@@ -205,8 +202,6 @@ require('navbar_up.php');
 
 
 function nameFormatter(value,row) {
-
-    //return '<a href="./update_volontario.php?id=\''+ value + '\'" class="btn btn-warning" title="Modifica dati" role="button"><i class="fa fa-user-edit" aria-hidden="true"></i> </a> <a href="./elimina_volontario.php?id=\''+ value + '\'" class="btn btn-danger" role="button" title="Elimina persona" ><i class="fa fa-times" aria-hidden="true"></i> </a>';
     return' <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#elimina'+value+'"><i class="fas fa-times"></i></button> \
     <div class="modal fade" id="elimina'+value+'" role="dialog"> \
     <div class="modal-dialog"> \
@@ -302,9 +297,6 @@ require('./req_bottom.php');
 
 
 ?>
-
-
-    
 
 </body>
 
