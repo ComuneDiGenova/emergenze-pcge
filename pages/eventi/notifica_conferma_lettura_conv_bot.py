@@ -25,6 +25,7 @@ logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=lo
 
 TOKENCOC=config.TOKEN_COC
 
+# TODO manca logica che controlli se la conferma di lettura è stat inviata
 
 def telegram_bot_sendtext(bot_message,chat_id):
     
@@ -35,7 +36,7 @@ def telegram_bot_sendtext(bot_message,chat_id):
 
 
 testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',use_aliases=True)} Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. 
-Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
+            Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
 query='''SELECT u.matricola_cf,
@@ -71,10 +72,9 @@ con.close()
 #print(result)
 
 for p in result:
-    print(p[7])
-    if datetime.now()>=(p[7]+timedelta(minutes=5)): 
-        #print(p[4]+timedelta(minutes=5))
+    # print(datetime.now()<=(p[7]))
+    if datetime.now()<=(p[7]): 
         telegram_bot_sendtext(testo,p[3])
  
-    else:
-        continue
+    # else:
+    #     print("non mando niente")
