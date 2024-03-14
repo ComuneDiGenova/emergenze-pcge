@@ -40,7 +40,6 @@ if(!$conn) {
 	$rows = array();
 	while($r = pg_fetch_assoc($result)) {
     		$rows[] = $r;
-    		//$rows[] = $rows[]. "<a href='puntimodifica.php?id=" . $r["NAME"] . "'>edit <img src='../../famfamfam_silk_icons_v013/icons/database_edit.png' width='16' height='16' alt='' /> </a>";
 	}
 	pg_close($conn);
 	#echo $rows ;
