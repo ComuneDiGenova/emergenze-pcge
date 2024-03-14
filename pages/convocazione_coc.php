@@ -81,7 +81,8 @@ while($r = pg_fetch_assoc($result)) {
 						FROM users.utenti_coc u
 						RIGHT JOIN users.t_convocazione tp 
 							ON u.telegram_id::text = tp.id_telegram::text
-						JOIN users.tipo_funzione_coc jtfc ON jtfc.id = u.funzione
+						JOIN users.tipo_funzione_coc jtfc 
+							ON jtfc.id = u.funzione
 						ORDER BY u.telegram_id, tp.data_invio DESC) AS subquery
 				WHERE tc.id =subquery.id;";
 	}
