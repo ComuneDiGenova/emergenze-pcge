@@ -190,25 +190,15 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <!--th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF/matricola</th--> 
-            <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
             <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione</th>
             <th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
-            <!--th data-field="data_invio" data-sortable="true"  data-visible="true" data-filter-control="select">Data/ora invio notifica</th-->
             <th data-field="data_invio" data-sortable="true"  data-visible="true">Data/ora invio notifica</th>
             <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
             <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
 			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
             <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
             <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
-            <!--?php
-            if ($profilo_ok==3){?>
-                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
-                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th-->
-            <!--?php
-                }
-            ?-->
     </tr>
 </thead>
 
