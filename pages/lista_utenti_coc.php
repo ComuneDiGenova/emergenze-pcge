@@ -229,8 +229,6 @@ function nameFormatter(value,row) {
 }
 
 function nameFormatter0(value, row) {
-    //verificare se è installato il boostrap validator per validazione dei form
-    //<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateCoc'+row.id+'" title="Modifica dati Componente" onclick="checkVal('+row.id+')"><i class="fas fa-user-edit"></i></button>\
     return' <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateCoc'+row.id+'" title="Modifica dati Componente"><i class="fas fa-user-edit"></i></button>\
             <div class="myclass modal fade" id="updateCoc'+row.id+'" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">\
           <div class="modal-dialog modal-dialog-centered" role="document">\
@@ -287,53 +285,14 @@ function nameFormatter0(value, row) {
             </form>\
               </div>\
               <div class="modal-footer">\
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>\
-                <!--button type="button" class="btn btn-primary">Save changes</button-->\
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Chiudi</button>\
               </div>\
             </div>\
           </div>\
         </div>' ;
     }
 
-/*function nameFormatter0(value) {
-
-	if (value=='t'){
-        return '<i class="fa fa-play" aria-hidden="true"></i>';
-	} else if (value=='f') {
-		  return '<i class="fa fa-pause" aria-hidden="true"></i>';
-	} else {
-		return '';
-	}
-}
-
-function nameFormatter_val(value) {
-
-	if (value=='t'){
-        return '<i class="fa fa-user-check" aria-hidden="true" title="Operativo"></i>';
-	} else if (value=='f') {
-		  return '<i class="fa fa-user-cross" aria-hidden="true" title="Non operativo"></i>';
-	} else {
-		return '';
-	}
-}
-
-
-
-  function nameFormatter1(value) {
-
-        return '<a href="./permessi.php?id='+ value + '" class="btn btn-warning" title="Modifica permessi" role="button"><i class="fa fa-user-lock" aria-hidden="true"></i> </a>';
-    }*/
-
 </script>
-
-
-
-
-
-            </div>
-            <!-- /.row -->
-    </div>
-    <!-- /#wrapper -->
 
 <?php 
 
