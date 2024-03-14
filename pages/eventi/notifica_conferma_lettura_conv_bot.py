@@ -72,8 +72,8 @@ con.close()
 
 for p in result:
     # print(datetime.now()<=(p[7]))
-    if datetime.now()<=(p[7]): 
+    if datetime.now()<=(p[7]):
         telegram_bot_sendtext(testo,p[3])
  
-    # else:
-    #     print("non mando niente")
+    else:
+        print("messaggio non inviato")
