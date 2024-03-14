@@ -40,24 +40,26 @@ $result = pg_execute($conn, "myquery", array());
 while($r = pg_fetch_assoc($result)) {
 	if($r['data_invio_conv'] == null){
 		$query0="UPDATE users.t_convocazione tc
-		SET data_invio_conv = date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min'
-		FROM (SELECT distinct on (u.telegram_id) u.matricola_cf,
-		u.nome,
-		u.cognome,
-		jtfc.funzione,
-		u.telegram_id,
-		tp.id,
-		tp.data_invio,
-		tp.lettura,
-		tp.data_conferma,
-		tp.data_invio_conv,
-		tp.data_conferma_conv,
-		tp.lettura_conv 
-		FROM users.utenti_coc u
-		right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-		join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
-		order by u.telegram_id, tp.data_invio desc) AS subquery
-		WHERE tc.id =subquery.id;";
+				SET data_invio_conv = date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min'
+				FROM (SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+									u.nome,
+									u.cognome,
+									jtfc.funzione,
+									u.telegram_id,
+									tp.id,
+									tp.data_invio,
+									tp.lettura,
+									tp.data_conferma,
+									tp.data_invio_conv,
+									tp.data_conferma_conv,
+									tp.lettura_conv 
+						FROM users.utenti_coc u
+						RIGHT JOIN users.t_convocazione tp 
+							ON u.telegram_id::text = tp.id_telegram::text
+						JOIN users.tipo_funzione_coc jtfc 
+							ON jtfc.id = u.funzione
+						ORDER BY u.telegram_id, tp.data_invio DESC) AS subquery
+				WHERE tc.id =subquery.id;";
 
 	}else{
 		$query0="UPDATE users.t_convocazione tc
