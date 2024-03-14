@@ -120,16 +120,16 @@ require('navbar_up.php');
                             $check_coc = count($r);
                         }
                             if($check_coc != 0){
-                    ?>
-                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
-                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                    <?php
-                            }else{
-                    ?>
-                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
-                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                    <?php
-                            }//chiudo else
+                                ?>
+                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
+                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                                <?php
+                            } else {
+                                ?>
+                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
+                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                                <?php
+                            }
                     ?>
                     <?php
                     }
@@ -180,7 +180,7 @@ require('navbar_up.php');
         
         <table  id="convocati" class="table-hover" data-toggle="table" 
         data-url="./tables/griglia_convocazione_coc.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" 
-       data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
+        data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
         data-search="true" data-click-to-select="true" data-show-print="true" data-pagination="true" 
         data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true"
         data-filter-control="false" data-toolbar="#toolbar">
