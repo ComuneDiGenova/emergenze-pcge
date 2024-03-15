@@ -22,7 +22,7 @@ WSO2_VBT_ROOT = settings.WSO2_VBT_ROOT
 class AccessTokenManager(object):
     url = WSO2_URL
 
-    def __init__(self, key, secret) -> None:
+    def __init__(self, key=settings.WSO2_KEY, secret=settings.WSO2_SECRET) -> None:
         self.key = key
         self.secret = secret
         self._token = None
@@ -54,8 +54,8 @@ class AccessTokenManager(object):
         response.raise_for_status()
         return response
 
-    # def put(self, endpoint: str, data: dict = None) -> requests.Response:
-    #     return requests.put(urljoin(self.url, endpoint), data=data, headers=self.headers)
+    def put(self, endpoint: str, data: dict = None) -> requests.Response:
+        return requests.put(urljoin(self.url, endpoint), data=data, headers=self.headers)
 
     def post(self, endpoint, data: dict = None, json: dict = None) -> requests.Response:
         response = requests.post(
@@ -66,8 +66,6 @@ class AccessTokenManager(object):
         )
         response.raise_for_status()
         return response
-
-wso2 = AccessTokenManager(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET)
 
 def test(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
     """ """
