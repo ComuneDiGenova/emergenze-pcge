@@ -34,32 +34,32 @@ def telegram_bot_sendtext(bot_message,chat_id):
     return response.json()
 
 
-
-
-
-
-
-testo='{} {} Non è ancora stata inviata la conferma di avvenuta lettura dell\'emanazione dello STATO di ALLERTA. Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK.'.format(emoji.emojize(":warning:",use_aliases=True),emoji.emojize(":bell:",use_aliases=True))
+testo=f"""{emoji.emojize(":warning:",use_aliases=True)} {emoji.emojize(":bell:",use_aliases=True)} 
+        Non è ancora stata inviata la conferma di avvenuta lettura dell'emanazione dello STATO di ALLERTA. 
+        Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 #telegram_bot_sendtext(testo,'306530623')
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
 query='''SELECT u.matricola_cf,
-u.nome,
-u.cognome,
-u.telegram_id,
-tp.data_invio,
-tp.lettura,
-tp.data_conferma
-FROM users.utenti_coc u
-right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-WHERE tp.data_invio = (select max(tp.data_invio) FROM users.t_convocazione tp) and tp.lettura is not true
-GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio 
-order by tp.data_invio desc;'''
+                u.nome,
+                u.cognome,
+                u.telegram_id,
+                tp.data_invio,
+                tp.lettura,
+                tp.data_conferma
+        FROM users.utenti_coc u
+        RIGHT JOIN users.t_convocazione tp 
+            ON u.telegram_id::text = tp.id_telegram::text
+        WHERE tp.data_invio = (select max(tp.data_invio) 
+        FROM users.t_convocazione tp) and tp.lettura is not true
+        GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio 
+        ORDER BY tp.data_invio DESC;'''
 curr = con.cursor()
 con.autocommit = True
+
 try:
     curr.execute(query)
 except Exception as e:
-    logging.error('Query non eseguita per il seguente motivo: {}'.format(e))
+    logging.error(f'Query non eseguita per il seguente motivo: {e}')
 
 result= curr.fetchall() 
 curr.close()   
