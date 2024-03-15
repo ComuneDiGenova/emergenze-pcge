@@ -6,13 +6,11 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	//$idcivico=$_GET["id"];
-	// $query="SELECT id, matricola_cf, nome, cognome, mail, telegram_id
-	// FROM users.utenti_coc ORDER BY cognome ;";
-	$query="SELECT uc.id, matricola_cf, nome, cognome, mail, telegram_id, jtfc.funzione
-	FROM users.utenti_coc uc
-	join users.tipo_funzione_coc jtfc on jtfc.id = uc.funzione
-	ORDER BY cognome;";
+
+	$query="SELECT uc.id, matricola_cf, nome, cognome, mail, telegram_id, uc.funzione as funzione_id, jtfc.funzione as funzione
+			FROM users.utenti_coc uc
+			JOIN users.tipo_funzione_coc jtfc on jtfc.id = uc.funzione
+			ORDER BY cognome;";
 	$result = pg_prepare($conn, "myquery0", $query);
 	$result = pg_execute($conn, "myquery0", array());
     
