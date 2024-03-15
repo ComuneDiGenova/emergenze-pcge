@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from requests import exceptions
 import requests
 
 from . import segnalazione
 from . import settings
-from .common import logger, logging
+from .common import logger
 
 # if logger.getEffectiveLevel()==logging.DEBUG:
 #     import http.client
@@ -14,7 +15,9 @@ from .common import logger, logging
 import json
 from itertools import chain
 
-class VerbatelError(requests.exceptions.HTTPError):
+from .wso2 import wso2
+
+class VerbatelError(exceptions.HTTPError):
     """ """
 
 
@@ -43,7 +46,7 @@ class Verbatel(object):
     def __nout(cls, response):
         try:
             response.raise_for_status()
-        except requests.exceptions.HTTPError:
+        except exceptions.HTTPError:
             logger.warning(response.status_code)
             logger.error(response.text)
             # raise
@@ -96,6 +99,8 @@ class Verbatel(object):
         response = requests.get(_url, params=data) # <---
         return cls.__nout(response)
 
+
+
 class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
@@ -133,7 +138,7 @@ def syncEvento(mio_evento):
 
     try:
         Evento.create(**mio_evento)
-    except requests.exceptions.HTTPError as err:
+    except exceptions.HTTPError as err:
 
         #aa = err
         #import pdb; pdb.set_trace()

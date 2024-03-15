@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from urllib.parse import urljoin
 from . import settings
+from .common import logger
 
 # WSO2_URL = 'https://apitest.comune.genova.it:28243'
 # WSO2_TOKEN_ROOT = 'manageToken/getToken'
@@ -15,12 +16,8 @@ from . import settings
 # VBT_PATH = "GestioneEmergenze/api"
 
 WSO2_URL = settings.WSO2_URL
-WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ROOT
+WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ENDPOINT
 WSO2_VBT_ROOT = settings.WSO2_VBT_ROOT
-VBT_PROT = settings.VBT_PROT
-VBT_HOST = settings.VBT_HOST
-VBT_PATH = settings.VBT_PATH
-
 
 class AccessTokenManager(object):
     url = WSO2_URL
@@ -70,14 +67,16 @@ class AccessTokenManager(object):
         response.raise_for_status()
         return response
 
+wso2 = AccessTokenManager(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET)
+
 def test(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
     """ """
     wso2 = AccessTokenManager(key, secret)
 
     info_evento = {'id': 174, 'inizio': '2023-01-18T17:43:56', 'fine': '2023-01-23T15:42:59.165413', 'fine_sospensione': None, 'chiusura': '2023-01-23T15:42:36.501646', 'valido': False, 'descrizione': 'Nivologico', 'municipi': ['Bassa Val Bisagno', 'Centro est', 'Centro Ovest', 'Levante', 'Media Val Bisagno', 'Medio Levante', 'Medio Ponente', 'Ponente', 'Val Polcevera'], 'foc': [{'fine': '2023-01-19T06:00:00', 'colore': '#009aff', 'inizio': '2023-01-18T14:00:00', 'descrizione': 'Attenzione'}], 'allerte': None, 'note': [{'nota': 'possibile neve notte tra 18 e 19 gennaio 23'}], 'stato': 'chiuso'}
 
-    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/evento')
-    print(f"Chiamata all'URL: {vbt_url}")
+    # vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/evento')
+    # print(f"Chiamata all'URL: {vbt_url}")
     # response_from_verbatel = requests.post(vbt_url, data=info_evento)
     # print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
     # print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
@@ -85,6 +84,22 @@ def test(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
     wso2_url = f'{WSO2_VBT_ROOT}/evento'
     response_from_wso2 = wso2.get(wso2_url, data=info_evento)
 
+    print(response_from_wso2.text)
+
+def test1(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
+    """ """
+    wso2 = AccessTokenManager(key, secret)
+
+    info_evento = {}
+
+    # vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/evento')
+    # print(f"Chiamata all'URL: {vbt_url}")
+    # response_from_verbatel = requests.post(vbt_url, data=info_evento)
+    # print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
+    # print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
+
+    wso2_url = f'{WSO2_VBT_ROOT}/segnalazione'
+    response_from_wso2 = wso2.post(wso2_url, data=info_evento)
 
     print(response_from_wso2.text)
 
@@ -108,8 +123,8 @@ if __name__=='__main__':
 
     info_evento = {'id': 174, 'inizio': '2023-01-18T17:43:56', 'fine': '2023-01-23T15:42:59.165413', 'fine_sospensione': None, 'chiusura': '2023-01-23T15:42:36.501646', 'valido': False, 'descrizione': 'Nivologico', 'municipi': ['Bassa Val Bisagno', 'Centro est', 'Centro Ovest', 'Levante', 'Media Val Bisagno', 'Medio Levante', 'Medio Ponente', 'Ponente', 'Val Polcevera'], 'foc': [{'fine': '2023-01-19T06:00:00', 'colore': '#009aff', 'inizio': '2023-01-18T14:00:00', 'descrizione': 'Attenzione'}], 'allerte': None, 'note': [{'nota': 'possibile neve notte tra 18 e 19 gennaio 23'}], 'stato': 'chiuso'}
 
-    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/evento')
-    print(f"Chiamata all'URL: {vbt_url}")
+    # vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/evento')
+    # print(f"Chiamata all'URL: {vbt_url}")
     # response_from_verbatel = requests.post(vbt_url, data=info_evento)
     # print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
     # print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
