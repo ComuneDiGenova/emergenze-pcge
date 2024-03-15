@@ -35,6 +35,7 @@ pages/config.js
 
 # BOT TELEGRAM
 *.pid
+pages/eventi/bot_convocazione_coc.pid
 pages/eventi/avvio_bot.sh
 pages/eventi/avvio_bot_coc.sh
 
