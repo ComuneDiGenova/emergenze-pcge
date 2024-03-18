@@ -31,7 +31,7 @@ if(!$conn) {
 					st_x(s.geom) as lon, st_y(s.geom) as lat,
 					s.incarichi,
 					string_agg(case when i.id_stato_incarico::varchar = '2' then i.descrizione_uo::varchar
-									when ii.id_stato_incarico::varchar = '2' then ii.descrizionelth and politic_uo::varchar 
+									when ii.id_stato_incarico::varchar = '2' then ii.descrizione_uo::varchar 
 									else null 
 									end, ' - ') AS responsabile_incarico
 				FROM segnalazioni.v_segnalazioni_lista_pp s
