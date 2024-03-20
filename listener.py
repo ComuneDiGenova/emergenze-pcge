@@ -11,7 +11,10 @@ from .verbatel import syncEvento
 from . import evento
 import traceback
 from .segnalazione import after_insert_lavorazione, after_update_lavorazione, after_insert_t_storico_segnalazioni_in_lavorazione
+<<<<<<< HEAD
 from .segnalazione.comunicazione import after_insert_comunicazione_segnalazione
+=======
+>>>>>>> main
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
