@@ -118,7 +118,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
-check = f"({db.incarico._rname}.id_uo ilike 'com_PO%'"
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
 # check += " or {db.intervento._rname}.incarico_id is not null)::bool"
 
 # check = db.incarico.uo_id.startswith('com_PO') or f'{db.intervento._rname}.incarico_id is not null'
