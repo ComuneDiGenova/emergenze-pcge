@@ -3,6 +3,8 @@ session_start();
 require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
+// header("Cache-Control: private");
+
 //require('../check_evento.php');
 
 // Filtro per tipologia di criticità
@@ -13,18 +15,16 @@ $id=$_GET["id"];
 //echo $getfiltri;
 
 
-
-
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT s.criticita, count(s.id) as pervenute, r.risolte
-FROM segnalazioni.v_segnalazioni_all s
-LEFT JOIN segnalazioni.v_count_risolte r ON r.criticita=s.criticita and r.id_evento=".$id."
-WHERE s.id_evento=".$id." 
-GROUP BY s.criticita, r.risolte;";
-    
+			FROM segnalazioni.v_segnalazioni_all s
+			LEFT JOIN segnalazioni.v_count_risolte r ON r.criticita=s.criticita and r.id_evento={$id}
+			WHERE s.id_evento={$id} 
+			GROUP BY s.criticita, r.risolte;";
+
     //echo $query."<br>";
 	$result = pg_query($conn, $query);
 	#echo $query;
@@ -40,7 +40,7 @@ GROUP BY s.criticita, r.risolte;";
 		//print $rows;
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		echo "[{\"NOTE\": \"No data\"}]";
 	}
 }
 

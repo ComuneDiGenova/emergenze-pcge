@@ -97,37 +97,39 @@ require('navbar_up.php');
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
                     <?php if ($profilo_ok<=3){ 
-                        $query_coc="SELECT distinct on (u.telegram_id) u.matricola_cf,
-                        u.nome,
-                        u.cognome,
-                        jtfc.funzione,
-                        u.telegram_id,
-                        tp.data_invio,
-                        tp.lettura,
-                        tp.data_conferma,
-                        tp.data_invio_conv,
-                        tp.data_conferma_conv,
-                        tp.lettura_conv 
-                        FROM users.utenti_coc u
-                        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-                        join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
-                        order by u.telegram_id, tp.data_invio desc;";
+                        $query_coc="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+                                                        u.nome,
+                                                        u.cognome,
+                                                        jtfc.funzione,
+                                                        u.telegram_id,
+                                                        tp.data_invio,
+                                                        tp.lettura,
+                                                        tp.data_conferma,
+                                                        tp.data_invio_conv,
+                                                        tp.data_conferma_conv,
+                                                        tp.lettura_conv 
+                                    FROM users.utenti_coc u
+                                    RIGHT JOIN users.t_convocazione tp 
+                                        ON u.telegram_id::text = tp.id_telegram::text
+                                    JOIN users.tipo_funzione_coc jtfc 
+                                        ON jtfc.id = u.funzione
+                                    ORDER BY u.telegram_id, tp.data_invio DESC;";
                         $result_coc = pg_prepare($conn, "myquery0", $query_coc);
                         $result_coc = pg_execute($conn, "myquery0", array());
                         while($r = pg_fetch_assoc($result_coc)) {
                             $check_coc = count($r);
                         }
                             if($check_coc != 0){
-                    ?>
-                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
-                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                    <?php
-                            }else{
-                    ?>
-                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
-                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                    <?php
-                            }//chiudo else
+                                ?>
+                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
+                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                                <?php
+                            } else {
+                                ?>
+                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
+                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                                <?php
+                            }
                     ?>
                     <?php
                     }
@@ -178,7 +180,7 @@ require('navbar_up.php');
         
         <table  id="convocati" class="table-hover" data-toggle="table" 
         data-url="./tables/griglia_convocazione_coc.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" 
-       data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
+        data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
         data-search="true" data-click-to-select="true" data-show-print="true" data-pagination="true" 
         data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true"
         data-filter-control="false" data-toolbar="#toolbar">
@@ -188,25 +190,15 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
-            <!--th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF/matricola</th--> 
-            <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
             <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione</th>
             <th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
-            <!--th data-field="data_invio" data-sortable="true"  data-visible="true" data-filter-control="select">Data/ora invio notifica</th-->
             <th data-field="data_invio" data-sortable="true"  data-visible="true">Data/ora invio notifica</th>
             <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
             <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
 			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
             <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
             <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
-            <!--?php
-            if ($profilo_ok==3){?>
-                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
-                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th-->
-            <!--?php
-                }
-            ?-->
     </tr>
 </thead>
 
