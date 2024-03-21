@@ -1,6 +1,6 @@
 <?php 
 
-$subtitle="Elenco richieste numero verde";
+$subtitle="Elenco richieste storico";
 
 ?>
 <!DOCTYPE html>
@@ -42,7 +42,7 @@ require('navbar_up.php');
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Richieste numero verde</h1>
+                    <h1 class="page-header">Richieste ricevute (storico)</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -71,7 +71,8 @@ require('navbar_up.php');
             <th data-field="data_ora" data-sortable="true"  data-visible="true">Data e ora</th>
             <th data-field="descrizione" data-sortable="false"data-visible="true" > Descrizione richiesta </th>            
             <th data-field="segnalante" data-sortable="true"  data-visible="true">Generalità segnalante</th>
-				<th  data-field="tipo_segnalante" data-sortable="true"  data-visible="true">Tipo_segnalante</th>
+			<th  data-field="tipo_segnalante" data-sortable="true"  data-visible="true">Segnalante</th>
+            <th data-field="n_verde" data-sortable="true" data-visible="true" data-formatter="nverdeFormatter">Num Verde / Altro</th>
 
     </tr>
 </thead>
@@ -89,6 +90,14 @@ require('navbar_up.php');
             });
         });
     })
+
+    function nverdeFormatter(value) {
+        if (value == 't') {
+            return '<div style="text-align: center;"><i class="fas fa-circle" title="Num Verde" style="color:#00ff00"></i></div>';
+        } else if (value == 'f') {
+            return '<div style="text-align: center;"><i class="fas fa-circle" title="Altro" style="color:#808080"></i></div>';
+        }
+    }
 </script>
 
 <br><br>

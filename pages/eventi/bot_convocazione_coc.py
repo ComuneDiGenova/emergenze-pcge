@@ -92,18 +92,19 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     #await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'ricevuto':
-        query_convocazione='''SELECT distinct on (u.telegram_id) u.matricola_cf,
-        u.nome,
-        u.cognome,
-        u.telegram_id,
-        tp.id,
-        tp.data_invio,
-        tp.lettura,
-        tp.data_conferma
-        FROM users.utenti_coc u
-        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-        where tp.id_telegram = '{}'
-        order by u.telegram_id, tp.data_invio desc;'''.format(query.from_user.id)
+        query_convocazione="""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+                                                u.nome,
+                                                u.cognome,
+                                                u.telegram_id,
+                                                tp.id,
+                                                tp.data_invio,
+                                                tp.lettura,
+                                                tp.data_conferma
+                                FROM users.utenti_coc u
+                                RIGHT JOIN users.t_convocazione tp 
+                                    ON u.telegram_id::text = tp.id_telegram::text
+                                WHERE tp.id_telegram = '{}'
+                                ORDER BY u.telegram_id, tp.data_invio desc;""".format(query.from_user.id)
         result_s=esegui_query(con,query_convocazione,'s')
 
         #print(result_s)

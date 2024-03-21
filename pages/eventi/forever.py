@@ -27,8 +27,6 @@ f = open(logfile, "a")
 
 f.write("\n{} - Partito lo script forever.py".format(x))
 f.close
-#filename = sys.argv[1]
-
 
 while True:
     # ricalcolo le ore
