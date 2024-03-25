@@ -101,10 +101,11 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                                 tp.lettura,
                                                 tp.data_conferma
                                 FROM users.utenti_coc u
-                                RIGHT JOIN users.t_convocazione tp 
+                                JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
                                 WHERE tp.id_telegram = '{}'
-                                ORDER BY u.telegram_id, tp.data_invio desc;""".format(query.from_user.id)
+                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;""".format(query.from_user.id)
+        
         result_s=esegui_query(con,query_convocazione,'s')
 
         #print(result_s)
@@ -131,21 +132,22 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
     if answer_data == 'convocazione':
         testo=query.message.text
-        query_convocazione2='''SELECT distinct on (u.telegram_id) u.matricola_cf,
-        u.nome,
-        u.cognome,
-        u.telegram_id,
-        tp.id,
-        tp.data_invio,
-        tp.lettura,
-        tp.data_conferma,
-        tp.data_invio_conv,
-        tp.data_conferma_conv,
-        tp.lettura_conv 
-        FROM users.utenti_coc u
-        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-        where tp.id_telegram = '{}' and tp.data_invio_conv is not null
-        order by u.telegram_id, tp.data_invio desc;'''.format(query.from_user.id)
+        query_convocazione2="""SELECT DISTINCT (u.telegram_id) u.matricola_cf,
+                                                    u.nome,
+                                                    u.cognome,
+                                                    u.telegram_id,
+                                                    tp.id,
+                                                    tp.data_invio,
+                                                    tp.lettura,
+                                                    tp.data_conferma,
+                                                    tp.data_invio_conv,
+                                                    tp.data_conferma_conv,
+                                                    tp.lettura_conv 
+                                FROM users.utenti_coc u
+                                JOIN users.t_convocazione tp 
+                                    ON u.telegram_id::text = tp.id_telegram::text
+                                WHERE tp.id_telegram = '{}' AND tp.data_invio_conv IS NOT null
+                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;""".format(query.from_user.id)
         result_s2=esegui_query(con,query_convocazione2,'s')
 
         # #print(result_s)
