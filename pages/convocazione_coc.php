@@ -30,11 +30,11 @@ $query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 							tp.data_conferma_conv,
 							tp.lettura_conv 
 		FROM users.utenti_coc u
-		RIGHT JOIN users.t_convocazione tp 
+		JOIN users.t_convocazione tp 
 			ON u.telegram_id::text = tp.id_telegram::text
 		JOIN users.tipo_funzione_coc jtfc 
 			ON jtfc.id = u.funzione
-		ORDER BY u.telegram_id, tp.data_invio DESC;";
+		ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
 
 $result = pg_prepare($conn, "myquery", $query);
 $result = pg_execute($conn, "myquery", array());
@@ -56,11 +56,11 @@ while($r = pg_fetch_assoc($result)) {
 									tp.data_conferma_conv,
 									tp.lettura_conv 
 						FROM users.utenti_coc u
-						RIGHT JOIN users.t_convocazione tp 
+						JOIN users.t_convocazione tp 
 							ON u.telegram_id::text = tp.id_telegram::text
 						JOIN users.tipo_funzione_coc jtfc 
 							ON jtfc.id = u.funzione
-						ORDER BY u.telegram_id, tp.data_invio DESC) AS subquery
+						ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC) AS subquery
 				WHERE tc.id =subquery.id;";
 
 	} else {
@@ -79,11 +79,11 @@ while($r = pg_fetch_assoc($result)) {
 										tp.data_conferma_conv,
 										tp.lettura_conv 
 						FROM users.utenti_coc u
-						RIGHT JOIN users.t_convocazione tp 
+						JOIN users.t_convocazione tp 
 							ON u.telegram_id::text = tp.id_telegram::text
 						JOIN users.tipo_funzione_coc jtfc 
 							ON jtfc.id = u.funzione
-						ORDER BY u.telegram_id, tp.data_invio DESC) AS subquery
+						ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC) AS subquery
 				WHERE tc.id =subquery.id;";
 	}
 }
