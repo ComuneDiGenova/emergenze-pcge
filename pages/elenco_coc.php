@@ -113,6 +113,7 @@ require('navbar_up.php');
                                         ON u.telegram_id::text = tp.id_telegram::text
                                     JOIN users.tipo_funzione_coc jtfc 
                                         ON jtfc.id = u.funzione
+                                    WHERE tp.data_invio_conv IS NOT null
                                     ORDER BY u.telegram_id, tp.data_invio DESC;";
                         $result_coc = pg_prepare($conn, "myquery0", $query_coc);
                         $result_coc = pg_execute($conn, "myquery0", array());
