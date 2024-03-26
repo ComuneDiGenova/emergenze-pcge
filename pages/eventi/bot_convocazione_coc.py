@@ -121,11 +121,11 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
             name = result_s[0][1]
             data = result_s[0][5]
             text=f"Gentile {name}, hai dato conferma di lettura dell'emanazione dell'allerta emanata in data {data}."
-            await bot.delete_message(query.from_user.id,query.message.message_id)
+            await bot.delete_message(tg_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
 
-    await bot.send_message(query.from_user.id, text)
+    await bot.send_message(tg_id, text)
     
 @dp.callback_query_handler(text='convocazione')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
