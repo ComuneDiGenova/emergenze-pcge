@@ -55,9 +55,12 @@ def esegui_query(connection, query, query_type):
         return 1
     if query_type=='s':
         result= curr.fetchall() 
-        curr.close()   
+        curr.close()
+        connection.close()
         return result
     else:
+        curr.close()
+        connection.close()
         return 0
 
 
@@ -104,14 +107,14 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 WHERE tp.id_telegram = '{tg_id}'
                                 ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
-        result_s=esegui_query(con,query_convocazione,'s')
+        result_s=esegui_query(con, query_convocazione, 's')
 
         logging.debug(result_s)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
         query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id ={id}"
-        result_c=esegui_query(con,query_conferma,'u')
+        result_c=esegui_query(con, query_conferma, 'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
         else:
