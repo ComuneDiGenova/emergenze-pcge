@@ -61,9 +61,6 @@ def esegui_query(connection, query, query_type):
         return 0
 
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
 # Initialize bot and dispatcher
 bot = Bot(token=TOKENCOC)
 dp = Dispatcher(bot)
@@ -72,17 +69,17 @@ dp = Dispatcher(bot)
 @dp.message_handler(commands='start')
 async def start_cmd_handler(message: types.Message):
    
-
     await message.reply("Ciao!\nBenvenuto nel BOT di convocazione del COC Direttivo")
 
 
-# comando per telegram ID
+# comando per ottenere telegram ID
 @dp.message_handler(commands=['telegram_id'])
 async def send_welcome(message: types.Message):
     """
     This handler will be called when user sends `/telegram_id` command
     """
     await message.reply(f"Ciao {message.from_user.first_name}, il tuo codice (telegram id) è {message.chat.id}")
+
 
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
@@ -168,11 +165,11 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
             text="Si è verificato un problema nell'invio della conferma di lettura."
         else:
             text=f"Gentile {query.from_user.first_name} hai dato conferma di lettura della Concovocazione del COC Direttivo\n\n{testo}"
-            await bot.delete_message(user_id, query.message.message_id)
+            await bot.delete_message(tg_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
 
-    await bot.send_message(user_id, text)
+    await bot.send_message(tg_id, text)
 
 
 if __name__ == '__main__':
