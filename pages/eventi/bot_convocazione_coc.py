@@ -12,16 +12,16 @@ import config
 import conn
 
 
-TOKENCOC=config.TOKEN_COC
+TOKENCOC = config.TOKEN_COC
 
 # Configure logging
-logfile='{}/bot_convocazione_coc.log'.format(os.path.dirname(os.path.realpath(__file__)))
+logfile = '{}/bot_convocazione_coc.log'.format(os.path.dirname(os.path.realpath(__file__)))
 if os.path.exists(logfile):
     os.remove(logfile)
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
 
-def esegui_query(connection,query,query_type):
+def esegui_query(connection, query, query_type):
     '''
     Function to execute a generic query in a postresql DB
     
@@ -38,10 +38,10 @@ def esegui_query(connection,query,query_type):
         array of tuple with query's result = if the query succeed (for query_type s)
     '''
     
-    if isinstance(query_type,str)==False:
+    if isinstance(query_type, str) == False:
         logging.warning('query type must be a str. The query {} was not executed'.format(query))
         return 1
-    elif query_type != 'i' and query_type !='u' and query_type != 's':
+    elif query_type != 'i' and query_type != 'u' and query_type != 's':
         logging.warning('query type non recgnized for query: {}. The query was not executed'.format(query))
         return 1
     
@@ -51,7 +51,7 @@ def esegui_query(connection,query,query_type):
     try:
         curr.execute(query)
     except Exception as e:
-        logging.error('Query non eseguita per il seguente motivo: {}'.format(e))
+        logging.error(f'Query non eseguita per il seguente motivo: {e}')
         return 1
     if query_type=='s':
         result= curr.fetchall() 
@@ -82,7 +82,7 @@ async def send_welcome(message: types.Message):
     """
     This handler will be called when user sends `/telegram_id` command
     """
-    await message.reply("Ciao {}, il tuo codice (telegram id) è {}".format(message.from_user.first_name,message.chat.id))
+    await message.reply(f"Ciao {message.from_user.first_name}, il tuo codice (telegram id) è {message.chat.id}")
 
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
@@ -92,7 +92,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     #await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'ricevuto':
-        query_convocazione="""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+        query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id), u.matricola_cf,
                                                 u.nome,
                                                 u.cognome,
                                                 u.telegram_id,
@@ -103,20 +103,23 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{}'
-                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;""".format(query.from_user.id)
+                                WHERE tp.id_telegram = '{query.from_user.id}'
+                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
         result_s=esegui_query(con,query_convocazione,'s')
 
-        #print(result_s)
+        logging.warning(result_s)
         
         #if len(result_s) !=0:
-        query_conferma="UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{}' and id ={}".format(query.from_user.id, result_s[0][4])
+        id = result_s[0][4]
+        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{query.from_user.id}' and id ={id}"
         result_c=esegui_query(con,query_conferma,'u')
         if result_c == 1:
-            text='Si è verificato un problema nell\'invio della conferma di lettura.'
+            text="Si è verificato un problema nell'invio della conferma di lettura."
         else:
-            text='Gentile {}, hai dato conferma di lettura dell\'emanazione dell\'allerta emanata in data {}.'.format(result_s[0][1], result_s[0][5])
+            name = result_s[0][1]
+            data = result_s[0][5]
+            text=f"Gentile {name}, hai dato conferma di lettura dell'emanazione dell'allerta emanata in data {data}."
             await bot.delete_message(query.from_user.id,query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
@@ -131,8 +134,10 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     #await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'convocazione':
-        testo=query.message.text
-        query_convocazione2="""SELECT DISTINCT (u.telegram_id) u.matricola_cf,
+        testo = query.message.text
+        user_id = query.from_user.id
+
+        query_convocazione2=f"""SELECT DISTINCT (u.telegram_id), u.matricola_cf,
                                                     u.nome,
                                                     u.cognome,
                                                     u.telegram_id,
@@ -146,24 +151,26 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{}' AND tp.data_invio_conv IS NOT null
-                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;""".format(query.from_user.id)
-        result_s2=esegui_query(con,query_convocazione2,'s')
-
-        # #print(result_s)
+                                WHERE tp.id_telegram = '{user_id}' AND tp.data_invio_conv IS NOT null
+                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
-        if len(result_s2) !=0:
-            query_conferma2="UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{}' and id ={}".format(query.from_user.id, result_s2[0][4])
-            result_c2=esegui_query(con,query_conferma2,'u')
+        result_s2=esegui_query(con, query_convocazione2, 's')
+
+        logging.warning(result_s2)
+
+        # if len(result_s2) != 0:
+        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{user_id}' and id ={result_s2[0][5]}"
+        result_c2 = esegui_query(con, query_conferma2, 'u')
+        
         if result_c2 == 1:
-            text='Si è verificato un problema nell\'invio della conferma di lettura.'
+            text="Si è verificato un problema nell'invio della conferma di lettura."
         else:
-            text='Gentile {} hai dato conferma di lettura della Concovocazione del COC Direttivo\n\n{}'.format(query.from_user.first_name, testo)
-            await bot.delete_message(query.from_user.id,query.message.message_id)
+            text=f"Gentile {query.from_user.first_name} hai dato conferma di lettura della Concovocazione del COC Direttivo\n\n{testo}"
+            await bot.delete_message(user_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
 
-    await bot.send_message(query.from_user.id, text)
+    await bot.send_message(user_id, text)
 
 
 if __name__ == '__main__':
