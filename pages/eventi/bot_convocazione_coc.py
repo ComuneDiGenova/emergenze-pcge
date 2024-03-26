@@ -92,6 +92,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     #await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'ricevuto':
+        tg_id = query.from_user.id
         query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id), u.matricola_cf,
                                                 u.nome,
                                                 u.cognome,
@@ -103,7 +104,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{query.from_user.id}'
+                                WHERE tp.id_telegram = '{tg_id}'
                                 ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
         result_s=esegui_query(con,query_convocazione,'s')
@@ -112,7 +113,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         #if len(result_s) !=0:
         id = result_s[0][4]
-        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{query.from_user.id}' and id ={id}"
+        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id ={id}"
         result_c=esegui_query(con,query_conferma,'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
@@ -135,7 +136,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
     if answer_data == 'convocazione':
         testo = query.message.text
-        user_id = query.from_user.id
+        tg_id = query.from_user.id
 
         query_convocazione2=f"""SELECT DISTINCT (u.telegram_id), u.matricola_cf,
                                                     u.nome,
@@ -151,7 +152,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{user_id}' AND tp.data_invio_conv IS NOT null
+                                WHERE tp.id_telegram = '{tg_id}' AND tp.data_invio_conv IS NOT null
                                 ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
         result_s2=esegui_query(con, query_convocazione2, 's')
@@ -159,7 +160,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         logging.debug(result_s2)
 
         # if len(result_s2) != 0:
-        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{user_id}' and id ={result_s2[0][5]}"
+        user_id = result_s2[0][5]
+        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id ={user_id}"
         result_c2 = esegui_query(con, query_conferma2, 'u')
         
         if result_c2 == 1:
