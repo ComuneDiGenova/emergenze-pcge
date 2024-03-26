@@ -28,11 +28,9 @@ sleep 20
 
 #python3 $CONF/forever.py $CONF/pc_bot_multithread_demo.py
 
-
 /home/local/COMGE/egter01/miniconda3/envs/bottg/bin/python $CONF/forever.py $CONF/bot_sistema_emergenze.py
-
 
 #/opt/rh/rh-python38/root/usr/bin/python3.8 $CONF/forever.py $CONF/bot_sistema_emergenze.py
 
-echo "FINE SCRIPT AVVIO TELGRAM BOT DAEMON"
+echo "FINE SCRIPT AVVIO TELEGRAM BOT DAEMON"
 
