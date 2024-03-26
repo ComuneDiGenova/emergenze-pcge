@@ -10,6 +10,8 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from aiogram.utils.token import TokenValidationError
 
+from .botlib.tools import esegui_query, Form
+
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = settings.BOT_TOKEN
 
