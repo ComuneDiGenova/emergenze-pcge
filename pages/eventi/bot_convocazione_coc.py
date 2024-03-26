@@ -108,7 +108,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         result_s=esegui_query(con,query_convocazione,'s')
 
-        logging.warning(result_s)
+        logging.debug(result_s)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
@@ -156,7 +156,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         result_s2=esegui_query(con, query_convocazione2, 's')
 
-        logging.warning(result_s2)
+        logging.debug(result_s2)
 
         # if len(result_s2) != 0:
         query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{user_id}' and id ={result_s2[0][5]}"
