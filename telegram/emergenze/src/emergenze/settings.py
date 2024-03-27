@@ -1,11 +1,8 @@
 import os
+from pathlib import Path
 
 # logger settings
 # This should be in a separate settings file
-
-from dotenv import load_dotenv
-
-load_dotenv()
 
 LOGGERS = [
     "debug:stdout"

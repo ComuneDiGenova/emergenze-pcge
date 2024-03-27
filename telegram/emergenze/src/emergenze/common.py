@@ -1,8 +1,9 @@
 import sys
 import logging
+from typing import List
 from . import settings
 
-def get_logger(app_name:str, loggers_conf:list[str]):
+def get_logger(app_name:str, loggers_conf:List[str]):
     """ """
     
     logger = logging.getLogger(app_name)
