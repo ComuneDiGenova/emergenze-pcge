@@ -19,8 +19,8 @@ WORKDIR /home/$UNAME
 RUN python3 -m pip install --upgrade pip
 
 # FROM common as development
-COPY ./emergenze ./emergenze
-RUN python3 -m pip install -U -e ./emergenze
+COPY ./bots ./bots
+RUN python3 -m pip install -U -e ./bots
 COPY ./.env ./.env
-CMD python3 -m emergenze.emergenze.bot
+CMD python3 -m common.emergenze.bot
 # CMD sleep infinity
