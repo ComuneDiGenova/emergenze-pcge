@@ -20,7 +20,7 @@ dependencies = [
     "aiogram == 2.25.1",
     "psycopg2-binary",
     "python-dotenv",
-    "emoji",
+    "emoji == 1.2.0",
     # ...
 ]
 
