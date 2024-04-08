@@ -2,25 +2,19 @@
 # -*- coding: utf-8 -*-
 #   Gter Copyleft 2021
 
+from . import settings
 import logging
 import os
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import callback_query, message, message_entity, update
 from aiogram.types import message
 import psycopg2
-# import config
-# import conn
 
-dbparams = {
-    "host": os.getenv("conn_ip"), 
-    "dbname": os.getenv("conn_db"), 
-    "user": os.getenv("conn_user"), 
-    "password": os.getenv("conn_pwd"), 
-    "port": os.getenv("conn_port")
-}
 
-# TOKENCOC = config.TOKEN_COC
-TOKENCOC = os.getenv("EMERGENZE_COC_BOT_TOKEN")
+conn = settings.conn
+
+API_TOKEN = settings.BOT_TOKEN
+
 
 # Configure logging
 logfile = f'/home/{os.getenv("ENVUSER")}/log/bot_convocazione_coc.log'
@@ -29,6 +23,7 @@ logfile = f'/home/{os.getenv("ENVUSER")}/log/bot_convocazione_coc.log'
 #     os.remove(logfile)
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
+
 
 def esegui_query(connection, query, query_type):
     '''
@@ -74,7 +69,7 @@ def esegui_query(connection, query, query_type):
 
 
 # Initialize bot and dispatcher
-bot = Bot(token=TOKENCOC)
+bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
@@ -96,7 +91,7 @@ async def send_welcome(message: types.Message):
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
-    con = psycopg2.connect(**dbparams)
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
     # always answer callback queries, even if you have nothing to say
     #await query.answer(f'You answered with {answer_data!r}')
 
@@ -139,7 +134,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 @dp.callback_query_handler(text='convocazione')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
-    con = psycopg2.connect(**dbparams)
+    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
     # always answer callback queries, even if you have nothing to say
     #await query.answer(f'You answered with {answer_data!r}')
 
@@ -185,5 +180,5 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
 
 if __name__ == '__main__':
+    logging.warning(f"ip={conn.ip}, dbname={conn.db}, user={conn.user}, password={conn.pwd}, port={conn.port}")
     executor.start_polling(dp, skip_updates=True)
-    

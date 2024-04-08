@@ -1,6 +1,8 @@
 import os
+from dotenv import load_dotenv
 from .. import settings as _settings
 
+load_dotenv()
 LOGGERS = _settings.LOGGERS
 
 APP_NAME = _settings.BOT_PROPS['emergenze']['app_name']
