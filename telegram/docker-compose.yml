@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+
+  botgram_emergenze:
+    container_name: emergenze-bot
+    build:
+      context: .
+      dockerfile: ./docker/emergenze/Dockerfile
+      args:
+        - UNAME=${ENVUSER}
+        - UID=${UID}
+        - GID=${GID}
+    environment:
+      EMERGENZE_BOT_TOKEN: ${EMERGENZE_BOT_TOKEN}
+    # restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./bots:/home/${ENVUSER}/bots:w
+
+  botgram_convocazione_coc:
+    container_name: convocazione_coc-bot
+    build:
+      context: .
+      dockerfile: ./docker/convocazione_coc/Dockerfile
+      args:
+        - UNAME=${ENVUSER}
+        - UID=${UID}
+        - GID=${GID}
+    environment:
+      ENVUSER: ${ENVUSER}
+      EMERGENZE_COC_BOT_TOKEN: ${EMERGENZE_COC_BOT_TOKEN}
+    # restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./bots:/home/${ENVUSER}/bots:w
+      - ./logs:/home/${ENVUSER}/log
