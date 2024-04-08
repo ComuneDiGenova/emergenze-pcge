@@ -56,11 +56,11 @@ def esegui_query(connection, query, query_type):
     if query_type=='s':
         result= curr.fetchall() 
         curr.close()
-        connection.close()
+        # connection.close()
         return result
     else:
         curr.close()
-        connection.close()
+        # connection.close()
         return 0
 
 
