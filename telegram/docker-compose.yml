@@ -13,7 +13,7 @@ services:
         - GID=${GID}
     environment:
       EMERGENZE_BOT_TOKEN: ${EMERGENZE_BOT_TOKEN}
-    # restart: unless-stopped
+    restart: unless-stopped
     stdin_open: true
     tty: true
     volumes:
@@ -31,7 +31,7 @@ services:
     environment:
       ENVUSER: ${ENVUSER}
       EMERGENZE_COC_BOT_TOKEN: ${EMERGENZE_COC_BOT_TOKEN}
-    # restart: unless-stopped
+    restart: unless-stopped
     stdin_open: true
     tty: true
     volumes:
