@@ -1,13 +1,5 @@
 version: '3.8'
 
-networks:
-  default:
-    ipam:
-      driver: default
-      config:
-        - subnet: "172.27.0.0/24"
-        # - subnet: "192.168.189.0/24"
-
 services:
 
   botgram_emergenze:
