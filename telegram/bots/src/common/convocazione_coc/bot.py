@@ -11,7 +11,7 @@ from aiogram.types import message
 import psycopg2
 
 
-conn = settings.conn
+connection = settings.conn
 
 API_TOKEN = settings.BOT_TOKEN
 
@@ -25,7 +25,7 @@ logfile = f'/home/{os.getenv("ENVUSER")}/log/bot_convocazione_coc.log'
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
 
 
-def esegui_query(connection, query, query_type):
+def esegui_query(query, query_type, connection=connection):
     '''
     Function to execute a generic query in a postresql DB
     
@@ -49,22 +49,22 @@ def esegui_query(connection, query, query_type):
         logging.warning('query type non recgnized for query: {}. The query was not executed'.format(query))
         return 1
     
-    
-    curr = connection.cursor()
-    connection.autocommit = True
+    conn = psycopg2.connect(host=connection.ip, dbname=connection.db, user=connection.user, password=connection.pwd, port=connection.port)
+    cur = conn.cursor()
+    conn.autocommit = True
     try:
-        curr.execute(query)
+        cur.execute(query)
     except Exception as e:
         logging.error(f'Query non eseguita per il seguente motivo: {e}')
         return 1
     if query_type=='s':
-        result= curr.fetchall() 
-        curr.close()
-        connection.close()
+        result= cur.fetchall() 
+        cur.close()
+        conn.close()
         return result
     else:
-        curr.close()
-        connection.close()
+        cur.close()
+        conn.close()
         return 0
 
 
@@ -91,7 +91,7 @@ async def send_welcome(message: types.Message):
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
-    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+    
     # always answer callback queries, even if you have nothing to say
     #await query.answer(f'You answered with {answer_data!r}')
 
@@ -111,14 +111,14 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 WHERE tp.id_telegram = '{tg_id}'
                                 ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
-        result_s=esegui_query(con, query_convocazione, 's')
+        result_s=esegui_query(query_convocazione, 's')
 
         logging.debug(result_s)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
         query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id ={id}"
-        result_c=esegui_query(con, query_conferma, 'u')
+        result_c=esegui_query(query_conferma, 'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
         else:
@@ -134,7 +134,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 @dp.callback_query_handler(text='convocazione')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
-    con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+
     # always answer callback queries, even if you have nothing to say
     #await query.answer(f'You answered with {answer_data!r}')
 
@@ -159,14 +159,14 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 WHERE tp.id_telegram = '{tg_id}' AND tp.data_invio_conv IS NOT null
                                 ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
         
-        result_s2=esegui_query(con, query_convocazione2, 's')
+        result_s2=esegui_query(query_convocazione2, 's')
 
         logging.debug(result_s2)
 
         # if len(result_s2) != 0:
         user_id = result_s2[0][5]
         query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id ={user_id}"
-        result_c2 = esegui_query(con, query_conferma2, 'u')
+        result_c2 = esegui_query(query_conferma2, 'u')
         
         if result_c2 == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
@@ -180,5 +180,5 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
 
 if __name__ == '__main__':
-    logging.warning(f"ip={conn.ip}, dbname={conn.db}, user={conn.user}, password={conn.pwd}, port={conn.port}")
+    # logging.warning(f"ip={connection.ip}, dbname={connection.db}, user={connection.user}, password={connection.pwd}, port={connection.port}")
     executor.start_polling(dp, skip_updates=True)
