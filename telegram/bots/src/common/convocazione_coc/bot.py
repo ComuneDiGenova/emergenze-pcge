@@ -97,7 +97,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
     if answer_data == 'ricevuto':
         tg_id = query.from_user.id
-        query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id), u.matricola_cf,
+        query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
                                                 u.nome,
                                                 u.cognome,
                                                 u.telegram_id,
@@ -142,7 +142,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         testo = query.message.text
         tg_id = query.from_user.id
 
-        query_convocazione2=f"""SELECT DISTINCT (u.telegram_id), u.matricola_cf,
+        query_convocazione2=f"""SELECT DISTINCT (u.telegram_id) u.matricola_cf,
                                                     u.nome,
                                                     u.cognome,
                                                     u.telegram_id,

@@ -17,6 +17,7 @@ import datetime
 import config
 
 import telepot
+import json
 
 # Il token non è aggiornato su GitHub per evitare usi impropri
 TOKEN = config.TOKEN
@@ -76,6 +77,11 @@ def messageDownloader(xml, name, abbr):
         else:
             print(f"No file of type '{abbr}' to download")
 
+def get_cursor(host=ip, dbname=db, user=user, password=pwd, port=port, autocommit=True):
+    conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
+    conn.autocommit = autocommit
+    curr = conn.cursor()
+    return curr
 
 def scarica_bollettino(tipo, nome, ora):
     """
@@ -103,19 +109,21 @@ def scarica_bollettino(tipo, nome, ora):
 
         with open("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo, nome), "wb") as code:
             code.write(data)
-        conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
-        curr = conn.cursor()
-        conn.autocommit = True
+        # conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
+        # curr = conn.cursor()
+        # conn.autocommit = True
+        curr = get_cursor()
         if ora != 'NULL':
             query = "INSERT INTO eventi.t_bollettini(tipo, nomefile, data_ora_emissione)VALUES ('{}', '{}', '{}');".format(tipo, nome, data_read)
         else:
             query = "INSERT INTO eventi.t_bollettini(tipo, nomefile)VALUES ('{}', '{}');".format(tipo, nome)
 
         curr.execute(query)
-        
+        # conn.commit()
+
         print("Download of type {} completed...".format(tipo))
         print(datetime.datetime.now())
-        
+
         # Send message with bot 
         if tipo == 'PC':
             print("Bollettino di PC")
@@ -136,10 +144,11 @@ def scarica_bollettino(tipo, nome, ora):
                 except:
                     print("Problema invio messaggio all' utente con chat_id = {}".format(chat_id))
 
-            
             query_coc= "SELECT telegram_id from users.utenti_coc;"
             curr.execute(query_coc)
-            lista_coc = curr.fetchall() 
+            lista_coc = curr.fetchall()
+            print('Lista utenti coc:')
+            print(lista_coc)
             for row_coc in lista_coc:
                 chat_id_coc=row_coc[0]
                 try:
@@ -180,7 +189,7 @@ def main():
     log_file_allerte.write("Ultimo aggiornamento: {}\n".format(dataEmissione))
          
     # DEBUG
-    # scarica_bollettino("PC", "protciv_131299.pdf", "NULL")
+    # scarica_bollettino("PC", "protciv_31902.pdf", "NULL")
     
     # Scarico i messaggi  
     for k, v in messages.items():
@@ -205,20 +214,59 @@ def main():
                                 
     log_file_allerte.close
 
-
-if __name__ == "__main__":   
-    # Cerco il percorso al file python
-    path = os.path.dirname(os.path.abspath(__file__))
-
-    # redirigo i print su un log message
-    old_stdout = sys.stdout
-    logfile = "{}/readxml.log".format(path)
-    log_file = open(logfile, "w")
-    sys.stdout = log_file
+def simula_nuovo_bollettino(bollettino='protciv_31902.pdf'):
+    """
+    bollettino: Nome del file PDF del bollettino (es. protciv_31902.pdf)
+    1. Rimuovo file da percorso
+    2. Rimuovo record da tabella
+    3. Lancio funzione scarica_bollettino
+    """
     
-    print(datetime.datetime.now())
-    main()
+    # 1.
+    try:
+        os.remove(f"{abs_path_bollettini}/bollettini/PC/{bollettino}")
+    except OSError:
+        pass
 
-    # Chiusura file di log
-    sys.stdout = old_stdout
-    log_file.close()
+    # 2. 
+    rm_query = f"DELETE FROM eventi.t_bollettini WHERE nomefile='{bollettino}';"
+    curr = get_cursor()
+    curr.execute(rm_query)
+    
+    # 3.
+    scarica_bollettino('PC', bollettino, 'NULL')
+    
+    print('\nFATTO!!')
+
+
+    
+    
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Scarico bollettino meteo regionale.')
+    
+    parser.add_argument('--force-redownload', action=argparse.BooleanOptionalAction)
+
+    args = parser.parse_args()
+    
+    if args.force_redownload:
+        simula_nuovo_bollettino()
+    else:
+
+        # Cerco il percorso al file python
+        path = os.path.dirname(os.path.abspath(__file__))
+
+        # redirigo i print su un log message
+        old_stdout = sys.stdout
+        logfile = "{}/readxml.log".format(path)
+        log_file = open(logfile, "w")
+        sys.stdout = log_file
+        
+        print(datetime.datetime.now())
+        main()
+
+        # Chiusura file di log
+        sys.stdout = old_stdout
+        log_file.close()
