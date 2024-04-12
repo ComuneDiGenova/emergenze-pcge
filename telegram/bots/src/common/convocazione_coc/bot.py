@@ -56,6 +56,7 @@ def esegui_query(query, query_type, connection=connection):
         cur.execute(query)
     except Exception as e:
         logging.error(f'Query non eseguita per il seguente motivo: {e}')
+        logging.warning(query)
         return 1
     if query_type=='s':
         result= cur.fetchall() 
@@ -109,15 +110,16 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
                                 WHERE tp.id_telegram = '{tg_id}'
-                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
+                                ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;"""
         
         result_s=esegui_query(query_convocazione, 's')
 
         logging.debug(result_s)
+        logging.info(query_convocazione)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
-        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id ={id}"
+        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id = {id}"
         result_c=esegui_query(query_conferma, 'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
@@ -142,7 +144,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         testo = query.message.text
         tg_id = query.from_user.id
 
-        query_convocazione2=f"""SELECT DISTINCT (u.telegram_id) u.matricola_cf,
+        query_convocazione2=f"""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
                                                     u.nome,
                                                     u.cognome,
                                                     u.telegram_id,
@@ -164,8 +166,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         logging.debug(result_s2)
 
         # if len(result_s2) != 0:
-        user_id = result_s2[0][5]
-        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id ={user_id}"
+        user_id = result_s2[0][4]
+        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id = {user_id}"
         result_c2 = esegui_query(query_conferma2, 'u')
         
         if result_c2 == 1:

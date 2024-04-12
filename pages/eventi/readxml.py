@@ -35,7 +35,18 @@ messages = {'MessaggioProtezioneCivile': 'PC',      # Prot. Civ.
             'MessaggioMeteoARPAL': 'Met_A',         # Meteo ARPAL
             'MessaggioIdrologicoARPAL': 'Idr_A',    # Idrologico ARPAL
             'MessaggioNivologicoARPAL': 'Niv_A',    # Nivologico ARPAL
-            }    
+            }
+
+
+def get_cursor(host=ip, dbname=db, user=user, password=pwd, port=port, autocommit=True):
+    """
+    Funzione di creazione di un cursore per il lancio query di psycopg
+    """
+    conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
+    conn.autocommit = autocommit
+    curr = conn.cursor()
+    return curr
+
 
 def urllibwrapper(url):
     """
@@ -54,6 +65,7 @@ def urllibwrapper(url):
         f = urllib.request.urlopen(url, context=ctx)
 
     return f
+
 
 def messageDownloader(xml, name, abbr):
     """
@@ -77,11 +89,6 @@ def messageDownloader(xml, name, abbr):
         else:
             print(f"No file of type '{abbr}' to download")
 
-def get_cursor(host=ip, dbname=db, user=user, password=pwd, port=port, autocommit=True):
-    conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
-    conn.autocommit = autocommit
-    curr = conn.cursor()
-    return curr
 
 def scarica_bollettino(tipo, nome, ora):
     """
@@ -119,6 +126,7 @@ def scarica_bollettino(tipo, nome, ora):
             query = "INSERT INTO eventi.t_bollettini(tipo, nomefile)VALUES ('{}', '{}');".format(tipo, nome)
 
         curr.execute(query)
+        curr.close()
         # conn.commit()
 
         print("Download of type {} completed...".format(tipo))
@@ -127,51 +135,107 @@ def scarica_bollettino(tipo, nome, ora):
         # Send message with bot 
         if tipo == 'PC':
             print("Bollettino di PC")
-            messaggio = "{}/docs/{}".format(sito_allerta, nome)
+            messaggio = f"{sito_allerta}/docs/{nome}"
+            convoca_utenti_sistema(messaggio)
+            convoca_coc(messaggio)
+            # print("Bollettino di PC")
+            # messaggio = "{}/docs/{}".format(sito_allerta, nome)
             
-            # ciclo su tutte le chat_id
-            query_chat_id = "SELECT telegram_id from users.v_utenti_sistema where telegram_id !='' and telegram_attivo='t' and (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"
-            curr.execute(query_chat_id)
-            # print(datetime.datetime.now())
-            # print(query_chat_id)
-            lista_chat_id = curr.fetchall() 
+            # # ciclo su tutte le chat_id
+            # query_chat_id = "SELECT telegram_id from users.v_utenti_sistema where telegram_id !='' and telegram_attivo='t' and (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"
+            # curr.execute(query_chat_id)
+            # # print(datetime.datetime.now())
+            # # print(query_chat_id)
+            # lista_chat_id = curr.fetchall() 
 
-            for row in lista_chat_id:
-                chat_id = row[0]
-                # print(chat_id)
-                try:
-                    bot.sendMessage(chat_id, "Nuovo bollettino Protezione civile!\n\n{}".format(messaggio))
-                except:
-                    print("Problema invio messaggio all' utente con chat_id = {}".format(chat_id))
+            # for row in lista_chat_id:
+            #     chat_id = row[0]
+            #     # print(chat_id)
+            #     try:
+            #         bot.sendMessage(chat_id, "Nuovo bollettino Protezione civile!\n\n{}".format(messaggio))
+            #     except:
+            #         print("Problema invio messaggio all' utente con chat_id = {}".format(chat_id))
 
-            query_coc= "SELECT telegram_id from users.utenti_coc;"
-            curr.execute(query_coc)
-            lista_coc = curr.fetchall()
-            print('Lista utenti coc:')
-            print(lista_coc)
-            for row_coc in lista_coc:
-                chat_id_coc=row_coc[0]
-                try:
-                    msg_bollettino = os.popen("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
-                                              %(chat_id_coc, messaggio, TOKENCOC)).read()
-                    msg_bollettino_j = json.loads(msg_bollettino)
-                    if msg_bollettino_j['ok'] == True:
-                        os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
-                                  %(chat_id_coc, TOKENCOC))
+            # query_coc= "SELECT telegram_id from users.utenti_coc;"
+            # curr.execute(query_coc)
+            # lista_coc = curr.fetchall()
+            # print('Lista utenti coc:')
+            # print(lista_coc)
+            # for row_coc in lista_coc:
+            #     chat_id_coc=row_coc[0]
+            #     try:
+            #         msg_bollettino = os.popen("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
+            #                                   %(chat_id_coc, messaggio, TOKENCOC)).read()
+            #         msg_bollettino_j = json.loads(msg_bollettino)
+            #         if msg_bollettino_j['ok'] == True:
+            #             os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
+            #                       %(chat_id_coc, TOKENCOC))
                         
-                        #query insert DB
-                        query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {});".format(chat_id_coc)
-                        curr.execute(query_convocazione)
-                except Exception as e:
-                    print(e)
-                    print('Problema invio messaggio all\'utente del coc con chat_id={}'.format(chat_id_coc))
+            #             #query insert DB
+            #             query_convocazione="INSERT INTO users.t_convocazione(data_invio, id_telegram) VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {});".format(chat_id_coc)
+            #             curr.execute(query_convocazione)
+            #     except Exception as e:
+            #         print(e)
+            #         print("Problema invio messaggio all\'utente del coc con chat_id={}".format(chat_id_coc))
                 
     else:
-        print("File of type '{}' already downloaded".format(tipo)) 
+        print(f"File of type 'tipo' already downloaded") 
+
+
+def convoca_utenti_sistema(messaggio):
+    curr = get_cursor()
+    
+    # ciclo su tutte le chat_id
+    query_chat_id = """SELECT telegram_id 
+                        FROM users.v_utenti_sistema 
+                        WHERE telegram_id !='' AND telegram_attivo='t' AND (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"""
+    curr.execute(query_chat_id)
+    # print(datetime.datetime.now())
+    # print(query_chat_id)
+    lista_chat_id = curr.fetchall()
+
+    # per ogni chat id invio messaggio telegram "nuovo bollettino"
+    for row in lista_chat_id:
+        chat_id = row[0]
+        print(chat_id)
+        try:
+            bot.sendMessage(chat_id, f"Nuovo bollettino Protezione civile!\n\n{messaggio}")
+        except:
+            print(f"Problema invio messaggio all' utente con chat_id = {chat_id}")
+    curr.close()
+
+def convoca_coc(messaggio):
+    
+    curr = get_cursor()
+    
+    query_coc= "SELECT telegram_id from users.utenti_coc;"
+    curr.execute(query_coc)
+    lista_coc = curr.fetchall()
+    print('Lista utenti coc:')
+    print(lista_coc)
+    for row_coc in lista_coc:
+        chat_id_coc=row_coc[0]
+        try:
+            msg_bollettino = os.popen("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
+                                        %(chat_id_coc, messaggio, TOKENCOC)).read()
+            msg_bollettino_j = json.loads(msg_bollettino)
+            if msg_bollettino_j['ok'] == True:
+                os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
+                            %(chat_id_coc, TOKENCOC))
+                
+                #query insert DB
+                query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram) 
+                                        VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc});"""
+                curr.execute(query_convocazione)
+        except Exception as e:
+            print(e)
+            print(f"Problema invio messaggio all'utente del coc con chat_id={chat_id_coc}")
+    
+    curr.close()
 
 
 def main():
-    url="{}/xml/allertaliguria.xml".format(sito_allerta);
+    url=f"{sito_allerta}/xml/allertaliguria.xml"
 
     file = urllibwrapper(url)
 
