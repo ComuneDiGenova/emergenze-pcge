@@ -56,7 +56,7 @@ def esegui_query(query, query_type, connection=connection):
         cur.execute(query)
     except Exception as e:
         logging.error(f'Query non eseguita per il seguente motivo: {e}')
-        logging.warning(query)
+        # logging.warning(query)
         return 1
     if query_type=='s':
         result= cur.fetchall() 
@@ -114,8 +114,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         result_s=esegui_query(query_convocazione, 's')
 
-        logging.debug(result_s)
-        logging.info(query_convocazione)
+        # logging.debug(result_s)
+        # logging.info(query_convocazione)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
@@ -163,7 +163,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         result_s2=esegui_query(query_convocazione2, 's')
 
-        logging.debug(result_s2)
+        # logging.debug(result_s2)
 
         # if len(result_s2) != 0:
         user_id = result_s2[0][4]
