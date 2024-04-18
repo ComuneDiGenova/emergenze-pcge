@@ -79,11 +79,11 @@ def db_updater():
             mycmd = "/usr/local/bin/ogr2ogr"
             print(geom_name, file=sys.stdout)
             if geom_name == 'no':
-                myarg = """ -append -a_srs "EPSG:3003" -f "PostgreSQL" -nln "{0}"."{1}" -lco LAUNDER=YES -lco FID=gid -lco OVERWRITE=NO --config OGR_TRUNCATE YES --config PG_USE_COPY YES PG:"host="{2}" user="{3}" password="{4}" dbname="{5}" OCI:'PC_EMERGENZE/$Allerta45$@(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {6})(PORT = {7})))(CONNECT_DATA = (SID = georef))):{8}'""".format(
+                myarg = """ -append -a_srs "EPSG:3003" -f "PostgreSQL" -nln "{0}"."{1}" -lco LAUNDER=YES -lco FID=gid -lco OVERWRITE=NO --config OGR_TRUNCATE YES --config PG_USE_COPY YES PG:"host='{2}' user='{3}' password='{4}' dbname='{5}'" OCI:'PC_EMERGENZE/$Allerta45$@(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {6})(PORT = {7})))(CONNECT_DATA = (SID = georef))):{8}'""".format(
                     schema_pg, nome_pg, host, user, password, dbname, host_vm, port_vm, oracle_view
                 )
             else:
-                myarg = """ -append -a_srs "EPSG:3003" -f "PostgreSQL" -nln "{0}"."{1}" -lco LAUNDER=YES -lco FID=gid -lco OVERWRITE=NO --config OGR_TRUNCATE YES --config PG_USE_COPY YES -nlt "{2}" -lco GEOMETRY_NAME={3} PG:"host="{4}" user="{5}" password="{6}" dbname="{7}" OCI:'PC_EMERGENZE/$Allerta45$@(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {8})(PORT = {9})))(CONNECT_DATA = (SID = georef))):{10}'""".format(
+                myarg = """ -append -a_srs "EPSG:3003" -f "PostgreSQL" -nln "{0}"."{1}" -lco LAUNDER=YES -lco FID=gid -lco OVERWRITE=NO --config OGR_TRUNCATE YES --config PG_USE_COPY YES -nlt "{2}" -lco GEOMETRY_NAME={3} PG:"host='{4}' user='{5}' password='{6}' dbname='{7}'" OCI:'PC_EMERGENZE/$Allerta45$@(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {8})(PORT = {9})))(CONNECT_DATA = (SID = georef))):{10}'""".format(
                     schema_pg, nome_pg, geom_type, geom_name, host, user, password, dbname, host_vm, port_vm, oracle_view
                 )
             print(myarg)
