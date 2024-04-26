@@ -11,9 +11,9 @@ from .common import logger
 # WSO2_TOKEN_ROOT = 'manageToken/getToken'
 # WSO2_VBT_ROOT = 'GestioneEmergenzeVerbatel'
 
-# VBT_PROT = "https"
-# VBT_HOST = "192.168.153.84"
-# VBT_PATH = "GestioneEmergenze/api"
+VBT_PROT = "http"
+VBT_HOST = "192.168.153.84"
+VBT_PATH = "GestioneEmergenzeTest/api"
 
 WSO2_URL = settings.WSO2_URL
 WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ENDPOINT
@@ -101,6 +101,64 @@ def test1(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
 
     print(response_from_wso2.text)
 
+def test_v1_wso2(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
+    """ """
+    
+    wso2 = AccessTokenManager(key, secret)
+    
+    info = {
+        "stato" : 3,
+        "idSegnalazione": 1013,
+        "eventoId": 165,
+        "operatore": 'Operatore GE',
+        "tipoIntervento": 9,
+        "nomeStrada" : 'VIA BARI',
+        "codiceStrada": "04020",
+        "tipoLocalizzazione" : 3,
+        "daSpecificare": '15',
+        "noteOperative": 'Note Operative',
+        "reclamante" : 'SINDACO',
+        "telefonoReclamante": '3475208085',
+        "tipoRichiesta": 1,
+        "dataInserimento": '2021-06-23T11:00:00',
+        "latitudine": '44.47245435996428',
+        "longitudine": '8.895533415673095',
+        "motivoRifiuto": ''
+    }
+
+    wso2_url = f'{WSO2_VBT_ROOT}/interventi'
+    response_from_wso2 = wso2.post(wso2_url, data=info)
+    
+    print(response_from_wso2.text)
+    
+def test_v1():
+    
+    info = {
+        "stato" : 3,
+        "idSegnalazione": 1013,
+        "eventoId": 165,
+        "operatore": 'Operatore GE',
+        "tipoIntervento": 9,
+        "nomeStrada" : 'VIA BARI',
+        "codiceStrada": "04020",
+        "tipoLocalizzazione" : 3,
+        "daSpecificare": '15',
+        "noteOperative": 'Note Operative',
+        "reclamante" : 'SINDACO',
+        "telefonoReclamante": '3475208085',
+        "tipoRichiesta": 1,
+        "dataInserimento": '2021-06-23T11:00:00',
+        "latitudine": '44.47245435996428',
+        "longitudine": '8.895533415673095',
+        "motivoRifiuto": ''
+    }
+    
+    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_PATH}/interventi')
+    print(f"Chiamata all'URL: {vbt_url}")
+    response_from_verbatel = requests.post(vbt_url, data=info)
+    print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
+    print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
+
 if __name__=='__main__':
     import argparse
     
@@ -129,7 +187,6 @@ if __name__=='__main__':
 
     wso2_url = f'{WSO2_VBT_ROOT}/evento'
     response_from_wso2 = wso2.get(wso2_url, data=info_evento)
-
 
     print(response_from_wso2.text)
 

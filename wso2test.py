@@ -93,21 +93,40 @@ if __name__=='__main__':
 
     wso2 = AccessTokenManager(key, secret)
 
-    info_evento = {'id': 174, 'inizio': '2023-01-18T17:43:56', 'fine': '2023-01-23T15:42:59.165413', 'fine_sospensione': None, 'chiusura': '2023-01-23T15:42:36.501646', 'valido': False, 'descrizione': 'Nivologico', 'municipi': ['Bassa Val Bisagno', 'Centro est', 'Centro Ovest', 'Levante', 'Media Val Bisagno', 'Medio Levante', 'Medio Ponente', 'Ponente', 'Val Polcevera'], 'foc': [{'fine': '2023-01-19T06:00:00', 'colore': '#009aff', 'inizio': '2023-01-18T14:00:00', 'descrizione': 'Attenzione'}], 'allerte': None, 'note': [{'nota': 'possibile neve notte tra 18 e 19 gennaio 23'}], 'stato': 'chiuso'}
+    # info_evento = {'id': 174, 'inizio': '2023-01-18T17:43:56', 'fine': '2023-01-23T15:42:59.165413', 'fine_sospensione': None, 'chiusura': '2023-01-23T15:42:36.501646', 'valido': False, 'descrizione': 'Nivologico', 'municipi': ['Bassa Val Bisagno', 'Centro est', 'Centro Ovest', 'Levante', 'Media Val Bisagno', 'Medio Levante', 'Medio Ponente', 'Ponente', 'Val Polcevera'], 'foc': [{'fine': '2023-01-19T06:00:00', 'colore': '#009aff', 'inizio': '2023-01-18T14:00:00', 'descrizione': 'Attenzione'}], 'allerte': None, 'note': [{'nota': 'possibile neve notte tra 18 e 19 gennaio 23'}], 'stato': 'chiuso'}
 
-    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_ROOT}/Eventi')
+    info = {
+        "stato" : 3,
+        "idSegnalazione": 1013,
+        "eventoId": 165,
+        "operatore": 'Operatore GE',
+        "tipoIntervento": 9,
+        "nomeStrada" : 'VIA BARI',
+        "codiceStrada": "04020",
+        "tipoLocalizzazione" : 3,
+        "daSpecificare": '15',
+        "noteOperative": 'Note Operative',
+        "reclamante" : 'SINDACO',
+        "telefonoReclamante": '3475208085',
+        "tipoRichiesta": 1,
+        "dataInserimento": '2021-06-23T11:00:00',
+        "latitudine": '44.47245435996428',
+        "longitudine": '8.895533415673095',
+        "motivoRifiuto": ''
+    }
+
+    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_ROOT}/interventi')
     print(f"Chiamata all'URL: {vbt_url}")
-    response_from_verbatel = requests.post(vbt_url, data=info_evento)
+    response_from_verbatel = requests.post(vbt_url, data=info)
     print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
     print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
 
     # breakpoint()
     wso2.access_token
 
-    wso2_url = f'{WSO2_VBT_ROOT}/Eventi'
+    wso2_url = f'{WSO2_VBT_ROOT}/interventi'
     print(f'Token expires: {wso2.expire}')
-    response_from_wso2 = wso2.post(wso2_url, data=info_evento)
-
+    response_from_wso2 = wso2.post(wso2_url, data=info)
 
     print(response_from_wso2.text)
 
