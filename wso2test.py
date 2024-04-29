@@ -44,6 +44,7 @@ class AccessTokenManager(object):
     def headers(self) -> dict:
         return {
             'Authorization': f'Bearer {self.access_token}',
+            # 'Content-Type'
         }
 
     @property
@@ -68,10 +69,10 @@ class AccessTokenManager(object):
             urljoin(self.url, endpoint),
             data = data,
             json = json,
-            auth = self.auth
-            # headers = self.headers
+            #auth = self.auth,
+            headers = self.headers
         )
-        response.raise_for_status()
+        # response.raise_for_status()
         return response
 
 
@@ -115,18 +116,20 @@ if __name__=='__main__':
         "motivoRifiuto": ''
     }
 
-    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_ROOT}/interventi')
+    vbt_url = urljoin(f'{VBT_PROT}://{VBT_HOST}', f'{VBT_ROOT}/Interventi')
     print(f"Chiamata all'URL: {vbt_url}")
     response_from_verbatel = requests.post(vbt_url, data=info)
+
     print(f"Status della response ricevuta da Verbatel: {response_from_verbatel.status_code}")
     print(f"Risposta ottenuta da Varbatel:\n{response_from_verbatel.text}")
 
     # breakpoint()
     wso2.access_token
 
-    wso2_url = f'{WSO2_VBT_ROOT}/interventi'
+    wso2_url = f'{WSO2_VBT_ROOT}/Interventi'
     print(f'Token expires: {wso2.expire}')
-    response_from_wso2 = wso2.post(wso2_url, data=info)
+    # breakpoint()
+    response_from_wso2 = wso2.post(wso2_url, json=info)
 
     print(response_from_wso2.text)
 

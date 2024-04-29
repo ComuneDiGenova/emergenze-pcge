@@ -7,6 +7,8 @@ from urllib.parse import urljoin
 from . import settings
 from .common import logger
 
+import json
+
 # WSO2_URL = 'https://apitest.comune.genova.it:28243'
 # WSO2_TOKEN_ROOT = 'manageToken/getToken'
 # WSO2_VBT_ROOT = 'GestioneEmergenzeVerbatel'
@@ -64,7 +66,7 @@ class AccessTokenManager(object):
             json = json,
             headers = self.headers
         )
-        response.raise_for_status()
+        # response.raise_for_status()
         return response
 
 def test(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
@@ -126,10 +128,10 @@ def test_v1_wso2(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
         "motivoRifiuto": ''
     }
 
-    wso2_url = f'{WSO2_VBT_ROOT}/interventi'
-    response_from_wso2 = wso2.post(wso2_url, data=info)
+    wso2_url = f'{WSO2_VBT_ROOT}/Interventi'
+    response_from_wso2 = wso2.post(wso2_url, json=info)
     
-    print(response_from_wso2.text)
+    print(response_from_wso2.json())
     
 def test_v1():
     
