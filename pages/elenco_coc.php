@@ -171,7 +171,7 @@ require('navbar_up.php');
                                 
                                 <br>
 
-                                <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
+                                <label for="addMatricolaCf"> Testo Convocazione <font color="red">*</font></label>                 
                                 <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                             </div>
                             <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
@@ -318,10 +318,7 @@ function nameFormatterEdit2(value, row) {
 </script>
 	
 
-
-
-
-            </div>
+        </div>
             <!-- /.row -->
     </div>
     <!-- /#wrapper -->
