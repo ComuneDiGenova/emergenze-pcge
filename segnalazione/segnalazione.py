@@ -8,6 +8,8 @@ from pydal.validators import *
 import json
 import datetime
 
+from ..tools import log_segnalazioni2message
+
 DEFAULT_TIPO_SEGNALANTE = 1  # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = (
     db(db.profilo_utilizatore.id == 6)
@@ -456,7 +458,6 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
     else:
         logger.debug(in_lavorazione is False)
 
-from ..tools import log_segnalazioni2message
 
 def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
     """ """
@@ -473,10 +474,9 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
     )
     results = dbset.select(
         db.intervento.intervento_id.with_alias('intervento_id'),
-        left = db.incarico.on(db.intervento.incarico_id==db.incarico.id)
+        left = (db.incarico.on(db.intervento.incarico_id==db.incarico.id),)
         # limitby = (0,1,)
     )
-
 
     logger.debug(dbset._select(db.intervento.intervento_id.with_alias('intervento_id'), limitby=(0,1,)))
     logger.debug(f"Intercettato inserimento storico segnalazione: lavorazione: {id_lavorazione}\n messaggio: {messaggio_log}")

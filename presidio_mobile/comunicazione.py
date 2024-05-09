@@ -9,8 +9,9 @@ from py4web import Field
 import base64
 from pydal.validators import IS_IN_DB
 
-from ..segnalazione.comunicazione import fake_upload, _upload
+from ..segnalazione.comunicazione import get_fake_upload, _upload
 
+fake_upload = get_fake_upload(db.comunicazione_incarico_inviata)
 
 comunicazione_fields = [
     db.log.operatore,

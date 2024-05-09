@@ -6,10 +6,20 @@ import shutil, os
 from py4web import Field
 from pathlib import Path
 from pydal.validators import *
+from ..verbatel import Intervento
 
-fake_upload = Field('allegato', 'upload',
-    uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
-)
+import base64
+
+def get_fake_upload(table):
+    """ """
+    
+    fake_upload = Field('allegato', 'upload',
+        uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
+    )
+    fake_upload.bind(table)
+    return fake_upload
+
+fake_upload = get_fake_upload(db.comunicazione)
 
 comunicazione_fields = [
     db.comunicazione.mittente,
@@ -174,3 +184,66 @@ def create_by_segnalazione(segnalazione_id, *args, **kwargs):
     ).first().lavorazione_id
 
     return create(lavorazione_id, *args, **kwargs)
+
+def render(row):
+    """ """
+
+    out = {
+        # 'idIntervento': row.idIntervento,
+        'operatore': 'operatore di PC',
+        'testo': row.testo,
+        # 'files': [allegato]
+    }
+
+    if not row.allegato is None:
+
+        with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.allegato.split(os.path.sep)[1:])), 'rb') as ff:
+            encoded_string = base64.b64encode(ff.read()).decode()
+
+        allegato = {
+            'fileName': os.path.basename(row.allegato),
+            'file': encoded_string
+        }
+
+        out['files'] = [allegato]
+
+    return out
+
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
+check_da_pm = f"({db.comunicazione._rname}.mittente ilike '%Polizia Locale')"
+
+def fetch(lavorazione_id:int, timeref):
+    """ """
+
+    dbset = db(
+        (db.comunicazione.lavorazione_id == db.segnalazione_lavorazione.id) & \
+        (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
+        (db.join_segnalazione_incarico.incarico_id==db.incarico.id) & \
+        (db.incarico.id==db.intervento.incarico_id) & \
+        (db.comunicazione.lavorazione_id==lavorazione_id) & \
+        (db.comunicazione.timeref==timeref) & \
+        check
+    )
+
+    rec = dbset.select(
+        db.intervento.intervento_id.with_alias('idIntervento'),
+        db.comunicazione.testo.with_alias('testo'),
+        db.comunicazione.allegato.with_alias('allegato'),
+        db.comunicazione.mittente,
+        check,
+        check_da_pm
+    ).first()
+
+    logger.debug(rec)
+
+    return rec and (rec.idIntervento, [rec[check], rec[check_da_pm]], render(rec),)
+
+
+def after_insert_comunicazione_segnalazione(*args, **kwargs):
+    """ """
+    result = fetch(*args, **kwargs)
+    if not result is None:
+        idIntervento, checks, payload = result
+        _, da_pm = checks
+        if not da_pm:
+            Intervento.message(idIntervento, **payload)

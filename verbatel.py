@@ -46,7 +46,7 @@ class Verbatel(object):
         except requests.exceptions.HTTPError:
             logger.warning(response.status_code)
             logger.error(response.text)
-            raise
+            # raise
         else:
             if response.headers['Content-Length']=='0':
                 return
@@ -54,10 +54,10 @@ class Verbatel(object):
                 try:
                     out=json.loads(response.json())
                 except TypeError:
-                    logger.info("Single decode")
+                    logger.debug("Single decode")
                     return response.json()
                 else:
-                    logger.info("Double decode")
+                    logger.debug("Double decode")
                     return out
 
     @classmethod
@@ -99,7 +99,6 @@ class Verbatel(object):
 class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
-
 
 class Intervento(Verbatel):
     """docstring for Intervento."""

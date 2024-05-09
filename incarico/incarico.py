@@ -276,12 +276,18 @@ def after_insert_incarico(id):
             # Invio info a PL
             response = Intervento.create(**mio_incarico)
             # Registro
-            db.intervento.insert(
+            if db.intervento(
                 intervento_id = response['idIntervento'],
                 incarico_id = id
-            )
+            ) is None:
+                db.intervento.insert(
+                    intervento_id = response['idIntervento'],
+                    incarico_id = id
+                )
 
-def after_update_incarico(id):
+def after_update_incarico(id:int) -> None:
+    """ """
+
     logger.debug(f"after update incarico")
     intervento = db.intervento(incarico_id=id)
 
@@ -292,6 +298,13 @@ def after_update_incarico(id):
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = Intervento.update(intervento.intervento_id, **mio_incarico)
+    # else:
+    #     _, mio_incarico = fetch(id)
+    #     if mio_incarico['stato']==3:
+    #         incarico_id = mio_incarico.pop('idSegnalazione')
+    #         response = Intervento.update(intervento.intervento_id, **mio_incarico)
+    #         return
+        
 
     # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
     # altri incarichi aperti, in tal caso chiudere la Segnalazione
