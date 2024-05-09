@@ -212,6 +212,44 @@ def render(row):
 check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
 check_da_pm = f"({db.comunicazione._rname}.mittente ilike '%Polizia Locale')"
 
+def fetch2(lavorazione_id:int, timeref):
+    """ """
+
+    rec = db(
+        (db.comunicazione.lavorazione_id == db.segnalazione_lavorazione.id) & \
+        (db.comunicazione.lavorazione_id==lavorazione_id) & \
+        (db.comunicazione.timeref==timeref)
+    ).select(
+        db.segnalazione_lavorazione.id, # .with_alias('lavorazione_id'),
+        db.join_segnalazione_lavorazione.segnalazione_id, # .with_alias('segnalazione_id'),
+        db.join_segnalazione_incarico.incarico_id, # .with_alias('incarico_id'),
+        db.segnalazione_da_vt.intervento_id.with_alias('segnalazione_intervento_id'),
+        db.intervento.intervento_id.with_alias('incarico_intervento_id'),
+        db.comunicazione.timeref.with_alias('comunicazione_id'),
+        db.comunicazione.testo.with_alias('testo'),
+        db.comunicazione.allegato.with_alias('allegato'),
+        db.comunicazione.mittente,
+        check_da_pm,
+        left = (
+            db.join_segnalazione_lavorazione.on(
+                (
+                    db.join_segnalazione_lavorazione.lavorazione_id==db.segnalazione_lavorazione.id) & \
+                    (db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione_da_vt.segnalazione_id)
+                ),
+            db.join_segnalazione_incarico.on(
+                (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
+                (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id)
+            ),
+        ),
+        distinct = "segnalazioni.t_comunicazioni_segnalazioni.data_ora_stato",
+        orderby = (~db.comunicazione.timeref, ~db.segnalazione_da_vt.id, ~db.intervento.id),
+        limitby = (0,1,)
+    ).first()
+    
+    logger.debug(rec)
+
+    return rec and (rec.segnalazione_intervento_id or rec.incarico_intervento_id, [True, rec(check_da_pm)], render(rec),)
+
 def fetch(lavorazione_id:int, timeref):
     """ """
 
@@ -241,7 +279,11 @@ def fetch(lavorazione_id:int, timeref):
 
 def after_insert_comunicazione_segnalazione(*args, **kwargs):
     """ """
-    result = fetch(*args, **kwargs)
+    logger.debug(args)
+    logger.debug(kwargs)
+    
+    result = fetch2(*args, **kwargs)
+    logger.debug(result)
     if not result is None:
         idIntervento, checks, payload = result
         _, da_pm = checks
