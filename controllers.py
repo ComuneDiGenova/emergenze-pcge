@@ -63,6 +63,9 @@ from .incarico import incarico
 from . import mire
 from . import settings
 
+logger.debug(request.url)
+logger.debug(request.method)
+# logger.debug(request.POST)
 
 class NoDBIO(object):
     """TEST/DEBUG HELPER"""
@@ -557,7 +560,7 @@ def incarico_form():
 @action.uses(db)
 def modifica_segnalazione(segnalazione_id=None):
     """DEPRECATO ?!?"""
-
+    logger.debug(f'test: {__name__}')
     if not segnalazione_id is None:
         request.POST["segnalazione_id"] = segnalazione_id
 
@@ -620,7 +623,7 @@ def modifica_segnalazione(segnalazione_id=None):
 @action("intervento/<intervento_id:int>", method=["GET", "POST"])
 @action.uses(db)
 def modifica_intervento(intervento_id=None):
-
+    logger.debug(f'test: {__name__}')
     if not intervento_id is None:
         request.POST["intervento_id"] = intervento_id
 
@@ -704,7 +707,7 @@ def modifica_intervento(intervento_id=None):
 @action.uses(db)
 def segnalazione_comunicazione_da_incarico(incarico_id=None):
     """ """
-
+    logger.debug(f'test: {__name__}')
     if not incarico_id is None:
         request.POST["incarico_id"] = incarico_id
 
@@ -773,7 +776,7 @@ def segnalazione_comunicazione_da_incarico(incarico_id=None):
 @action.uses(db)
 def segnalazione_comunicazione_da_intervento(intervento_id=None):
     """ """
-
+    
     if not intervento_id is None:
         request.POST["intervento_id"] = intervento_id
 
@@ -811,8 +814,11 @@ def segnalazione_comunicazione_da_intervento(intervento_id=None):
     )
 
     result = None
+    
+    logger.debug(form.errors)
     if form.accepted:
         with NoDBIO(form):
+            logger.debug(form.vars)
             result = segnalazione.comunicazione.create_by_intervento(
                 **form.vars
             )
@@ -847,7 +853,7 @@ uo_label = "'Distretto ' || codice_mun::text"
 @action.uses(db)
 def ws_presidio():
     """ """
-
+    logger.debug(f'test: {__name__}')
     res = (
         db(db.evento)
         .select(
@@ -961,7 +967,7 @@ def ws_presidio():
 )
 @action.uses(db)
 def ws_presidio_update(pattuglia_id=None):
-
+    logger.debug(f'test: {__name__}')
     db.pattuglia_pm.pattuglia_id.requires = None
 
     stat_pattuglia = (
@@ -1013,7 +1019,7 @@ def ws_presidio_update(pattuglia_id=None):
 @action.uses(db)
 def segnalazione_comunicazione_a_presidio(presidio_id=None):
     """ """
-
+    logger.debug(f'test: {__name__}')
     if not presidio_id is None:
         request.POST["presidio_id"] = presidio_id
 
@@ -1063,7 +1069,7 @@ def segnalazione_comunicazione_a_presidio(presidio_id=None):
 @action('lista/segnalazioni', method=['GET', 'POST'])
 @action.uses(db)
 def segnalazioni():
-
+    logger.debug(f'test: {__name__}')
     form = Form(
         [
             Field(

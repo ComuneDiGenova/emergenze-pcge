@@ -64,9 +64,13 @@ def valida_nuova_comunicazione_da_intervento(form):
     """ """
     fieldname = 'intervento_id'
 
-    _, msg = IS_IN_DB(db(db.intervento), db.intervento.intervento_id)(form.vars[fieldname])
+    _, msg = IS_IN_DB(db(db.intervento), db.intervento.intervento_id, error_message=f"Value not in database: {form.vars[fieldname]}")(form.vars[fieldname])
+    
+    _, msg1 = IS_IN_DB(db(db.segnalazione_da_vt), db.segnalazione_da_vt.intervento_id, error_message=f"Value not in database: {form.vars[fieldname]}")(form.vars[fieldname])
 
-    if msg:
+    if None in [msg, msg1]:
+        form.vars['is_intervento'] = (msg is None)
+    else:
         form.errors[fieldname] = msg
 
 def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
@@ -77,6 +81,8 @@ def create(lavorazione_id, mittente, operatore=None, testo=None, allegato=None):
     testo           @string :
     allegato        @string :
     """
+
+    assert not lavorazione_id is None
 
     # segnalazione_utile = db.segnalazioni_utili(id=segnalazione_id)
 
@@ -116,20 +122,48 @@ def create_by_incarico(incarico_id, *args, **kwargs):
 
     return create(lavorazione_id, *args, **kwargs)
 
-def create_by_intervento(intervento_id, *args, **kwargs):
 
-    logger.debug(intervento_id)
-    lavorazione_id = db(
-        (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
-        (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id) & \
-        (db.intervento.intervento_id==intervento_id)
-    ).select(
-        db.join_segnalazione_incarico.lavorazione_id,
-        limitby = (0,1,)
-    ).first().lavorazione_id
+def create_by_intervento(intervento_id, *args, is_intervento=None, **kwargs):
+
+    logger.debug(f"Intervento: {intervento_id}")
+    logger.debug(f"is intervento: {is_intervento}")
+    
+    if is_intervento is True:
+    
+        lavorazione_id = db(
+            (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id) & \
+            (db.join_segnalazione_incarico.incarico_id==db.intervento.incarico_id) & \
+            (db.intervento.intervento_id==intervento_id)
+        ).select(
+            db.join_segnalazione_incarico.lavorazione_id,
+            limitby = (0,1,)
+        ).first().lavorazione_id
+    
+    elif is_intervento is False:
+        
+        lavorazione_id = db(
+            (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
+            (db.join_segnalazione_lavorazione.segnalazione_id==db.segnalazione_da_vt.segnalazione_id) & \
+            (db.segnalazione_da_vt.intervento_id==intervento_id)
+        ).select(
+            db.segnalazioni_utili.lavorazione_id,
+            limitby = (0,1,)
+        ).first().lavorazione_id
+        
+    else:
+        raise ValueError()
 
     return create(lavorazione_id, *args, **kwargs)
 
+
+# def test_lavorazione_da_intervento(intervento_id):
+#     """ """
+#     lavorazione_id = db(
+#         (db.segnalazioni_utili.lavorazione_id==db.join_segnalazione_incarico.lavorazione_id)
+#     ).select(
+#         left = db.
+#     ).first().lavorazione_id
+    
 
 def create_by_segnalazione(segnalazione_id, *args, **kwargs):
     """ NON IN USO """
