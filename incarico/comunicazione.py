@@ -73,13 +73,13 @@ def fetch(incarico_id, timeref=None):
     #     orderby = ~db.comunicazione.timeref
     # ).first()
 
-    return rec and (rec[check], render(rec),)
+    return rec and (rec.idIntervento, rec[check], render(rec),)
 
 def after_insert_comunicazione(*args, **kwargs):
     """ """
     result = fetch(*args, **kwargs)
     if not result is None:
-        idIntervento, payload = result
+        idIntervento, check, payload = result
         Intervento.message(idIntervento, **payload)
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):

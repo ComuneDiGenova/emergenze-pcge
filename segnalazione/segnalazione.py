@@ -224,10 +224,13 @@ def create(
             incarico_id,
         )
     else:
+        lavorazione_id, incarico_id = upgrade(
+            segnalazione_id, operatore, profilo_id=settings.PC_PROFILO_ID, **kwargs
+        )
         return (
             segnalazione_id,
-            None,
-            None,
+            lavorazione_id,
+            incarico_id,
         )
 
 

@@ -340,7 +340,6 @@ def after_update_incarico(id):
             profilo_id = settings.PM_PROFILO_ID
         )
 
-
         if not lavorazione is None:
             logger.debug('Aggiornamento Lavorazione')
             descrizione_chiusura = "Chiusura segnalazione da parte di PL"
