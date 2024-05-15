@@ -76,9 +76,7 @@ def fetch(incarico_id, timeref=None):
     return rec and (rec.idIntervento, rec[check], render(rec),)
 
 def after_insert_comunicazione(*args, **kwargs):
-    """
-    *args, **kwargs: incarico_id, timeref=None
-    """
+    """ """
     result = fetch(*args, **kwargs)
     if not result is None:
         idIntervento, check, payload = result
