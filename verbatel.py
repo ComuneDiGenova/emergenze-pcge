@@ -196,6 +196,7 @@ class Verbatel(object):
             response = requests.post(_url, json=data) # <---
         else:
             response = requests.post(_url, data=data) # <---
+        logger.debug(cls.__nout(response))
         return cls.__nout(response)
 
     @classmethod
