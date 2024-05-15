@@ -46,13 +46,17 @@ class __Tools__(object):
             if response.headers.get('Content-Length')=='0':
                 return
             else:
-                out = response.json()
-                try:
-                    out=json.loads(out)
-                except TypeError:
-                    logger.debug("Single decode")
+                content_type = response.headers.get('Content-Type')
+                if content_type and 'json' in content_type:
+                    out = response.json()
+                    try:
+                        out=json.loads(out)
+                    except TypeError:
+                        logger.debug("Single decode")
+                    else:
+                        logger.debug("Double decode")
                 else:
-                    logger.debug("Double decode")
+                    out = response.text
                 
                 return out
 
@@ -77,6 +81,7 @@ class VerbatelWSO2(AccessTokenManager, __Tools__):
             response = self.post(uri, json=data) # <---
         else:
             response = self.post(uri, data=data) # <---
+
         return self.nout(response)
     
     def update(self, *path, **payload):
@@ -109,7 +114,7 @@ class __Messanger__(object):
 
 class EventoWSO2(VerbatelWSO2):
     """ """
-    root = VerbatelWSO2.uri(VerbatelWSO2, 'eventi')
+    root = VerbatelWSO2.uri(VerbatelWSO2, 'Eventi')
 
     def sync(self, info_evento):
         try:
@@ -126,7 +131,7 @@ class EventoWSO2(VerbatelWSO2):
 
 class InterventoWSO2(VerbatelWSO2, __Messanger__):
     """ """
-    root = 'interventi'
+    root = VerbatelWSO2.uri(VerbatelWSO2, 'interventi')
 
 
 class PresidioWSO2(VerbatelWSO2, __Messanger__):
@@ -152,7 +157,7 @@ class Verbatel(object):
         except AttributeError:
             _port = ''
 
-        url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_PATH}'
+        url = f'{settings.VBT_PROT}://{settings.VBT_HOST}{_port}/{settings.VBT_ROOT}'
         return '/'.join(chain((url.rstrip('/'), cls.root,), map(lambda ee: f'{ee}', endpoints)))
 
     @staticmethod
@@ -333,6 +338,41 @@ def test():
     		"Levante"
     	]})
 
+
+def testIntervento():
+
+    info = {
+        "stato" : 3,
+        "idSegnalazione": 1013,
+        "eventoId": 165,
+        "operatore": 'Operatore GE',
+        "tipoIntervento": 9,
+        "nomeStrada" : 'VIA BARI',
+        "codiceStrada": "04020",
+        "tipoLocalizzazione" : 3,
+        "daSpecificare": '15',
+        "noteOperative": 'Note Operative',
+        "reclamante" : 'SINDACO',
+        "telefonoReclamante": '3475208085',
+        "tipoRichiesta": 1,
+        "dataInserimento": '2021-06-23T11:00:00',
+        "latitudine": '44.47245435996428',
+        "longitudine": '8.895533415673095',
+        "motivoRifiuto": ''
+    }
+
+    intervento = InterventoWSO2()
+    response = intervento.create(**info)
+    return response
+
+def testMessaggioIntervento():
+
+    intervento = InterventoWSO2()
+    response = intervento.message(2705789, **{
+        # 'idSquadra': row.idSquadra,
+        'operatore': 'anonimo',
+        'testo': 'Corpo del messaggio di test',
+    })
 
 def testPresidio():
     """ """
