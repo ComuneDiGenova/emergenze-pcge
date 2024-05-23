@@ -224,8 +224,12 @@ def create(
             incarico_id,
         )
     else:
+        kwargs['stato_id'] = None
         lavorazione_id, incarico_id = upgrade(
-            segnalazione_id, operatore, profilo_id=settings.PC_PROFILO_ID, **kwargs
+            segnalazione_id, operatore,
+            profilo_id=settings.PC_PROFILO_ID,
+            uo_id = 'com_PC',
+            **kwargs
         )
         return (
             segnalazione_id,
@@ -357,6 +361,7 @@ def upgrade(
     preview=None,
     stato_id=incarico.DEFAULT_TIPO_STATO,
     parziale=False,
+    uo_id = None
 ):
     """
 
@@ -420,6 +425,7 @@ def upgrade(
             stato_id=stato_id,
             preview=preview,
             parziale=parziale,
+            uo_id = uo_id
         )
         logger.debug(f"Creato incarico: {incarico_id}")
 
