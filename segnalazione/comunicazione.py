@@ -7,6 +7,8 @@ from py4web import Field
 from pathlib import Path
 from pydal.validators import *
 
+from datetime import datetime
+
 fake_upload = Field('allegato', 'upload',
     uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
 )
@@ -140,3 +142,51 @@ def create_by_segnalazione(segnalazione_id, *args, **kwargs):
     ).first().lavorazione_id
 
     return create(lavorazione_id, *args, **kwargs)
+
+
+def render(row):
+    """ """
+
+    out = {
+        # 'idIntervento': row.idIntervento,
+        'operatore': 'operatore di PC',
+        'testo': row.testo,
+        # 'files': [allegato]
+    }
+
+    # if not row.allegato is None:
+
+    #     with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
+    #         encoded_string = base64.b64encode(ff.read()).decode()
+
+    #     allegato = {
+    #         'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
+    #         'file': encoded_string
+    #     }
+
+    #     out['files'] = [allegato]
+
+    return out
+
+
+def fetch(lavorazione_id:int, timeref):
+    """ """
+
+    result = db(
+        (db.comunicazione.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
+        (db.segnalazione_da_vt.segnalazione_id==db.join_segnalazione_lavorazione.segnalazione_id) & \
+        (db.comunicazione.lavorazione_id==lavorazione_id) & \
+        (db.comunicazione.timeref==timeref) & \
+        (~db.comunicazione.mittente.contains('Polizia Locale'))
+    ).select(
+        db.comunicazione.ALL,
+        db.segnalazione_da_vt.intervento_id.with_alias('intervento_id'),
+        limitby = (0,1,)
+    ).first()
+    
+    logger.debug(timeref)
+    logger.debug(result)
+    
+    return result and (result.intervento_id, render(result.comunicazione),)
+    
+    

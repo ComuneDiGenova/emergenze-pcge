@@ -10,7 +10,9 @@ import json
 from .verbatel import syncEvento
 from . import evento
 import traceback
-from .segnalazione import after_insert_lavorazione, after_update_lavorazione, after_insert_t_storico_segnalazioni_in_lavorazione
+from .segnalazione import after_insert_lavorazione, after_update_lavorazione, \
+    after_insert_t_storico_segnalazioni_in_lavorazione, \
+    after_insert_comunicazione_segnalazione
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
@@ -230,6 +232,7 @@ segnalaz = [
     ['eventi', 't_eventi', 'id'],
     ['segnalazioni', 't_segnalazioni_in_lavorazione', ['id', 'in_lavorazione']],
     ['segnalazioni', 't_storico_segnalazioni_in_lavorazione', ['id_segnalazione_in_lavorazione', 'log_aggiornamento']],
+    ['segnalazioni','t_comunicazioni_segnalazioni',['id_lavorazione', 'data_ora_stato']],
     ]
 
 def setup():
@@ -337,6 +340,20 @@ def setup_segn():
         segnalaz[8][1],
         function_name_n_storico_lavorazione, trigger_name_n_storico_lavorazione, "INSERT")
 
+
+    function_name_n_comunicazione_segnalazioni = f"notify_new_{segnalaz[9][1]}"
+    notification_name_n_comunicazione_segnalazioni = f"new_{segnalaz[9][1]}_added"
+    trigger_name_n_comunicazione_segnalazioni = f"after_insert_{segnalaz[9][1]}"
+    create_sql_function_comunicazione(
+        segnalaz[9][0],
+        function_name_n_comunicazione_segnalazioni,
+        notification_name_n_comunicazione_segnalazioni,
+        segnalaz[9][2], "INSERT")
+    create_sql_trigger(
+        segnalaz[9][0],
+        segnalaz[9][1],
+        function_name_n_comunicazione_segnalazioni, trigger_name_n_comunicazione_segnalazioni, "INSERT")
+
     db.commit()
 
 # def ciao():
@@ -367,6 +384,8 @@ def set_listen():
     listen_u_lavorazione = f"LISTEN new_{segnalaz[7][1]}_updated;"
     
     listen_n_storico_lavorazione = f"LISTEN new_{segnalaz[8][1]}_added;"
+    
+    listen_n_comunicazione_segnalazione = f"LISTEN new_{segnalaz[9][1]}_added;"
 
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
@@ -390,6 +409,8 @@ def set_listen():
     db.executesql(listen_u_lavorazione)
     
     db.executesql(listen_n_storico_lavorazione)
+    
+    db.executesql(listen_n_comunicazione_segnalazione)
 
     db.commit()
 
@@ -474,6 +495,9 @@ def do_stuff(channel, **payload):
     
     elif channel in f"new_{segnalaz[8][1]}_added":
         after_insert_t_storico_segnalazioni_in_lavorazione(payload["id_lavorazione"], payload["messaggio_log"])
+    
+    elif channel in f"new_{segnalaz[9][1]}_added":
+        after_insert_comunicazione_segnalazione(lavorazione_id=payload["id"], timeref=payload["data"])
 
 
 def listen():
