@@ -483,6 +483,7 @@ from ..tools import log_segnalazioni2message
 
 def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
     """ """
+
     dbset = db(
         (db.join_segnalazione_incarico.lavorazione_id==id_lavorazione) & \
         (db.incarico.id==db.join_segnalazione_incarico.incarico_id)
@@ -494,6 +495,7 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
         # (db.incarico.id==db.intervento.incarico_id) & \
         # (db.join_segnalazione_lavorazione.lavorazione_id==id_lavorazione)
     )
+
     results = dbset.select(
         db.intervento.intervento_id.with_alias('intervento_id'),
         left = db.incarico.on(db.intervento.incarico_id==db.incarico.id)

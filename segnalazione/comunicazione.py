@@ -8,10 +8,13 @@ from pathlib import Path
 from pydal.validators import *
 
 from datetime import datetime
+import base64
 
 fake_upload = Field('allegato', 'upload',
     uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
 )
+
+fake_upload.bind(db.comunicazione)
 
 comunicazione_fields = [
     db.comunicazione.mittente,
@@ -154,17 +157,19 @@ def render(row):
         # 'files': [allegato]
     }
 
-    # if not row.allegato is None:
+    if not row.allegato is None:
 
-    #     with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.comunicazione_incarico_inviata.allegato.split(os.path.sep)[1:])), 'rb') as ff:
-    #         encoded_string = base64.b64encode(ff.read()).decode()
+        with open(os.path.join(
+            settings.EMERGENZE_UPLOAD, *(row.allegato.split(os.path.sep)[1:])), 'rb'
+        ) as ff:
+            encoded_string = base64.b64encode(ff.read()).decode()
 
-    #     allegato = {
-    #         'fileName': os.path.basename(row.comunicazione_incarico_inviata.allegato),
-    #         'file': encoded_string
-    #     }
+        allegato = {
+            'fileName': os.path.basename(row.allegato),
+            'file': encoded_string
+        }
 
-    #     out['files'] = [allegato]
+        out['files'] = [allegato]
 
     return out
 

@@ -19,6 +19,8 @@ from .incarico.comunicazione import after_insert_comunicazione as after_insert_c
 from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
 from .presidio_mobile.squadra import after_insert_stato_presidio
 
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
 #def create_sql_function(schema, table, function, trigger, notification):
 
 def create_sql_function(schema, function_name, notification_name, payload, action):
@@ -498,11 +500,14 @@ def do_stuff(channel, **payload):
     
     elif channel in f"new_{segnalaz[9][1]}_added":
         after_insert_comunicazione_segnalazione(lavorazione_id=payload["id"], timeref=payload["data"])
-
+    else:
+        logger.warning(f"Channel not catched: {channel}")
+        logger.warning(payload)
 
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
+    db._adapter.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     while True:
         logger.info('Starting!')
         set_listen()
@@ -513,6 +518,7 @@ def listen():
 
         db._adapter.connection.poll()
 
+        logger.debug(db._adapter.connection.notifies)
         while db._adapter.connection.notifies:
 
             notification = db._adapter.connection.notifies.pop(0)
