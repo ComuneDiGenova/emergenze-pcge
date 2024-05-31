@@ -2,11 +2,12 @@
 
 from ..common import settings, db, logger
 from .. import incarico
+from . import comunicazione
 from ..verbatel import Intervento
 from pydal import geoPoint
 from pydal.validators import *
 import json
-import datetime
+from datetime import datetime
 
 DEFAULT_TIPO_SEGNALANTE = 1  # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = (
@@ -224,10 +225,17 @@ def create(
             incarico_id,
         )
     else:
+        kwargs['stato_id'] = None
+        lavorazione_id, incarico_id = upgrade(
+            segnalazione_id, operatore,
+            profilo_id=settings.PC_PROFILO_ID,
+            uo_id = 'com_PC',
+            **kwargs
+        )
         return (
             segnalazione_id,
-            None,
-            None,
+            lavorazione_id,
+            incarico_id,
         )
 
 
@@ -354,6 +362,7 @@ def upgrade(
     preview=None,
     stato_id=incarico.DEFAULT_TIPO_STATO,
     parziale=False,
+    uo_id = None
 ):
     """
 
@@ -417,14 +426,28 @@ def upgrade(
             stato_id=stato_id,
             preview=preview,
             parziale=parziale,
+            uo_id = uo_id
         )
         logger.debug(f"Creato incarico: {incarico_id}")
 
         return lavorazione_id, incarico_id
 
     else:
+        
+        descrizione_incarico = "Segnalazione passata da COA"
+        incarico_id = incarico.create(
+            segnalazione_id = segnalazione.id,
+            lavorazione_id = lavorazione_id,
+            profilo_id = settings.PM_PROFILO_ID,
+            descrizione = descrizione_incarico,
+            municipio_id = segnalazione.municipio_id,
+            stato_id = 3,
+            preview = preview,
+            parziale = parziale,
+            uo_id = uo_id
+        )
 
-        return lavorazione_id, None
+        return lavorazione_id, incarico_id
 
 
 def after_update_lavorazione(id:int, in_lavorazione:bool=None):
@@ -460,6 +483,7 @@ from ..tools import log_segnalazioni2message
 
 def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messaggio_log:str):
     """ """
+
     dbset = db(
         (db.join_segnalazione_incarico.lavorazione_id==id_lavorazione) & \
         (db.incarico.id==db.join_segnalazione_incarico.incarico_id)
@@ -471,6 +495,7 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
         # (db.incarico.id==db.intervento.incarico_id) & \
         # (db.join_segnalazione_lavorazione.lavorazione_id==id_lavorazione)
     )
+
     results = dbset.select(
         db.intervento.intervento_id.with_alias('intervento_id'),
         left = db.incarico.on(db.intervento.incarico_id==db.incarico.id)
@@ -501,6 +526,20 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
     #         testo = testo_messaggio
     #     )
     #     logger.debug(response)
+
+
+def after_insert_comunicazione_segnalazione(lavorazione_id, timeref):
+    """ """
+    logger.debug(f"dati: {lavorazione_id}, {timeref}")
+
+    result = comunicazione.fetch(lavorazione_id=lavorazione_id,
+        timeref = timeref
+    )
+    
+    if not result is None:
+        idIntervento, payload = result
+        Intervento.message(idIntervento, **payload)
+    
 
 def after_insert_lavorazione(id):
     """ DEPRECATO ma usato rimuovere con cautela
