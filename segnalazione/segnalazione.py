@@ -434,7 +434,7 @@ def upgrade(
 
     else:
         
-        descrizione_incarico = "Presa visione"
+        descrizione_incarico = "Segnalazione passata da COA"
         incarico_id = incarico.create(
             segnalazione_id = segnalazione.id,
             lavorazione_id = lavorazione_id,

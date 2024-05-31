@@ -518,7 +518,6 @@ def listen():
 
         db._adapter.connection.poll()
 
-        logger.debug(db._adapter.connection.notifies)
         while db._adapter.connection.notifies:
 
             notification = db._adapter.connection.notifies.pop(0)
