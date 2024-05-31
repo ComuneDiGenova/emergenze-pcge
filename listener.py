@@ -10,13 +10,16 @@ import json
 from .verbatel import syncEvento
 from . import evento
 import traceback
-from .segnalazione import after_insert_lavorazione, after_update_lavorazione, after_insert_t_storico_segnalazioni_in_lavorazione
-from .segnalazione.comunicazione import after_insert_comunicazione_segnalazione
+from .segnalazione import after_insert_lavorazione, after_update_lavorazione, \
+    after_insert_t_storico_segnalazioni_in_lavorazione, \
+    after_insert_comunicazione_segnalazione
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
 from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
 from .presidio_mobile.squadra import after_insert_stato_presidio
+
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 #def create_sql_function(schema, table, function, trigger, notification):
 
@@ -506,11 +509,15 @@ def do_stuff(channel, **payload):
         after_insert_t_storico_segnalazioni_in_lavorazione(payload["id_lavorazione"], payload["messaggio_log"])
 
     elif channel in f"new_{segnalaz[9][1]}_added":
-        after_insert_comunicazione_segnalazione(payload["id"], payload["data"])
+        after_insert_comunicazione_segnalazione(lavorazione_id=payload["id"], timeref=payload["data"])
+    else:
+        logger.warning(f"Channel not catched: {channel}")
+        logger.warning(payload)
 
 
 def wait_for_notifications(sleep=1):
-    """ """
+    """ Courtesy of: https://chatgpt.com/share/c0369392-adbb-475b-93b6-39666caf4515
+    """
     logger.info('Starting!')
     logger.info('Waiting for notifications!')
     queue = []

@@ -63,6 +63,8 @@ from .incarico import incarico
 from . import mire
 from . import settings
 
+logger.debug(request.url)
+logger.debug(request.query)
 
 class NoDBIO(object):
     """TEST/DEBUG HELPER"""

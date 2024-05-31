@@ -80,7 +80,6 @@ def after_insert_comunicazione(*args, **kwargs):
     result = fetch(*args, **kwargs)
     if not result is None:
         idIntervento, check, payload = result
-        logger.debug(check)
         Intervento.message(idIntervento, **payload)
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):

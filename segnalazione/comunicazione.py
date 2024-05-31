@@ -8,18 +8,14 @@ from pathlib import Path
 from pydal.validators import *
 from ..verbatel import Intervento
 
+from datetime import datetime
 import base64
 
-def get_fake_upload(table):
-    """ """
-    
-    fake_upload = Field('allegato', 'upload',
-        uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
-    )
-    fake_upload.bind(table)
-    return fake_upload
+fake_upload = Field('allegato', 'upload',
+    uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
+)
 
-fake_upload = get_fake_upload(db.comunicazione)
+fake_upload.bind(db.comunicazione)
 
 comunicazione_fields = [
     db.comunicazione.mittente,
@@ -163,7 +159,9 @@ def render(row):
 
     if not row.allegato is None:
 
-        with open(os.path.join(settings.EMERGENZE_UPLOAD, *(row.allegato.split(os.path.sep)[1:])), 'rb') as ff:
+        with open(os.path.join(
+            settings.EMERGENZE_UPLOAD, *(row.allegato.split(os.path.sep)[1:])), 'rb'
+        ) as ff:
             encoded_string = base64.b64encode(ff.read()).decode()
 
         allegato = {
@@ -175,41 +173,25 @@ def render(row):
 
     return out
 
-check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
-check_da_pm = f"({db.comunicazione._rname}.mittente ilike '%Polizia Locale')"
 
 def fetch(lavorazione_id:int, timeref):
     """ """
 
-    dbset = db(
-        (db.comunicazione.lavorazione_id == db.segnalazione_lavorazione.id) & \
-        (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
-        (db.join_segnalazione_incarico.incarico_id==db.incarico.id) & \
-        (db.incarico.id==db.intervento.incarico_id) & \
+    result = db(
+        (db.comunicazione.lavorazione_id==db.join_segnalazione_lavorazione.lavorazione_id) & \
+        (db.segnalazione_da_vt.segnalazione_id==db.join_segnalazione_lavorazione.segnalazione_id) & \
         (db.comunicazione.lavorazione_id==lavorazione_id) & \
         (db.comunicazione.timeref==timeref) & \
-        check
-    )
-
-    rec = dbset.select(
-        db.intervento.intervento_id.with_alias('idIntervento'),
-        db.comunicazione.testo.with_alias('testo'),
-        db.comunicazione.allegato.with_alias('allegato'),
-        db.comunicazione.mittente,
-        check,
-        check_da_pm
+        (~db.comunicazione.mittente.contains('Polizia Locale'))
+    ).select(
+        db.comunicazione.ALL,
+        db.segnalazione_da_vt.intervento_id.with_alias('intervento_id'),
+        limitby = (0,1,)
     ).first()
-
-    logger.debug(rec)
-
-    return rec and (rec.idIntervento, [rec[check], rec[check_da_pm]], render(rec),)
-
-
-def after_insert_comunicazione_segnalazione(*args, **kwargs):
-    """ """
-    result = fetch(*args, **kwargs)
-    if not result is None:
-        idIntervento, checks, payload = result
-        _, da_pm = checks
-        if not da_pm:
-            Intervento.message(idIntervento, **payload)
+    
+    logger.debug(timeref)
+    logger.debug(result)
+    
+    return result and (result.intervento_id, render(result.comunicazione),)
+    
+    

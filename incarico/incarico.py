@@ -21,10 +21,11 @@ get_uo_id = lambda id: db(db.municipio)(
 
 
 def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_id,
-    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False
+    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False, uo_id=None
 ):
 
-    uo_id = get_uo_id(municipio_id)
+    if uo_id is None:
+        uo_id = get_uo_id(municipio_id)
 
     incarico_id = db.incarico.insert(
         profilo_id = profilo_id,
