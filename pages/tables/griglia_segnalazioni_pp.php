@@ -29,7 +29,7 @@ if(!$conn) {
 
 	$query = "SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
 					main.lon, main.lat,
-					main.incarichi, string_agg(main.responsabile_incarico, ' - ') 
+					main.incarichi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
 				FROM (
 					select s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
 						st_x(s.geom) as lon, st_y(s.geom) as lat,
