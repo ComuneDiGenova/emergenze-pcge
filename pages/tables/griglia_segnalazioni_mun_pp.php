@@ -17,32 +17,30 @@ if(isset($_GET["f"])){
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	$query="SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
-					main.lon, main.lat, main.incarichi, 
-					STRING_AGG(main.responsabile_incarico, ' - ') AS responsabile_incarico
-				FROM (SELECT s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
-							ST_X(s.geom) AS lon, ST_Y(s.geom) AS lat,s.incarichi,
-							ARRAY_TO_STRING(
-								ARRAY(
-									SELECT UNNEST(array_agg(DISTINCT i.descrizione_uo::varchar) || array_agg(DISTINCT ii.descrizione_uo::varchar))
-								),
-								' - '
-							) AS responsabile_incarico
-						FROM segnalazioni.v_segnalazioni_lista_pp s
-						JOIN segnalazioni.join_segnalazioni_in_lavorazione j 
-							ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
-						LEFT JOIN segnalazioni.v_incarichi i 
-							ON s.id_lavorazione = i.id_lavorazione
-						LEFT JOIN segnalazioni.v_incarichi_interni ii 
-							ON s.id_lavorazione = ii.id_lavorazione
-						WHERE (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL) 
-							AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW()) 
-							AND j.sospeso = 'f'
-						GROUP BY s.id, s.criticita,	s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
-								lon, lat, s.incarichi) 
-								AS main
-				GROUP BY main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
-							main.lon, main.lat, main.incarichi;";
+	$query = "SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
+					main.lon, main.lat,
+					main.incarichi, string_agg(main.responsabile_incarico, ' - ') 
+				FROM (
+					select s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
+						st_x(s.geom) as lon, st_y(s.geom) as lat,
+						s.incarichi,
+						unnest(array_agg(distinct i.descrizione_uo::varchar) || array_agg(distinct ii.descrizione_uo::varchar)
+									) as responsabile_incarico		
+					from segnalazioni.v_segnalazioni_lista_pp s
+					join segnalazioni.join_segnalazioni_in_lavorazione j 
+						on s.id_lavorazione=j.id_segnalazione_in_lavorazione
+					left join segnalazioni.v_incarichi i
+						on s.id_lavorazione=i.id_lavorazione
+					left join segnalazioni.v_incarichi_interni ii
+						on s.id_lavorazione=ii.id_lavorazione
+					where (s.in_lavorazione = 't' or s.in_lavorazione is null) 
+						and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
+						and j.sospeso='f'
+					group by s.id, s.criticita, s.id_evento,
+							s.num, s.in_lavorazione, s.localizzazione, 
+							s.nome_munic, lon, lat, s.incarichi) AS main
+				GROUP BY main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, 
+						main.nome_munic, lon, lat, main.incarichi;";
     
 	$result = pg_query($conn, $query);
 
