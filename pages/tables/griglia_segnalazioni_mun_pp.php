@@ -21,7 +21,7 @@ if(!$conn) {
 					main.lon, main.lat,
 					main.incarichi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
 				FROM (
-					select s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
+					select s.id, s.criticita, s.id_evento,sum(s.num) as num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
 						st_x(s.geom) as lon, st_y(s.geom) as lat,
 						s.incarichi,
 						unnest(array_agg(distinct i.descrizione_uo::varchar) || array_agg(distinct ii.descrizione_uo::varchar)
