@@ -30,23 +30,28 @@ if(!$conn) {
 	$query = "SELECT s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
 					st_x(s.geom) as lon, st_y(s.geom) as lat,
 					s.incarichi,
-					string_agg(case when i.id_stato_incarico::varchar = '2' then i.descrizione_uo::varchar
-									when ii.id_stato_incarico::varchar = '2' then ii.descrizione_uo::varchar 
-									else null 
-									end, ' - ') AS responsabile_incarico
+					STRING_AGG(DISTINCT
+						CASE 
+							WHEN i.id_stato_incarico::varchar = '2' THEN i.descrizione_uo::varchar
+							ELSE NULL 
+						END, ' - ') || ' - ' || 
+					STRING_AGG(DISTINCT
+						CASE 
+							WHEN ii.id_stato_incarico::varchar = '2' THEN ii.descrizione_uo::varchar
+							ELSE NULL 
+						END, ' - ') AS responsabile_incarico
 				FROM segnalazioni.v_segnalazioni_lista_pp s
 				JOIN segnalazioni.join_segnalazioni_in_lavorazione j 
 					ON s.id_lavorazione=j.id_segnalazione_in_lavorazione
 				LEFT JOIN segnalazioni.v_incarichi i
-					ON s.id_lavorazione=i.id_lavorazione
+					ON s.id_lavorazione = i.id_lavorazione AND i.id_stato_incarico::varchar = '2'
 				LEFT JOIN segnalazioni.v_incarichi_interni ii
-					ON s.id_lavorazione=ii.id_lavorazione
-				WHERE (s.in_lavorazione = 't' or s.in_lavorazione is null) 
-					and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
-					and j.sospeso='f'
-				GROUP BY s.id, s.criticita, s.id_evento,
-						s.num, s.in_lavorazione, s.localizzazione, 
-						s.nome_munic, lon, lat, s.incarichi;";
+					ON s.id_lavorazione = ii.id_lavorazione AND ii.id_stato_incarico::varchar = '2'
+					WHERE (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL) 
+						AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW()) 
+						AND j.sospeso = 'f'
+				GROUP BY s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
+					lon, lat, s.incarichi;";
 
 	$result = pg_query($conn, $query);
 
