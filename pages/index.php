@@ -208,6 +208,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     data-visible="true">Incarichi<br>in corso</th>
                                                                 <th data-field="responsabile_incarico" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
+                                                                    data-formatter="nameFormatterResponsabileIncarico"
                                                                     data-visible="true">Responsabile<br>Incarico</th>
                                                                 <th data-field="num" data-sortable="false"
                                                                     data-visible="true">Num<br>segn</th>
@@ -231,6 +232,16 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i></div>';
                                                                 } else if (value == 'f') {
                                                                     return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
+                                                                }
+                                                            }
+
+                                                            function nameFormatterResponsabileIncarico(value, row) {
+                                                                if (row.incarichi === 't') {
+                                                                    // Restituisce il dato formattato
+                                                                    return `<div style="text-align: center;">${value}</div>`;
+                                                                } else {
+                                                                    // Restituisce una stringa vuota
+                                                                    return '';
                                                                 }
                                                             }
 
@@ -303,6 +314,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 Incarichi<br>in corso</th>
                                                             <th data-field="responsabile_incarico" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
+                                                                data-formatter="nameFormatterResponsabileIncarico"
                                                                 data-visible="true">Responsabile<br>Incarico</th>
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
@@ -331,6 +343,16 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
                                                             }
                                                         }
+
+                                                        function nameFormatterResponsabileIncarico(value, row) {
+                                                                if (row.incarichi === 't') {
+                                                                    // Restituisce il dato formattato
+                                                                    return `<div style="text-align: center;">${value}</div>`;
+                                                                } else {
+                                                                    // Restituisce una stringa vuota
+                                                                    return '';
+                                                                }
+                                                            }
 
 
                                                         function nameFormatterEdit(value) {
