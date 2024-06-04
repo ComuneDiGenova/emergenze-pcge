@@ -11,11 +11,16 @@ from ..verbatel import Intervento
 from datetime import datetime
 import base64
 
-fake_upload = Field('allegato', 'upload',
-    uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
-)
+def get_fake_upload(table):
+    """ """
+    
+    fake_upload = Field('allegato', 'upload',
+        uploadfolder = settings.UPLOAD_FOLDER, uploadseparate=True
+    )
+    fake_upload.bind(table)
+    return fake_upload
 
-fake_upload.bind(db.comunicazione)
+fake_upload = get_fake_upload(db.comunicazione)
 
 comunicazione_fields = [
     db.comunicazione.mittente,

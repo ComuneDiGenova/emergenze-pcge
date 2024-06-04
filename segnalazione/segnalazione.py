@@ -476,8 +476,10 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
         ):
             logger.debug(row)
             _, mio_incarico = incarico.fetch(row.incarico_id)
-            incarico_id = mio_incarico.pop('idSegnalazione')
-            response = Intervento.update(row.intervento_id, **mio_incarico)
+            if not mio_incarico is None:
+                incarico_id = mio_incarico.pop('idSegnalazione')
+                logger.debug(mio_incarico)
+                response = Intervento.update(row.intervento_id, **mio_incarico)
     else:
         logger.debug(in_lavorazione is False)
 

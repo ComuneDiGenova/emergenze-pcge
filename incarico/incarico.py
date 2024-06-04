@@ -133,6 +133,7 @@ def render(row):
         stato = 2 # In lavorazione
     elif row.stato_id==3:
         stato = 3 # Chiusa
+        # stato = 2 # Richiesta la NON chiusura automatica
     elif row.stato_id==4:
         stato = 4 # Rifiutato
 
@@ -182,6 +183,7 @@ def render(row):
         nomeStrada = row.desvia,
         codiceStrada = row.codvia,
         dataInLavorazione = row.inizio and row.inizio.isoformat(),
+        # Richiesta la NON chiusura automatica
         dataChiusura =  row.fine and row.fine.isoformat(),
         tipoIntervento = row.criticita_id,
         noteOperative = row.note,
@@ -213,7 +215,7 @@ def fetch(id):
     )
 
     if not id is None:
-        dbset = dbset(db.incarico.id==id)
+        dbset = dbset((db.incarico.id==id) & (db.incarico.stop==None))
 
     result = dbset.select(
         db.incarico.id.with_alias('id'),
