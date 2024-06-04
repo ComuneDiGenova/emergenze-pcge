@@ -216,63 +216,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                     data-visible="true">Notizie</th>
                                                             </tr>
                                                         </thead>
-                                                        <script>
-                                                            function nameFormatter(value) {
-                                                                if (value == 't') {
-                                                                    return '<i class="fas fa-play" title="in lavorazione" style="color:#5cb85c"></i>';
-                                                                } else if (value == 'f') {
-                                                                    return '<i class="fas title="chiusa" fa-stop"></i>';
-                                                                } else {
-                                                                    return '<i class="fas fa-exclamation" title="da eleaborare" style="color:#ff0000"></i>';
-                                                                }
-                                                            }
-
-                                                            function nameFormatterIncarichi(value) {
-                                                                if (value == 't') {
-                                                                    return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i></div>';
-                                                                } else if (value == 'f') {
-                                                                    return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
-                                                                }
-                                                            }
-
-                                                            function nameFormatterResponsabileIncarico(value, row) {
-                                                                if (row.incarichi === 't') {
-                                                                    // Restituisce il dato formattato
-                                                                    return `<div style="text-align: center;">${value}</div>`;
-                                                                } else {
-                                                                    // Restituisce una stringa vuota
-                                                                    return '';
-                                                                }
-                                                            }
-
-                                                            function nameFormatterEdit(value) {
-
-                                                                return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
-
-                                                            }
-
-                                                            function nameFormatterMappa1(value, row) {
-                                                                //var test_id= row.id;
-                                                                return ' <button type="button" class="btn btn-info btn-sm" title="anteprima mappa" data-toggle="modal" data-target="#myMap' + value + '"><i class="fas fa-map-marked-alt"></i></button> \
-                                                                        <div class="modal fade" id="myMap'+ value + '" role="dialog"> \
-                                                                        <div class="modal-dialog"> \
-                                                                        <div class="modal-content">\
-                                                                            <div class="modal-header">\
-                                                                            <button type="button" class="close" data-dismiss="modal">&times;</button>\
-                                                                            <h4 class="modal-title">Anteprima segnalazione '+ value + '</h4>\
-                                                                            </div>\
-                                                                            <div class="modal-body">\
-                                                                            <iframe class="embed-responsive-item" style="width:100%; padding-top:0%; height:600px;" src="./mappa_leaflet.php#17/'+ row.lat + '/' + row.lon + '"></iframe>\
-                                                                            </div>\
-                                                                            <!--div class="modal-footer">\
-                                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
-                                                                            </div-->\
-                                                                        </div>\
-                                                                        </div>\
-                                                                    </div>\
-                                                                    </div>';
-                                                            }
-                                                        </script>
+                                                        
                                                     </table>
                                                 </section>
                                                 <hr>
@@ -285,12 +229,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                     data-sidePagination="true" data-show-refresh="true"
                                                     data-show-toggle="false" data-show-columns="true"
                                                     data-toolbar="#toolbar">
-
-
-
-
                                                     <thead>
-
                                                         <tr>
                                                             <th data-field="id" style="vertical-align:center"
                                                                 data-sortable="false" data-formatter="nameFormatterEdit"
@@ -384,7 +323,6 @@ $subtitle = "Dashboard o pagina iniziale";
                                                     </script>
 
                                                 </table>
-
 
                                             </div>
                                             <!-- /.table-responsive -->
