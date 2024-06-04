@@ -24,8 +24,16 @@ if(!$conn) {
 					select s.id, s.criticita, s.id_evento,sum(s.num) as num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
 						st_x(s.geom) as lon, st_y(s.geom) as lat,
 						s.incarichi,
-						unnest(array_agg(distinct i.descrizione_uo::varchar) || array_agg(distinct ii.descrizione_uo::varchar)
-									) as responsabile_incarico		
+						unnest(
+							array_agg(distinct case 
+													when i.id_stato_incarico = 1 then i.descrizione_uo::varchar 
+													when i.id_stato_incarico = 2 then i.descrizione_uo::varchar
+												end) || 
+							array_agg(distinct case 
+													when ii.id_stato_incarico = 1 then ii.descrizione_uo::varchar
+													when ii.id_stato_incarico = 2 then ii.descrizione_uo::varchar
+												end)
+						) as responsabile_incarico		
 					from segnalazioni.v_segnalazioni_lista_pp s
 					join segnalazioni.join_segnalazioni_in_lavorazione j 
 						on s.id_lavorazione=j.id_segnalazione_in_lavorazione
