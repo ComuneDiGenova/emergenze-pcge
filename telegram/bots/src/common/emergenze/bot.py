@@ -25,6 +25,7 @@ import emoji
 # import config
 # import time
 import asyncio
+import subprocess
 
 # API_TOKEN = config.TOKEN
 
@@ -512,68 +513,61 @@ async def process_presa(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=types.ContentType.ANY, state=FormComunicazione.foto)
 async def process_foto(message: types.Message, state: FSMContext):
-    if message.content_type is types.ContentType.PHOTO:      
+    if message.content_type == types.ContentType.PHOTO:   
         async with state.proxy() as data: 
             data['foto'] = message.photo[-1]
             photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
 
             if data['tipo']=='presidio mobile':
-                
-                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/pm_{}'.format(data['id_evento'],data['id_pm'])
-
-                if not os.path.exists(destination):
-
-                    os.system('mkdir -p {}'.format(destination))
-
-                await data['foto'].download('{}/{}'.format(destination,photo_name))
-                markupend=types.ReplyKeyboardRemove()
-                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-                allegato='{}/{}'.format(destination[26:],photo_name)
-                
-                qinsertpm='''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({},'{}','{}')'''.format(data['id_pm'],data['testo_com'],allegato)
-                query_logpm='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'],data['testo_com'])
-                
-                resultinspm=esegui_query(con, qinsertpm,'i')
-                resultlogpm=esegui_query(con,query_logpm,'i')
-                
-                if resultinspm==1 or resultlogpm==1:
-                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
-                else:
-                    await message.reply('{}{} Comunicazione con foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
-                await state.finish()
-                
-                
+                # destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/pm_{}'.format(data['id_evento'],data['id_pm'])
+                destination=f"{os.getcwd()}/emergenze_uploads/telegram/e_{data['id_evento']}/pm_{data['id_pm']}"              
                 
             else:
-                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/s_{}'.format(data['id_evento'],data['id_segnalazione'])
+                # destination=f"/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{data['id_evento']}/s_{data['id_segnalazione']}"
+                destination=f"{os.getcwd()}/emergenze_uploads/telegram/e_{data['id_evento']}/s_{data['id_segnalazione']}"
 
-                if not os.path.exists(destination):
+            # create directory
+            try:             
+                os.makedirs(destination, exist_ok=True)
+            except Exception as e:
+                await message.reply(f"Errore nella creazione della directory: {e}")
+                return
 
-                    os.system('mkdir -p {}'.format(destination))
-
-                await data['foto'].download('{}/{}'.format(destination,photo_name))
-                
-                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-
-                allegato='{}/{}'.format(destination[26:],photo_name)
-                
-                qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(data['id_lavorazione'],data['mittente'],data['testo_com'],allegato)
-                query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
-                resultins=esegui_query(con, qinsertcom,'i')
-                resultlog=esegui_query(con,query_log,'i')
-                markupend=types.ReplyKeyboardRemove()
+            # save photo
+            try:
+                await data['foto'].download(os.path.join(destination, photo_name))
+            except Exception as e:
+                await message.reply(f"Errore nel salvataggio della foto: {e}")
+                return
             
-                if resultins==1 or resultlog==1:
-                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
-                else:
-                    await message.reply('{}{} Comunicazione con foto inviata al sistema'.format(emoji.emojize(":arrow_right:",use_aliases=True), emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
 
-                await state.finish()
+            # Creo percorso dell'allegato e lancio la query
+            allegato = f"{destination[26:]}/{photo_name}"
+
+            if data['tipo'] == 'presidio mobile':
+                qinsertpm = '''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({},'{}','{}')'''.format(data['id_pm'], data['testo_com'], allegato)
+                query_logpm = '''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'], data['testo_com'])
+                resultinspm = esegui_query(con, qinsertpm, 'i')
+                resultlogpm = esegui_query(con, query_logpm, 'i')
+            else:
+                qinsertcom = '''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(data['id_lavorazione'], data['mittente'], data['testo_com'], allegato)
+                query_log = ''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
+                resultins = esegui_query(con, qinsertcom, 'i')
+                resultlog = esegui_query(con, query_log, 'i')
+
+
+            markupend = ReplyKeyboardRemove()
+            if resultins == 1 or resultlog == 1:
+                await message.reply("Si è verificato un problema tecnico nell'invio della comunicazione", reply_markup=markupend)
+            else:
+                await message.reply(f"{emoji.emojize(':arrow_right:', use_aliases=True)} {emoji.emojize(':email:', use_aliases=True)} Comunicazione con foto inviata", reply_markup=markupend)
+            
+            await state.finish()
     else:
         await message.reply('Contenuto del messaggio non valido. Inserisci una foto.')
-        
-        
-            
+
+     
 @dp.message_handler(commands='comunicazione')
 async def comunication(message: types.Message,state=FSMContext):
     """
