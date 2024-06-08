@@ -26,6 +26,7 @@ services:
     tty: true
     volumes:
       - ./bots:/home/${ENVUSER}/bots:w
+      - /home/local/COMGE/egter01/emergenze_uploads/telegram:/home/${ENVUSER}/emergenze_uploads/telegram:w
 
   botgram_convocazione_coc:
     container_name: convocazione_coc-bot
