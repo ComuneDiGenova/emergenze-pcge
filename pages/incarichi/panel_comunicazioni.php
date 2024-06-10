@@ -1,15 +1,12 @@
 <?php
 
-/*$query_comunicazioni="SELECT *";
-$query_comunicazioni= $query_comunicazioni." FROM segnalazioni.v_comunicazioni 
-WHERE id_lavorazione=".$id_lavorazione. ";";
-*/
+
 $query_comunicazioni="SELECT *";
 if ($check_segnalazione==1){
 	$query_comunicazioni= $query_comunicazioni." FROM segnalazioni.v_comunicazioni WHERE id_lavorazione=".$id_lavorazione. " 
 	order by to_timestamp(data_ora_stato, 'DD/MM/YYYY HH24:MI:SS'::text);";
 } else {
-	$query_comunicazioni= $query_comunicazioni." FROM segnalazioni.v_comunicazioni_incarichi WHERE id=".$id. " 
+	$query_comunicazioni= $query_comunicazioni." FROM segnalazioni.v_comunicazioni_incarichi_interni WHERE id=".$id. " 
 	order by to_timestamp(data_ora_stato, 'DD/MM/YYYY HH24:MI:SS'::text);";
 } 
 
@@ -68,7 +65,7 @@ while($r_comunicazioni = pg_fetch_assoc($result_comunicazioni)) {
 			        ?>
 			        <i class="fas fa-envelope faa-ring animated" style="color:#ff0000"></i>
 			        <?php 
-			        echo " ".$check_messaggi_notifica. ")"; 
+			        echo " ".$check_messaggi_notifica.")"; 
 			         } ?>						
 						
 					<?php
@@ -140,11 +137,10 @@ while($r_comunicazioni = pg_fetch_assoc($result_comunicazioni)) {
 <?php
 //echo $profilo_sistema;
 //echo 'profilo';
-echo $r["id_segnalazione"];
+// echo $r["id_segnalazione"];
 if ($profilo_sistema <=2){
 	if ($check_segnalazione==1){
-		// $query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$id. ";";
-		$query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$r["id_segnalazione"]. ";";
+		$query_riservate="SELECT * FROM segnalazioni.t_comunicazioni_segnalazioni_riservate WHERE id_segnalazione=".$id. ";";
 		//echo $query_riservate;
 		$result_riservate=pg_query($conn, $query_riservate);
 		$check_messaggi_riservate=0;
