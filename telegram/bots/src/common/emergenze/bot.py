@@ -509,11 +509,12 @@ async def process_foto(message: types.Message, state: FSMContext):
             data['foto'] = message.photo[-1]
             photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
 
+            rel_destination = f"emergenze_uploads/telegram/e_{data['id_evento']}/pm_{data['id_pm']}"
             if data['tipo']=='presidio mobile':
-                destination=f"{os.getcwd()}/emergenze_uploads/telegram/e_{data['id_evento']}/pm_{data['id_pm']}"              
+                destination=f"{os.getcwd()}/{rel_destination}"              
                 
             else:
-                destination=f"{os.getcwd()}/emergenze_uploads/telegram/e_{data['id_evento']}/s_{data['id_segnalazione']}"
+                destination=f"{os.getcwd()}/{rel_destination}"
 
             # create directory
             try:             
@@ -532,16 +533,16 @@ async def process_foto(message: types.Message, state: FSMContext):
             con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
 
             # Creo percorso dell'allegato e lancio la query
-            allegato = f"{destination[26:]}/{photo_name}"
+            allegato = f"{rel_destination}/{photo_name}"
 
             if data['tipo'] == 'presidio mobile':
-                qinsertpm = '''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({},'{}','{}')'''.format(data['id_pm'], data['testo_com'], allegato)
-                query_logpm = '''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'], data['testo_com'])
+                qinsertpm = f"""INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({data['id_pm']},'{data["testo_com"]}','{allegato}')"""
+                query_logpm = f"""INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{data["user"]}', 'Inviata comunicazione a PC (presidio mobile {data["testo_com"]})')"""
                 resultins = esegui_query(con, qinsertpm, 'i')
                 resultlog = esegui_query(con, query_logpm, 'i')
             else:
-                qinsertcom = '''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(data['id_lavorazione'], data['mittente'], data['testo_com'], allegato)
-                query_log = ''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
+                qinsertcom = f"""INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({data["id_lavorazione"]},'{data["mittente"]}','{data["testo_com"]}','{allegato}')"""
+                query_log = f"""INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{data["user"]}', 'Inviata comunicazione a PC su segnalazione {data["id_segnalazione"]}')"""
                 resultins = esegui_query(con, qinsertcom, 'i')
                 resultlog = esegui_query(con, query_log, 'i')
 
