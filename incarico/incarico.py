@@ -133,7 +133,6 @@ def render(row):
         stato = 2 # In lavorazione
     elif row.stato_id==3:
         stato = 3 # Chiusa
-        # stato = 2 # Richiesta la NON chiusura automatica
     elif row.stato_id==4:
         stato = 4 # Rifiutato
 
@@ -208,6 +207,8 @@ def fetch(id):
         (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
         (db.segnalante.id == db.segnalazione.segnalante_id) & \
         (db.segnalazione.evento_id == db.evento.id) & \
+        # Richiesta la NON chiusura automatica
+        (db.stato_incarico.stato_id!=3) & \
         # (db.incarico.id==id) & \
         # "verbatel.segnalazioni_da_verbatel.intervento_id is null" & \
         # "verbatel.interventi.intervento_id is null" & \
@@ -219,6 +220,7 @@ def fetch(id):
 
     result = dbset.select(
         db.incarico.id.with_alias('id'),
+        # db.segnalazione.id.with_alias('id'),
         db.incarico.start.with_alias('inizio'),
         db.incarico.stop.with_alias('fine'),
         db.incarico.profilo_id,
@@ -282,6 +284,7 @@ def after_insert_incarico(id):
         if invia:
             # Invio info a PL
             response = Intervento.create(**mio_incarico)
+            logger.debug(response)
             # Registro
             if db.intervento(
                 intervento_id = response['idIntervento'],

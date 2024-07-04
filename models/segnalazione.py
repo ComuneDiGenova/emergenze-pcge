@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .. import settings
-from .tools import new_id
+from .tools import new_id, incarichi_new_id
 from .segnalazione_decodifica import SCHEMA, db, Field
 
 from pydal.validators import *
@@ -177,7 +177,7 @@ unita_operative = map(
 )
 
 db.define_table('incarico',
-    Field('id', 'id', default=lambda: new_id(db['incarico'])),
+    Field('id', 'id', default=lambda: incarichi_new_id(db['incarico'])),
     Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
     Field('profilo_id', 'reference profilo_utilizatore',
         notnull=True, required=True,
