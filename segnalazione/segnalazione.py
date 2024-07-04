@@ -252,7 +252,9 @@ def verbatel_create(intervento_id, **kwargs):
     if not incarico_id is None:
         db.intervento.insert(incarico_id=incarico_id, intervento_id=intervento_id)
 
-    return {"incarico_id": incarico_id, "segnalazione_id": segnalazione_id}
+    # Soluzione al problema https://desk.zoho.eu/agent/gtersrl/gter-support/tickets/details/31681000004309120
+    return {"segnalazione_id": incarico_id}
+    # return {"incarico_id": incarico_id, "segnalazione_id": segnalazione_id}
 
 
 def update_(
