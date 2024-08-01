@@ -126,7 +126,8 @@ if __name__=='__main__':
     # breakpoint()
     wso2.access_token
 
-    wso2_url = f'{WSO2_VBT_ROOT}/Interventi'
+    wso2_url = f'{WSO2_VBT_ROOT}/interventi'
+    print(wso2_url)
     print(f'Token expires: {wso2.expire}')
     # breakpoint()
     response_from_wso2 = wso2.post(wso2_url, json=info)
