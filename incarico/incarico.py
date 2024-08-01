@@ -2,8 +2,11 @@
 
 import json
 from ..common import settings, db, logger
-from ..verbatel import Intervento
+# from ..verbatel import Intervento
+from ..verbatel import InterventoWSO2 as Intervento
 import datetime
+
+intervento = Intervento()
 
 DEFAULT_TIPO_STATO = 1
 
@@ -283,7 +286,7 @@ def after_insert_incarico(id):
         logger.debug(mio_incarico)
         if invia:
             # Invio info a PL
-            response = Intervento.create(**mio_incarico)
+            response = intervento.create(**mio_incarico)
             logger.debug(response)
             # Registro
             if db.intervento(
@@ -299,20 +302,20 @@ def after_update_incarico(id:int) -> None:
     """ """
 
     logger.debug(f"after update incarico")
-    intervento = db.intervento(incarico_id=id)
+    myintervento = db.intervento(incarico_id=id)
 
-    if intervento is None:
+    if myintervento is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
         if invia:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
-            response = Intervento.update(intervento.intervento_id, **mio_incarico)
+            response = intervento.update(myintervento.intervento_id, **mio_incarico)
     # else:
     #     _, mio_incarico = fetch(id)
     #     if mio_incarico['stato']==3:
     #         incarico_id = mio_incarico.pop('idSegnalazione')
-    #         response = Intervento.update(intervento.intervento_id, **mio_incarico)
+    #         response = intervento.update(intervento.intervento_id, **mio_incarico)
     #         return
         
 

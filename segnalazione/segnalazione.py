@@ -3,13 +3,15 @@
 from ..common import settings, db, logger
 from .. import incarico
 from . import comunicazione
-from ..verbatel import Intervento
+from ..verbatel import InterventoWSO2 as Intervento
 from pydal import geoPoint
 from pydal.validators import *
 import json
 from datetime import datetime
 
 from ..tools import log_segnalazioni2message
+
+intervento = Intervento()
 
 DEFAULT_TIPO_SEGNALANTE = 1  # Presidio territoriale (Volontariato e PM)
 DEFAULT_DESCRIZIONE_UTILIZZATORE = (
@@ -481,7 +483,7 @@ def after_update_lavorazione(id:int, in_lavorazione:bool=None):
             if not mio_incarico is None:
                 incarico_id = mio_incarico.pop('idSegnalazione')
                 logger.debug(mio_incarico)
-                response = Intervento.update(row.intervento_id, **mio_incarico)
+                response = intervento.update(row.intervento_id, **mio_incarico)
     else:
         logger.debug(in_lavorazione is False)
 
@@ -512,7 +514,7 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
     testo_messaggio = log_segnalazioni2message(messaggio_log)
     for row in results:
         if not row.intervento_id is None:
-            response = Intervento.message(
+            response = intervento.message(
                 row.intervento_id,
                 operatore = 'operatore di PC',
                 testo = testo_messaggio
@@ -524,7 +526,7 @@ def after_insert_t_storico_segnalazioni_in_lavorazione(id_lavorazione:int, messa
     # if not row is None:
     #     logger.debug(f'Invio notifica storico segnalazione: {messaggio_log}')
     #     testo_messaggio = log_segnalazioni2message(messaggio_log)
-    #     response = Intervento.message(
+    #     response = intervento.message(
     #         row.intervento_id,
     #         operatore = 'operatore di PC',
     #         testo = testo_messaggio
@@ -542,7 +544,7 @@ def after_insert_comunicazione_segnalazione(lavorazione_id, timeref):
     
     if not result is None:
         idIntervento, payload = result
-        Intervento.message(idIntervento, **payload)
+        intervento.message(idIntervento, **payload)
     
 
 def after_insert_lavorazione(id):

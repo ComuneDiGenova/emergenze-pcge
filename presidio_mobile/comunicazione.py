@@ -2,7 +2,8 @@
 
 import os
 from ..common import db, logger
-from ..verbatel import Presidio
+# from ..verbatel import Presidio
+from ..verbatel import PresidioWSO2 as Presidio
 
 from .. import settings
 from py4web import Field
@@ -10,6 +11,8 @@ import base64
 from pydal.validators import IS_IN_DB
 
 from ..segnalazione.comunicazione import get_fake_upload, _upload
+
+presidio = Presidio()
 
 fake_upload = get_fake_upload(db.comunicazione_incarico_inviata)
 
@@ -116,4 +119,4 @@ def after_insert_comunicazione(*args, **kwargs):
     result = fetch(*args, **kwargs)
     if not result is None:
         idSquadra, payload = result
-        Presidio.message(idSquadra, **payload)
+        presidio.message(idSquadra, **payload)

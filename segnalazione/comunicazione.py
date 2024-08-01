@@ -6,7 +6,7 @@ import shutil, os
 from py4web import Field
 from pathlib import Path
 from pydal.validators import *
-from ..verbatel import Intervento
+# from ..verbatel import InterventoWSO2 as Intervento
 
 from datetime import datetime
 import base64

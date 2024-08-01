@@ -7,7 +7,8 @@ from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
 import json
-from .verbatel import syncEvento
+# from .verbatel import syncEvento
+from .verbatel import EventoWSO2
 from . import evento
 import traceback
 from .segnalazione import after_insert_lavorazione, after_update_lavorazione, \
@@ -25,6 +26,8 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 import psycopg2
 import selectors, time
+
+syncEvento = EventoWSO2()
 
 # Non rimuovere!
 db._adapter.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
