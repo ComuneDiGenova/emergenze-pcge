@@ -114,7 +114,7 @@ class __Messanger__(object):
 
 class EventoWSO2(VerbatelWSO2):
     """ """
-    root = VerbatelWSO2.uri(VerbatelWSO2, 'Eventi')
+    root = VerbatelWSO2.uri(VerbatelWSO2, 'eventi')
 
     def sync(self, info_evento):
         try:
