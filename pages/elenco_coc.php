@@ -139,33 +139,52 @@ require('navbar_up.php');
 
 			<!-- Modal convocazione coc-->
             <div id="conv_coc" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
+                <div class="modal-dialog">    
 				
 				    <!-- Modal content-->
 				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Convocazione COC</h4>
-				      </div>
-				      <div class="modal-body">
-      
+				        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Convocazione COC</h4>
+                    </div>
 
+                    <div class="modal-body">
         			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
                             <div class="form-group">
-                                <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
+                                <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
+                                <select class="form-control" name="boll_pc" id="" required="yes" >
+                                    <option name="boll_pc" value="" > Seleziona Bollettino Meteo </option>
+                                    <option name="boll_pc" value="0" > Nessun Bollettino </option>
+                                    
+                                    <?php $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
+                                    echo $query;
+                                    $result = pg_query($conn, $query);
+                                    //ottengo elenco bollettini PC e li compilo nel form; 
+                                    while($r = pg_fetch_assoc($result)) {
+                                        $timestamp = strtotime($r['data_download']);
+                                        $data_format = date('d/m/Y', $timestamp);
+                                    ?> 
+                                    <option name="boll_pc" value="<?php echo $r['id'];?>"> <?php echo $r['nomefile'].' - '.$data_format;?> </option>
+                                    <?php 
+                                    } ?>
+                                </select>   
+                                
+                                <br>
+
+                                <label for="addMatricolaCf"> Testo Convocazione <font color="red">*</font></label>                 
                                 <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                             </div>
                             <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
                         </form>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-                        </div>
                     </div>
 
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                        </div>
+                    </div>
                 </div>
-                </div>
-            <div class="row">
+            </div>
+        <div class="row">
 
 		<?php //echo $profilo_ok;?>
 		<br>
@@ -194,12 +213,12 @@ require('navbar_up.php');
             <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione</th>
             <th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
-            <th data-field="data_invio" data-sortable="true"  data-visible="true">Data/ora invio notifica</th>
-            <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
-            <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
-			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
+            <th data-field="data_invio" data-sortable="true"  data-visible="true">Data Invio Bollettino</th>
+            <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Lettura bollettino</th>
+            <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data Conferma Lettura Bollettino</th>
+			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data invio Convocazione</th>
             <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
-            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
+            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data Conferma Convocazione</th>
     </tr>
 </thead>
 
@@ -299,10 +318,7 @@ function nameFormatterEdit2(value, row) {
 </script>
 	
 
-
-
-
-            </div>
+        </div>
             <!-- /.row -->
     </div>
     <!-- /#wrapper -->

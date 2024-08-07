@@ -35,19 +35,15 @@ $uo= str_replace("'", "''", $_POST["uo"]);
 //echo "Descrizione:".$descrizione. "<br>";
 //echo "Unita_operativa:".$uo. "<br>";
 
-
-
 //echo "<h2>La gestione degli incarichi e' attualmente in fase di test and debug. Ci scusiamo per il disagio</h2> <br> ";
-
-
-
-
 
 $query_max= "SELECT max(id) FROM segnalazioni.t_incarichi;";
 $result_max = pg_query($conn, $query_max);
+// Soluzione al ticket https://desk.zoho.eu/agent/gtersrl/gter-support/tickets/details/31681000004309120
+$incarichi_min_id = 2000;
 while($r_max = pg_fetch_assoc($result_max)) {
 	if ($r_max["max"]>0) {
-		$id_incarico=$r_max["max"]+1;
+		$id_incarico=max($incarichi_min_id, $r_max["max"]+1);
 	} else {
 		$id_incarico=1;	
 	}
