@@ -152,13 +152,10 @@ require('navbar_up.php');
 
         			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
                             <div class="form-group">
-<<<<<<< Updated upstream
-                                <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
-=======
                                 <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
                                 <select class="form-control" name="boll_pc" id="" required="yes" >
                                     <option name="boll_pc" value="" > Seleziona Bollettino Meteo </option>
-                                    <!-- <option name="boll_pc" value="0" > Nessun Bollettino </option> -->
+                                    <option name="boll_pc" value="0" > Nessun Bollettino </option>
                                     
                                     <?php $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
                                     echo $query;
@@ -176,7 +173,6 @@ require('navbar_up.php');
                                 <br>
 
                                 <label for="addMatricolaCf"> Testo Convocazione <font color="red">*</font></label>                 
->>>>>>> Stashed changes
                                 <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                             </div>
                             <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
