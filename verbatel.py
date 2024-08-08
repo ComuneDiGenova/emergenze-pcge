@@ -117,6 +117,8 @@ class EventoWSO2(VerbatelWSO2):
     root = VerbatelWSO2.uri(VerbatelWSO2, 'eventi')
 
     def sync(self, info_evento):
+        logger.debug(self.root)
+        logger.debug(info_evento)
         try:
             self.create(**info_evento)
         except exceptions.HTTPError as err:
@@ -127,6 +129,8 @@ class EventoWSO2(VerbatelWSO2):
                 return 'SENT UPDATE'
         else:
             return 'SENT NEW'
+    
+    __call__ = sync
 
 
 class InterventoWSO2(VerbatelWSO2, __Messanger__):

@@ -40,7 +40,7 @@ class AccessTokenManager(object):
             self.expire = datetime.utcnow() + timedelta(seconds=info['expires_in'])
             self._token = info['access_token']
         else:
-            logger.debug(f"Token will expire in {(self.expire-datetime.utcnow()).total_seconds():d} seconds.")
+            logger.debug(f"Token will expire in {int((self.expire-datetime.utcnow()).total_seconds()):d} seconds.")
 
         return self._token
 
