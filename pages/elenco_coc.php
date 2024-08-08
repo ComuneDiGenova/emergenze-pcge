@@ -152,7 +152,31 @@ require('navbar_up.php');
 
         			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
                             <div class="form-group">
+<<<<<<< Updated upstream
                                 <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
+=======
+                                <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
+                                <select class="form-control" name="boll_pc" id="" required="yes" >
+                                    <option name="boll_pc" value="" > Seleziona Bollettino Meteo </option>
+                                    <!-- <option name="boll_pc" value="0" > Nessun Bollettino </option> -->
+                                    
+                                    <?php $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
+                                    echo $query;
+                                    $result = pg_query($conn, $query);
+                                    //ottengo elenco bollettini PC e li compilo nel form; 
+                                    while($r = pg_fetch_assoc($result)) {
+                                        $timestamp = strtotime($r['data_download']);
+                                        $data_format = date('d/m/Y', $timestamp);
+                                    ?> 
+                                    <option name="boll_pc" value="<?php echo $r['id'];?>"> <?php echo $r['nomefile'].' - '.$data_format;?> </option>
+                                    <?php 
+                                    } ?>
+                                </select>   
+                                
+                                <br>
+
+                                <label for="addMatricolaCf"> Testo Convocazione <font color="red">*</font></label>                 
+>>>>>>> Stashed changes
                                 <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                             </div>
                             <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
