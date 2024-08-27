@@ -154,7 +154,7 @@ require('navbar_up.php');
                                 <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
                                 <select class="form-control" name="boll_pc" id="" required="yes" >
                                     <option name="boll_pc" value="" > Seleziona Bollettino Meteo </option>
-                                    <option name="boll_pc" value="0" > Nessun Bollettino </option>
+                                    <!-- <option name="boll_pc" value="0" > Nessun Bollettino </option> -->
                                     
                                     <?php $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
                                     echo $query;

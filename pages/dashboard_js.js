@@ -546,7 +546,17 @@ function vis_campaign(
           return acc;    
       }, {});
       // console.log(anagrafica_by_tel);
-      const campaign_list_dict = Object.values(values[0].result.sort((elc, elf) => {
+      
+      var campaign_list_dict = null;
+      if (values[0].result === null) {
+        campaign_list_dict = null;
+        if (values[0]['alertsystem_response_status']['type']=='O') {
+          alert(`${values[0]['alertsystem_response_status']['descrizione']}`);
+        } else if (values[0]['alertsystem_response_status']['type']=='E') {
+          alert(`Errore: ${values[0]['alertsystem_response_status']['descrizione']}`);
+        };
+      } else {
+        campaign_list_dict = Object.values(values[0].result.sort((elc, elf) => {
           if ( elc.DataCampagna < elf.DataCampagna ) {
               return 0;
           } else if ( elc.DataCampagna < elf.DataCampagna ) {
@@ -560,6 +570,8 @@ function vis_campaign(
           console.log(anagrafica_by_tel[cmp.NumeroTelefonico]);
           return {...cmp, ...anagrafica_by_tel[cmp.NumeroTelefonico]}
       });
+    }
+    console.log(campaign_list_dict);
       // console.log(campaign_list_dict);
       $campaign_table.bootstrapTable("destroy").bootstrapTable({
         columns: [
