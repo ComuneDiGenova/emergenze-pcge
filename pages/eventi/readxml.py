@@ -168,14 +168,18 @@ def convoca_utenti_sistema(messaggio):
 
 
 def convoca_coc(messaggio):
+    """
+    Questa funzione raccoglie tutti i telegram_id presenti a sistema nella tabella users.utenti_coc
+    e invia loro una notifica di Nuovo Bollettino di Protezione civile
+    """
     
     curr = get_cursor()
     
     query_coc= "SELECT telegram_id from users.utenti_coc;"
     curr.execute(query_coc)
     lista_coc = curr.fetchall()
-    print('Lista utenti coc:')
-    print(lista_coc)
+    # print('Lista utenti coc:')
+    # print(lista_coc)
     for row_coc in lista_coc:
         chat_id_coc=row_coc[0]
         try:

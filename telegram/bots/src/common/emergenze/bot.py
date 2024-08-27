@@ -6,8 +6,7 @@ from .common import logger as logging
 # Lorenzo Benvenuto, Roberta Fagandini
 # Gter copyleft 2021
 
-from dataclasses import dataclass
-# import logging
+
 import os
 from aiogram.types.inline_keyboard import InlineKeyboardButton
 import aiogram.utils.markdown as md
@@ -15,16 +14,14 @@ from aiogram.types import callback_query, message, message_entity, update
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from aiogram.dispatcher import FSMContext, middlewares
 from aiogram.dispatcher.filters.state import State, StatesGroup
-# import conn
+
 from aiogram.types import ParseMode
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
 import psycopg2
 import emoji
-# import config
-# import time
-import asyncio
+
 
 # API_TOKEN = config.TOKEN
 
@@ -232,13 +229,10 @@ async def send_welcome(message: types.Message):
         await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
                                \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
     elif len(registrato) !=0:
-        #messaggio superfluo usato per debug
-        #await bot.send_message(message.chat.id,'{} Il tuo utente è registrato nel sistema'.format(emoji.emojize(":white_check_mark:",use_aliases=True)))
-
         #controllo se utente risulta operativo
         query_operativo="select * from users.t_presenze where id_telegram ='{}' and operativo = 't'".format(message.chat.id)
         operativo=esegui_query(con,query_operativo,'s')
-        #print(operativo)
+
         if operativo ==1:
             await bot.send_message(message.chat.id,'''{} Si è verificato un problema, e la registrazione non è anadata a buon fine:
                                \nSe visualizzi questo messaggio prova a contattare un tecnico'''.format(emoji.emojize(":warning:",use_aliases=True)))
@@ -272,8 +266,6 @@ async def send_welcome(message: types.Message):
     This handler will be called when user sends `/start` or `/help` command
     """
     con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-    #await bot.send_message(message.chat.id,"Ciao {} stai per terminare il tuo turno".format(message.from_user.first_name))
-    #controlli
     
     controllo_operativo="SELECT operativo, data_inizio, durata, data_fine, id, id_telegram FROM users.t_presenze where operativo =true and id_telegram ='{}'".format(message.chat.id)
     result_operativo=esegui_query(con,controllo_operativo,'s')
@@ -434,7 +426,7 @@ async def send_welcome(message: types.Message,state: FSMContext):
         
         else:
             await bot.send_message(message.chat.id,'''{} Al momento non risultano presidi mobili assegnati e/o accettati alla tua squadra, per cui non puoi usare questo comando.'''.format(emoji.emojize(":warning:",use_aliases=True)))
-        #await bot.delete_message(message.chat.id,message.message_id)
+
     else:
         await bot.send_message(message.chat.id,'''{} Il tuo utente non è registrato nel sistema e pertanto non puoi usare questo comando.
                             \nContatta un amministratore di sistema per registrarti, e dopo esser stato abilitato ripeti questo comando.'''.format(emoji.emojize(":no_entry_sign:",use_aliases=True)))
@@ -512,68 +504,60 @@ async def process_presa(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=types.ContentType.ANY, state=FormComunicazione.foto)
 async def process_foto(message: types.Message, state: FSMContext):
-    if message.content_type is types.ContentType.PHOTO:      
+    if message.content_type == types.ContentType.PHOTO:   
         async with state.proxy() as data: 
             data['foto'] = message.photo[-1]
             photo_name='{}_{}.jpg'.format(datetime.now().strftime("%Y%m%d%H%M"),message.chat.id)
 
+            rel_destination = f"emergenze_uploads/telegram/e_{data['id_evento']}/pm_{data['id_pm']}"
             if data['tipo']=='presidio mobile':
-                
-                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/pm_{}'.format(data['id_evento'],data['id_pm'])
-
-                if not os.path.exists(destination):
-
-                    os.system('mkdir -p {}'.format(destination))
-
-                await data['foto'].download('{}/{}'.format(destination,photo_name))
-                markupend=types.ReplyKeyboardRemove()
-                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-                allegato='{}/{}'.format(destination[26:],photo_name)
-                
-                qinsertpm='''INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({},'{}','{}')'''.format(data['id_pm'],data['testo_com'],allegato)
-                query_logpm='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC (presidio mobile {})')'''.format(data['user'],data['testo_com'])
-                
-                resultinspm=esegui_query(con, qinsertpm,'i')
-                resultlogpm=esegui_query(con,query_logpm,'i')
-                
-                if resultinspm==1 or resultlogpm==1:
-                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
-                else:
-                    await message.reply('{}{} Comunicazione con foto inviata'.format(emoji.emojize(":arrow_right:",use_aliases=True),emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
-                await state.finish()
-                
-                
+                destination=f"{os.getcwd()}/{rel_destination}"              
                 
             else:
-                destination='/home/local/COMGE/egter01/emergenze_uploads/telegram/e_{}/s_{}'.format(data['id_evento'],data['id_segnalazione'])
+                destination=f"{os.getcwd()}/{rel_destination}"
 
-                if not os.path.exists(destination):
+            # create directory
+            try:             
+                os.makedirs(destination, exist_ok=True)
+            except Exception as e:
+                await message.reply(f"Errore nella creazione della directory: {e}")
+                return
 
-                    os.system('mkdir -p {}'.format(destination))
-
-                await data['foto'].download('{}/{}'.format(destination,photo_name))
-                
-                con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
-
-                allegato='{}/{}'.format(destination[26:],photo_name)
-                
-                qinsertcom='''INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({},'{}','{}','{}') '''.format(data['id_lavorazione'],data['mittente'],data['testo_com'],allegato)
-                query_log=''' INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{}', 'Inviata comunicazione a PC su segnalazione {}') '''.format(data['user'], data['id_segnalazione'])
-                resultins=esegui_query(con, qinsertcom,'i')
-                resultlog=esegui_query(con,query_log,'i')
-                markupend=types.ReplyKeyboardRemove()
+            # save photo
+            try:
+                await data['foto'].download(os.path.join(destination, photo_name))
+            except Exception as e:
+                await message.reply(f"Errore nel salvataggio della foto: {e}")
+                return
             
-                if resultins==1 or resultlog==1:
-                    await message.reply('Si è verificato un problema tecnico nell\'invio della comunicazione',reply_markup=markupend)
-                else:
-                    await message.reply('{}{} Comunicazione con foto inviata al sistema'.format(emoji.emojize(":arrow_right:",use_aliases=True), emoji.emojize(":email:",use_aliases=True)),reply_markup=markupend)
+            con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port) 
 
-                await state.finish()
+            # Creo percorso dell'allegato e lancio la query
+            allegato = f"{rel_destination}/{photo_name}"
+
+            if data['tipo'] == 'presidio mobile':
+                qinsertpm = f"""INSERT INTO segnalazioni.t_comunicazioni_sopralluoghi_mobili(id_sopralluogo, testo, allegato) VALUES ({data['id_pm']},'{data["testo_com"]}','{allegato}')"""
+                query_logpm = f"""INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{data["user"]}', 'Inviata comunicazione a PC (presidio mobile {data["testo_com"]})')"""
+                resultins = esegui_query(con, qinsertpm, 'i')
+                resultlog = esegui_query(con, query_logpm, 'i')
+            else:
+                qinsertcom = f"""INSERT INTO segnalazioni.t_comunicazioni_segnalazioni(id_lavorazione, mittente, testo, allegato) VALUES({data["id_lavorazione"]},'{data["mittente"]}','{data["testo_com"]}','{allegato}')"""
+                query_log = f"""INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','{data["user"]}', 'Inviata comunicazione a PC su segnalazione {data["id_segnalazione"]}')"""
+                resultins = esegui_query(con, qinsertcom, 'i')
+                resultlog = esegui_query(con, query_log, 'i')
+
+
+            markupend = ReplyKeyboardRemove()
+            if resultins == 1 or resultlog == 1:
+                await message.reply("Si è verificato un problema tecnico nell'invio della comunicazione", reply_markup=markupend)
+            else:
+                await message.reply(f"{emoji.emojize(':arrow_right:', use_aliases=True)} {emoji.emojize(':email:', use_aliases=True)} Comunicazione con foto inviata", reply_markup=markupend)
+            
+            await state.finish()
     else:
         await message.reply('Contenuto del messaggio non valido. Inserisci una foto.')
-        
-        
-            
+
+     
 @dp.message_handler(commands='comunicazione')
 async def comunication(message: types.Message,state=FSMContext):
     """
