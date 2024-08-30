@@ -18,7 +18,7 @@ VBT_HOST = "192.168.153.84"
 VBT_PATH = "GestioneEmergenzeTest/api"
 
 WSO2_URL = settings.WSO2_URL
-WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ENDPOINT
+WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ROOT
 WSO2_VBT_ROOT = settings.WSO2_VBT_ROOT
 
 class AccessTokenManager(object):
