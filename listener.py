@@ -7,17 +7,30 @@ from .common import db, logger
 #from . import evento
 #from .verbatel import evento, Evento
 import json
-from .verbatel import syncEvento
+# from .verbatel import syncEvento
+from .verbatel import EventoWSO2
 from . import evento
 import traceback
-from .segnalazione import after_insert_lavorazione, after_update_lavorazione, after_insert_t_storico_segnalazioni_in_lavorazione
+from .segnalazione import after_insert_lavorazione, after_update_lavorazione, \
+    after_insert_t_storico_segnalazioni_in_lavorazione, \
+    after_insert_comunicazione_segnalazione
 from .incarico import after_insert_incarico, after_update_incarico
 
 from .incarico.comunicazione import after_insert_comunicazione as after_insert_comunicazione_incarico
 from .presidio_mobile.comunicazione import after_insert_comunicazione as after_insert_comunicazione_presidio_mobile
 from .presidio_mobile.squadra import after_insert_stato_presidio
 
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
 #def create_sql_function(schema, table, function, trigger, notification):
+
+import psycopg2
+import selectors, time
+
+syncEvento = EventoWSO2()
+
+# Non rimuovere!
+db._adapter.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
 def create_sql_function(schema, function_name, notification_name, payload, action):
 
@@ -230,6 +243,7 @@ segnalaz = [
     ['eventi', 't_eventi', 'id'],
     ['segnalazioni', 't_segnalazioni_in_lavorazione', ['id', 'in_lavorazione']],
     ['segnalazioni', 't_storico_segnalazioni_in_lavorazione', ['id_segnalazione_in_lavorazione', 'log_aggiornamento']],
+    ['segnalazioni', 't_comunicazioni_segnalazioni', ['id_lavorazione', 'data_ora_stato']]
     ]
 
 def setup():
@@ -337,6 +351,25 @@ def setup_segn():
         segnalaz[8][1],
         function_name_n_storico_lavorazione, trigger_name_n_storico_lavorazione, "INSERT")
 
+    
+    function_name_n_comunicazione_segnalazione = f"notify_new_{segnalaz[9][1]}"
+    notification_name_n_comunicazione_segnalazione = f"new_{segnalaz[9][1]}_added"
+    trigger_name_n_comunicazione_segnalazione = f"after_insert_{segnalaz[9][1]}"
+    create_sql_function_comunicazione(
+        segnalaz[9][0],
+        function_name_n_comunicazione_segnalazione,
+        notification_name_n_comunicazione_segnalazione,
+        segnalaz[9][2],
+        "INSERT"
+    )
+    create_sql_trigger(
+        segnalaz[9][0],
+        segnalaz[9][1],
+        function_name_n_comunicazione_segnalazione,
+        trigger_name_n_comunicazione_segnalazione,
+        "INSERT"
+    )
+
     db.commit()
 
 # def ciao():
@@ -367,6 +400,8 @@ def set_listen():
     listen_u_lavorazione = f"LISTEN new_{segnalaz[7][1]}_updated;"
     
     listen_n_storico_lavorazione = f"LISTEN new_{segnalaz[8][1]}_added;"
+    
+    listen_n_comunicazione_segnalazione = f"LISTEN new_{segnalaz[9][1]}_added;"
 
     #db.executesql("LISTEN new_item_added;")
     db.executesql(listen_n_foc)
@@ -390,6 +425,7 @@ def set_listen():
     db.executesql(listen_u_lavorazione)
     
     db.executesql(listen_n_storico_lavorazione)
+    db.executesql(listen_n_comunicazione_segnalazione)
 
     db.commit()
 
@@ -475,23 +511,54 @@ def do_stuff(channel, **payload):
     elif channel in f"new_{segnalaz[8][1]}_added":
         after_insert_t_storico_segnalazioni_in_lavorazione(payload["id_lavorazione"], payload["messaggio_log"])
 
+    elif channel in f"new_{segnalaz[9][1]}_added":
+        after_insert_comunicazione_segnalazione(lavorazione_id=payload["id"], timeref=payload["data"])
+    else:
+        logger.warning(f"Channel not catched: {channel}")
+        logger.warning(payload)
+
+
+def wait_for_notifications(sleep=1):
+    """ Courtesy of: https://chatgpt.com/share/c0369392-adbb-475b-93b6-39666caf4515
+    """
+    logger.info('Starting!')
+    logger.info('Waiting for notifications!')
+    queue = []
+    # Creare un oggetto Selector
+    selector = selectors.DefaultSelector()
+
+    # Registrare il file descriptor per la connessione del database per la lettura
+    # (supponendo che db._adapter.connection sia il file descriptor)
+    fileobj = db._adapter.connection
+    selector.register(fileobj, selectors.EVENT_READ)
+    # Ora puoi usare il metodo select() del selettore per controllare se ci sono eventi pronti
+    # per la lettura sul file descriptor della connessione del database
+    events = selector.select(timeout=None)  # Puoi specificare un timeout in secondi se necessario
+    # time.sleep(sleep)
+
+    # events sarà una lista di tuple, ognuna delle quali contiene un oggetto SelectorKey e un mask
+    for key, mask in events:
+        if key.fileobj == fileobj:
+            # Eseguire azioni in base al tipo di evento che è pronto
+            if mask & selectors.EVENT_READ:
+                # L'evento di lettura è pronto sul file descriptor della connessione del database
+                # Esegui le azioni appropriate qui
+                db._adapter.connection.poll()
+                while db._adapter.connection.notifies:
+                    notification = db._adapter.connection.notifies.pop()
+                    # https://github.com/psycopg/psycopg2/issues/686#issuecomment-591725603
+                    # db._adapter.connection.poll()
+                    logger.debug(notification)
+                    yield notification
 
 def listen():
     """ Courtesy of: https://towardsdev.com/simple-event-notifications-with-postgresql-and-python-398b29548cef """
 
+    set_listen()
+    
     while True:
-        logger.info('Starting!')
-        set_listen()
-        # sleep until there is some data
-        logger.info('Waiting for notifications!')
-        select.select([db._adapter.connection],[],[])
-        logger.debug('Catched!')
 
-        db._adapter.connection.poll()
-
-        while db._adapter.connection.notifies:
-
-            notification = db._adapter.connection.notifies.pop(0)
+        for notification in wait_for_notifications():
 
             payload = json.loads(notification.payload)
 
@@ -505,6 +572,7 @@ def listen():
                 logger.critical(full_traceback)
             else:
                 db.commit()
+        
 
 
 if __name__ == '__main__':

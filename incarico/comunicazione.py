@@ -2,12 +2,15 @@
 
 import os
 from ..common import db, logger
-from ..verbatel import Intervento
+# from ..verbatel import Intervento
+from ..verbatel import InterventoWSO2 as Intervento
 
 from .. import settings
 from py4web import Field
 
 import base64
+
+intervento = Intervento()
 
 def render(row):
     """ """
@@ -73,14 +76,14 @@ def fetch(incarico_id, timeref=None):
     #     orderby = ~db.comunicazione.timeref
     # ).first()
 
-    return rec and (rec[check], render(rec),)
+    return rec and (rec.idIntervento, rec[check], render(rec),)
 
 def after_insert_comunicazione(*args, **kwargs):
     """ """
     result = fetch(*args, **kwargs)
     if not result is None:
-        idIntervento, payload = result
-        Intervento.message(idIntervento, **payload)
+        idIntervento, check, payload = result
+        intervento.message(idIntervento, **payload)
 
 # def after_insert_comunicazione(lavorazione_id, timeref=None):
 #     """ """

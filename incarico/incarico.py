@@ -2,8 +2,11 @@
 
 import json
 from ..common import settings, db, logger
-from ..verbatel import Intervento
+# from ..verbatel import Intervento
+from ..verbatel import InterventoWSO2 as Intervento
 import datetime
+
+intervento = Intervento()
 
 DEFAULT_TIPO_STATO = 1
 
@@ -21,10 +24,11 @@ get_uo_id = lambda id: db(db.municipio)(
 
 
 def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_id,
-    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False
+    preview=None, note=None, stato_id=DEFAULT_TIPO_STATO, parziale=False, uo_id=None
 ):
 
-    uo_id = get_uo_id(municipio_id)
+    if uo_id is None:
+        uo_id = get_uo_id(municipio_id)
 
     incarico_id = db.incarico.insert(
         profilo_id = profilo_id,
@@ -118,7 +122,7 @@ def upgrade(id, stato_id, uo_id, parziale=False, note=None, **kwargs):
 
     return update(id, uo_id=uo_id, **kwargs)
 
-check = f"({db.incarico._rname}.id_uo ilike 'com_PO%'"
+check = f"({db.incarico._rname}.id_uo ilike 'com_PO%')"
 # check += " or {db.intervento._rname}.incarico_id is not null)::bool"
 
 # check = db.incarico.uo_id.startswith('com_PO') or f'{db.intervento._rname}.incarico_id is not null'
@@ -181,6 +185,7 @@ def render(row):
         nomeStrada = row.desvia,
         codiceStrada = row.codvia,
         dataInLavorazione = row.inizio and row.inizio.isoformat(),
+        # Richiesta la NON chiusura automatica
         dataChiusura =  row.fine and row.fine.isoformat(),
         tipoIntervento = row.criticita_id,
         noteOperative = row.note,
@@ -198,19 +203,27 @@ def fetch(id):
     id @integer : Id incarico
     """
 
-    result = db(
+    dbset = db(
         (db.stato_incarico.stato_id==db.tipo_stato_incarico.id) & \
         (db.stato_incarico.incarico_id==db.incarico.id) & \
         (db.join_segnalazione_incarico.incarico_id==db.incarico.id) & \
         (db.join_segnalazione_incarico.lavorazione_id==db.segnalazione_lavorazione.id) & \
         (db.segnalante.id == db.segnalazione.segnalante_id) & \
         (db.segnalazione.evento_id == db.evento.id) & \
-        (db.incarico.id==id) & \
+        # Richiesta la NON chiusura automatica
+        (db.stato_incarico.stato_id!=3) & \
+        # (db.incarico.id==id) & \
         # "verbatel.segnalazioni_da_verbatel.intervento_id is null" & \
         # "verbatel.interventi.intervento_id is null" & \
         "eventi.t_eventi.valido is not false"
-    ).select(
+    )
+
+    if not id is None:
+        dbset = dbset((db.incarico.id==id) & (db.incarico.stop==None))
+
+    result = dbset.select(
         db.incarico.id.with_alias('id'),
+        # db.segnalazione.id.with_alias('id'),
         db.incarico.start.with_alias('inizio'),
         db.incarico.stop.with_alias('fine'),
         db.incarico.profilo_id,
@@ -263,7 +276,6 @@ def fetch(id):
     # return result.incarico.profilo_id==settings.PM_PROFILO_ID, render(result)
     # return result.segnalazione_lavorazione.profilo_id!=settings.PC_PROFILO_ID, render(result)
 
-import time
 
 def after_insert_incarico(id):
     logger.debug(f"after insert incarico")
@@ -274,24 +286,38 @@ def after_insert_incarico(id):
         logger.debug(mio_incarico)
         if invia:
             # Invio info a PL
-            response = Intervento.create(**mio_incarico)
+            response = intervento.create(**mio_incarico)
+            logger.debug(response)
             # Registro
-            db.intervento.insert(
+            if db.intervento(
                 intervento_id = response['idIntervento'],
                 incarico_id = id
-            )
+            ) is None:
+                db.intervento.insert(
+                    intervento_id = response['idIntervento'],
+                    incarico_id = id
+                )
 
-def after_update_incarico(id):
+def after_update_incarico(id:int) -> None:
+    """ """
+
     logger.debug(f"after update incarico")
-    intervento = db.intervento(incarico_id=id)
+    myintervento = db.intervento(incarico_id=id)
 
-    if intervento is None:
+    if myintervento is None:
         # Chiamata servizio Verbatel
         invia, mio_incarico = fetch(id)
         if invia:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
-            response = Intervento.update(intervento.intervento_id, **mio_incarico)
+            response = intervento.update(myintervento.intervento_id, **mio_incarico)
+    # else:
+    #     _, mio_incarico = fetch(id)
+    #     if mio_incarico['stato']==3:
+    #         incarico_id = mio_incarico.pop('idSegnalazione')
+    #         response = intervento.update(intervento.intervento_id, **mio_incarico)
+    #         return
+        
 
     # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
     # altri incarichi aperti, in tal caso chiudere la Segnalazione
@@ -339,7 +365,6 @@ def after_update_incarico(id):
             id = nfo.lavorazione_id,
             profilo_id = settings.PM_PROFILO_ID
         )
-
 
         if not lavorazione is None:
             logger.debug('Aggiornamento Lavorazione')

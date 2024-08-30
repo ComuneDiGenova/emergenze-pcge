@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from pydal.validators import IS_JSON, ValidationError, IS_IN_DB, IS_NOT_IN_DB, IS_EMPTY_OR
-from ..verbatel import Presidio
+from ..verbatel import PresidioWSO2 as Presidio
 from ..common import db
 from ..common import logger
+
+presidio = Presidio()
+
 db.telefono.telefono.requires = IS_EMPTY_OR(db.telefono.telefono.requires)
 
 agente_form = (
@@ -288,8 +291,9 @@ def after_insert_stato_presidio(presidio_id, stato_presidio_id, timeref):
             (db.stato_presidio.stato_presidio_id==stato_presidio_id) &
             (db.stato_presidio.timeref==timeref)
         ).select(
-            db.pattuglia_pm.pattuglia_id.with_alias("idSquadra")
+            db.pattuglia_pm.pattuglia_id.with_alias("idSquadra"),
+            limitby = (0,1,)
         ).first()
 
         if not pattuglia is None:
-            Presidio.end(pattuglia.idSquadra, operatore='Operatore di PC')
+            presidio.end(pattuglia.idSquadra, operatore='Operatore di PC')

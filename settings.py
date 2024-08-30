@@ -101,7 +101,7 @@ MIGRATE_PATTUGLIA_PM = False
 
 VBT_PROT = "http"
 VBT_HOST = "192.168.153.84"
-VBT_PATH = "GestioneEmergenzeTest/api"
+VBT_ROOT = "GestioneEmergenzeTest/api"
 
 PM_PROFILO_ID = 6
 PC_PROFILO_ID = 3
@@ -109,6 +109,13 @@ PC_PROFILO_ID = 3
 ALERTSYSTEM_ENDPOINT = None
 ALERTSYSTEM_USERNAME = None
 ALERTSYSTEM_PASSWORD = None
+
+WSO2_URL = 'https://apitest.comune.genova.it:28243'
+WSO2_TOKEN_ROOT = 'manageToken/getToken'
+WSO2_VBT_ROOT = 'GestioneEmergenze/api'
+
+WSO2_KEY = None
+WSO2_SECRET = None
 
 # try import private settings
 try:
