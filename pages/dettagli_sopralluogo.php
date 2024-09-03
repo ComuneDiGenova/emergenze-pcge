@@ -222,6 +222,12 @@ require('navbar_up.php');
 						WHERE a.id_squadra = ".$r_s['id_squadra']. "  and 
 						((a.data_start < '".$r_s['data_ora']."' and (a.data_end > '".$r_s['data_ora']."' or a.data_end is null)) OR
 						(a.data_start < '".$data_cambio."' and (a.data_end > '".$data_cambio."' or a.data_end is null)))
+						UNION SELECT sqd.cognome, sqd.nome, 'f' as capo_squadra
+						from users.v_personale_squadre2 sqd
+							join users.t_componenti_squadre a on a.matricola_cf = sqd.matricola_cf 
+						where sqd.id_squadra::numeric = ".$r_s['id_squadra']. " and 
+						((a.data_start < '".$r_s['data_ora']."' and (a.data_end > '".$r_s['data_ora']."' or a.data_end is null)) OR
+						(a.data_start < '".$data_cambio."' and (a.data_end > '".$data_cambio."' or a.data_end is null)))
 						ORDER BY cognome";
 						//echo $query_ss;
 						$result_ss=pg_query($conn, $query_ss);

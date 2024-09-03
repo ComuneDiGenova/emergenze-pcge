@@ -9,6 +9,7 @@ while($r_s = pg_fetch_assoc($result_s)) {
 	} else {
 		$data_cambio=date("Y-m-d H:i:s");
 	}
+	// echo $query_s;
 	echo "<li>Dalle ore ".$r_s['data_ora']." alle ore ".$data_cambio." squadra <b>".$r_s['nome']." </b><ul>";
 	$query_ss="SELECT b.cognome, b.nome, a.capo_squadra FROM users.t_componenti_squadre a
 		JOIN varie.dipendenti_storici b ON a.matricola_cf = b.matricola  
@@ -27,7 +28,10 @@ while($r_s = pg_fetch_assoc($result_s)) {
 		(a.data_start < '".$data_cambio."' and (a.data_end > '".$data_cambio."' or a.data_end is null)))
 		UNION SELECT sqd.cognome, sqd.nome, 'f' as capo_squadra
 		from users.v_personale_squadre2 sqd
-		where sqd.id_squadra::numeric = ".$r_s['id_squadra']. "
+			join users.t_componenti_squadre a on a.matricola_cf = sqd.matricola_cf 
+		where sqd.id_squadra::numeric = ".$r_s['id_squadra']. " and 
+		((a.data_start < '".$r_s['data_ora']."' and (a.data_end > '".$r_s['data_ora']."' or a.data_end is null)) OR
+		(a.data_start < '".$data_cambio."' and (a.data_end > '".$data_cambio."' or a.data_end is null)))
 		ORDER BY cognome";
 		// echo $query_ss;
 		$result_ss=pg_query($conn, $query_ss);
@@ -40,5 +44,6 @@ while($r_s = pg_fetch_assoc($result_s)) {
 		}
 	
 	echo "</ul></li>";
+	// echo $query_ss;
 }
 ?>
