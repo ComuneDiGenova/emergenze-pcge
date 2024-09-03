@@ -284,6 +284,10 @@ $subtitle = "Dashboard o pagina iniziale";
                                                         }
 
                                                         function nameFormatterResponsabileIncarico(value, row) {
+                                                                // ritorna stringa vuota in caso di valore null
+                                                                if (value == null) {
+                                                                    return '';
+                                                                }
                                                                 if (row.incarichi === 't') {
                                                                     // Restituisce il dato formattato
                                                                     return `<div style="text-align: center;">${value}</div>`;
