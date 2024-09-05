@@ -145,7 +145,8 @@ require('navbar_up.php');
 					?>
 								
 							<option id="percorso" name="percorso" value="<?php echo $r3['percorso'];?>" >
-                <?php echo $r3['percorso'].' ('.$r3['descrizione'].')';?></option>
+                <!-- <?php echo $r3['percorso'].' ('.$r3['descrizione'].')';?></option> -->
+                <?php echo $r3['percorso'];?></option>
 					 <?php } ?>
 				</select>
 				<small> La definizione dei percorsi è gestita direttamente dalla Protezione Civile tramite funzionalità del geoportale</a>. </small>
