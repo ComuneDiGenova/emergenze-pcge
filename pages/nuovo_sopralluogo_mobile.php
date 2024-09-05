@@ -127,12 +127,14 @@ require('navbar_up.php');
 					<option  id="percorso" name="percorso" value="">Seleziona il presidio mobile</option>
 					<?php
 					
-					$query3="select * from (SELECT DISTINCT on (p.percorso) p.percorso, sm.descrizione
+					$query3="SELECT DISTINCT p.percorso,
+                                  substring(p.percorso, 1, 1) AS letter_part,
+                                  substring(p.percorso, 2, position('-' in p.percorso || '-') - 2)::int AS number_part
                     FROM geodb.v_presidi_mobili p
-                    INNER JOIN segnalazioni.t_sopralluoghi_mobili sm
-                    ON sm.descrizione ilike '%' || trim(p.percorso) || '%'
-                    WHERE sm.time_stop IS null) as main
-                    ORDER by substring(main.percorso,1,1), substring(main.percorso,2,2)::int;";
+                    WHERE p.percorso IS NOT NULL
+                    ORDER BY letter_part, number_part;";
+
+                    
 
 					$result3 = pg_query($conn, $query3);
           // $rows = pg_num_rows($result3);
