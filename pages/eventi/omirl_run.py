@@ -41,13 +41,13 @@ path='/home/local/COMGE/egter01/emergenze-pcge'
 
 
 def scarica_bollettino(tipo,nome,ora):
-    if os.path.isfile("{}/bollettini/{}/{}".format(abs_path_bollettini,tipo,nome))==False:
+    if os.path.isfile("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo,nome))==False:
         if ora!='NULL':
             data_read=datetime.datetime.strptime(ora,"%Y%m%d%H%M")
             print(data_read)
-        f = urllib.request.urlopen("{}/docs/{}".format(sito_allerta,nome))
+        f = urllib.request.urlopen("{}/docs/{}".format(sito_allerta, nome))
         data = f.read()
-        with open("{}/bollettini/{}/{}".format(abs_path_bollettini,tipo,nome), "wb") as code:
+        with open("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo,nome), "wb") as code:
             code.write(data)
         conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
         curr = conn.cursor()
@@ -63,7 +63,7 @@ def scarica_bollettino(tipo,nome,ora):
         #SEND BOT
         if tipo == 'PC':
             print("Bollettino di PC")
-            messaggio = "{}/docs/{}".format(sito_allerta,nome)
+            messaggio = "{}/docs/{}".format(sito_allerta, nome)
             # ciclo for sulle chat_id
             query_chat_id= "SELECT telegram_id from users.v_utenti_sistema where telegram_id !='' and telegram_attivo='t' and (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"
             curr.execute(query_chat_id)
