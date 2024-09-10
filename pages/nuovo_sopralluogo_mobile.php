@@ -127,12 +127,16 @@ require('navbar_up.php');
 					<option  id="percorso" name="percorso" value="">Seleziona il presidio mobile</option>
 					<?php
 					
-					$query3="SELECT DISTINCT p.percorso,
-                                  substring(p.percorso, 1, 1) AS letter_part,
-                                  substring(p.percorso, 2, position('-' in p.percorso || '-') - 2)::int AS number_part
-                    FROM geodb.v_presidi_mobili p
-                    WHERE p.percorso IS NOT NULL
-                    ORDER BY letter_part, number_part;";
+          // aggiunta regexp che controlla sub2 sia un numero, altrimenti si rompe la query
+					$query3="SELECT DISTINCT p.percorso, 
+                                  substring(p.percorso, 1, 1) AS sub1, 
+                                  CASE 
+                                      WHEN substring(p.percorso, 2, 2) ~ '^[0-9]+$' THEN substring(p.percorso, 2, 2)::int
+                                      ELSE NULL
+                                  END AS sub2
+                  FROM geodb.v_presidi_mobili p
+                  WHERE p.percorso NOT LIKE '%-%'
+                  ORDER BY sub1, sub2;";
 
                     
 
@@ -145,7 +149,6 @@ require('navbar_up.php');
 					?>
 								
 							<option id="percorso" name="percorso" value="<?php echo $r3['percorso'];?>" >
-                <!-- <?php echo $r3['percorso'].' ('.$r3['descrizione'].')';?></option> -->
                 <?php echo $r3['percorso'];?></option>
 					 <?php } ?>
 				</select>
