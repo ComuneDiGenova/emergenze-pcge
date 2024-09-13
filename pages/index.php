@@ -209,7 +209,11 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="responsabile" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterResponsabile"
-                                                                    data-visible="true">Responsabile<br>Incarico / Presidio</th>
+                                                                    data-visible="true">
+                                                                    Responsabile <br>
+                                                                    <span style="color: orange;"> Incarico</span> / 
+                                                                    <span style="color: purple;">Presidio</span>
+                                                                </th>
                                                                 <th data-field="num" data-sortable="false"
                                                                     data-visible="true">Num<br>segn</th>
                                                                 <th data-field="notizie" data-sortable="false"
@@ -254,7 +258,11 @@ $subtitle = "Dashboard o pagina iniziale";
                                                             <th data-field="responsabile" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
                                                                 data-formatter="nameFormatterResponsabile"
-                                                                data-visible="true">Responsabile<br>Incarico / Presidio</th>
+                                                                data-visible="true">
+                                                                Responsabile <br>
+                                                                <span style="color: orange;"> Incarico</span> / 
+                                                                <span style="color: purple;">Presidio</span>
+                                                            </th>
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
                                                                 Num<br>segn</th>
@@ -291,14 +299,15 @@ $subtitle = "Dashboard o pagina iniziale";
                                                             // Return only responsabile_presidio if responsabile_incarico is empty, and viceversa
                                                             if (responsabileIncarico === '' && responsabilePresidio === '') {
                                                                 return '';  // Return empty if both fields are empty
-                                                            } else if (responsabileIncarico === '') {
-                                                                return `<div style="text-align: center;">${responsabilePresidio}</div>`;
                                                             } else if (responsabilePresidio === '') {
-                                                                return `<div style="text-align: center;">${responsabileIncarico}</div>`;
-                                                            } else if (row.incarichi === 't') {
+                                                                return `<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`;
+                                                            } else if (responsabileIncarico === '') {
+                                                                return `<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`;
+                                                            }  else if (row.incarichi === 't') {
                                                                 // If both are present, display both with a line break
                                                                 return `<div style="text-align: center;">
-                                                                            ${responsabileIncarico}<br>${responsabilePresidio}
+                                                                            <span style="color: orange;">${responsabileIncarico}</span><br>
+                                                                            <span style="color: purple;">${responsabilePresidio}</span>
                                                                         </div>`;
                                                             } else {
                                                                 return '';  
