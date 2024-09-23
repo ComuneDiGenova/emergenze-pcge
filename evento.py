@@ -57,10 +57,7 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
     dbset = db(
 	(db.municipio.codice!='0') & \
         (db.evento.id==db.join_tipo_evento.evento_id) & \
-        (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id) & \
-        (db.evento.id==db.join_municipio.evento_id) & \
-	    # 'geodb.municipi."id"::integer = eventi.join_municipi.id_municipio'
-        (db.municipio.id==db.join_municipio.municipio_id)
+        (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id)
     )
 
     left = (
@@ -68,7 +65,11 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
             (db.evento.id==db.join_tipo_allerta.evento_id) &
             (db.tipo_allerta.id==db.join_tipo_allerta.tipo_allerta_id)
         ),
-        db.nota_evento.on(db.evento.id==db.nota_evento.evento_id)
+        db.nota_evento.on(db.evento.id==db.nota_evento.evento_id),
+        db.join_municipio.on(
+            (db.evento.id==db.join_municipio.evento_id) &
+            db.municipio.id==db.join_municipio.municipio_id
+        )
     )
 
     if _foc_only:
@@ -112,7 +113,7 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
         *fields,
         orderby = ~db.evento.inizio|~db.evento.id,
         groupby = db.evento.id|db.evento.inizio|db.evento.fine_sospensione|db.evento.chiusura|db.tipo_evento.descrizione,
-        limitby = None if None in (page, paginate,) else (page, max(paginate, 1),),
+        # limitby = None if None in (page, paginate,) else (page, max(paginate, 1),),
         left = left
     ))
     try:
