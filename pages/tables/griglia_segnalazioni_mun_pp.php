@@ -43,7 +43,7 @@ if(!$conn) {
 						on s.id_lavorazione=ii.id_lavorazione
 					where (s.in_lavorazione = 't' or s.in_lavorazione is null) 
 						and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
-						and j.sospeso='t'
+						and j.sospeso='f'
 					group by s.id, s.criticita, s.id_evento,
 							s.num, s.in_lavorazione, s.localizzazione, 
 							s.nome_munic, lon, lat, s.incarichi) AS main
