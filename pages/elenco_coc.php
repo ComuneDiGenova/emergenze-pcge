@@ -97,40 +97,37 @@ require('navbar_up.php');
 					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
 					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
                     <?php if ($profilo_ok<=3){ 
-                        $query_coc="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
-                                                        u.nome,
-                                                        u.cognome,
-                                                        jtfc.funzione,
-                                                        u.telegram_id,
-                                                        tp.data_invio,
-                                                        tp.lettura,
-                                                        tp.data_conferma,
-                                                        tp.data_invio_conv,
-                                                        tp.data_conferma_conv,
-                                                        tp.lettura_conv 
-                                    FROM users.utenti_coc u
-                                    RIGHT JOIN users.t_convocazione tp 
-                                        ON u.telegram_id::text = tp.id_telegram::text
-                                    JOIN users.tipo_funzione_coc jtfc 
-                                        ON jtfc.id = u.funzione
-                                    WHERE tp.data_invio_conv IS NOT null
-                                    ORDER BY u.telegram_id, tp.data_invio DESC;";
+                        $query_coc="SELECT distinct on (u.telegram_id) u.matricola_cf,
+                        u.nome,
+                        u.cognome,
+                        jtfc.funzione,
+                        u.telegram_id,
+                        tp.data_invio,
+                        tp.lettura,
+                        tp.data_conferma,
+                        tp.data_invio_conv,
+                        tp.data_conferma_conv,
+                        tp.lettura_conv 
+                        FROM users.utenti_coc u
+                        right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
+                        join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
+                        order by u.telegram_id, tp.data_invio desc;";
                         $result_coc = pg_prepare($conn, "myquery0", $query_coc);
                         $result_coc = pg_execute($conn, "myquery0", array());
                         while($r = pg_fetch_assoc($result_coc)) {
                             $check_coc = count($r);
                         }
                             if($check_coc != 0){
-                                ?>
-                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
-                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                                <?php
-                            } else {
-                                ?>
-                                    <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
-                                    <i class="fas fa-bullhorn"></i> Convoca COC </button>
-                                <?php
-                            }
+                    ?>
+                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc">
+                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                    <?php
+                            }else{
+                    ?>
+                        <button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#conv_coc" disabled>
+                        <i class="fas fa-bullhorn"></i> Convoca COC </button>
+                    <?php
+                            }//chiudo else
                     ?>
                     <?php
                     }
@@ -139,52 +136,33 @@ require('navbar_up.php');
 
 			<!-- Modal convocazione coc-->
             <div id="conv_coc" class="modal fade" role="dialog">
-                <div class="modal-dialog">    
+				  <div class="modal-dialog">
 				
 				    <!-- Modal content-->
 				    <div class="modal-content">
-				        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Convocazione COC</h4>
-                    </div>
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal">&times;</button>
+				        <h4 class="modal-title">Convocazione COC</h4>
+				      </div>
+				      <div class="modal-body">
+      
 
-                    <div class="modal-body">
         			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
                             <div class="form-group">
-                                <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
-                                <select class="form-control" name="boll_pc" id="" required="yes" >
-                                    <option name="boll_pc" value="" > Seleziona Bollettino Meteo </option>
-                                    <!-- <option name="boll_pc" value="0" > Nessun Bollettino </option> -->
-                                    
-                                    <?php $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
-                                    echo $query;
-                                    $result = pg_query($conn, $query);
-                                    //ottengo elenco bollettini PC e li compilo nel form; 
-                                    while($r = pg_fetch_assoc($result)) {
-                                        $timestamp = strtotime($r['data_download']);
-                                        $data_format = date('d/m/Y', $timestamp);
-                                    ?> 
-                                    <option name="boll_pc" value="<?php echo $r['id'];?>"> <?php echo $r['nomefile'].' - '.$data_format;?> </option>
-                                    <?php 
-                                    } ?>
-                                </select>   
-                                
-                                <br>
-
-                                <label for="addMatricolaCf"> Testo Convocazione <font color="red">*</font></label>                 
+                                <label for="addMatricolaCf" >Testo Convocazione <font color="red">*</font></label>                 
                                 <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                             </div>
                             <button  id="convoca" type="submit" class="btn btn-primary" name="Add">Invia Convocazione COC</button>
                         </form>
-                    </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
                         </div>
                     </div>
+
                 </div>
-            </div>
-        <div class="row">
+                </div>
+            <div class="row">
 
 		<?php //echo $profilo_ok;?>
 		<br>
@@ -200,7 +178,7 @@ require('navbar_up.php');
         
         <table  id="convocati" class="table-hover" data-toggle="table" 
         data-url="./tables/griglia_convocazione_coc.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" 
-        data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
+       data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
         data-search="true" data-click-to-select="true" data-show-print="true" data-pagination="true" 
         data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true"
         data-filter-control="false" data-toolbar="#toolbar">
@@ -210,15 +188,25 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th>
+            <!--th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF/matricola</th--> 
+            <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
             <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione</th>
             <th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
-            <th data-field="data_invio" data-sortable="true"  data-visible="true">Data Invio Bollettino</th>
-            <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Lettura bollettino</th>
-            <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data Conferma Lettura Bollettino</th>
-			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data invio Convocazione</th>
+            <!--th data-field="data_invio" data-sortable="true"  data-visible="true" data-filter-control="select">Data/ora invio notifica</th-->
+            <th data-field="data_invio" data-sortable="true"  data-visible="true">Data/ora invio notifica</th>
+            <th data-field="lettura" data-sortable="true" data-formatter="letturaFormatter" data-visible="true">Conferma lettura</th>
+            <th data-field="data_conferma" data-sortable="true"  data-visible="true">Data/ora conferma lettura</th>
+			<th data-field="data_invio_conv" data-sortable="true"  data-visible="true">Data/ora invio Convocazione</th>
             <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2" data-visible="true">Conferma Convocazione</th>
-            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data Conferma Convocazione</th>
+            <th data-field="data_conferma_conv" data-sortable="true"  data-visible="true">Data/ora conferma convocazione</th>
+            <!--?php
+            if ($profilo_ok==3){?>
+                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit1" data-visible="true" >Termina turno</th>
+                <th data-field="id" data-sortable="false" data-formatter="nameFormatterEdit2" data-visible="true" >Modifica turno</th-->
+            <!--?php
+                }
+            ?-->
     </tr>
 </thead>
 
@@ -318,7 +306,10 @@ function nameFormatterEdit2(value, row) {
 </script>
 	
 
-        </div>
+
+
+
+            </div>
             <!-- /.row -->
     </div>
     <!-- /#wrapper -->
