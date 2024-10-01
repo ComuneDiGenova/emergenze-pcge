@@ -94,7 +94,7 @@ require('navbar_up.php');
 			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 			<h3>Evento n. <?php echo str_replace("'", "", $id); ?> - Tipo: 
 			<?php
-			$query_e='SELECT e.id, tt.descrizione, n.nota, to_char(e.data_ora_inizio_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_inizio_evento, 
+			$query_e='SELECT e.id, tt.id as id_evento, tt.descrizione, n.nota, to_char(e.data_ora_inizio_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_inizio_evento, 
 			to_char(e.data_ora_chiusura, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_chiusura, 
 			to_char(e.data_ora_fine_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_fine_evento 
             FROM eventi.t_eventi e
@@ -105,6 +105,7 @@ require('navbar_up.php');
 				$result_e = pg_query($conn, $query_e);
 				while($r_e = pg_fetch_assoc($result_e)) {
 					echo $r_e['descrizione'];
+					$id_evento=$r_e['id_evento'];
 					$descrizione_evento = $r_e['descrizione'];
 					$nota_evento=$r_e['nota'];
 					$inizio_evento=$r_e['data_ora_inizio_evento'];
@@ -1407,7 +1408,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
                 <!-- /.col-sm-4 -->
             </div>
 			<?php 
-				if($descrizione_evento =='Avviso meteo' || $descrizione_evento =='Idrologico'){
+				if($id_evento==3 ||  $id_evento==1){
 			?>
 			<hr>
 			<div class="row">

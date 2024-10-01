@@ -5,7 +5,8 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: "172.27.0.0/24"
+        - subnet: ${SUBNET:-default}
+        # - subnet: "172.27.0.0/24"
         # - subnet: "192.168.189.0/24"
 
 services:
@@ -63,6 +64,6 @@ services:
         - RUN_AS_ROOT=true
       ports:
         - "5432:5432"
-      restart: on-failure
+      restart: unless-stopped
       healthcheck:
         test: "PGPASSWORD=docker pg_isready -h 127.0.0.1 -U docker -d gis"
