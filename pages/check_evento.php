@@ -17,7 +17,7 @@ $profilo_sistema=0;
 $query1 = "SELECT e.id as id, e.data_ora_inizio_evento as data_ora_inizio_evento,
 					e.fine_sospensione as fine_sospensione, ne.nota  as nota
 			from eventi.t_eventi as e
-			inner join eventi.t_note_eventi as ne
+			left join eventi.t_note_eventi as ne
 			on e.id = ne.id_evento
 			where e.valido is TRUE
 			ORDER BY e.id;";
