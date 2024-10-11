@@ -25,7 +25,7 @@ if os.path.exists(logfile):
 with open(logfile, 'w') as ll:
     pass
 
-logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO)
+logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.INFO, filemode='a')
 
 
 def esegui_query(query, query_type, connection=connection):
