@@ -205,7 +205,8 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="incarichi" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterIncarichi"
-                                                                    data-visible="true">Incarichi<br>in corso</th>
+                                                                    data-visible="true">
+                                                                    Incarichi / Presidi<br>in corso</th>
                                                                 <th data-field="responsabile" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterResponsabile"
@@ -254,7 +255,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 data-halign="center" data-valign="center"
                                                                 data-formatter="nameFormatterIncarichi"
                                                                 data-visible="true">
-                                                                Incarichi<br>in corso</th>
+                                                                Incarichi / Presidi<br>in corso</th>
                                                             <th data-field="responsabile" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
                                                                 data-formatter="nameFormatterResponsabile"
@@ -285,7 +286,7 @@ $subtitle = "Dashboard o pagina iniziale";
 
                                                         function nameFormatterIncarichi(value) {
                                                             if (value == 't') {
-                                                                return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i></div>';
+                                                                return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i></div>';
                                                             } else if (value == 'f') {
                                                                 return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
                                                             }
