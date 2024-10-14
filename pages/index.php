@@ -258,8 +258,9 @@ $subtitle = "Dashboard o pagina iniziale";
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
                                                                 Num<br>segn</th>
-                                                            <th data-field="notizie" data-sortable="false"
-                                                                data-visible="true">Notizie</th>
+                                                            <th data-field="from_verbatel" data-sortable="false"
+                                                                data-formatter="sourceFormatter"
+                                                                data-visible="true">Provenienza</th>
                                                         </tr>
                                                     </thead>
                                                     <script>
@@ -297,6 +298,13 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 }
                                                             }
 
+                                                        function sourceFormatter(value, row) {
+                                                            if (value == 't') {
+                                                                return '👮🏻‍♂ <b style="color:blue;">PL</b>';
+                                                            } else {
+                                                                return '';
+                                                            };
+                                                        };
 
                                                         function nameFormatterEdit(value) {
 
