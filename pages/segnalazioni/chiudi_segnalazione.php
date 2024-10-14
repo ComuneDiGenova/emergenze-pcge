@@ -72,12 +72,12 @@ if($_POST["invio"]=='man') {
 		$id_man=substr($output,4);
 		echo $id_man."</h1>";
 	} else {
-		echo "ATTENZIONE: Per un problema <b>momentaneo</b> non è stato possibile chiudere la segnalazione."
+		echo "ATTENZIONE: Per un problema <b>momentaneo</b> non è stato possibile chiudere la segnalazione.";
 		echo "ATTENZIONE: si è veririficato un problema nella trasmissione dell'aggiornamento della segnalazione al sistema delle Manutenzioni.";
 		echo "<br>Si prega di contattare via mail l'amministratore di sistema di riferimento per la Manutenzioni specificando la problematica.";
 		echo "<br>Id segnalazione: ".$id." <br>";
 		echo "<br>Command options: ".$command_options." <br>";
-		echo "<br>Si prega di riprovare la chiusura della segnalazione più tardi assicurandosi che il servizio web di ricezione delle informazioni del sitema delle Manutenzioni sia stato ripristinato."
+		echo "<br>Si prega di riprovare la chiusura della segnalazione più tardi assicurandosi che il servizio web di ricezione delle informazioni del sitema delle Manutenzioni sia stato ripristinato.";
 		//exit;
 		$check_error=1;
 	}
