@@ -18,14 +18,6 @@ if(isset($_GET["f"])){
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	// $idcivico=$_GET["id"];
-	// $query="SELECT s.id, s.criticita, s.id_evento,
-    //    s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, st_x(s.geom) as lon, st_y(s.geom) as lat, s.incarichi, s.id_profilo
-    //    FROM segnalazioni.v_segnalazioni_lista_pp s
-    //    JOIN segnalazioni.join_segnalazioni_in_lavorazione j ON s.id_lavorazione=j.id_segnalazione_in_lavorazione 
-	//    WHERE (s.in_lavorazione = 't' or s.in_lavorazione is null) 
-	//    	and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
-	// 	and j.sospeso='f';";
 
 	$query = "SELECT 
 		s.id, 
@@ -61,7 +53,7 @@ if(!$conn) {
 		verbatel.segnalazioni_da_verbatel sdv
 		ON sdv.segnalazione_id = s.id
 	WHERE
-		sdv.segnalazione_id is null
+		sdv.segnalazione_id is NOT NULL
 		AND (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL)
 		AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW())
 		AND j.sospeso = 'f'
