@@ -107,35 +107,47 @@ $subtitle="Convocazione COC Direttivo";
 				      </div>
 				      <div class="modal-body">
       
-        			    <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
-                            <div class="form-group">
-                                <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
-                                <select class="form-control" name="boll_pc" id="" required="yes" >
-                                    <option name="boll_pc" value=""> Seleziona Bollettino Meteo </option>
-                                    <option name="boll_pc" value="0"> Nessun Bollettino </option>
-                                    
-                                    <?php 
-                                    $query="SELECT * FROM eventi.t_bollettini WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE;";
-                                    echo $query;
-                                    $result = pg_query($conn, $query);
-                                    //ottengo elenco bollettini PC e li compilo nel form; 
-                                    while($r = pg_fetch_assoc($result)) {
-                                        $timestamp = strtotime($r['data_download']);
-                                        $data_format = date('d/m/Y', $timestamp);
-                                    ?> 
-                                        <option value="<?php echo $r['id'];?>"> <?php echo $r['nomefile'].' - '.$data_format;?> </option>
-                                    <?php 
-                                    } 
-                                    ?>
-                                </select>   
+                      <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
+                        <div class="form-group">
+                            <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
+                            <select class="form-control" name="boll_pc" required="yes" >
+                                <option value=""> Seleziona Bollettino Meteo </option>
+                                <option value="0"> Nessun Bollettino </option>
+                                
+                                <?php 
+                                // VADO INDIETRO 1 MESE E PRENDO TUTTI I BOLLETTINI EMESSI
+                                $query="SELECT * 
+                                        FROM eventi.t_bollettini 
+                                        WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE
+                                        ORDER BY data_download DESC;";
+                                $result = pg_query($conn, $query);
 
-                                <br>
+                                // Inizializza il contatore
+                                $counter = 1;
 
-                                <label for="testoCoC"> Testo Convocazione <font color="red">*</font></label>                 
-                                <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Invia Convocazione COC</button>
-                        </form>
+                                // Ottengo elenco bollettini PC e li compilo nel form; 
+                                while($r = pg_fetch_assoc($result)) {
+                                    $id = $r['id'];
+                                    $timestamp = strtotime($r['data_download']);
+                                    $data_format = date('d/m/Y', $timestamp);
+                                ?> 
+                                    <option value="<?php echo $id; ?>"> 
+                                        <?php echo $r['nomefile'].' - '.$data_format; ?> 
+                                    </option>
+                                <?php 
+                                    // Incremento il contatore ad ogni iterazione
+                                    $counter++;
+                                } 
+                                ?>
+                            </select>   
+
+                            <br>
+
+                            <label for="testoCoC"> Testo Convocazione <font color="red">*</font></label>                 
+                            <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Invia Convocazione COC</button>
+                    </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>

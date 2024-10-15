@@ -121,8 +121,6 @@ require('navbar_up.php');
 
  	<tr>
             <th data-field="state" data-checkbox="true"></th-->
-            <!--th data-field="matricola_cf" data-sortable="true" data-visible="true" >CF o<br>matricola</th--> 
-            <!--th data-field="tipo_provvedimento" data-sortable="true" data-visible="true">Tipo</th-->
             <th data-field="funzione" data-sortable="true"  data-visible="true">Funzione COC</th>
 			<th data-field="cognome" data-sortable="true"  data-visible="true">Cognome</th>
             <th data-field="nome" data-sortable="true"   data-visible="true">Nome</th>
