@@ -6,7 +6,7 @@ $subtitle="Convocazione COC Direttivo";
 
 $getfiltri=$_GET["f"];
 $filtro_evento_attivo=$_GET["a"];
-
+$boll_pc = isset($_GET['boll_pc']) ? (int)$_GET['boll_pc'] : 0;
 
 $uri=basename($_SERVER['REQUEST_URI']);
 ?>
@@ -107,7 +107,7 @@ $subtitle="Convocazione COC Direttivo";
 				      </div>
 				      <div class="modal-body">
       
-                      <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
+                      <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php?boll_pc=<?php echo $boll_pc; ?>" method="POST">
                         <div class="form-group">
                             <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
                             <select class="form-control" name="boll_pc" required="yes" >
@@ -118,12 +118,10 @@ $subtitle="Convocazione COC Direttivo";
                                 // VADO INDIETRO 1 MESE E PRENDO TUTTI I BOLLETTINI EMESSI
                                 $query="SELECT * 
                                         FROM eventi.t_bollettini 
-                                        WHERE tipo='PC' AND data_download BETWEEN CURRENT_DATE - INTERVAL '1 month' AND CURRENT_DATE
+                                        WHERE tipo='PC' AND data_download BETWEEN NOW() - INTERVAL '1 month' AND NOW()
                                         ORDER BY data_download DESC;";
                                 $result = pg_query($conn, $query);
 
-                                // Inizializza il contatore
-                                $counter = 1;
 
                                 // Ottengo elenco bollettini PC e li compilo nel form; 
                                 while($r = pg_fetch_assoc($result)) {
@@ -135,8 +133,6 @@ $subtitle="Convocazione COC Direttivo";
                                         <?php echo $r['nomefile'].' - '.$data_format; ?> 
                                     </option>
                                 <?php 
-                                    // Incremento il contatore ad ogni iterazione
-                                    $counter++;
                                 } 
                                 ?>
                             </select>   
@@ -166,7 +162,7 @@ $subtitle="Convocazione COC Direttivo";
             </div>
         
             <table  id="convocati" class="table-hover" data-toggle="table" 
-                data-url="./tables/griglia_convocazione_coc.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>" 
+                data-url="./tables/griglia_convocazione_coc.php?p=<?php echo $profilo_ok;?>&l=<?php echo $livello1;?>&boll_pc=<?php echo $boll_pc;?>" 
                 data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf']
                 data-search="true" data-click-to-select="true" data-show-print="true" data-pagination="true" 
                 data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true"
