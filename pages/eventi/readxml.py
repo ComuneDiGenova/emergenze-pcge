@@ -109,26 +109,22 @@ def scarica_bollettino(tipo, nome, ora):
     if not os.path.isfile("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo, nome)):
         if ora != 'NULL':
             data_read = datetime.datetime.strptime(ora,"%Y%m%d%H%M")
-            print(data_read)
-            
+
         f = urllibwrapper("{}/docs/{}".format(sito_allerta, nome))
 
         data = f.read()
 
         with open("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo, nome), "wb") as code:
             code.write(data)
-        # conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
-        # curr = conn.cursor()
-        # conn.autocommit = True
+
         curr = get_cursor()
         if ora != 'NULL':
-            query = "INSERT INTO eventi.t_bollettini(tipo, nomefile, data_ora_emissione)VALUES ('{}', '{}', '{}');".format(tipo, nome, data_read)
+            query = "INSERT INTO eventi.t_bollettini(tipo, nomefile, data_ora_emissione) VALUES ('{}', '{}', '{}');".format(tipo, nome, data_read)
         else:
-            query = "INSERT INTO eventi.t_bollettini(tipo, nomefile)VALUES ('{}', '{}');".format(tipo, nome)
+            query = "INSERT INTO eventi.t_bollettini(tipo, nomefile) VALUES ('{}', '{}');".format(tipo, nome)
 
         curr.execute(query)
         curr.close()
-        # conn.commit()
 
         print("Download of type {} completed...".format(tipo))
         print(datetime.datetime.now())
@@ -152,8 +148,7 @@ def convoca_utenti_sistema(messaggio):
                         FROM users.v_utenti_sistema 
                         WHERE telegram_id !='' AND telegram_attivo='t' AND (id_profilo='1' or id_profilo ='2' or id_profilo ='3');"""
     curr.execute(query_chat_id)
-    # print(datetime.datetime.now())
-    # print(query_chat_id)
+
     lista_chat_id = curr.fetchall()
 
     # per ogni chat id invio messaggio telegram "nuovo bollettino"
@@ -189,9 +184,9 @@ def convoca_coc(messaggio):
                             %(chat_id_coc, TOKENCOC))
                 
                 #query insert DB
-                query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram) 
-                                        VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc});"""
-                curr.execute(query_convocazione)
+                # query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram) 
+                #                         VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc});"""
+                # curr.execute(query_convocazione)
         except Exception as e:
             print(e)
             print(f"Problema invio messaggio all'utente del coc con chat_id={chat_id_coc}")

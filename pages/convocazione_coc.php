@@ -2,22 +2,63 @@
 
 session_start();
 require('./validate_input.php');
-
-//echo $_SESSION['user'];
-
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-
-//$id=$_GET["id"];
-//echo $_POST['testoCoC'];
-$testo=str_replace("'", "''", $_POST['testoCoC']); 
-//echo $testo;
+$testo=str_replace("'", "''", $_POST['testoCoC']);
+$boll_pc = $_POST['boll_pc'];
 
 require('./token_telegram.php');
-
 require('./send_message_telegram.php');
 
-$query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+// Query per ottenere gli id telegram
+$query_tg_ids = "SELECT DISTINCT ON (u.telegram_id) u.telegram_id
+					FROM users.utenti_coc u;";
+
+// Preparazione ed esecuzione della query per ottenere gli id telegram
+$result = pg_prepare($conn, "get_tg_ids", $query_tg_ids);
+$result = pg_execute($conn, "get_tg_ids", array());
+
+// Estrai tutti gli id telegram come array
+$tg_ids = pg_fetch_all($result);
+
+$values = [];
+foreach ($tg_ids as $row) {
+	$chat_id_coc = $row['telegram_id'];
+
+	if ($boll_pc == 0) {
+        // Creo valori nel caso NON ci sia bollettono
+        $values[] = "(
+            date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min',
+            '$chat_id_coc'
+        )";
+    } else {
+        // Creo valori nel caso sia presente bollettino
+        $values[] = "(
+            date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min',
+            '$chat_id_coc',
+            $boll_pc
+        )";
+    }
+}
+
+// Unisco tutti i valori in una singola stringa separata da virgole
+$values_string = implode(", ", $values);
+
+// Se non è presente nessun bollettino associato, devo creare una convocazione ad hoc per ogni utente coc
+// (nel caso di chiamata con bollettino_PC la convocazione viene creata da readxml.py in automatico)
+if ($boll_pc == 0) {
+	// Query senza bollettino
+	$query = "INSERT INTO users.t_convocazione (data_invio_conv, id_telegram) VALUES $values_string;";
+} else {
+	// Query con bollettino
+	$query = "INSERT INTO users.t_convocazione (data_invio_conv, id_telegram, id_bollettino) VALUES $values_string;";
+}
+
+// Eseguo la query
+$result = pg_query($conn, $query);
+
+
+$query_render="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 							u.nome,
 							u.cognome,
 							jtfc.funzione,
@@ -29,14 +70,15 @@ $query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 							tp.data_invio_conv,
 							tp.data_conferma_conv,
 							tp.lettura_conv 
-		FROM users.utenti_coc u
-		JOIN users.t_convocazione tp 
-			ON u.telegram_id::text = tp.id_telegram::text
-		JOIN users.tipo_funzione_coc jtfc 
-			ON jtfc.id = u.funzione
-		ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
+				FROM users.utenti_coc u
+				JOIN users.t_convocazione tp 
+					ON u.telegram_id::text = tp.id_telegram::text
+				JOIN users.tipo_funzione_coc jtfc 
+					ON jtfc.id = u.funzione
+				ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
 
-$result = pg_prepare($conn, "myquery", $query);
+
+$result = pg_prepare($conn, "myquery", $query_render);
 $result = pg_execute($conn, "myquery", array());
 
 while($r = pg_fetch_assoc($result)) {
@@ -114,13 +156,6 @@ while($r = pg_fetch_assoc($result1)) {
 		sendButton('sendMessage', $parameters, $tokencoc);
   }
 
-
-// // $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('segnalazioni','".$operatore ."', 'Inviata comunicazione a PC (incarico interno ".$id.")');";
-// // echo $query_log."<br>";
-// // $result = pg_query($conn, $query_log);
-
-
-// //exit;
 header("location: ./elenco_coc.php");
 
 
