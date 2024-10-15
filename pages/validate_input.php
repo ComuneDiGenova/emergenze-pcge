@@ -1,38 +1,6 @@
 <?php
 
-//if(isset($_POST)){
-//PRINT OROGINAL $_POST
-/*
-echo 'qua ci arrivo <br>';
-foreach ($_POST as $key => $value) {
-	echo '<p>'.$key.'</p>';
-	echo '<p>'.$value.'</p>';
-	$value = trim($value);
-	$value = stripslashes($value);
-	$value = htmlspecialchars($value);
-	foreach($value as $k => $v){
-		echo '<p>'.$k.'</p>';
-		echo '<p>'.$v.'</p>';
-		$v = trim($v);
-		$v = stripslashes($v);
-		$v = htmlspecialchars($v);
-		echo '<hr />';
-	}
-}
-echo "<br>";
-*/
-
-
-// qua valido i $_POST
-//$_POST = array_map_deep($_POST, trim);
-//$_POST = array_map_deep($_POST, stripslashes);
-//$_POST = array_map_deep($_POST, htmlspecialchars);
 $_POST = array_map_deep($_POST, pg_escape_string);
-
-
-//$_GET = array_map_deep($_GET, trim);
-//$_GET = array_map_deep($_GET, stripslashes);
-//$_GET = array_map_deep($_GET, htmlspecialchars);
 $_GET = array_map_deep($_GET, pg_escape_string);
 
 function array_map_deep( $value, $callback ) 
@@ -51,26 +19,5 @@ function array_map_deep( $value, $callback )
 	}
 	return $value;
 }
-
-//PRINT NEW $_POST
-/*
-echo '<hr> anche qua ci arrivo <br>';
-
- foreach ($_POST as $key => $value) {
-  echo '<p>'.$key.'</p>';
-  echo '<p>'.$value.'</p>';
-  foreach($value as $k => $v)
-  {
-  echo '<p>'.$k.'</p>';
-  echo '<p>'.$v.'</p>';
-  echo '<hr />';
-  }
- }
-*/
-
-//exit;
-
-//}
-
 
 ?>
