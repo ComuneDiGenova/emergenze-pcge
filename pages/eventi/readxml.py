@@ -166,6 +166,12 @@ def convoca_coc(messaggio):
     
     curr = get_cursor()
     
+    query_bollettino = "SELECT id from eventi.t_bollettini WHERE tipo=='PC' ORDER BY id DESC LIMIT 1;"
+    curr.execute(query_bollettino)
+    id_bollettino = curr.fetchall()
+    print('Id bollettino:')
+    print(id_bollettino)
+    
     query_coc= "SELECT telegram_id from users.utenti_coc;"
     curr.execute(query_coc)
     lista_coc = curr.fetchall()
@@ -183,10 +189,10 @@ def convoca_coc(messaggio):
                 os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
                             %(chat_id_coc, TOKENCOC))
                 
-                #query insert DB
-                # query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram) 
-                #                         VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc});"""
-                # curr.execute(query_convocazione)
+                # query insert DB
+                query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram, id_bollettino) 
+                                        VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc}, {id_bollettino});"""
+                curr.execute(query_convocazione)
         except Exception as e:
             print(e)
             print(f"Problema invio messaggio all'utente del coc con chat_id={chat_id_coc}")

@@ -4,6 +4,8 @@ session_start();
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $profilo=(int)pg_escape_string($_GET['p']);
 $livello=pg_escape_string($_GET['l']);
+$boll_pc = isset($_GET['boll_pc']) ? (int)$_GET['boll_pc'] : 0;
+
 if ($profilo==3){
 	$filter = ' ';
 } else if($profilo==8){
@@ -26,13 +28,17 @@ if(!$conn) {
 								tp.data_conferma,
 								tp.data_invio_conv,
 								tp.data_conferma_conv,
-								tp.lettura_conv 
+								tp.lettura_conv,
+								tp.id_bollettino
    			FROM users.utenti_coc u
 			JOIN users.t_convocazione tp 
 				ON u.telegram_id::text = tp.id_telegram::text
 			JOIN users.tipo_funzione_coc jtfc 
 				ON jtfc.id = u.funzione
-			WHERE tp.data_invio_conv IS NOT null
+			LEFT JOIN eventi.t_bollettini b
+				ON b.id = tp.id_bollettino
+			WHERE  ($boll_pc = 0 OR tp.id_bollettino = $boll_pc) --tp.id_bollettino = 2023
+				AND tp.data_invio_conv IS NOT null
 			ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
 
     $result = pg_prepare($conn, "myquery0", $query);

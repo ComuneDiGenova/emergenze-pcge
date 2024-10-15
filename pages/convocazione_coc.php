@@ -7,6 +7,8 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $testo=str_replace("'", "''", $_POST['testoCoC']);
 $boll_pc = $_POST['boll_pc'];
 
+$testo=str_replace("'", "''", $boll_pc);
+
 require('./token_telegram.php');
 require('./send_message_telegram.php');
 
@@ -31,14 +33,7 @@ foreach ($tg_ids as $row) {
             date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min',
             '$chat_id_coc'
         )";
-    } else {
-        // Creo valori nel caso sia presente bollettino
-        $values[] = "(
-            date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min',
-            '$chat_id_coc',
-            $boll_pc
-        )";
-    }
+    } 
 }
 
 // Unisco tutti i valori in una singola stringa separata da virgole
@@ -49,16 +44,14 @@ $values_string = implode(", ", $values);
 if ($boll_pc == 0) {
 	// Query senza bollettino
 	$query = "INSERT INTO users.t_convocazione (data_invio_conv, id_telegram) VALUES $values_string;";
-} else {
-	// Query con bollettino
-	$query = "INSERT INTO users.t_convocazione (data_invio_conv, id_telegram, id_bollettino) VALUES $values_string;";
-}
+} 
 
 // Eseguo la query
 $result = pg_query($conn, $query);
 
 
-$query_render="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+$query_render="SELECT DISTINCT ON (u.telegram_id) 
+							u.matricola_cf,
 							u.nome,
 							u.cognome,
 							jtfc.funzione,
@@ -69,12 +62,16 @@ $query_render="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 							tp.data_conferma,
 							tp.data_invio_conv,
 							tp.data_conferma_conv,
-							tp.lettura_conv 
+							tp.lettura_conv,
+							tp.id_bollettino
 				FROM users.utenti_coc u
 				JOIN users.t_convocazione tp 
 					ON u.telegram_id::text = tp.id_telegram::text
 				JOIN users.tipo_funzione_coc jtfc 
 					ON jtfc.id = u.funzione
+				LEFT JOIN eventi.t_bollettini b
+					ON b.id = tp.id_bollettino
+				WHERE ($boll_pc = 0 OR tp.id_bollettino = $boll_pc)
 				ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
 
 
@@ -96,12 +93,16 @@ while($r = pg_fetch_assoc($result)) {
 									tp.data_conferma,
 									tp.data_invio_conv,
 									tp.data_conferma_conv,
-									tp.lettura_conv 
+									tp.lettura_conv,
+									tp.id_bollettino
 						FROM users.utenti_coc u
 						JOIN users.t_convocazione tp 
 							ON u.telegram_id::text = tp.id_telegram::text
 						JOIN users.tipo_funzione_coc jtfc 
 							ON jtfc.id = u.funzione
+						LEFT JOIN eventi.t_bollettini b
+							ON b.id = tp.id_bollettino
+						WHERE ($boll_pc = 0 OR tp.id_bollettino = $boll_pc)
 						ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC) AS subquery
 				WHERE tc.id =subquery.id;";
 
@@ -119,12 +120,16 @@ while($r = pg_fetch_assoc($result)) {
 										tp.data_conferma,
 										tp.data_invio_conv,
 										tp.data_conferma_conv,
-										tp.lettura_conv 
+										tp.lettura_conv,
+										tp.id_bollettino
 						FROM users.utenti_coc u
 						JOIN users.t_convocazione tp 
 							ON u.telegram_id::text = tp.id_telegram::text
 						JOIN users.tipo_funzione_coc jtfc 
 							ON jtfc.id = u.funzione
+						LEFT JOIN eventi.t_bollettini b
+							ON b.id = tp.id_bollettino
+						WHERE ($boll_pc = 0 OR tp.id_bollettino = $boll_pc)
 						ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC) AS subquery
 				WHERE tc.id =subquery.id;";
 	}
@@ -136,7 +141,6 @@ $query1='SELECT telegram_id from users.utenti_coc;';
 $result1 = pg_prepare($conn, "myquery1", $query1);
 $result1 = pg_execute($conn, "myquery1", array());
 while($r = pg_fetch_assoc($result1)) {
-	  //sendMessage($r['telegram_id'], $testo , $tokencoc);
 	  
 	  	$keyboard = [
 			'inline_keyboard' => [
@@ -156,7 +160,8 @@ while($r = pg_fetch_assoc($result1)) {
 		sendButton('sendMessage', $parameters, $tokencoc);
   }
 
-header("location: ./elenco_coc.php");
+header("Location: elenco_coc.php?boll_pc=$boll_pc");
+exit();
 
 
 ?>

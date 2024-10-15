@@ -49,10 +49,13 @@ query='''SELECT u.matricola_cf,
                 tp.data_invio_conv,
                 tp.lettura_conv,
                 tp.data_conferma_conv
+                tp.id_bollettino
         FROM users.utenti_coc u
         RIGHT JOIN users.t_convocazione tp 
             ON u.telegram_id::text = tp.id_telegram::text
-        WHERE tp.data_invio_conv = (select max(tp.data_invio_conv) 
+        LEFT JOIN eventi.t_bollettini b
+							ON b.id = tp.id_bollettino
+        WHERE tp.data_invio_conv = (select max(tp.data_invio_conv)
         FROM users.t_convocazione tp) and tp.lettura_conv is not true
         GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, 
                 tp.data_conferma, tp.data_invio, tp.data_invio_conv, 
