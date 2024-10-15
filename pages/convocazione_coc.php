@@ -7,8 +7,6 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $testo=str_replace("'", "''", $_POST['testoCoC']);
 $boll_pc = $_POST['boll_pc'];
 
-$testo=str_replace("'", "''", $boll_pc);
-
 require('./token_telegram.php');
 require('./send_message_telegram.php');
 
