@@ -62,7 +62,7 @@ if(!$conn) {
 	if (empty($rows)==FALSE){
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		echo '[]';
 	}
 }
 
