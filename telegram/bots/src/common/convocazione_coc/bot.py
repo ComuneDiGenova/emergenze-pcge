@@ -170,7 +170,9 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
         # if len(result_s2) != 0:
         user_id = result_s2[0][4]
-        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id = {user_id}"
+        query_conferma2=f"UPDATE users.t_convocazione 
+                            SET lettura_conv=true, data_conferma_conv=now() 
+                            WHERE id_telegram ='{tg_id}' and id = {user_id}"
         result_c2 = esegui_query(query_conferma2, 'u')
         
         if result_c2 == 1:

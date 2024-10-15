@@ -22,7 +22,7 @@ $subtitle2 = str_replace("'", "\'", str_replace(' ', '_', $subtitle));
 <script src="../vendor/bootstrap-select/dist/js/bootstrap-select.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
-<script src="//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+<!-- <script src="//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script> -->
 
 <!-- Leaflet JavaScript -->
 <script src="../vendor/leaflet/leaflet.js"></script>
