@@ -1,10 +1,6 @@
 <?php
 
 $_POST = array_map_deep($_POST, pg_escape_string);
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/coc-senza-bollettino
 $_GET = array_map_deep($_GET, pg_escape_string);
 
 function array_map_deep( $value, $callback ) 
