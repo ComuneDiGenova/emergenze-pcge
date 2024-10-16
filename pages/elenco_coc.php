@@ -188,6 +188,9 @@ $subtitle="Convocazione COC Direttivo";
 
 
             <script>
+                // rendo boll_pc disponibile in Javascript
+                var boll_pc = <?php echo $boll_pc; ?>;
+
                 // DA MODIFICARE NELLA PRIMA RIGA L'ID DELLA TABELLA VISUALIZZATA (in questo caso t_volontari)
                 var $table = $('#convocati');
                 $(function () {
@@ -199,12 +202,17 @@ $subtitle="Convocazione COC Direttivo";
                 })
 
                 function letturaFormatter(value) {
+                        // se non ho un bollettino PC renderizzo grigio
+                        if (boll_pc == 0) {
+                            return '<center><i class="far fa-times-circle" style="color:#9C9C9C; font-size: xx-large;"></i></center>';
+                        }
+
+                        // Altrimenti applico le regole
                         if (value=='t'){
                                 return '<center><i class="far fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
                         } else {
                             return '<center><i class="far fa-times-circle" style="color:#ff0000; font-size: xx-large;"></i></center>';
                         }
-
                 }
 
                 function letturaFormatter2(value, row) {
