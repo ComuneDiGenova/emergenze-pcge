@@ -137,7 +137,7 @@ def scarica_bollettino(tipo, nome, ora):
             convoca_coc(messaggio)
                 
     else:
-        print(f"File of type 'tipo' already downloaded") 
+        print(f"File of type '{tipo}' already downloaded") 
 
 
 def convoca_utenti_sistema(messaggio):
@@ -166,17 +166,14 @@ def convoca_coc(messaggio):
     
     curr = get_cursor()
     
-    query_bollettino = "SELECT id from eventi.t_bollettini WHERE tipo=='PC' ORDER BY id DESC LIMIT 1;"
+    query_bollettino = "SELECT id from eventi.t_bollettini WHERE tipo ='PC' ORDER BY id DESC LIMIT 1;"
     curr.execute(query_bollettino)
-    id_bollettino = curr.fetchall()
-    print('Id bollettino:')
-    print(id_bollettino)
+    id_bollettino = curr.fetchone()[0]
     
     query_coc= "SELECT telegram_id from users.utenti_coc;"
     curr.execute(query_coc)
     lista_coc = curr.fetchall()
-    print('Lista utenti coc:')
-    print(lista_coc)
+    
     for row_coc in lista_coc:
         chat_id_coc=row_coc[0]
         try:
