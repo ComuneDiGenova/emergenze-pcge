@@ -179,8 +179,9 @@ def convoca_coc(messaggio):
     query_coc= "SELECT telegram_id from users.utenti_coc;"
     curr.execute(query_coc)
     lista_coc = curr.fetchall()
-    # print('Lista utenti coc:')
-    # print(lista_coc)
+    print('Lista utenti coc:')
+    print(lista_coc)
+    
     for row_coc in lista_coc:
         chat_id_coc=row_coc[0]
         try:
