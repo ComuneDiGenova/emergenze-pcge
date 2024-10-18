@@ -7,7 +7,6 @@ brotli-python=1.0.9=py39h6a678d5_8
 ca-certificates=2024.9.24=h06a4308_0
 certifi=2024.8.30=py39h06a4308_0
 charset-normalizer=3.3.2=pyhd3eb1b0_0
-emoji=1.6.3=pypi_0
 idna=3.7=py39h06a4308_0
 krb5=1.20.1=h143b758_1
 ld_impl_linux-64=2.40=h12ee557_0
