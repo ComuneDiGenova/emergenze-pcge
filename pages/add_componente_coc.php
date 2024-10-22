@@ -27,9 +27,9 @@ if(!$conn) {
         $result = pg_execute($conn,"myquery2", array($_SESSION["Utente"], $cf));
 
         // query creazione convocazione fittizia (necessario per join e fare la prima convocazione)
-        $query_conv = "INSERT INTO users.t_convocazione (id_telegram) VALUES ($1);";
-        $result = pg_prepare($conn,"myquery3", $query_conv);
-        $result = pg_execute($conn,"myquery3", array($telegram));
+        // $query_conv = "INSERT INTO users.t_convocazione (id_telegram) VALUES ($1);";
+        // $result = pg_prepare($conn,"myquery3", $query_conv);
+        // $result = pg_execute($conn,"myquery3", array($telegram));
 
         echo "<br>";
         // echo $query_conv;

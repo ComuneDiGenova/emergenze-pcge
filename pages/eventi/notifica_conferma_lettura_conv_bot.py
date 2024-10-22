@@ -69,11 +69,12 @@ result= curr.fetchall()
 curr.close()   
 con.close()
 
-#print(result)
+# print(result)
 
 for p in result:
     # print(datetime.now()<=(p[7]))
-    if datetime.now()<=(p[7]):
+    # print(p)
+    if datetime.now()>=(p[7]+timedelta(minutes=5)):
         telegram_bot_sendtext(testo,p[3])
  
     else:

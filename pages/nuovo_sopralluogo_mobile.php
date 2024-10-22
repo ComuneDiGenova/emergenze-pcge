@@ -120,33 +120,36 @@ require('navbar_up.php');
 				</select>
 				<small> Se non trovi una squadra adatta vai alla <a href="gestione_squadre.php" >gestione squadre</a>. </small>
              </div>
-             
-             
-             
-      
-             
-             
-             
+
            <div class="form-group col-md-4">
              <label for="id_civico">Percorso:</label> <font color="red">*</font>
 					<select class="form-control" name="percorso" id="percorso-list" class="demoInputBox" required="">
 					<option  id="percorso" name="percorso" value="">Seleziona il presidio mobile</option>
 					<?php
 					
-					$query2="SELECT DISTINCT p.percorso
-                    FROM geodb.v_presidi_mobili p
-                    INNER JOIN segnalazioni.t_sopralluoghi_mobili sm
-                    ON sm.descrizione ilike \'%\' || trim(p.percorso) || \'%\'
-                    WHERE sm.time_stop IN NULL
-                    ORDER BY p.percorso;";
+          // aggiunta regexp che controlla sub2 sia un numero, altrimenti si rompe la query
+					$query3="SELECT DISTINCT p.percorso, 
+                                  substring(p.percorso, 1, 1) AS sub1, 
+                                  CASE 
+                                      WHEN substring(p.percorso, 2, 2) ~ '^[0-9]+$' THEN substring(p.percorso, 2, 2)::int
+                                      ELSE NULL
+                                  END AS sub2
+                  FROM geodb.v_presidi_mobili p
+                  WHERE p.percorso NOT LIKE '%-%'
+                  ORDER BY sub1, sub2;";
 
-					$result2 = pg_query($conn, $query2);
-					 
-					while($r2 = pg_fetch_assoc($result2)) { 
-						//$valore=  $r2['percorso']. ";".$r2['percorso'];            
+                    
+
+					$result3 = pg_query($conn, $query3);
+          // $rows = pg_num_rows($result3);
+					// echo $rows . " row(s) returned.\n";
+					while ($r3 = pg_fetch_assoc($result3)) { 
+						// $valore=  $r3['percorso']. ";".$r3['percorso'];
+            // echo $valore;
 					?>
 								
-							<option id="percorso" name="percorso" value="<?php echo $r2['percorso'];?>" ><?php echo $r2['percorso'].' ('.$r2['percorso'].')';?></option>
+							<option id="percorso" name="percorso" value="<?php echo $r3['percorso'];?>" >
+                <?php echo $r3['percorso'];?></option>
 					 <?php } ?>
 				</select>
 				<small> La definizione dei percorsi è gestita direttamente dalla Protezione Civile tramite funzionalità del geoportale</a>. </small>
