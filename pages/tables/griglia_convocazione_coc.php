@@ -7,13 +7,13 @@ $profilo = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT);
 $livello = pg_escape_string($_GET['l']);
 $boll_pc = filter_input(INPUT_GET, 'boll_pc', FILTER_VALIDATE_INT) ?? 0;
 
-if ($profilo === 3){
-	$filter = ' ';
-} elseif ($profilo === 8){
-	$filter= ' WHERE id_profilo=\''.$profilo.'\' and nome_munic = \''.$livello.'\' ';
-} else {
-	$filter= ' WHERE id_profilo=\''.$profilo.'\' ';
-}
+// if ($profilo === 3){
+// 	$filter = ' ';
+// } elseif ($profilo === 8){
+// 	$filter= ' WHERE id_profilo=\''.$profilo.'\' and nome_munic = \''.$livello.'\' ';
+// } else {
+// 	$filter= ' WHERE id_profilo=\''.$profilo.'\' ';
+// }
 
 
 if (!$conn) {
