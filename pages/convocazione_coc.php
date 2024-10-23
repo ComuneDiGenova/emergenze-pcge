@@ -158,7 +158,7 @@ while($r = pg_fetch_assoc($result1)) {
 		sendButton('sendMessage', $parameters, $tokencoc);
   }
 
-header("Location: elenco_coc.php?boll_pc=$boll_pc");
+header("Location: elenco_coc.php");
 exit();
 
 

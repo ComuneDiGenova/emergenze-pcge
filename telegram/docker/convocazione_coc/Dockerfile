@@ -14,12 +14,12 @@ WORKDIR /home/$UNAME
 
 # Ensure the directory has correct permissions
 COPY ./bots ./bots
-RUN chown -R $UID:$GID ./bots
+# RUN chown -R $UID:$GID ./bots
 
 USER $UNAME
 
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install ./bots
+RUN python3 -m pip install -U -e ./bots
 
 COPY ./.env ./.env
 CMD python3 -m common.convocazione_coc.bot

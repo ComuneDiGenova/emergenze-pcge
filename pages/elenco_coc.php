@@ -201,13 +201,13 @@ $subtitle="Convocazione COC Direttivo";
                     });
                 })
 
-                function letturaFormatter(value) {
+                function letturaFormatter(value, row) {
                         // se non ho un bollettino PC renderizzo grigio
-                        if (boll_pc == 0) {
+                        if (!row['data_invio']) {
                             return '<center><i class="far fa-times-circle" style="color:#9C9C9C; font-size: xx-large;"></i></center>';
                         }
 
-                        // Altrimenti applico le regole
+                        // Altrimenti applico le regole sul valore
                         if (value=='t'){
                                 return '<center><i class="far fa-check-circle" style="color:#14c717; font-size: xx-large;"></i></center>';
                         } else {
