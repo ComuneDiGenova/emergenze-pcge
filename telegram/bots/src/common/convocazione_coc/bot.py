@@ -101,6 +101,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
     if answer_data == 'ricevuto':
         tg_id = query.from_user.id
+        logging.info(tg_id)
         query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
                                                 u.nome,
                                                 u.cognome,
@@ -113,8 +114,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{tg_id}'
-                                ORDER BY u.telegram_id, tp.id_bollettino DESC, tp.data_invio DESC NULLS LAST;"""
+                                WHERE tp.id_telegram = CAST({tg_id} AS text)
+                                ORDER BY u.telegram_id,tp.data_invio DESC NULLS LAST, tp.id_bollettino DESC NULLS LAST;"""
         
         result_s=esegui_query(query_convocazione, 's')
 
@@ -130,7 +131,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         else:
             name = result_s[0][1]
             data = result_s[0][5]
-            text=f"Gentile {name}, hai dato conferma di lettura dell'emanazione dell'allerta emanata in data {data}."
+            text=f"Gentile {name}, hai dato conferma di lettura dell'emanazione dell'allerta emanata in data {data}. Tg_id è {tg_id}; id è {id}"
             await bot.delete_message(tg_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
