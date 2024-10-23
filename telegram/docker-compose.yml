@@ -43,9 +43,9 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
-    # volumes:
-    #   - ./bots:/home/${ENVUSER}/bots:rw
-    #   - ./logs:/home/${ENVUSER}/log
+    volumes:
+      - ./bots:/home/${ENVUSER}/bots:rw
+      - ./logs:/home/${ENVUSER}/log:rw
 
   postgresql:
       image: postgis/postgis:9.6-2.5-alpine

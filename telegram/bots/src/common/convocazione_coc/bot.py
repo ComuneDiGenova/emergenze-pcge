@@ -95,9 +95,9 @@ async def send_welcome(message: types.Message):
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
-    
+        
     # always answer callback queries, even if you have nothing to say
-    #await query.answer(f'You answered with {answer_data!r}')
+    # await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'ricevuto':
         tg_id = query.from_user.id
@@ -113,7 +113,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
                                 WHERE tp.id_telegram = '{tg_id}'
-                                ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;"""
+                                ORDER BY u.telegram_id, tp.id_bollettino DESC, tp.data_invio DESC NULLS LAST;"""
         
         result_s=esegui_query(query_convocazione, 's')
 
@@ -170,9 +170,9 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 
         # if len(result_s2) != 0:
         user_id = result_s2[0][4]
-        query_conferma2=f"UPDATE users.t_convocazione 
+        query_conferma2=f"""UPDATE users.t_convocazione 
                             SET lettura_conv=true, data_conferma_conv=now() 
-                            WHERE id_telegram ='{tg_id}' and id = {user_id}"
+                            WHERE id_telegram ='{tg_id}' and id = {user_id};"""
         result_c2 = esegui_query(query_conferma2, 'u')
         
         if result_c2 == 1:
