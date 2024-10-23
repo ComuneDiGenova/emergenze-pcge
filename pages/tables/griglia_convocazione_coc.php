@@ -41,9 +41,8 @@ $query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
 			ON jtfc.id = u.funzione
 		LEFT JOIN eventi.t_bollettini b
 			ON b.id = tp.id_bollettino
-		WHERE  ($boll_pc = 0 OR tp.id_bollettino = $boll_pc)
-			AND tp.data_invio_conv IS NOT null
-		ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;";
+		WHERE  tp.data_invio_conv IS NOT null
+		ORDER BY u.telegram_id, tp.data_invio_conv DESC NULLS LAST, tp.data_invio DESC;";
 
 $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array());
