@@ -170,34 +170,54 @@ def convoca_coc(messaggio):
     
     curr = get_cursor()
     
-    query_bollettino = "SELECT id from eventi.t_bollettini WHERE tipo=='PC' ORDER BY id DESC LIMIT 1;"
+    query_bollettino = "SELECT id from eventi.t_bollettini WHERE tipo='PC' ORDER BY id DESC LIMIT 1;"
     curr.execute(query_bollettino)
-    id_bollettino = curr.fetchall()
-    print('Id bollettino:')
-    print(id_bollettino)
-    
+    id_bollettino = curr.fetchone()[0]
+    print(f'Id bollettino: {id_bollettino}')
+
     query_coc= "SELECT telegram_id from users.utenti_coc;"
     curr.execute(query_coc)
     lista_coc = curr.fetchall()
-    print('Lista utenti coc:')
-    print(lista_coc)
+    print('Lista utenti coc:', lista_coc)
     
     for row_coc in lista_coc:
         chat_id_coc=row_coc[0]
         try:
-            command = {"chat_id":f"{chat_id_coc}", "text":f"Nuovo bollettino Protezione civile!\n\n{messaggio}"}
-            msg_bollettino = os.popen(f"""curl -d "" -H "Content-Type: application/json" -X POST https://api.telegram.org/bot{TOKENCOC}/sendMessage""").read()
-            msg_bollettino = os.popen("curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
-                                        %(chat_id_coc, messaggio, TOKENCOC)).read()
+            msg_bollettino = os.popen(
+                "curl -d '{\"chat_id\":%s, \"text\":\"Nuovo bollettino Protezione civile!\n\n%s\"}' "
+                "-H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
+                % (chat_id_coc, messaggio, TOKENCOC)).read()
             msg_bollettino_j = json.loads(msg_bollettino)
+            
             if msg_bollettino_j['ok'] == True:
-                os.system("curl -d '{\"chat_id\":%s, \"text\":\"Protezione Civile informa che è stato emanato lo stato di Allerta meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro al presente messaggio premendo il tasto OK sotto indicato\", \"reply_markup\": {\"inline_keyboard\": [[{\"text\":\"OK\", \"callback_data\": \"ricevuto\"}]]} }' -H \"Content-Type: application/json\" -X POST https://api.telegram.org/bot%s/sendMessage"
-                            %(chat_id_coc, TOKENCOC))
-                
+                message_text = (
+                    "Protezione Civile informa che è stato emanato lo stato di Allerta "
+                    "meteorologica come indicato nel Messaggio allegato. Si prega di dare riscontro "
+                    "al presente messaggio premendo il tasto OK sotto indicato"
+                )
+
+                inline_keyboard = {
+                    "inline_keyboard": [[{"text": "OK", "callback_data": f"ricevuto"}]]
+                }
+
+                curl_command = f"""
+                curl -d '{{
+                    "chat_id": "{chat_id_coc}",
+                    "text": "{message_text}",
+                    "reply_markup": {json.dumps(inline_keyboard)}
+                }}' -H "Content-Type: application/json" -X POST https://api.telegram.org/bot{TOKENCOC}/sendMessage
+                """
+              
                 # query insert DB
                 query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram, id_bollettino) 
-                                        VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', {chat_id_coc}, {id_bollettino});"""
+                                        VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', 
+                                                {chat_id_coc}, {id_bollettino});""" 
                 curr.execute(query_convocazione)
+                
+                # Execute the command
+                os.system(curl_command)
+                print(inline_keyboard)
+                
         except Exception as e:
             print(e)
             print(f"Problema invio messaggio all'utente del coc con chat_id={chat_id_coc}")
@@ -224,7 +244,7 @@ def main():
     log_file_allerte.write("Ultimo aggiornamento: {}\n".format(dataEmissione))
          
     # DEBUG
-    # scarica_bollettino("PC", "protciv_31902.pdf", "NULL")
+    # scarica_bollettino("PC", "protciv_175989.pdf", "NULL")
     
     # Scarico i messaggi  
     for k, v in messages.items():
@@ -249,9 +269,9 @@ def main():
                                 
     log_file_allerte.close
 
-def simula_nuovo_bollettino(bollettino='protciv_31902.pdf'):
+def simula_nuovo_bollettino(bollettino='protciv_175989.pdf'):
     """
-    bollettino: Nome del file PDF del bollettino (es. protciv_31902.pdf)
+    bollettino: Nome del file PDF del bollettino (es. protciv_175989.pdf)
     1. Rimuovo file da percorso
     2. Rimuovo record da tabella
     3. Lancio funzione scarica_bollettino
