@@ -5,7 +5,7 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 $profilo = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT);
 $livello = pg_escape_string($_GET['l']);
-$boll_pc = filter_input(INPUT_GET, 'boll_pc', FILTER_VALIDATE_INT) ?? 0;
+// $boll_pc = filter_input(INPUT_GET, 'boll_pc', FILTER_VALIDATE_INT) ?? 0;
 
 // if ($profilo === 3){
 // 	$filter = ' ';
