@@ -108,7 +108,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                                 tp.id,
                                                 tp.data_invio,
                                                 tp.lettura,
-                                                tp.data_conferma
+                                                tp.data_conferma,
+                                                id_bollettino
                                 FROM users.utenti_coc u
                                 JOIN users.t_convocazione tp 
                                     ON u.telegram_id::text = tp.id_telegram::text
@@ -122,7 +123,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         #if len(result_s) !=0:
         id = result_s[0][4]
-        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id = {id}"
+        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id = {id}"
         result_c=esegui_query(query_conferma, 'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
