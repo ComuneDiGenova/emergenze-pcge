@@ -37,7 +37,9 @@ if(!$conn) {
 				ELSE null
 			END, ' - '
 		) AS responsabile_incarico,
-		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel
+		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
+		bool_and(i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) AS incarichi_chiusi,
+		bool_and(coalesce(sdv.intervento_id, 0)::boolean and (s.id_profilo=6)) as presa_visione_verbatel
 	FROM 
 		segnalazioni.v_segnalazioni_lista_pp s
 	JOIN 
