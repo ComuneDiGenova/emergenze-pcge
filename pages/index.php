@@ -529,12 +529,25 @@ $subtitle = "Dashboard o pagina iniziale";
 
                 }
 
-                function nameFormatterIncarichi(value) {
-                    if (value == 't') {
-                        return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i></div>';
+                function nameFormatterIncarichi(value, row) {
+                    
+                    let out = '<div style="text-align: center;">';
+
+                    if (row.incarichi_chiusi == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#32CD32"></i>');
+                    } else if (value == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i>');
                     } else if (value == 'f') {
-                        return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
+                        out = out.concat('<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i>');
+                    };
+
+                    if (row.presa_visione_verbatel=='t') {
+                        out = out.concat(' <i class="fas fa-circle" title="sola presa visione" style="color:#0000ff"></i>');
                     }
+
+                    out = out.concat('</div>')
+
+                    return out;
                 }
 
 
@@ -542,23 +555,25 @@ $subtitle = "Dashboard o pagina iniziale";
                     let responsabileIncarico = row.responsabile_incarico ? row.responsabile_incarico : '';
                     let responsabilePresidio = row.responsabile_presidio ? row.responsabile_presidio : '';
 
-                    // Return only responsabile_presidio if responsabile_incarico is empty, and viceversa
+                    let out = '';
                     if (responsabileIncarico === '' && responsabilePresidio === '') {
-                        return '';  // Return empty if both fields are empty
-                    } else if (responsabilePresidio === '') {
-                        return `<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`;
+                        return out;  // Return empty if both fields are empty
+                    }
+
+                    if (responsabilePresidio === '') {
+                        out = out.concat(`<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`);
                     } else if (responsabileIncarico === '') {
-                        return `<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`;
-                    }  else if (row.incarichi === 't') {
+                        out = out.concat(`<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`);
+                    } else if (row.incarichi === 't') {
                         // If both are present, display both with a line break
-                        return `<div style="text-align: center;">
+                        out = out.concat(`<div style="text-align: center;">
                                     <span style="color: orange;">${responsabileIncarico}</span><br>
                                     <span style="color: purple;">${responsabilePresidio}</span>
-                                </div>`;
-                    } else {
-                        return '';  
+                                </div>`);
                     }
-                }
+
+                    return out;
+                };
 
 
                 function sourceFormatter(value, row) {
