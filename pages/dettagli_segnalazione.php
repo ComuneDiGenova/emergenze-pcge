@@ -751,9 +751,25 @@ require('navbar_up.php');
 							}
 						//echo '</h4>';
 						}
-						
-						
-						//echo $check_operatore;
+
+						// echo 'check_operatore: '.$check_operatore;
+						// echo '<br>';
+						// echo 'check_incarichi_interni_aperti: '.$check_incarichi_interni_aperti;
+						// echo '<br>';
+						// echo 'check_sopralluoghi: '.$check_sopralluoghi;
+						// echo '<br>';
+						// echo 'check_chiusura: '.$check_chiusura;
+						// echo '<br>';
+						// echo 'id_profilo: '.$id_profilo;
+						// echo '<br>';
+						// echo 'profilo_sistema: '.$profilo_sistema;
+						// echo '<br>';
+						// echo 'profilo_cod_munic: '.$profilo_cod_munic;
+						// echo '<br>';
+						// echo 'id_municipio: '.$id_municipio;
+						// echo '<br>';
+
+
 						if($check_operatore==1) {
 	   					echo '<button type="button" class="btn btn-danger noprint"  data-toggle="modal" ';
 	   					// check sugli incarichi / sopralluoghi attivi
