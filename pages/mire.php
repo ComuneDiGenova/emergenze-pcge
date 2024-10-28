@@ -93,8 +93,26 @@ function roundToQuarterHour($now){
                     else if ($descrizione_foc == 'Allarme') $perc = 'perc_al_r';
                     ?>
 
-                    <!-- Campo Percorso -->
-                    <div class="form-group col-lg-4">
+                    <!-- Campo Mira o Rivo -->
+                    <?php 
+                    if ($perc) { ?>
+                        <div class="form-group col-lg-4">
+                            <label for="mira">Mira o rivo:</label> <font color="red">*</font>
+                            <select class="form-control" name="mira" id="mira" multiple size="6" required="" >
+                                <option value=""> Seleziona la mira </option>
+                                <?php
+                                $query_mire = "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome FROM geodb.punti_monitoraggio_ok p WHERE p.id IS NOT NULL ORDER BY nome;";
+                                $result_mire = pg_query($conn, $query_mire);    
+                                while ($r_mire = pg_fetch_assoc($result_mire)) { 
+                                    echo "<option name='mira' value='{$r_mire['id']}'>{$r_mire['nome']}</option>";
+                                }
+                                ?>
+                            </select>            
+                        </div>
+                    <?php } ?>
+
+					<!-- Campo Percorso -->
+					<div class="form-group col-lg-4">
                         <label for="tipo">Percorso
                             <?php echo ($perc) ? '<font color="red">*</font>' : ''; ?>
                         </label>
@@ -113,24 +131,6 @@ function roundToQuarterHour($now){
                         <small><?php echo ($perc) ? "Fase operativa comunale $descrizione_foc" : "Filtro percorsi solo se Fase Operativa Comunale in atto"; ?></small>
                     </div>
 
-                    <!-- Campo Mira o Rivo -->
-                    <?php 
-                    if ($perc) { ?>
-                        <div class="form-group col-lg-4">
-                            <label for="mira">Mira o rivo:</label> <font color="red">*</font>
-                            <select class="form-control" name="mira" id="mira" required="">
-                                <option value=""> Seleziona la mira </option>
-                                <?php
-                                $query_mire = "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome FROM geodb.punti_monitoraggio_ok p WHERE p.id IS NOT NULL ORDER BY nome;";
-                                $result_mire = pg_query($conn, $query_mire);    
-                                while ($r_mire = pg_fetch_assoc($result_mire)) { 
-                                    echo "<option name='mira' value='{$r_mire['id']}'>{$r_mire['nome']}</option>";
-                                }
-                                ?>
-                            </select>            
-                        </div>
-                    <?php } ?>
-
                     <!-- Campo Lettura -->
                     <div class="form-group col-lg-4">
                         <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
@@ -146,7 +146,7 @@ function roundToQuarterHour($now){
                     </div>
 
                     <!-- Pulsante di Invio -->
-                    <div class="row">
+                    <div class="form-group col-lg-4">
                         <input name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci lettura">
                     </div>
                 </form>
@@ -401,7 +401,7 @@ while($r = pg_fetch_assoc($result)) {
 
 					
 			<button  id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
-				</form>
+		</form>
 		  </div>
 		  <div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
