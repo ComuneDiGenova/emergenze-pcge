@@ -1,273 +1,157 @@
 <?php 
 
-$subtitle="Monitoraggio corsi d'acqua "
+$subtitle = "Monitoraggio corsi d'acqua";
+require_once './req.php';
+require_once explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
+require_once './check_evento.php';
+
+// Funzione per arrotondare l'ora al quarto d'ora
+function roundToQuarterHour($now){
+    $minutes = $now['minutes'] - $now['minutes'] % 15;
+    return sprintf(
+        '%02d/%02d/%02d<br>%02d:%02d',
+        $now["mday"], $now["mon"], substr($now["year"], -2), $now['hours'], $minutes
+    );
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="roberto" >
+    <meta name="description" content="Sistema di monitoraggio">
+    <meta name="author" content="Simone">
+    <title>Gestione Emergenze - <?php echo htmlspecialchars($subtitle); ?></title>
 
-    <title>Gestione emergenze</title>
-<?php 
-
-/*function roundToQuarterHour($timestring) {
-    $minutes = date('i', strtotime($timestring));
-    return $minutes - ($minutes % 15);
-}*/
-
-
-function roundToQuarterHour($now){
-	$minutes = $now['minutes'] - $now['minutes']%15;
-	if ($minutes < 10) {
-		$minutes = '0'.$minutes;
-	}
-
-	$rounded = $now["mday"]."/".$now["mon"]."/".substr($now["year"],-2)."<br>".$now['hours'].":".$minutes;
-	return $rounded;
-}
-
-require('./req.php');
-
-require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
-
-require('./check_evento.php');
-?>
-<style>    
-	iframe{
-  display: none;
-}
-</style>
+	<style>    
+		iframe{display: none;}
+	</style>
 </head>
 
 <body>
-
     <div id="wrapper">
+		
+		<!-- Navbar -->
+        <div id="navbar1"><?php require('navbar_up.php');?></div>  
+        <?php require('./navbar_left.php')?> 
 
-        <div id="navbar1">
-<?php
-require('navbar_up.php');
-?>
-</div>  
-        <?php 
-            require('./navbar_left.php')
-        ?> 
-            
-
+		<!-- Contenuto Pagina -->
         <div id="page-wrapper">
-             <div class="row">
+			<div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header noprint">Elenco punti di monitoraggio a lettura ottica (dati ultime 6 h)
-					<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
-					<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella </button>
+                    <h1 class="page-header noprint">
+						Elenco punti di monitoraggio a lettura ottica (ultime 6 ore)
+						<button class="btn btn-info noprint" onclick="printClass('fixed-table-container')">
+							<i class="fa fa-print" aria-hidden="true"></i> Stampa tabella 
+						</button>
 					</h1>
                 </div>
-                </div>
-               <div class="row">
-           
-            <script type="text/javascript">  
-			function clickButton2() {
-				var mira=document.getElementById('mira').value;
-				var tipo=document.getElementById('tipo').value;
-				//alert(mira);
-				//alert(mira.value);
-				var url ="eventi/nuova_lettura3.php?mira="+encodeURIComponent(mira)+"&tipo="+encodeURIComponent(tipo)+"";
-				// get the URL
-				http = new XMLHttpRequest(); 
-				http.open("GET", url, true);
-				http.send(null);
+            </div>
+            <div class="row">
 
-				//alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
-				//$('#msg').html(html);
-				$('#percorso').val('NO');
-				$('#mira').val('');
-				$('#tipo').val('');
-				$('#t_mire').bootstrapTable('refresh', {silent: true});
+				<!-- JavaScript per invio dati -->
+				<script type="text/javascript">  
+					function clickButton() {
+						var mira=document.getElementById('mira').value;
+						var tipo=document.getElementById('tipo').value;
+						var url ="eventi/nuova_lettura3.php?mira="+encodeURIComponent(mira)+"&tipo="+encodeURIComponent(tipo)+"";
 
-				// prevent form from submitting
-				return false;
-			}
-			</script>
+						let http = new XMLHttpRequest(); 
+						http.open("GET", url, true);
+						http.send(null);
+
+						$('#percorso').val('NO');
+						$('#mira').val('');
+						$('#tipo').val('');
+						$('#t_mire').bootstrapTable('refresh', {silent: true});
+
+						return false;
+					}
+
+					function getMira(val) {
+						$.ajax({
+							type: "POST",
+							url: "get_mira.php",
+							data:{ 'cod': val, 'f': "<?php echo $perc ?>" },
+							success: function(data){
+								$("#mira").html(data);
+							}
+						});
+						return false;
+					}
+				</script>
 			
-			<!--form-->    
-	        <!--form name="form1" target="content" autocomplete="off" action="eventi/nuova_lettura2.php" method="POST" id="submit_form"-->
-			<form action="" onsubmit="return clickButton2();">
+				<!-- Form di input -->
+				<form action="" onsubmit="return clickButton();">
+                    <?php
+                    // Determinazione del percorso operativo
+                    $perc = '';
+                    if ($descrizione_foc == 'Attenzione') $perc = 'perc_al_g';
+                    else if ($descrizione_foc == 'Pre-allarme') $perc = 'perc_al_a';
+                    else if ($descrizione_foc == 'Allarme') $perc = 'perc_al_r';
+                    ?>
+
+                    <!-- Campo Percorso -->
+                    <div class="form-group col-lg-4">
+                        <label for="tipo">Percorso
+                            <?php echo ($perc) ? '<font color="red">*</font>' : ''; ?>
+                        </label>
+                        <select class="form-control" onChange="getMira(this.value);" name="percorso" id="percorso" <?php echo ($perc) ? '' : 'disabled=""'; ?> required="">
+                            <option name="percorso" value="NO"> ... </option>
+                            <?php
+                            $query_percorso = "SELECT ".$perc." FROM geodb.punti_monitoraggio_ok GROUP BY ".$perc." ORDER BY ".$perc.";";
+                            $result_percorso = pg_query($conn, $query_percorso);  
+                            while ($r_p = pg_fetch_assoc($result_percorso)) { 
+                                $valore_percorso = $r_p[$perc];
+                                $testo_percorso = $valore_percorso ? $valore_percorso : 'Punti fuori da percorsi prestabiliti';
+                                echo "<option name='percorso' value='{$valore_percorso}'>{$testo_percorso}</option>";
+                            } 
+                            ?>
+                        </select>            
+                        <small><?php echo ($perc) ? "Fase operativa comunale $descrizione_foc" : "Filtro percorsi solo se Fase Operativa Comunale in atto"; ?></small>
+                    </div>
+
+                    <!-- Campo Mira o Rivo -->
+                    <?php 
+                    if ($perc) { ?>
+                        <div class="form-group col-lg-4">
+                            <label for="mira">Mira o rivo:</label> <font color="red">*</font>
+                            <select class="form-control" name="mira" id="mira" required="">
+                                <option value=""> Seleziona la mira </option>
+                                <?php
+                                $query_mire = "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome FROM geodb.punti_monitoraggio_ok p WHERE p.id IS NOT NULL ORDER BY nome;";
+                                $result_mire = pg_query($conn, $query_mire);    
+                                while ($r_mire = pg_fetch_assoc($result_mire)) { 
+                                    echo "<option name='mira' value='{$r_mire['id']}'>{$r_mire['nome']}</option>";
+                                }
+                                ?>
+                            </select>            
+                        </div>
+                    <?php } ?>
+
+                    <!-- Campo Lettura -->
+                    <div class="form-group col-lg-4">
+                        <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
+                        <select class="form-control" name="tipo" id="tipo" required="">
+                            <option name="tipo" value=""> ... </option>
+                            <?php            
+                            $query_tipo_lettura = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
+                            $result_tipo_lettura = pg_query($conn, $query_tipo_lettura);  
+                            while ($r_tipo = pg_fetch_assoc($result_tipo_lettura)) { 
+                                echo "<option name='tipo' value='{$r_tipo['id']}'>{$r_tipo['descrizione']}</option>";
+                            } ?>
+                        </select>            
+                    </div>
+
+                    <!-- Pulsante di Invio -->
+                    <div class="row">
+                        <input name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci lettura">
+                    </div>
+                </form>
+
 			<?php
-			if ($descrizione_foc=='-'){
-				$perc='';
-			}else if ($descrizione_foc=='Attenzione'){
-				$perc='perc_al_g';
-			} else if ($descrizione_foc=='Pre-allarme'){
-				$perc='perc_al_a';
-			} else if($descrizione_foc=='Allarme') { 
-				$perc='perc_al_r';
-			}
-			?>
-			
-			<!--la funzione clickButton sembrerebbe essere non utilizzata quindi il file nuova_lettura2.php  è da ignorare-->
-			<script type="text/javascript">
-			function clickButton() {
-			var mira=document.getElementById('mira').value;
-			var tipo=document.getElementById('tipo').value;
-			$.ajax({
-					type:"post",
-					url:"eventi/nuova_lettura2.php",
-					data: 
-					{  
-					   'mira' :mira,
-					   'tipo' :tipo
-					},
-					cache:false,
-					success: function (html) 
-					{
-					   //alert('Dato della mira inserito. Per visualizzare il dato aggiorna la tabella con l\'apposito tasto');
-					   $('#msg').html(html);
-					   $('#mira').val('');
-					   $('#tipo').val('');
-					   $('#t_mire').bootstrapTable('refresh', {silent: true});
-					}
-					});
-					return false;
-			 }
-
-
-
-				function getMira(val) {
-					$.ajax({
-					type: "POST",
-					url: "get_mira.php",
-					data:'cod='+val+'&f=<?php echo $perc?>',
-					success: function(data){
-						$("#mira").html(data);
-					}
-					});
-					return false;
-				}
-
-			</script>
-			
-			
-			
-				<div class="form-group col-lg-4">
-				<label for="tipo">Percorso
-				<?php
-				if ($perc==''){
-					echo '</label>';
-				} else {
-					echo '</label><font color="red">*</font>';
-				}
-				?>
-				
-				
-				<!--select class="selectpicker show-tick form-control" data-live-search="true" -->
-				<select class="form-control"
-				onChange="getMira(this.value);" name="percorso" id="percorso" required=""
-				<?php 
-				if ($perc==''){
-					echo ' disabled=""';
-				}
-				?>
-				>
-				<option name="percorso" value="NO" > ... </option>
-			   
-			   <?php
-	
-				$query_percorso="SELECT ".$perc." 
-				FROM geodb.punti_monitoraggio_ok 
-				GROUP BY ".$perc." 
-				ORDER BY ".$perc.";";
-
-			   $result_percorso = pg_query($conn, $query_percorso);
-				//echo $query1;    
-				while($r_p = pg_fetch_assoc($result_percorso)) { 
-					if ($r_p["$perc"] ==''){
-					?>
-						<option name="percorso" value="<?php echo $r_p["$perc"];?>">Punti fuori da percorsi prestabiliti</option>
-					<?php
-					} else {
-					?>
-						<option name="percorso" value="<?php echo $r_p["$perc"];?>"><?php echo $r_p["$perc"];?></option>
-					<?php
-					}
-				} 
-				?>
-				 </select>            
-				 <?php
-				if ($perc==''){
-					echo '<small>Filtro percorsi solo se Fase Operativa Comunale in atto</small>';
-				} else {
-					echo '<small>Fase operativa comunale '.$descrizione_foc.'):</small>';
-				}
-				?>
-				</div>
-	
-				<?php 
-				if ($perc!=''){
-				?>
-					<div class="form-group col-lg-4">
-					<label for="mira">Mira o rivo:</label> <font color="red">*</font>
-					<select class="form-control" name="mira" id="mira" class="demoInputBox" required="">
-					<option value="" > Seleziona la mira </option>
-				<?php
-				} else {
-				?>
-					<div class="form-group col-lg-4">
-					<label for="tipo">Mira o rivo:</label> <font color="red">*</font>
-					<select class="selectpicker show-tick form-control" data-live-search="true" name="mira" id="mira" required="">
-					<option value="" > ... </option>
-				   
-				   <?php
-					$query_mire= "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome
-					FROM geodb.punti_monitoraggio_ok p
-					WHERE p.id is not null 
-					order by nome;";
-
-				   $result_mire = pg_query($conn, $query_mire);
-					//echo $query1;    
-					while($r_mire = pg_fetch_assoc($result_mire)) { 
-					?>    
-							<option name="mira" value="<?php echo $r_mire['id'];?>"><?php echo $r_mire['nome'];?></option>
-					<?php 
-					} 
-				}
-				 ?>
-					
-				 
-				 
-				 </select>            
-				 </div>
-			   
-			   
-			   <div class="form-group col-lg-4">
-				  <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
-								<select class="form-control" name="tipo" id="tipo" required="">
-								<option name="tipo" value="" > ... </option>
-				<?php            
-				$query2="SELECT id,descrizione,rgb_hex From \"geodb\".\"tipo_lettura_mire\" WHERE valido='t';";
-				$result2 = pg_query($conn, $query2);
-				//echo $query1;    
-				while($r2 = pg_fetch_assoc($result2)) { 
-				?>    
-						<option name="tipo" value="<?php echo $r2['id'];?>"><?php echo $r2['descrizione'];?></option>
-				 <?php } ?>
-				 </select>            
-				 </div>
-				 </div>
-             <div class="row">
-			 <!-- molto  importante il return per non ricaricare la pagina!! -->
-             <!--button  name="conferma2" id="conferma2" type="submit" onclick="return clickButton();" class="btn btn-primary">
-			 Inserisci lettura</button-->
-			 <input  name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci lettura">
-			 
-             </div>
-             </form>
-			 <?php
              if(isset($_POST["conferma2"])){ 
 				$id=$_POST["mira"];
 				$id=str_replace("'", "", $id);
@@ -277,42 +161,17 @@ require('navbar_up.php');
 					$data_inizio = date('Y-m-d H:i');
 				} else{
 					$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-					//$d1 = new DateTime($data_inizio);
-					//$d2 = new DateTime($data_fine);
-					//$d1 =  strtotime($data_inizio);
 				}
 
-				//echo $data_inizio;
-				//echo "<br>";
-
-				//echo $d1;
-				//echo "<br>";
 
 
 
 				$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
-				//echo $query;
-				//exit;
+
 				$result = pg_query($conn, $query);
-				//echo "<br>";
-
-
-
-
-
-				//exit;
-
-
 
 				$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
 				$result = pg_query($conn, $query_log);
-
-
-
-				//$idfascicolo=str_replace('A','',$idfascicolo);
-				//$idfascicolo=str_replace('B','',$idfascicolo);
-				//echo "<br>";
-				//echo $query_log;
 
               
 			 }
@@ -517,16 +376,7 @@ while($r = pg_fetch_assoc($result)) {
 				 <?php } ?>
 				 </select>            
 				 </div>
-				<!--div class="form-group">
-					<label for="data_inizio" >Data lettura (AAAA-MM-GG) </label> <font color="red">*</font>                 
-					<input type="text" class="form-control" name="data_inizio" id="js-date<?php echo $r["id"]; ?>" required>
-				</div> 
-				<div class="form-group">
-					<label for="ora_inizio"> Ora lettura:</label> <font color="red">*</font>
-				  <div class="form-row">
-						<div class="form-group col-md-6">
-					  <select class="form-control"  name="hh_start" required>
-					  <option name="hh_start" value="" > Ora </option>
+				
 						<?php 
 						  $start_date = 0;
 						  $end_date   = 24;
@@ -537,13 +387,6 @@ while($r = pg_fetch_assoc($result)) {
 								echo '<option value="'.$j.'">'.$j.'</option>';
 							}
 						  }
-						?>
-					  </select>
-					  </div>	
-						<div class="form-group col-md-6">
-					  <select class="form-control"  name="mm_start" required>
-					  <option name="mm_start" value="00" > 00 </option>
-						<?php 
 						  $start_date = 5;
 						  $end_date   = 59;
 						  $incremento = 5; 
@@ -555,10 +398,7 @@ while($r = pg_fetch_assoc($result)) {
 							}
 						  }
 						?>
-					  </select>
-					  </div>
-					</div>  
-					</div-->
+
 					
 			<button  id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
 				</form>
@@ -642,18 +482,18 @@ while($r0 = pg_fetch_assoc($result0)) {
 
 				
 				
-                <!-- /.col-lg-12 -->
+
             </div>
-            <!-- /.row -->
+
 
             
             <br><br>
             <div class="row">
 
             </div>
-            <!-- /.row -->
+
     </div>
-    <!-- /#wrapper -->
+
 
 
 <?php 
