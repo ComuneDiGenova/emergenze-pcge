@@ -205,11 +205,16 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="incarichi" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterIncarichi"
-                                                                    data-visible="true">Incarichi<br>in corso</th>
-                                                                <th data-field="responsabile_incarico" data-sortable="false"
+                                                                    data-visible="true">
+                                                                    Incarichi / Presidi<br>in corso</th>
+                                                                <th data-field="responsabile" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
-                                                                    data-formatter="nameFormatterResponsabileIncarico"
-                                                                    data-visible="true">Responsabile<br>Incarico</th>
+                                                                    data-formatter="nameFormatterResponsabile"
+                                                                    data-visible="true">
+                                                                    Responsabile <br>
+                                                                    <span style="color: orange;"> Incarico</span> / 
+                                                                    <span style="color: purple;">Presidio</span>
+                                                                </th>
                                                                 <th data-field="num" data-sortable="false"
                                                                     data-visible="true">Num<br>segn</th>
                                                                 <th data-field="notizie" data-sortable="false"
@@ -250,11 +255,15 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 data-halign="center" data-valign="center"
                                                                 data-formatter="nameFormatterIncarichi"
                                                                 data-visible="true">
-                                                                Incarichi<br>in corso</th>
-                                                            <th data-field="responsabile_incarico" data-sortable="false"
+                                                                Incarichi / Presidi<br>in corso</th>
+                                                            <th data-field="responsabile" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
-                                                                data-formatter="nameFormatterResponsabileIncarico"
-                                                                data-visible="true">Responsabile<br>Incarico</th>
+                                                                data-formatter="nameFormatterResponsabile"
+                                                                data-visible="true">
+                                                                Responsabile <br>
+                                                                <span style="color: orange;"> Incarico</span> / 
+                                                                <span style="color: purple;">Presidio</span>
+                                                            </th>
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
                                                                 Num<br>segn</th>
@@ -277,25 +286,35 @@ $subtitle = "Dashboard o pagina iniziale";
 
                                                         function nameFormatterIncarichi(value) {
                                                             if (value == 't') {
-                                                                return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i></div>';
+                                                                return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i></div>';
                                                             } else if (value == 'f') {
                                                                 return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
                                                             }
                                                         }
 
-                                                        function nameFormatterResponsabileIncarico(value, row) {
-                                                                // ritorna stringa vuota in caso di valore null
-                                                                if (value == null) {
-                                                                    return '';
-                                                                }
-                                                                if (row.incarichi === 't') {
-                                                                    // Restituisce il dato formattato
-                                                                    return `<div style="text-align: center;">${value}</div>`;
-                                                                } else {
-                                                                    // Restituisce una stringa vuota
-                                                                    return '';
-                                                                }
+                                                       
+                                                        function nameFormatterResponsabile(value, row) {
+                                                            let responsabileIncarico = row.responsabile_incarico ? row.responsabile_incarico : '';
+                                                            let responsabilePresidio = row.responsabile_presidio ? row.responsabile_presidio : '';
+
+                                                            // Return only responsabile_presidio if responsabile_incarico is empty, and viceversa
+                                                            if (responsabileIncarico === '' && responsabilePresidio === '') {
+                                                                return '';  // Return empty if both fields are empty
+                                                            } else if (responsabilePresidio === '') {
+                                                                return `<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`;
+                                                            } else if (responsabileIncarico === '') {
+                                                                return `<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`;
+                                                            }  else if (row.incarichi === 't') {
+                                                                // If both are present, display both with a line break
+                                                                return `<div style="text-align: center;">
+                                                                            <span style="color: orange;">${responsabileIncarico}</span><br>
+                                                                            <span style="color: purple;">${responsabilePresidio}</span>
+                                                                        </div>`;
+                                                            } else {
+                                                                return '';  
                                                             }
+                                                        }
+
 
 
                                                         function nameFormatterEdit(value) {
