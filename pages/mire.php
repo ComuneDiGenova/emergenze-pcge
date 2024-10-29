@@ -70,11 +70,11 @@ function roundToQuarterHour($now){
 						return false;
 					}
 
-					function getMira(val) {
+					function getMira(val, perc) {
 						$.ajax({
 							type: "POST",
 							url: "get_mira.php",
-							data:{ 'cod': val, 'f': "<?php echo $perc ?>" },
+							data:{ 'cod': val, 'f': perc },
 							success: function(data){
 								$("#mira").html(data);
 							}
@@ -93,43 +93,39 @@ function roundToQuarterHour($now){
                     else if ($descrizione_foc == 'Allarme') $perc = 'perc_al_r';
                     ?>
 
-                    <!-- Campo Mira o Rivo -->
-                    <?php 
-                    if ($perc) { ?>
-                        <div class="form-group col-lg-4">
-                            <label for="mira">Mira o rivo:</label> <font color="red">*</font>
-                            <select class="form-control" name="mira" id="mira" multiple size="6" required="" >
-                                <option value=""> Seleziona la mira </option>
-                                <?php
-                                $query_mire = "SELECT p.id, concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome FROM geodb.punti_monitoraggio_ok p WHERE p.id IS NOT NULL ORDER BY nome;";
-                                $result_mire = pg_query($conn, $query_mire);    
-                                while ($r_mire = pg_fetch_assoc($result_mire)) { 
-                                    echo "<option name='mira' value='{$r_mire['id']}'>{$r_mire['nome']}</option>";
-                                }
-                                ?>
-                            </select>            
-                        </div>
-                    <?php } ?>
-
 					<!-- Campo Percorso -->
 					<div class="form-group col-lg-4">
                         <label for="tipo">Percorso
                             <?php echo ($perc) ? '<font color="red">*</font>' : ''; ?>
                         </label>
-                        <select class="form-control" onChange="getMira(this.value);" name="percorso" id="percorso" <?php echo ($perc) ? '' : 'disabled=""'; ?> required="">
+                        <select class="form-control" onChange="getMira(this.value, '<?php echo $perc; ?>');" name="percorso" id="percorso" <?php echo ($perc) ? '' : 'disabled=""'; ?> required="">
                             <option name="percorso" value="NO"> ... </option>
                             <?php
                             $query_percorso = "SELECT ".$perc." FROM geodb.punti_monitoraggio_ok GROUP BY ".$perc." ORDER BY ".$perc.";";
+							
                             $result_percorso = pg_query($conn, $query_percorso);  
                             while ($r_p = pg_fetch_assoc($result_percorso)) { 
                                 $valore_percorso = $r_p[$perc];
                                 $testo_percorso = $valore_percorso ? $valore_percorso : 'Punti fuori da percorsi prestabiliti';
                                 echo "<option name='percorso' value='{$valore_percorso}'>{$testo_percorso}</option>";
-                            } 
+                            }
                             ?>
                         </select>            
                         <small><?php echo ($perc) ? "Fase operativa comunale $descrizione_foc" : "Filtro percorsi solo se Fase Operativa Comunale in atto"; ?></small>
                     </div>
+
+                    <!-- Campo Mira o Rivo -->
+                    <?php 
+                    if ($perc) { ?>
+                        <div class="form-group col-lg-4">
+                            <label for="mira">Mira o rivo:</label> <font color="red">*</font>
+                            <select class="form-control" name="mira" id="mira" multiple size="5" required="" >
+                               <!-- Questo menu a tendina viene popolato dinamicamente tramite la funzione getMira -->
+                            </select>
+							<div></div>
+							<small>Le mire saranno caricate in base al percorso selezionato.</small>            
+                        </div>
+                    <?php } ?>
 
                     <!-- Campo Lettura -->
                     <div class="form-group col-lg-4">
