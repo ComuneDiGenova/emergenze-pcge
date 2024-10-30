@@ -1,6 +1,8 @@
 <?php 
 
 $subtitle = "Monitoraggio corsi d'acqua";
+
+// carica dipendenze
 require_once './req.php';
 require_once explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
 require_once './check_evento.php';
@@ -15,6 +17,7 @@ function roundToQuarterHour($now){
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,6 +31,8 @@ function roundToQuarterHour($now){
 	<style>    
 		iframe{display: none;}
 	</style>
+
+	<script src="scripts/mire.js" defer></script>
 </head>
 
 <body>
@@ -49,39 +54,7 @@ function roundToQuarterHour($now){
 					</h1>
                 </div>
             </div>
-            <div class="row">
-
-				<!-- JavaScript per invio dati -->
-				<script type="text/javascript">  
-					function clickButton() {
-						var mira=document.getElementById('mira').value;
-						var tipo=document.getElementById('tipo').value;
-						var url ="eventi/nuova_lettura3.php?mira="+encodeURIComponent(mira)+"&tipo="+encodeURIComponent(tipo)+"";
-
-						let http = new XMLHttpRequest(); 
-						http.open("GET", url, true);
-						http.send(null);
-
-						$('#percorso').val('NO');
-						$('#mira').val('');
-						$('#tipo').val('');
-						$('#t_mire').bootstrapTable('refresh', {silent: true});
-
-						return false;
-					}
-
-					function getMira(val, perc) {
-						$.ajax({
-							type: "POST",
-							url: "get_mira.php",
-							data:{ 'cod': val, 'f': perc },
-							success: function(data){
-								$("#mira").html(data);
-							}
-						});
-						return false;
-					}
-				</script>
+            <div class="row">					
 			
 				<!-- Form di input -->
 				<form action="" onsubmit="return clickButton();">
@@ -119,7 +92,7 @@ function roundToQuarterHour($now){
                     if ($perc) { ?>
                         <div class="form-group col-lg-4">
                             <label for="mira">Mira o rivo:</label> <font color="red">*</font>
-                            <select class="form-control" name="mira" id="mira" multiple size="5" required="" >
+                            <select class="form-control" name="mira[]" id="mira" multiple size="5" required="" >
                                <!-- Questo menu a tendina viene popolato dinamicamente tramite la funzione getMira -->
                             </select>
 							<div></div>
@@ -143,62 +116,80 @@ function roundToQuarterHour($now){
 
                     <!-- Pulsante di Invio -->
                     <div class="form-group col-lg-4">
-                        <input name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci lettura">
+                        <input name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci letture">
                     </div>
                 </form>
 
-			<?php
-             if(isset($_POST["conferma2"])){ 
-				$id=$_POST["mira"];
-				$id=str_replace("'", "", $id);
-
-				if ($_POST["data_inizio"]==''){
-					date_default_timezone_set('Europe/Rome');
-					$data_inizio = date('Y-m-d H:i');
-				} else{
-					$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-				}
-
-
-
-
-				$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
-
-				$result = pg_query($conn, $query);
-
-				$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
-				$result = pg_query($conn, $query_log);
-
-              
-			 }
-             ?>  
-               <hr>
-				<div class="row">
 				<?php
-				
+				if(isset($_POST["conferma2"])){ 
+					$ids=$_POST["mira"];
+					$tipo_lettura = $_POST["tipo"];
+					
 
-				$now = getdate();
-				$ora0 = roundToQuarterHour($now);
-				echo "<br><br>";
-				$data = getdate(strtotime('- 30 minutes'));
-				$ora1 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 90 minutes'));
-				$ora2 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 150 minutes'));
-				$ora3 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 210 minutes'));
-				$ora4 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 270 minutes'));
-				$ora5 = roundToQuarterHour($data);
-				
-				$data = getdate(strtotime('- 330 minutes'));
-				$ora6 = roundToQuarterHour($data);
-				
-				?>
+					if ($_POST["data_inizio"]==''){
+						date_default_timezone_set('Europe/Rome');
+						$data_inizio = date('Y-m-d H:i');
+					} else{
+						$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
+					}
+					
+					// creo una lista di valori da inserire a db
+					$values = [];
+
+					// popolo la lista di valori
+					foreach ($ids as $id) {
+						$id=str_replace("'", "", $id);
+						$values[] = "($id, $tipo_lettura, '$data_inizio')";
+					}
+					
+					//costruisco la query di inserimento
+					if (!empty($values)) {
+						$values_str = implode(", ", $values);
+						$query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES $values_str;";
+						$result = pg_query($conn, $query);
+
+						if (!$result) {
+							echo "Errore durante l'inserimento delle letture: " . pg_last_error($conn);
+						} else {
+							$mire_ids_str = implode(",", $mire_ids);
+							$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('geodb', '" . $_SESSION["Utente"] . "', 'Inserite letture per le mire: $mire_ids_str');";
+							
+							$result_log = pg_query($conn, $query_log);
+
+							if (!$result_log) {
+								echo "Errore durante il log dell'operazione: " . pg_last_error($conn);
+							} 
+						}				
+					}
+				}
+				?>  
+               	<hr>
+				<div class="row">
+					<?php
+					
+
+					$now = getdate();
+					$ora0 = roundToQuarterHour($now);
+					echo "<br><br>";
+					$data = getdate(strtotime('- 30 minutes'));
+					$ora1 = roundToQuarterHour($data);
+					
+					$data = getdate(strtotime('- 90 minutes'));
+					$ora2 = roundToQuarterHour($data);
+					
+					$data = getdate(strtotime('- 150 minutes'));
+					$ora3 = roundToQuarterHour($data);
+					
+					$data = getdate(strtotime('- 210 minutes'));
+					$ora4 = roundToQuarterHour($data);
+					
+					$data = getdate(strtotime('- 270 minutes'));
+					$ora5 = roundToQuarterHour($data);
+					
+					$data = getdate(strtotime('- 330 minutes'));
+					$ora6 = roundToQuarterHour($data);
+					
+					?>
 				
 				</div>
 				<style>
@@ -210,11 +201,11 @@ function roundToQuarterHour($now){
 				</style>
 				<div class="row">
 				<div class="noprint" id="toolbar">
-				<select class="form-control noprint">
-					<option value="">Esporta i dati visualizzati</option>
-					<option value="all">Esporta tutto (lento)</option>
-					<option value="selected">Esporta solo selezionati</option>
-				</select>
+					<select class="form-control noprint">
+						<option value="">Esporta i dati visualizzati</option>
+						<option value="all">Esporta tutto (lento)</option>
+						<option value="selected">Esporta solo selezionati</option>
+					</select>
 				</div>
 				<div id="tabella">
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire.php" 
@@ -224,115 +215,43 @@ function roundToQuarterHour($now){
 				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
 				data-filter-control="true" data-toolbar="#toolbar">
         
-        
-<thead>
+					<thead>
+						<tr>
+						<th class="noprint" data-field="state" data-checkbox="true"></th>    
+						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+						<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
+						
+						<th data-field="perc_al_g" data-sortable="true" 
+							<?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?>
+							data-filter-control="select">
+							<i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i>
+						</th>
+						<th data-field="perc_al_a" data-sortable="true" 
+							<?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>
+							data-filter-control="select">
+							<i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i>
+						</th>
+						<th data-field="perc_al_r" data-sortable="true" 
+							<?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>
+							data-filter-control="select">
+							<i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i>
+						</th>
 
- 	<tr>
-        <th class="noprint" data-field="state" data-checkbox="true"></th>    
-		<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-		<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
-		
-		<th data-field="perc_al_g" data-sortable="true" 
-			<?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?>
-			data-filter-control="select">
-			<i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i>
-		</th>
-		<th data-field="perc_al_a" data-sortable="true" 
-			<?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>
-			data-filter-control="select">
-			<i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i>
-		</th>
-		<th data-field="perc_al_r" data-sortable="true" 
-			<?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>
-			data-filter-control="select">
-			<i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i>
-		</th>
+						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
 
-		<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-		<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
-
-		<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-		<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-		<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-		<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-		<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
-		<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-		<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
-		<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
-		<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
-    </tr>
-</thead>
-</table>
-
-
-<script>
-function nameFormatterInsert(value, row) {
-	if(row.tipo != 'IDROMETRO COMUNE' && row.tipo != 'IDROMETRO ARPA'){
-		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#new_lettura'+value+'">\
-		<i class="fas fa-search-plus" title="Aggiungi lettura per '+row.nome+'"></i></button> - \
-		<a class="btn btn-info" target=”_blank” href="mira.php?id='+value+'"> <i class="fas fa-chart-line" title=Visualizza ed edita dati storici></i></a>';
-	} else if (row.tipo=='IDROMETRO ARPA') {
-		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_a'+value+'">\
-		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
-	 } else if (row.tipo=='IDROMETRO COMUNE') {
-		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_c'+value+'">\
-		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
-	 }
-}
-
-
-function nameFormatterLettura(value,row) {
-	if(row.tipo=='IDROMETRO ARPA' ){
-		<?php
-		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
-		$result_soglie = pg_query($conn, $query_soglie);
-		while($r_soglie = pg_fetch_assoc($result_soglie)) {
-			$arancio=$r_soglie['liv_arancione'];
-			$rosso=$r_soglie['liv_rosso'];
-		}
-		?>
-		if(value < row.arancio ){
-			return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
-		} else if (value > row.arancio && value < row.rosso) {
-			return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
-		} else if (value > row.rosso) {
-			return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
-		} else {
-			return '-';
-		}
-	} else if(row.tipo=='IDROMETRO COMUNE'){
-	//	return Math.round(value*1000)/1000;
-		<?php
-		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
-		$result_soglie = pg_query($conn, $query_soglie);
-		while($r_soglie = pg_fetch_assoc($result_soglie)) {
-			$arancio=$r_soglie['liv_arancione'];
-			$rosso=$r_soglie['liv_rosso'];
-		}
-		?>
-		if(value < row.arancio ){
-			return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
-		} else if (value > row.arancio && value < row.rosso) {
-			return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
-		} else if (value > row.rosso) {
-			return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
-		} else {
-			return '-';
-		}
-	} else {
-		if(value==1){
-			return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
-		} else if (value==2) {
-			return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
-		} else if (value==3) {
-			return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
-		} else {
-			return '-';
-		}
-	}		
-}
-
-</script>
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
+						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
+						<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
+						</tr>
+					</thead>
+				</table>
 </div>	
 	
 	
