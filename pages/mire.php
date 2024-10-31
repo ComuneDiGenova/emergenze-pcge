@@ -7,6 +7,7 @@ require_once './req.php';
 require_once explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
 require_once './check_evento.php';
 
+
 // Funzione per arrotondare l'ora al quarto d'ora
 function roundToQuarterHour($now){
     $minutes = $now['minutes'] - $now['minutes'] % 15;
