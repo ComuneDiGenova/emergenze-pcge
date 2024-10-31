@@ -53,7 +53,7 @@ function clickButton2() {
         return;
     }
 
-    let value = 3
+    let value = $('#tipo2').val()
 
     // Raccogli gli ID delle righe selezionate
     const ids = selectedRows.map(row => row.id);
