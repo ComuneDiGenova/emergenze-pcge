@@ -1,57 +1,40 @@
 <?php
+	session_start();
+	require('../validate_input.php');
 
-session_start();
-require('../validate_input.php');
+	include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
+	// Verifica se la richiesta è POST
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		if (isset($_POST['ids']) && is_array($_POST['ids'])) {
+			$ids = $_POST['ids'];
+			$value = intval($_POST['value']);
 
-$id=$_POST["mira"];
-$id=str_replace("'", "", $id);
+			// Ottieni la data e l'ora correnti
+			$data_ora = date('Y-m-d H:i:s');
+			
+			$id_list = array_map('intval', $ids);
 
-if ($_POST["data_inizio"]==''){
-	date_default_timezone_set('Europe/Rome');
-	$data_inizio = date('Y-m-d H:i');
-} else{
-	$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-	//$d1 = new DateTime($data_inizio);
-	//$d2 = new DateTime($data_fine);
-	//$d1 =  strtotime($data_inizio);
-}
+			// Crea una stringa per l'inserimento massivo
+			$values = [];
+			foreach ($ids as $id) {
+				$id_int = intval($id); // Converti ogni ID in intero
+				$values[] = "($id_int, $value, '$data_ora')"; // Crea la stringa per l'inserimento
+			}
 
-echo $data_inizio;
-echo "<br>";
+			// Creare la query di inserimento
+			$query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES ". implode(', ', $values);
+			$result = pg_query($conn, $query);
 
-//echo $d1;
-//echo "<br>";
-
-
-
-$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
-echo $query;
-//exit;
-$result = pg_query($conn, $query);
-echo "<br>";
-
-
-
-
-
-//exit;
-
-
-
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
-$result = pg_query($conn, $query_log);
-
-
-
-//$idfascicolo=str_replace('A','',$idfascicolo);
-//$idfascicolo=str_replace('B','',$idfascicolo);
-echo "<br>";
-echo $query_log;
-
-//exit;
-header("location: ../mire.php");
-
-
+			if ($result) {
+				echo "Aggiornamento effettuato";
+			} else {
+				echo "Errore durante l'aggiornamento: " . $query;
+			}
+		} else {
+			echo "Nessun ID fornito!";
+		}
+	} else {
+		echo "Richiesta non valida!";
+	}
 ?>
