@@ -7,6 +7,12 @@
 	// Verifica se la richiesta è POST
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (isset($_POST['ids']) && is_array($_POST['ids'])) {
+
+			if (empty($value)) {
+				echo "Errore: è necessario selezionare un valore per la lettura.";
+				exit;
+			}
+
 			$ids = $_POST['ids'];
 			$value = intval($_POST['value']);
 
