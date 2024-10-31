@@ -210,11 +210,11 @@ function roundToQuarterHour($now){
 				</div>
 				<div id="tabella">
 				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire.php" 
-				data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
-				data-search="true" data-click-to-select="true" data-show-print="true"  
-				data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-				data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-				data-filter-control="true" data-toolbar="#toolbar">
+					data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+					data-search="true" data-click-to-select="true" data-show-print="true"  
+					data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+					data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+					data-filter-control="true" data-toolbar="#toolbar">
         
 					<thead>
 						<tr>
@@ -258,7 +258,7 @@ function roundToQuarterHour($now){
 	
 	
 	
-<i class="fas fa-search-plus"></i>
+<!-- <i class="fas fa-search-plus"></i> -->
 <?php
 $query="SELECT p.nome,p.id 
 FROM geodb.punti_monitoraggio_ok p
@@ -267,66 +267,63 @@ WHERE p.tipo ilike 'mira' OR p.tipo ilike 'rivo';";
 $result = pg_query($conn, $query);
 while($r = pg_fetch_assoc($result)) {
 ?>
-	<!-- Modal nuova lettura-->
-	<div id="new_lettura<?php echo $r['id']; ?>" class="modal fade" role="dialog">
-	  <div class="modal-dialog">
-		<!-- Modal content-->
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-			<h4 class="modal-title">Inserire lettura <?php echo $r['nome']; ?></h4>
-		  </div>
-		  <div class="modal-body">
-		  <form autocomplete="off" action="./eventi/nuova_lettura.php?id='<?php echo $r['id']; ?>'" method="POST">
-			   <div class="form-group">
-				  <label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
-								<select class="form-control" name="tipo" id="tipo" required="">
-								<option name="tipo" value="" > ... </option>
-				<?php            
-				$query2="SELECT id,descrizione,rgb_hex From \"geodb\".\"tipo_lettura_mire\" WHERE valido='t';";
-				$result2 = pg_query($conn, $query2);
-				//echo $query1;    
-				while($r2 = pg_fetch_assoc($result2)) { 
-				?>    
-						<option name="tipo" value="<?php echo $r2['id'];?>"><?php echo $r2['descrizione'];?></option>
-				 <?php } ?>
-				 </select>            
-				 </div>
-				
-						<?php 
-						  $start_date = 0;
-						  $end_date   = 24;
-						  for( $j=$start_date; $j<=$end_date; $j++ ) {
-							if($j<10) {
-								echo '<option value="0'.$j.'">0'.$j.'</option>';
-							} else {
-								echo '<option value="'.$j.'">'.$j.'</option>';
-							}
-						  }
-						  $start_date = 5;
-						  $end_date   = 59;
-						  $incremento = 5; 
-						  for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-							if($j<10) {
-								echo '<option value="0'.$j.'">0'.$j.'</option>';
-							} else {
-								echo '<option value="'.$j.'">'.$j.'</option>';
-							}
-						  }
-						?>
+	<div id="new_lettura<?php echo htmlspecialchars($r['id']); ?>" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Inserire lettura <?php echo htmlspecialchars($r['nome']); ?></h4>
+				</div>
+				<div class="modal-body">
+					<form autocomplete="off" action="./eventi/nuova_lettura.php?id=<?php echo urlencode($r['id']); ?>" method="POST">
+						<div class="form-group">
+							<label for="tipo">Valore lettura mira:</label> <font color="red">*</font>
+							<select class="form-control" name="tipo" id="tipo" required>
+								<option value=""> ... </option>
+								<?php
+								// Query per ottenere i tipi di lettura
+								$queryTipo = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
+								$resultTipo = pg_query($conn, $queryTipo);
 
-					
-			<button  id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
-		</form>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-		  </div>
+								while ($tipo = pg_fetch_assoc($resultTipo)) {
+									echo '<option value="' . htmlspecialchars($tipo['id']) . '">' . htmlspecialchars($tipo['descrizione']) . '</option>';
+								}
+								?>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="hh_start">Ora:</label>
+							<select class="form-control" name="hh_start" id="hh_start" required>
+								<?php
+								for ($j = 0; $j <= 24; $j++) {
+									echo '<option value="' . str_pad($j, 2, '0', STR_PAD_LEFT) . '">' . str_pad($j, 2, '0', STR_PAD_LEFT) . '</option>';
+								}
+								?>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="mm_start">Minuti:</label>
+							<select class="form-control" name="mm_start" id="mm_start" required>
+								<?php
+								for ($j = 0; $j < 60; $j += 5) {
+									echo '<option value="' . str_pad($j, 2, '0', STR_PAD_LEFT) . '">' . str_pad($j, 2, '0', STR_PAD_LEFT) . '</option>';
+								}
+								?>
+							</select>
+						</div>
+
+						<button id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+				</div>
+			</div>
 		</div>
-
-	  </div>
-	</div>   
-
+	</div>
 
 	<script type="text/javascript" >
 	$(document).ready(function() {
@@ -339,16 +336,16 @@ while($r = pg_fetch_assoc($result)) {
 	});
 	</script>
 
-<?php } ?>
+	<?php } ?>
 
 
+	<?php
+	$query0="SELECT name, shortcode FROM geodb.tipo_idrometri_arpa;";
+	$result0 = pg_query($conn, $query0);
+	while($r0 = pg_fetch_assoc($result0)) {
+	?>
 
 
-<?php
-$query0="SELECT name, shortcode FROM geodb.tipo_idrometri_arpa;";
-$result0 = pg_query($conn, $query0);
-while($r0 = pg_fetch_assoc($result0)) {
-?>
 	<div id="grafico_i_a<?php echo $r0['shortcode']; ?>" class="modal fade" role="dialog">
 	  <div class="modal-dialog">
 		<div class="modal-content">
@@ -368,12 +365,12 @@ while($r0 = pg_fetch_assoc($result0)) {
 		</div>
 	  </div>
 	</div>
-<?php } 
+	<?php } 
 
-$query0="SELECT nome, id FROM geodb.tipo_idrometri_comune WHERE usato='t';";
-$result0 = pg_query($conn, $query0);
-while($r0 = pg_fetch_assoc($result0)) {
-?>
+	$query0="SELECT nome, id FROM geodb.tipo_idrometri_comune WHERE usato='t';";
+	$result0 = pg_query($conn, $query0);
+	while($r0 = pg_fetch_assoc($result0)) {
+	?>
 	<div id="grafico_i_c<?php echo $r0['id']; ?>" class="modal fade" role="dialog">
 	  <div class="modal-dialog">
 		<div class="modal-content">
@@ -393,36 +390,33 @@ while($r0 = pg_fetch_assoc($result0)) {
 		</div>
 	  </div>
 	</div>
-<?php } ?>
+
+	<?php } ?>
+
+	<div class="form-group col-lg-4">
+		<label for="tipo">Valore lettura mira 2:</label> <font color="red">*</font>
+		<select class="form-control" name="tipo" id="tipo" required="">
+			<option name="tipo" value=""> ... </option>
+			<?php            
+			$query_tipo_lettura = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
+			$result_tipo_lettura = pg_query($conn, $query_tipo_lettura);  
+			while ($r_tipo = pg_fetch_assoc($result_tipo_lettura)) { 
+				echo "<option name='tipo' value='{$r_tipo['id']}'>{$r_tipo['descrizione']}</option>";
+			} ?>
+		</select>            
+	</div>
+
+	<br><br>
+
+	<button id="aggiornaSelezionati" class="btn btn-success" onclick="clickButton2()">Aggiorna selezionati</button>
 
 
-				
-				
+	<br><br>
 
-            </div>
-
-
-            
-            <br><br>
-            <div class="row">
-
-            </div>
-
-    </div>
-
-
-
-<?php 
-
-require('./footer.php');
-
-require('./req_bottom.php');
-
-
-?>
-
-
-    
+	<?php 
+	require('./footer.php');
+	require('./req_bottom.php');
+	?>    
 
 </body>
 
