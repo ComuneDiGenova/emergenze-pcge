@@ -395,7 +395,7 @@ while($r = pg_fetch_assoc($result)) {
 
 	<div class="form-group col-lg-4">
 		<label for="tipo">Valore lettura mira 2:</label> <font color="red">*</font>
-		<select class="form-control" name="tipo" id="tipo" required="">
+		<select class="form-control" name="tipo" id="tipo2" required="">
 			<option name="tipo" value=""> ... </option>
 			<?php            
 			$query_tipo_lettura = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
