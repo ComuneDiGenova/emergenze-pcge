@@ -1,4 +1,4 @@
-
+// funzione che invia i dati sulle mire nel menu a tendina in alto
 function clickButton() {
     // Raccolgo i valori del form
     var mira = Array.from(document.getElementById('mira').selectedOptions).map(option => option.value);
@@ -43,6 +43,37 @@ function clickButton() {
     return false;
 }
 
+// funzione che aggiorna le mire massivamente tramite il pulsante a fondo pagine
+function clickButton2() {
+
+    // Ottieni le righe selezionate
+    const selectedRows = $('#t_mire').bootstrapTable('getSelections');
+    if (selectedRows.length === 0) {
+        alert('Nessuna riga selezionata!');
+        return;
+    }
+
+    let value = 3
+
+    // Raccogli gli ID delle righe selezionate
+    const ids = selectedRows.map(row => row.id);
+
+    // Invia i dati al server
+    $.ajax({
+        url: "eventi/nuova_lettura2.php",
+        type: 'POST',
+        data: { ids: ids, value: value },
+        success: function(response) {
+            // Gestisci la risposta dal server
+            alert('Aggiornamento completato: ' + response);
+            location.reload(); // Ricarica la pagina per vedere le modifiche
+        },
+        error: function(xhr, status, error) {
+            alert('Si è verificato un errore: ' + error);
+        }
+    });
+}
+
 
 function getMira(val, perc) {
     $.ajax({
@@ -57,29 +88,31 @@ function getMira(val, perc) {
 }
 
 
-// function roundToQuarterHour(now) {
-//     let minutes = now.minutes - (now.minutes % 15);
-    
-//     if (minutes < 10) {
-//         minutes = '0' + minutes;
-//     }
-
-//     return `${now.mday}/${now.mon}/${String(now.year).slice(-2)}<br>${now.hours}:${minutes}`;
-// }
-
+// Funzione per generare i pulsanti
+function createButton(iconClass, title, target, value) {
+    return `<button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="${target}${value}">
+                <i class="${iconClass}" title="${title}"></i>
+            </button>`;
+}
 
 function nameFormatterInsert(value, row) {
-    if (row.tipo != 'IDROMETRO COMUNE' && row.tipo != 'IDROMETRO ARPA') {
-        return '<button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#new_lettura' + value + '">\
-        <i class="fas fa-search-plus" title="Aggiungi lettura per ' + row.nome + '"></i></button> - \
-        <a class="btn btn-info" target=”_blank” href="mira.php?id=' + value + '"> <i class="fas fa-chart-line" title=Visualizza ed edita dati storici></i></a>';
-    } else if (row.tipo == 'IDROMETRO ARPA') {
-        return '<button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_a' + value + '">\
-        <i class="fas fa-chart-line" title="Visualizza grafico idro lettura per ' + row.nome + '"></i></button>';
-    } else if (row.tipo == 'IDROMETRO COMUNE') {
-        return '<button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_c' + value + '">\
-        <i class="fas fa-chart-line" title="Visualizza grafico idro lettura per ' + row.nome + '"></i></button>';
+    // Variabili per il bottone di lettura
+    const commonButtonTitle = `Aggiungi lettura per ${row.nome}`;
+    let buttons = '';
+
+    // Controlla il tipo di idrometro e genera i pulsanti di conseguenza
+    if (row.tipo !== 'IDROMETRO COMUNE' && row.tipo !== 'IDROMETRO ARPA') {
+        buttons += createButton('fas fa-search-plus', commonButtonTitle, '#new_lettura', value);
+        buttons += ` - <a class="btn btn-info" target="_blank" href="mira.php?id=${value}">
+                        <i class="fas fa-chart-line" title="Visualizza ed edita dati storici"></i>
+                    </a>`;
+    } else if (row.tipo === 'IDROMETRO ARPA') {
+        buttons += createButton('fas fa-chart-line', `Visualizza grafico idro lettura per ${row.nome}`, '#grafico_i_a', value);
+    } else if (row.tipo === 'IDROMETRO COMUNE') {
+        buttons += createButton('fas fa-chart-line', `Visualizza grafico idro lettura per ${row.nome}`, '#grafico_i_c', value);
     }
+
+    return buttons;
 }
 
 
