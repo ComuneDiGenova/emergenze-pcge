@@ -118,6 +118,8 @@ function roundToQuarterHour($now){
                     <!-- Pulsante di Invio -->
                     <div class="form-group col-lg-4">
                         <input name="conferma2" id="conferma2" type="submit" class="btn btn-primary" value="Inserisci letture">
+						<!-- Bottone Aggiorna Selezionati-->
+						<button id="aggiornaSelezionati" class="btn btn-success" onclick="clickButton2()">Aggiorna righe selezionate</button>
                     </div>
                 </form>
 
@@ -167,92 +169,93 @@ function roundToQuarterHour($now){
                	<hr>
 				<div class="row">
 					<?php
-					
-
-					$now = getdate();
-					$ora0 = roundToQuarterHour($now);
-					echo "<br><br>";
-					$data = getdate(strtotime('- 30 minutes'));
-					$ora1 = roundToQuarterHour($data);
-					
-					$data = getdate(strtotime('- 90 minutes'));
-					$ora2 = roundToQuarterHour($data);
-					
-					$data = getdate(strtotime('- 150 minutes'));
-					$ora3 = roundToQuarterHour($data);
-					
-					$data = getdate(strtotime('- 210 minutes'));
-					$ora4 = roundToQuarterHour($data);
-					
-					$data = getdate(strtotime('- 270 minutes'));
-					$ora5 = roundToQuarterHour($data);
-					
-					$data = getdate(strtotime('- 330 minutes'));
-					$ora6 = roundToQuarterHour($data);
-					
+						$now = getdate();
+						$ora0 = roundToQuarterHour($now);
+						echo "<br><br>";
+						$data = getdate(strtotime('- 30 minutes'));
+						$ora1 = roundToQuarterHour($data);
+						
+						$data = getdate(strtotime('- 90 minutes'));
+						$ora2 = roundToQuarterHour($data);
+						
+						$data = getdate(strtotime('- 150 minutes'));
+						$ora3 = roundToQuarterHour($data);
+						
+						$data = getdate(strtotime('- 210 minutes'));
+						$ora4 = roundToQuarterHour($data);
+						
+						$data = getdate(strtotime('- 270 minutes'));
+						$ora5 = roundToQuarterHour($data);
+						
+						$data = getdate(strtotime('- 330 minutes'));
+						$ora6 = roundToQuarterHour($data);
 					?>
-				
 				</div>
 				<style>
-				@media print{
-				   .fixed-table-toolbar{
-					   display:none;
-				   }
-				}
+					@media print{
+					.fixed-table-toolbar{
+						display:none;
+					}
+					}
 				</style>
-				<div class="row">
-				<div class="noprint" id="toolbar">
-					<select class="form-control noprint">
-						<option value="">Esporta i dati visualizzati</option>
-						<option value="all">Esporta tutto (lento)</option>
-						<option value="selected">Esporta solo selezionati</option>
-					</select>
+				<div class="row">	
+					<div class="noprint" id="toolbar">
+						<!-- Menu a tendina di esportazione -->
+						<select class="form-control noprint">
+							<option value="">Esporta i dati visualizzati</option>
+							<option value="all">Esporta tutto (lento)</option>
+							<option value="selected">Esporta solo selezionati</option>
+						</select>
+					</div>
 				</div>
 				<div id="tabella">
-				<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire.php" 
-					data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
-					data-search="true" data-click-to-select="true" data-show-print="true"  
-					data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-					data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-					data-filter-control="true" data-toolbar="#toolbar">
-        
-					<thead>
-						<tr>
-						<th class="noprint" data-field="state" data-checkbox="true"></th>    
-						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-						<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
-						
-						<th data-field="perc_al_g" data-sortable="true" 
-							<?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?>
-							data-filter-control="select">
-							<i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i>
-						</th>
-						<th data-field="perc_al_a" data-sortable="true" 
-							<?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>
-							data-filter-control="select">
-							<i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i>
-						</th>
-						<th data-field="perc_al_r" data-sortable="true" 
-							<?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>
-							data-filter-control="select">
-							<i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i>
-						</th>
+					<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire.php" 
+						data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+						data-search="true" data-click-to-select="true" data-show-print="true"  
+						data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+						data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+						data-filter-control="true" data-toolbar="#toolbar">
+			
+						<thead>
+							<tr>
+								<th class="noprint" data-field="state" data-checkbox="true"></th>    
+								<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+								<th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th>
+									<th data-field="perc_al_g" data-sortable="true" 
+										<?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?>
+										data-filter-control="select">
+										<i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i>
+									</th>
+									<th data-field="perc_al_a" data-sortable="true" 
+										<?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>
+										data-filter-control="select">
+										<i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i>
+									</th>
+									<th data-field="perc_al_r" data-sortable="true" 
+										<?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>
+										data-filter-control="select">
+										<i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i>
+									</th>
 
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
+									<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
+									<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th>
 
-						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
-						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
-						<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
-						</tr>
-					</thead>
-				</table>
+								<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+
+								<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
+								<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
+								<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
+								<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
+								<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
+								<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
+								<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
+								
+								<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>	
 </div>	
 	
 	
@@ -392,24 +395,6 @@ while($r = pg_fetch_assoc($result)) {
 	</div>
 
 	<?php } ?>
-
-	<div class="form-group col-lg-4">
-		<label for="tipo">Valore lettura mira 2:</label> <font color="red">*</font>
-		<select class="form-control" name="tipo" id="tipo2" required="">
-			<option name="tipo" value=""> ... </option>
-			<?php            
-			$query_tipo_lettura = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
-			$result_tipo_lettura = pg_query($conn, $query_tipo_lettura);  
-			while ($r_tipo = pg_fetch_assoc($result_tipo_lettura)) { 
-				echo "<option name='tipo' value='{$r_tipo['id']}'>{$r_tipo['descrizione']}</option>";
-			} ?>
-		</select>            
-	</div>
-
-	<br><br>
-
-	<button id="aggiornaSelezionati" class="btn btn-success" onclick="clickButton2()">Aggiorna selezionati</button>
-
 
 	<br><br>
 
