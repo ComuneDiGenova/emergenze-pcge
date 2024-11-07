@@ -6,46 +6,41 @@ function clickButton() {
     var percorso = document.getElementById('percorso').value;
 
 
-    // Crea un oggetto FormData per inviare i dati del form
-    var formData = new FormData();
-    formData.append('mira', JSON.stringify(mira)); // Invia la lista di mire come JSON
-    formData.append('tipo', tipo);
-    formData.append('percorso', percorso);
+   // Esegui la chiamata AJAX
+   $.ajax({
+        url: "eventi/nuova_lettura3.php",
+        type: 'POST',
+        data: {
+            mira: JSON.stringify(mira),  // Converti la lista di mire in JSON
+            tipo: tipo,
+            percorso: percorso
+        },
+        success: function(response) {
+            // Gestisci la risposta dal server
+            alert("Lettura inserita con successo!");
+            console.log(response); // Se necessario, mostra la risposta in console
 
-    // creo la richiesta di tipo POST
-    var url = "eventi/nuova_lettura3.php";
-    var http = new XMLHttpRequest();
-    http.open("POST", url, true);
-
-    // Imposta la funzione di callback
-    http.onreadystatechange = function() {
-        if (http.readyState === XMLHttpRequest.DONE) {
-            if (http.status === 200) {
-                // Gestisci la risposta dal server
-                console.log(http.responseText); // Puoi aggiornare l'interfaccia utente se necessario
-            } else {
-                console.error("Errore nella richiesta: " + http.status);
-            }
+            // Refresh della tabella dopo l'inserimento
+            $('#t_mire').bootstrapTable('refresh', { silent: true });
+        },
+        error: function(xhr, status, error) {
+            // Gestione dell'errore
+            console.error("Errore nella richiesta: " + xhr.status + " " + error);
+            alert("Errore durante l'inserimento delle letture. Per favore, riprova.");
         }
-    };
+    });
 
-    http.send(formData);
-
-    // resetto i campi del form
+    // Reset dei campi del form
     $('#percorso').val('NO');
     $('#mira').val('');
     $('#tipo').val('');
 
-    // refresh della tabella
-    $('#t_mire').bootstrapTable('refresh', { silent: true });
-
-    // prevengo il submit predefinito del form
+    // Prevengo il submit predefinito del form
     return false;
 }
 
 // funzione che aggiorna le mire massivamente tramite il pulsante a fondo pagine
 function clickButton2() {
-
     // Ottieni le righe selezionate
     const selectedRows = $('#t_mire').bootstrapTable('getSelections');
     if (selectedRows.length === 0) {
@@ -53,19 +48,27 @@ function clickButton2() {
         return;
     }
 
-    let value = $('#tipo2').val()
+    let value = $('#tipo').val()
+    if (!value) {
+        alert("Seleziona un valore per 'Valore lettura mira'!");
+        return;
+    }
 
-    // Raccogli gli ID delle righe selezionate
-    const ids = selectedRows.map(row => row.id);
+    // Crea una lista di oggetti per ogni riga selezionata con id e valore
+    const data = selectedRows.map(row => ({
+        id: row.id,
+        value: value
+    }));
 
     // Invia i dati al server
     $.ajax({
         url: "eventi/nuova_lettura2.php",
         type: 'POST',
-        data: { ids: ids, value: value },
+        data: { data: JSON.stringify(data) },
         success: function(response) {
             // Gestisci la risposta dal server
-            alert('Aggiornamento completato: ' + response);
+            // console.log("Dati inviati: ", data);
+            alert('Le mire selezionate sono state aggiornate');
             location.reload(); // Ricarica la pagina per vedere le modifiche
         },
         error: function(xhr, status, error) {
@@ -117,17 +120,14 @@ function nameFormatterInsert(value, row) {
 
 
 function nameFormatterLettura(value, row) {
-    if (row.tipo == 'IDROMETRO ARPA') {
-        if (value < row.arancio) {
-            return '<font style="color:#00bb2d;">' + Math.round(value * 1000) / 1000 + '</font>';
-        } else if (value > row.arancio && value < row.rosso) {
-            return '<font style="color:#FFC020;">' + Math.round(value * 1000) / 1000 + '</font>';
-        } else if (value > row.rosso) {
-            return '<font style="color:#cb3234;">' + Math.round(value * 1000) / 1000 + '</font>';
-        } else {
-            return '-';
-        }
-    } else if (row.tipo == 'IDROMETRO COMUNE') {
+    // DEBUG: controllo valori nulli o non definiti
+    // if (value == null || row.arancio == null || row.rosso == null) {
+    //         return '?';  // Ritorna '-' se mancano valori cruciali
+    //     }
+    // console.log("Nome:", row.nome, "Row tipo:", row.tipo, "Value:", value, "Arancio:", row.arancio, "Rosso:", row.rosso);
+    
+    // Applico la logica di visualizazione
+    if (row.tipo == 'IDROMETRO ARPA' || row.tipo == 'IDROMETRO COMUNE') {
         if (value < row.arancio) {
             return '<font style="color:#00bb2d;">' + Math.round(value * 1000) / 1000 + '</font>';
         } else if (value > row.arancio && value < row.rosso) {
