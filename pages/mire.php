@@ -130,7 +130,6 @@ function roundToQuarterHour($now){
 					
 
 					if ($_POST["data_inizio"]==''){
-						date_default_timezone_set('Europe/Rome');
 						$data_inizio = date('Y-m-d H:i');
 					} else{
 						$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
@@ -285,20 +284,22 @@ while($r = pg_fetch_assoc($result)) {
 							<select class="form-control" name="tipo" id="tipo" required>
 								<option value=""> ... </option>
 								<?php
-								// Query per ottenere i tipi di lettura
-								$queryTipo = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
-								$resultTipo = pg_query($conn, $queryTipo);
+									// Query per ottenere i tipi di lettura
+									$queryTipo = "SELECT id, descrizione FROM geodb.tipo_lettura_mire WHERE valido='t';";
+									$resultTipo = pg_query($conn, $queryTipo);
 
-								while ($tipo = pg_fetch_assoc($resultTipo)) {
-									echo '<option value="' . htmlspecialchars($tipo['id']) . '">' . htmlspecialchars($tipo['descrizione']) . '</option>';
-								}
+									while ($tipo = pg_fetch_assoc($resultTipo)) {
+										echo '<option value="' . htmlspecialchars($tipo['id']) . '">' . htmlspecialchars($tipo['descrizione']) . '</option>';
+									}
 								?>
 							</select>
 						</div>
 
+						<!-- Campo per la selezione dell'ora di inizio -->
 						<div class="form-group">
-							<label for="hh_start">Ora:</label>
+							<label for="hh_start">Ora:</label> <font color="red">*</font>
 							<select class="form-control" name="hh_start" id="hh_start" required>
+								<option value="">Seleziona...</option>
 								<?php
 								for ($j = 0; $j <= 24; $j++) {
 									echo '<option value="' . str_pad($j, 2, '0', STR_PAD_LEFT) . '">' . str_pad($j, 2, '0', STR_PAD_LEFT) . '</option>';
@@ -307,9 +308,11 @@ while($r = pg_fetch_assoc($result)) {
 							</select>
 						</div>
 
+						<!-- Campo per la selezione dei minuti di inizio -->
 						<div class="form-group">
-							<label for="mm_start">Minuti:</label>
+							<label for="mm_start">Minuti:</label><font color="red">*</font>
 							<select class="form-control" name="mm_start" id="mm_start" required>
+								<option value="">Seleziona...</option>
 								<?php
 								for ($j = 0; $j < 60; $j += 5) {
 									echo '<option value="' . str_pad($j, 2, '0', STR_PAD_LEFT) . '">' . str_pad($j, 2, '0', STR_PAD_LEFT) . '</option>';
@@ -321,9 +324,11 @@ while($r = pg_fetch_assoc($result)) {
 						<button id="conferma" type="submit" class="btn btn-primary">Inserisci lettura</button>
 					</form>
 				</div>
+				
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
 				</div>
+
 			</div>
 		</div>
 	</div>

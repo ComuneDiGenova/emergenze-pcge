@@ -2,7 +2,7 @@
 session_start();
 require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-date_default_timezone_set('Europe/Rome');
+
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
