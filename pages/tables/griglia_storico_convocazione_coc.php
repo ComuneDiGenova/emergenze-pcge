@@ -4,6 +4,7 @@ session_start();
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 $profilo=(int)pg_escape_string($_GET['p']);
 $livello=pg_escape_string($_GET['l']);
+
 if ($profilo==3){
 	$filter = ' ';
 } else if($profilo==8){
@@ -16,42 +17,33 @@ if ($profilo==3){
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	//$idcivico=$_GET["id"];
+
 	$query="SELECT u.matricola_cf,
-	jtfc.funzione,
-    u.nome,
-    u.cognome,
-    u.telegram_id,
-    tp.data_invio::timestamp::date,
-	tp.data_invio::timestamp::time as ora_invio,
-    tp.lettura,
-    tp.data_conferma, 
-	tp.data_invio_conv::timestamp::date,
-	tp.data_invio_conv::timestamp::time as ora_convocazione,
-	tp.data_conferma_conv,
-	tp.lettura_conv 
-   	FROM users.utenti_coc u
-    right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-    join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
-  	WHERE tp.data_invio < (select max(tp.data_invio) FROM users.t_convocazione tp) 
-  	GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, jtfc.funzione, tp.data_invio_conv, tp.data_conferma_conv,tp.lettura_conv
- 	order by tp.data_invio desc;";
-	// $query="SELECT u.matricola_cf,
-	// u.nome,
-	// u.cognome,
-	// u.telegram_id,
-	// tp.data_invio,
-	// tp.lettura,
-	// tp.data_conferma
-	// FROM users.utenti_coc u
-	// right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-	// order by tp.data_invio desc";
+				jtfc.funzione,
+				u.nome,
+				u.cognome,
+				u.telegram_id,
+				tp.data_invio::timestamp::date,
+				tp.data_invio::timestamp::time as ora_invio,
+				tp.lettura,
+				tp.data_conferma, 
+				tp.data_invio_conv::timestamp::date,
+				tp.data_invio_conv::timestamp::time as ora_convocazione,
+				tp.data_conferma_conv,
+				tp.lettura_conv 
+			FROM users.utenti_coc u
+			RIGHT JOIN users.t_convocazione tp 
+				ON u.telegram_id::text = tp.id_telegram::text
+			JOIN users.tipo_funzione_coc jtfc 
+				ON jtfc.id = u.funzione
+			WHERE tp.data_invio_conv < (SELECT max(tp.data_invio_conv) 
+										FROM users.t_convocazione tp) 
+			GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, jtfc.funzione, tp.data_invio_conv, tp.data_conferma_conv,tp.lettura_conv
+			order by tp.data_invio_conv desc;";
+
     $result = pg_prepare($conn, "myquery0", $query);
 	$result = pg_execute($conn, "myquery0", array());
-    //echo $query;
-	//$result = pg_query($conn, $query);
-	#echo $query;
-	#exit;
+
 	$rows = array();
 	while($r = pg_fetch_assoc($result)) {
     		$rows[] = $r;

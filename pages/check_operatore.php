@@ -73,14 +73,16 @@ if ($id_profilo<=3 and $id_profilo>0){
 	if ($profilo_sistema==4) {
 		$check_operatore=1; 
 	}
-} else if($id_profilo == 5) {	
+} else if($id_profilo==5) {	
 	if (substr($profilo_sistema,0,1) == $id_profilo and $profilo_cod_munic==$id_municipio){
 		$check_operatore=1;
 	}
 } else if($id_profilo==6) {
 	if (substr($profilo_sistema,0,1) == $id_profilo and $profilo_cod_munic==$id_municipio){ 
 		$check_operatore=1;
-	} 
+	} else if (substr($profilo_sistema,0,1) == 3){
+		$check_operatore=1;
+	}
 } else if($id_profilo==7) {
 	if (substr($profilo_sistema,0,1) == $id_profilo and $profilo_cod_munic==$id_municipio){ 
 		$check_operatore=1;
