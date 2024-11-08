@@ -124,10 +124,11 @@ function nameFormatterLettura(value, row) {
     // if (value == null || row.arancio == null || row.rosso == null) {
     //         return '?';  // Ritorna '-' se mancano valori cruciali
     //     }
-    // console.log("Nome:", row.nome, "Row tipo:", row.tipo, "Value:", value, "Arancio:", row.arancio, "Rosso:", row.rosso);
+
+    console.log("Nome:", row.nome, "Row tipo:", row.tipo, "Value:", value, "Arancio:", row.arancio, "Rosso:", row.rosso);
     
     // Applico la logica di visualizazione
-    if (row.tipo == 'IDROMETRO ARPA' || row.tipo == 'IDROMETRO COMUNE') {
+    if ( row.tipo == 'IDROMETRO ARPA' || row.tipo == 'IDROMETRO COMUNE' ) {
         if (value < row.arancio) {
             return '<font style="color:#00bb2d;">' + Math.round(value * 1000) / 1000 + '</font>';
         } else if (value > row.arancio && value < row.rosso) {
@@ -137,7 +138,7 @@ function nameFormatterLettura(value, row) {
         } else {
             return '-';
         }
-    } else {
+    } else if ( row.tipo == 'MIRA' || row.tipo == 'RIVO' ) {
         if (value == 1) {
             return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
         } else if (value == 2) {
