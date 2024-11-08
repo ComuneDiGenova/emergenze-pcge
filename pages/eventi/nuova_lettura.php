@@ -4,30 +4,32 @@
 
 	include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-	$id=$_GET["id"];
-	$id=str_replace("'", "", $id);
+	$id = str_replace("'", "", $_GET["id"]);
+	$tipo = $_POST["tipo"];
+	$hh_start = $_POST["hh_start"];
+	$mm_start = $_POST["mm_start"];
+	$utente = $_SESSION["Utente"]
 
-	if ($_POST["data_inizio"]==''){
-		date_default_timezone_set('Europe/Rome');
-		$data_inizio = date('Y-m-d H:i');
-	} else{
-		$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-	}
+	// Crea la data/ora combinando la data corrente con ora e minuti dal form
+	$data_inizio = date('Y-m-d') . ' ' . $hh_start . ':' . $mm_start;
 
-	echo $data_inizio;
-	echo "<br>";
+	// Inserisci la lettura a DB
+	$query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES ($id, $tipo, $data_inizio)";
+    $result = pg_query($conn, $query);
 
-	$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
-	echo $query;
-	$result = pg_query($conn, $query);
-	echo "<br>";
+	if (!$result) {
+        throw new Exception("Errore nell'inserimento della lettura.");
+    }
+	
+	// Inserisci il log dell'operazione
+	$log_message = "Inserita lettura mira . " . $id;
+	$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('geodb', $utente, $log_message)";
+    $result_log = pg_query($conn, $query_log);
 
-	$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
-	$result = pg_query($conn, $query_log);
+	if (!$result_log) {
+        throw new Exception("Errore nell'inserimento del log.");
+    }
 
-	echo "<br>";
-	echo $query_log;
-
+	// Ricarico la pagina
 	header("location: ../mire.php");
-
 ?>
