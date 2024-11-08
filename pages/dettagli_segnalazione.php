@@ -48,17 +48,12 @@ while($r_e = pg_fetch_assoc($result_e)) {
 	if($r_e['valido']=='f') {
 		$check_evento_aperto=0;
 		$table='v_segnalazioni_eventi_chiusi_lista';
-		//echo "false";
 	} else {
 		$table='v_segnalazioni';
-		//echo "true";
 	}
 }
 
 ?>
-
- 
-
 
 <link rel="stylesheet" href="l_map/css/L.Control.Locate.min.css">
    <link rel="stylesheetl_map/" href="l_map/css/qgis2web.css">
@@ -72,69 +67,55 @@ while($r_e = pg_fetch_assoc($result_e)) {
 <body>
 
     <div id="wrapper">
-
         <div id="navbar1">
-<?php
-require('navbar_up.php');
-?>
-</div>  
+
+		<?php
+			require('navbar_up.php');
+		?>
+		
+	</div>  
         <?php 
             require('./navbar_left.php')
-        ?> 
-            
+        ?>  
 
         <div id="page-wrapper">
-            <!--div class="row">
-                <div class="col-lg-12">
-                    <h1 class="page-header">Titolo pagina</h1>
-                </div>
-            </div-->
-            <!-- /.row -->
-            
-            <!--br><br-->
+
             <div class="row">
             <div class="col-md-6">
 				<?php
 					$query= "SELECT *, st_x(st_transform(geom,4326)) as lon , st_y(st_transform(geom,4326)) as lat FROM segnalazioni.".$table." WHERE id=".$id.";";
-					//echo $query
            
 					$result=pg_query($conn, $query);
 					while($r = pg_fetch_assoc($result)) {
-						
 						$lon=$r['lon'];
 						$lat=$r['lat'];
 						$id_civico=$r['id_civico'];
 						$geom=$r['geom'];
 						$id_municipio=$r['id_municipio'];
 						$id_evento=$r['id_evento'];
-						
 					?>            
             
                <h4><br><b>Tipo criticità</b>: <?php echo $r['criticita']; ?></h4>
                <hr>
             	
 						
-						<?php 
+				<?php 
             		$id_lavorazione=$r['id_lavorazione'];
 						$check_lav=0;
 						//$check_operatore=0; //controllo se l'operatore può fare qualcosa o meno
 						$id_profilo=$r['id_profilo'];
 						$id_municipio=$r['id_municipio'];
 						$id_evento=$r['id_evento'];
-						
-						
-						//echo 'Munic'. $id_municipio.'<br>';
-						//echo 'Profilo:'. $profilo_sistema.'<br>';
-						//echo 'id_uo:'. $id_uo.'<br>';
+
 						require('./check_operatore.php');
 						
 						if ($r['id_lavorazione'] !='' and $r['in_lavorazione']=='t') {
 									$check_lav=1;
 									
-									
 									$check_mun=0;
-									$query_sospeso="SELECT sospeso FROM segnalazioni.join_segnalazioni_in_lavorazione 
-									WHERE id_segnalazione_in_lavorazione = ".$id_lavorazione." AND sospeso = 't';";
+									$query_sospeso="SELECT sospeso 
+													FROM segnalazioni.join_segnalazioni_in_lavorazione 
+													WHERE id_segnalazione_in_lavorazione = ".$id_lavorazione." AND sospeso = 't';";
 									$result_sospeso=pg_query($conn, $query_sospeso);
 									while($r_sospeso = pg_fetch_assoc($result_sospeso)) {
 										if ($check_operatore==0){
@@ -222,16 +203,6 @@ require('navbar_up.php');
 							echo '<br><br><a class="btn btn-info noprint" href="dettagli_segnalazione.php?id='.$r_altre["id"].'">Vai alla segnalazione congiunta (id='.$r_altre["id"].')</a>';
 						}
 						?>
-						
-						<!--div class="panel-group">
-						  <div class="panel panel-default">
-						    <div class="panel-heading">
-						      <h4 class="panel-title">
-						        <a data-toggle="collapse" href="#c_segnalante">Generalità segnalante</a>
-						      </h4>
-						    </div>
-						    <div id="c_segnalante" class="panel-collapse collapse">
-						      <div class="panel-body"-->
 						      <hr>
 						     <h4><i class="fas fa-user"></i> Segnalante </h4> 
 						     <?php 
@@ -247,15 +218,7 @@ require('navbar_up.php');
 									echo "<br><b>Note segnalante</b>:".$r_segnalante['note'];
 								}
 						     ?>
-						      <!--/div>
-						      <div class="panel-footer">Panel Footer</div>
-						    </div>
-						  </div>
-						</div-->
-						
-						
 						<br>
-						
 						
 						<?php
 						if ($check_lav==1 OR $check_lav==-1 ){
@@ -275,15 +238,12 @@ require('navbar_up.php');
 										// cerco l'id_lavorazione
 										$query_storico="SELECT to_char(data_ora,'DD/MM/YY HH24:MI:SS')as data_ora,log_aggiornamento";
 										$query_storico= $query_storico." FROM segnalazioni.t_storico_segnalazioni_in_lavorazione WHERE id_segnalazione_in_lavorazione=".$id_lavorazione.";";
-										//echo $query_storico;
+
 										$result_storico=pg_query($conn, $query_storico);
 										while($r_storico = pg_fetch_assoc($result_storico)) {
 											echo "<hr>".$r_storico['data_ora'];
 											echo " - " .$r_storico['log_aggiornamento'];
 										}
-										
-							
-							
 										?>
 									
 									
@@ -294,11 +254,6 @@ require('navbar_up.php');
 						
 						
 						<?php
-						
-						
-						
-						
-			
 						$check_chiusura=0;  // se 0 posso chiudere se minore di 0 NO
 						$check_open_ii=0; // se 0 l'utente non può aprire incarichi interni (escluso il resp della segnalazione) se 1 anche se non resp della segnalazione va bene 
 						
@@ -322,20 +277,18 @@ require('navbar_up.php');
 								$check_chiusura=$check_chiusura-1;
 							}
 							
-						}
-						
-						
+						}						
 						
 						$check_incarichi_interni_aperti=0; // check se incarichi interni ancora aperti o rifiutati
 						$check_incarichi_interni_rifiutati=0;
 						$queryi="SELECT id FROM segnalazioni.v_incarichi_interni_last_update WHERE id_lavorazione=".$id_lavorazione. " and id_stato_incarico =2;";
-						//echo $queryi;
+
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							$check_incarichi_interni_aperti=1;
 						}
 						$queryi="SELECT id_stato_incarico FROM segnalazioni.v_incarichi_interni_last_update WHERE id_lavorazione=".$id_lavorazione. " and (id_stato_incarico = 1 OR id_stato_incarico = 4) ;";
-						//echo $query;
+
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							$check_incarichi_interni_rifiutati=1;
@@ -343,17 +296,13 @@ require('navbar_up.php');
 								$check_chiusura=$check_chiusura-1;
 							}
 						}					
-						
-						
-						
+												
 						// attenzione all'ordine con cui li controllo (dal maggiore al minore)
 						// -1 non preso in carico
 						// 1 in corso
 						// 2 completato
 						$check_sopralluoghi=0; // check se incarichi interni ancora aperti
 						$queryi="SELECT id_stato_sopralluogo FROM segnalazioni.v_sopralluoghi_last_update WHERE id_lavorazione=".$id_lavorazione. ";";
-						//$queryi="SELECT id_stato_sopralluogo FROM segnalazioni.v_sopralluoghi_last_update WHERE id_lavorazione=".$id_lavorazione. " and id_stato_sopralluogo = 3;";
-						//echo $query;
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							if ($ri['id_stato_sopralluogo']==3){
@@ -365,32 +314,16 @@ require('navbar_up.php');
 								$check_chiusura=$check_chiusura-1;
 							}
 						}
-						/*$queryi="SELECT id FROM segnalazioni.v_sopralluoghi_last_update WHERE id_lavorazione=".$id_lavorazione. " and id_stato_sopralluogo = 2;";
-						//echo $query;
-						$resulti=pg_query($conn, $queryi);
-						while($ri = pg_fetch_assoc($resulti)) {
-							$check_sopralluoghi=1;
-						}						
-					    $queryi="SELECT id FROM segnalazioni.v_sopralluoghi_last_update WHERE id_lavorazione=".$id_lavorazione. " and id_stato_sopralluogo = 1;";
-						//echo $query;
-						$resulti=pg_query($conn, $queryi);
-						while($ri = pg_fetch_assoc($resulti)) {
-							$check_sopralluoghi=-1;
-							$check_chiusura=$check_chiusura-1;
-						}*/
 						
 						$check_provvedimenti=0; // check se incarichi interni ancora aperti
 						$queryi="SELECT id FROM segnalazioni.v_provvedimenti_cautelari_last_update WHERE id_lavorazione=".$id_lavorazione. " and (id_stato_provvedimenti_cautelari = 3);";
-						//echo $query;
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							$id_provvedimento=$ri['id'];
 							$check_provvedimenti=2;
 							$check_spostamento=0;
 						}
-						
 						$queryi="SELECT id FROM segnalazioni.v_provvedimenti_cautelari_last_update WHERE id_lavorazione=".$id_lavorazione. " and (id_stato_provvedimenti_cautelari = 2);";
-						//echo $query;
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							$id_provvedimento=$ri['id'];
@@ -400,7 +333,6 @@ require('navbar_up.php');
 						}
 						
 						$queryi="SELECT id FROM segnalazioni.v_provvedimenti_cautelari_last_update WHERE id_lavorazione=".$id_lavorazione. " and (id_stato_provvedimenti_cautelari = 1);";
-						//echo $queryi;
 						$resulti=pg_query($conn, $queryi);
 						while($ri = pg_fetch_assoc($resulti)) {
 							$id_provvedimento=$ri['id'];
@@ -437,9 +369,7 @@ require('navbar_up.php');
 										} else if($check_evento_aperto==0){
 											$query_incarichi= $query_incarichi." FROM segnalazioni.v_incarichi_eventi_chiusi_last_update WHERE id_lavorazione=".$id_lavorazione;
 										}
-										// $query_incarichi= $query_incarichi." GROUP BY id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start;";
-										
-										// echo $query_incarichi;
+
 										$result_incarichi=pg_query($conn, $query_incarichi);
 										$i=0;
 										while ($r_incarichi = pg_fetch_assoc($result_incarichi)) {
@@ -471,7 +401,6 @@ require('navbar_up.php');
 											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
 										
-							
 									if($check_operatore==1 and $r['in_lavorazione']!='f') {
 										?>
 									<hr><p>
@@ -546,8 +475,7 @@ require('navbar_up.php');
 											echo " - " .$r_incarichi['descrizione_uo'];
 											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico_interno.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
-										
-									//echo $check_open_ii;
+
 									if(($check_operatore==1 or $check_open_ii==1)and $r['in_lavorazione']!='f' ) {
 										?>
 									
@@ -558,10 +486,7 @@ require('navbar_up.php');
 									</div>
 						    </div>
 						  </div>
-						</div>
-						
-						
-						
+						</div>					
 						
 						<div class="panel-group">
 									  <div class="panel panel-info">
@@ -592,7 +517,6 @@ require('navbar_up.php');
 										}
 										$query_sopralluoghi= $query_sopralluoghi." GROUP BY id, id_stato_sopralluogo,descrizione,descrizione_stato,descrizione_uo, note_ente;";
 										
-										//echo $query_sopralluoghi;
 										$result_sopralluoghi=pg_query($conn, $query_sopralluoghi);
 										$i=0;
 										while($r_sopralluoghi = pg_fetch_assoc($result_sopralluoghi)) {
@@ -616,13 +540,11 @@ require('navbar_up.php');
 												echo " (Note chiusura:" .$r_sopralluoghi['note_ente']. ")";
 											}
 											echo " - " .$r_sopralluoghi['descrizione_uo'];
-											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_sopralluogo.php?id=".$r_sopralluoghi['id']."\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
+											echo ' - <a class="btn btn-info noprint" target="_blank" href="dettagli_sopralluogo.php?id=' . $r_sopralluoghi['id'] . '"> <i class="fas fa-info"></i> Dettagli</a>';
 										}
 										
-							
 										if($check_operatore==1 and $r['in_lavorazione']!='f') {
 										?>
-									
 									 <hr><p>
 									<button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#new_sopralluogo"><i class="fas fa-pencil-ruler"></i> Assegna nuovo presidio </button>
 									</p>
@@ -662,7 +584,6 @@ require('navbar_up.php');
 										}
 										$query_provvedimenti= $query_provvedimenti." GROUP BY id, id_stato_provvedimenti_cautelari,descrizione,descrizione_stato,descrizione_uo, note_ente;";
 										
-										//echo $query_sopralluoghi;
 										$result_provvedimenti=pg_query($conn, $query_provvedimenti);
 										$i=0;
 										while($r_provvedimenti = pg_fetch_assoc($result_provvedimenti)) {
@@ -692,9 +613,6 @@ require('navbar_up.php');
 											echo " - " .$r_provvedimenti['descrizione_uo'];
 											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_provvedimento_cautelare.php?id=".$r_provvedimenti['id']."\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
-										
-							
-							
 										?>
 									<hr>Si possono aggiungere eventuali provvedimenti cautelari dalla sezione degli oggetti a rischio.
 									 
@@ -702,9 +620,7 @@ require('navbar_up.php');
 						    </div>
 						  </div>
 						</div>
-						
-						
-						
+
 						<?php
 						
 						include 'incarichi/panel_comunicazioni.php';
@@ -712,48 +628,50 @@ require('navbar_up.php');
 						}
 						if ($check_lav==1){ ?>
 						<div style="text-align: center; line-height: 1.6;">
-						<!--p>
-				      <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_incarico"><i class="fas fa-plus"></i> Assegna incarico </button>
-						 - 
-					  <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_incarico_interno"><i class="fas fa-plus"></i> Assegna incarico interno </button>
-						  - 
-					  <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_sopralluogo"><i class="fas fa-pencil-ruler"></i> Assegna sopralluogo </button>
-						</p-->
 						<hr>
 						<?php
 						if($r['id_profilo']==5) {	
-							//echo "<h4><i class=\"fas fa-lock\"></i> In carico al Municipio";
 							if ($check_operatore == 1){ 
 								if($check_incarichi_aperti==1 OR $check_incarichi_interni_aperti==1 OR $check_sopralluoghi==1 OR $check_chiusura<0 ){
 									echo "Per trasferire / chiudere la segnalazione è necessario chiudere gli incarichi attivi<br><br>";
 								} else {
 								?>
-								<!--div style="text-align: center;"-->
 									<a href="segnalazioni/trasferisci.php?l=<?php echo $r['id_lavorazione'];?>&id=<?php echo $id?>&t=3" class="btn btn-info noprint"><i class="fas fa-exchange-alt"></i> Trasferisci alla centrale PC</a> - 
-								<!--/div-->
 							<?php 
 								}
 							}
-							//echo '</h4>';	
 						} else if($r['id_profilo']==6) {
-							//echo "<h4><i class=\"fas fa-lock\"></i> In carico al Distretto";
 							if ($check_operatore == 1) { 
 								if($check_incarichi_aperti==1 OR $check_incarichi_interni_aperti==1 OR $check_sopralluoghi==1 OR $check_chiusura<0 ){
 									echo "Per trasferire / chiudere la segnalazione è necessario chiudere gli incarichi attivi<br><br>";
 								} else {
 							
-								?>
-									<!--div style="text-align: center;"-->										
+								?>										
 									<a href="segnalazioni/trasferisci.php?l=<?php echo $r['id_lavorazione'];?>&id=<?php echo $id?>&t=4" class="btn btn-info noprint"><i class="fas fa-exchange-alt"></i> Trasferisci alla centrale COA</a> - 
-									<!--/div-->
 								<?php
 								}
 							}
-						//echo '</h4>';
+
 						}
-						
-						
-						//echo $check_operatore;
+
+						// echo 'check_operatore: '.$check_operatore;
+						// echo '<br>';
+						// echo 'check_incarichi_interni_aperti: '.$check_incarichi_interni_aperti;
+						// echo '<br>';
+						// echo 'check_sopralluoghi: '.$check_sopralluoghi;
+						// echo '<br>';
+						// echo 'check_chiusura: '.$check_chiusura;
+						// echo '<br>';
+						// echo 'id_profilo: '.$id_profilo;
+						// echo '<br>';
+						// echo 'profilo_sistema: '.$profilo_sistema;
+						// echo '<br>';
+						// echo 'profilo_cod_munic: '.$profilo_cod_munic;
+						// echo '<br>';
+						// echo 'id_municipio: '.$id_municipio;
+						// echo '<br>';
+
+
 						if($check_operatore==1) {
 	   					echo '<button type="button" class="btn btn-danger noprint"  data-toggle="modal" ';
 	   					// check sugli incarichi / sopralluoghi attivi
@@ -761,14 +679,10 @@ require('navbar_up.php');
 	   						echo 'disabled="" title="Impossibile chiudere la segnalazione. Incarichi / presidi / provvedimenti cautelari risultano ancora in corso o non presi in carico."';
 	   					}
 	   					echo 'data-target="#chiudi"><i class="fas fa-times"></i> Chiudi segnalazione </button>';
-	   				}
-
+	   					}
 						?>
-						
 						</div>
-						
-						
-						
+
 						<!-- Modal incarico-->
 						<div id="new_incarico" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -781,7 +695,6 @@ require('navbar_up.php');
 							  </div>
 							  <div class="modal-body">
 							  
-
 								<form autocomplete="off" action="incarichi/nuovo_incarico.php?id=<?php echo $id_lavorazione; ?>&s=<?php echo $id; ?>" method="POST">
 								<input type="hidden" name="id_profilo" id="hiddenField" value="<?php echo $profilo_sistema ?>" />
 								
@@ -798,9 +711,6 @@ require('navbar_up.php');
 										$query = $query ." where (cod not like '%MU%' and descrizione not like '%".$id_municipio."%') or (cod like '%MU%' and descrizione like '% ".integerToRoman($id_municipio)."%')";
 										$query = $query ." order by descrizione;";
 									}
-								//$result = pg_query($conn, $query);
-								//echo $query;
-
 								?>
 								<div class="form-group">
 									  <label for="id_civico">Seleziona l'Unità Operativa cui assegnare l'incarico:</label> <font color="red">*</font>
@@ -861,9 +771,6 @@ require('navbar_up.php');
 										<input type="text" name="descrizione" class="form-control" required="">
 									   <small>Specificare in cosa consiste l'incarico da un punto di vista operativo</small>
 									  </div>            
-										  
-
-
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico</button>
 									</form>
@@ -920,9 +827,6 @@ require('navbar_up.php');
 										<input type="text" name="descrizione" class="form-control" required="">
 										<small>Specificare in cosa consiste l'incarico da un punto di vista operativo</small>
 									  </div>            
-										  
-
-
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico interno</button>
 									</form>
@@ -935,8 +839,7 @@ require('navbar_up.php');
 
 						  </div>
 						</div>
-						
-						
+
 						<!-- Modal sopralluogo-->
 						<div id="new_sopralluogo" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -955,8 +858,7 @@ require('navbar_up.php');
 								
 									<?php
 									$query2= "SELECT id, nome FROM users.v_squadre WHERE id_stato=2 AND num_componenti > 0 and cod_afferenza = '".$cod_profilo_squadra."' ORDER BY nome;";
-									//$query2="SELECT cf, nome FROM users.v_squadre WHERE id_stato=2 AND num_componenti > 0 and profilo = '".$profilo_squadre."' ORDER BY nome;";
-									//echo $query2;
+
 									$result2 = pg_query($conn, $query2);
 									?>
 									<div class="form-group">
@@ -977,9 +879,6 @@ require('navbar_up.php');
 											 <label for="descrizione"> Descrizione</label> <font color="red">*</font>
 										<input type="text" name="descrizione" class="form-control" required="">
 									  </div>            
-										  
-
-
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint"  data-toggle="tooltip" data-placement="top" title="Cliccando su questo tasto confermi le informazioni precedenti e assegni il presidio alla squadra specificata">Assegna presidio</button>
 									</form>
@@ -989,11 +888,9 @@ require('navbar_up.php');
 								<button type="button" class="btn btn-default noprint" data-dismiss="modal">Annulla</button>
 							  </div>
 							</div>
-
 						  </div>
 						</div>
-						
-						
+
 						<!-- Modal chiusura-->
 						<div id="chiudi" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -1033,17 +930,8 @@ require('navbar_up.php');
 								<label class="radio-inline"><input type="radio" name="invio" value="">No</label>
 							</div>
 
-								<!--div class="form-group">
-								<label for="cat" class="auto-length">
-									<input type="checkbox" name="cat" id="cat">
-									Cliccare qua per confermare la chiusura dell'evento 
-								</label>
-								</div-->
-
 								<br><br>
-						
-						
-						
+
 						        <button id="conferma_chiudi" type="submit" class="btn btn-danger noprint">Conferma chiusura segnalazione</button>
 						            </form>
 						
@@ -1055,21 +943,15 @@ require('navbar_up.php');
 						
 						  </div>
 						</div> 
-						
-						
-						
-						
+
 						<hr>
 						<?php 
 						} 
-						
-						
-						
+
 						if($check_lav==0){
 						// controllo se ci sono altre segnalazioni sullo stesso civico
 						$check_civico=0;
 						$query_civico="SELECT * FROM segnalazioni.".$table." where id_civico=".$r['id_civico']." and id !=".$id." and id_evento=".$r['id_evento']." and in_lavorazione='t';";
-						//echo $query_civico . "<br>";
 						$c=0;
 						$result_civico=pg_query($conn, $query_civico);
 								while($r_civico = pg_fetch_assoc($result_civico)) {
@@ -1096,8 +978,7 @@ require('navbar_up.php');
 												echo ' <i class="fas fa-circle fa-1x" style="color:#ffd800"></i> ';
 											}
 											?>
-									      
-									      
+
 									      </h4>
 									    </div>
 									    <div id="c_civico_s<?php echo $r_civico['id'];?>" class="panel-collapse collapse">
@@ -1112,9 +993,7 @@ require('navbar_up.php');
 											echo ' <i class="fas fa-circle fa-1x" style="color:#ffd800"></i> Non è specificato se ci siano persone a rischio';
 										}
 									?>
-						
-						
-						
+
 									<br><b>Data e ora inserimento</b>: <?php echo $r_civico['data_ora']; ?>
 									<br><b>Descrizione</b>: <?php echo $r_civico['descrizione']; ?>
 									
@@ -1130,15 +1009,14 @@ require('navbar_up.php');
 						    </div>
 						  </div>
 						</div>
-								<?php	
+						<?php	
 								}
 						 if($check_civico==0 and $r['id_civico']!=''){
 						 	echo "Non ci sono altre segnalazioni aperte in corrispondenza dello stesso civico.<br><br>";
 						 }
-						 ?>
-						 
-						 
-						 <?php 
+						?>
+
+						<?php 
 						// controllo se ci sono altre segnalazioni nelle vicinanze
 						$check_vic=0;
 						$geom_s=$r['geom'];
@@ -1148,7 +1026,6 @@ require('navbar_up.php');
 						} else {
 							$query_vic="SELECT * FROM segnalazioni.".$table." where st_distance(st_transform('".$r['geom']."'::geometry(point,4326),3003),st_transform(geom,3003))< 200 and id_evento=".$r['id_evento']." and id !=".$id." and in_lavorazione='t';";
 						}
-						//echo $query_vic."<br>";
 						$result_vic=pg_query($conn, $query_vic);
 								while($r_vic = pg_fetch_assoc($result_vic)) {
 									$check_vic=1;
@@ -1213,10 +1090,7 @@ require('navbar_up.php');
 						<hr>
 						<div style="text-align: center;">
 						<?php
-						//echo "test";
-						//echo $profilo_sistema;
-						//echo $id_lavorazione;
-						 if ($id_lavorazione=='' and ($profilo_cod_munic==$id_municipio or $profilo_cod_munic =='') and $profilo_sistema <= 6){ ?>
+						if ($id_lavorazione=='' and ($profilo_cod_munic==$id_municipio or $profilo_cod_munic =='') and $profilo_sistema <= 6){ ?>
 								<button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#lavorazione"> <i class="fas fa-plus"></i> 
 								<?php
 								 // solo se non ancora in lavorazione
