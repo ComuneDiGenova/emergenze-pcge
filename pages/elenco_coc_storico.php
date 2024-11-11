@@ -73,7 +73,7 @@ if ($profilo_ok == 3) {
                     <th data-field="data_conferma" data-sortable="true" data-visible="false">Data/ora conferma lettura</th>
                     <th data-field="data_invio_conv" data-sortable="true" data-filter-control="select">Data invio Convocazione</th>
                     <th data-field="ora_convocazione" data-sortable="true" data-filter-control="input">Ora invio Convocazione</th>
-                    <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatter2">Conferma Convocazione</th>
+                    <th data-field="lettura_conv" data-sortable="true" data-formatter="letturaFormatterCOC">Conferma Convocazione</th>
                     <th data-field="data_conferma_conv" data-sortable="true" data-visible="false">Data/ora conferma convocazione</th>
                 </tr>
                 </thead>
@@ -82,26 +82,7 @@ if ($profilo_ok == 3) {
     </div>
 </div>
 
-<script>
-    function letturaFormatter(value, row) {
-        if (!row['data_invio'] && !row['ora_invio']) {
-            return '<center><i class="far fa-times-circle" style="color:#9C9C9C; font-size: xx-large;"></i></center>';
-        } else {
-            const iconClass = value === 't' ? 'check-circle' : 'times-circle';
-            const color = value === 't' ? '#14c717' : '#ff0000';
-            return `<center><i class="far fa-${iconClass}" style="color:${color}; font-size: xx-large;"></i></center>`;
-        }
-    }
-
-    function letturaFormatter2(value, row) {
-        if (row.data_invio_conv == null) {
-            return '<center>-</center>';
-        }
-        const iconClass = value === 't' ? 'check-circle' : 'times-circle';
-        const color = value === 't' ? '#14c717' : '#ff0000';
-        return `<center><i class="fas fa-${iconClass}" style="color:${color}; font-size: xx-large;"></i></center>`;
-    }
-</script>
+<script src="./scripts/elenco_coc_storico_formatter.js"></script>
 
 <?php 
 require('./footer.php');

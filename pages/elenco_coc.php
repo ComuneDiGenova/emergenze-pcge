@@ -107,7 +107,7 @@ $subtitle="Convocazione COC Direttivo";
 				      </div>
 				      <div class="modal-body">
       
-                      <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php?boll_pc=<?php echo $boll_pc; ?>" method="POST">
+                      <form autocomplete="off" enctype="multipart/form-data" action="./convocazione_coc.php" method="POST">
                         <div class="form-group">
                             <label for="boll_pc">Seleziona Bollettino Protezione Civile</label> <font color="red">*</font>
                             <select class="form-control" name="boll_pc" required="yes" >
