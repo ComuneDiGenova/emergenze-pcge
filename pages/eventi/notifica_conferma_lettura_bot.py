@@ -39,20 +39,37 @@ testo=f"""{emoji.emojize(":warning:",use_aliases=True)} {emoji.emojize(":bell:",
         Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 #telegram_bot_sendtext(testo,'306530623')
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-query='''SELECT u.matricola_cf,
-                u.nome,
-                u.cognome,
-                u.telegram_id,
-                tp.data_invio,
-                tp.lettura,
-                tp.data_conferma
-        FROM users.utenti_coc u
-        RIGHT JOIN users.t_convocazione tp 
-            ON u.telegram_id::text = tp.id_telegram::text
-        WHERE tp.data_invio = (select max(tp.data_invio) 
-        FROM users.t_convocazione tp) and tp.lettura is not true
-        GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio 
-        ORDER BY tp.data_invio DESC;'''
+query='''SELECT 
+            u.matricola_cf,
+            u.nome,
+            u.cognome,
+            u.telegram_id,
+            tlb.data_invio,
+            tlb.lettura,
+            tlb.data_conferma
+        FROM 
+            users.utenti_coc u
+        RIGHT JOIN 
+            users.t_lettura_bollettino tlb 
+            ON u.telegram_id::text = tlb.id_telegram::text
+        WHERE 
+            tlb.data_invio = (
+                SELECT 
+                    MAX(tlb.data_invio) 
+                FROM 
+                    users.t_lettura_bollettino tlb
+            ) 
+            AND tlb.lettura IS NOT TRUE
+        GROUP BY 
+            u.matricola_cf, 
+            u.nome, 
+            u.cognome, 
+            u.telegram_id, 
+            tlb.lettura, 
+            tlb.data_conferma, 
+            tlb.data_invio
+        ORDER BY 
+            tlb.data_invio DESC;'''
 curr = con.cursor()
 con.autocommit = True
 
@@ -75,6 +92,3 @@ for p in result:
  
     else:
         continue
-
-
-#
