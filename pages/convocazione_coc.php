@@ -64,28 +64,28 @@ echo "\n";
 
 
 // Invio messaggio telegram per ogni telegram id del coc
-// while($r = pg_fetch_assoc($result_tg_ids)) {
+while($r = pg_fetch_assoc($result_tg_ids)) {
 	  
-// 	  	$keyboard = [
-// 			'inline_keyboard' => [
-// 				[
-// 					['text' => 'OK', 'callback_data' => 'convocazione']
-// 				]
-// 			]
-// 		];
-// 		$encodedKeyboard = json_encode($keyboard);
-// 		$parameters = 
-// 			array(
-// 				'chat_id' => $r['telegram_id'], 
-// 				'text' => $testo, 
-// 				'reply_markup' => $encodedKeyboard
-// 			);
+	  	$keyboard = [
+			'inline_keyboard' => [
+				[
+					['text' => 'OK', 'callback_data' => 'convocazione']
+				]
+			]
+		];
+		$encodedKeyboard = json_encode($keyboard);
+		$parameters = 
+			array(
+				'chat_id' => $r['telegram_id'], 
+				'text' => $testo, 
+				'reply_markup' => $encodedKeyboard
+			);
 		
-// 		sendButton('sendMessage', $parameters, $tokencoc);
-//   }
+		sendButton('sendMessage', $parameters, $tokencoc);
+  }
 
-// header("Location: elenco_coc.php");
-// exit();
+header("Location: elenco_coc.php");
+exit();
 
 
 ?>
