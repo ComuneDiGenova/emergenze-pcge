@@ -209,7 +209,7 @@ def convoca_coc(messaggio):
                 """
               
                 # query insert DB
-                query_convocazione=f"""INSERT INTO users.t_convocazione(data_invio, id_telegram, id_bollettino) 
+                query_convocazione=f"""INSERT INTO users.t_lettura_bollettino(data_invio, id_telegram, id_bollettino) 
                                         VALUES (date_trunc('hour', now()) + date_part('minute', now())::int / 10 * interval '10 min', 
                                                 {chat_id_coc}, {id_bollettino});""" 
                 curr.execute(query_convocazione)
@@ -292,9 +292,6 @@ def simula_nuovo_bollettino(bollettino='protciv_175989.pdf'):
     scarica_bollettino('PC', bollettino, 'NULL')
     
     print('\nFATTO!!')
-
-
-    
     
 
 if __name__ == "__main__":
