@@ -22,24 +22,26 @@ if (!$conn) {
 }
 
 
-$query="SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
-							u.nome,
-							u.cognome,
-							jtfc.funzione,
-							tlb.data_invio,
-							tlb.lettura,
-							tlb.data_conferma,
-							tlcc.data_invio_conv,
-							tlcc.data_conferma_conv,
-							tlcc.lettura_conv
+$query="SELECT DISTINCT ON (u.telegram_id) 
+			u.matricola_cf,
+			u.nome,
+			u.cognome,
+			jtfc.funzione,
+			tlb.data_invio,
+			tlb.lettura,
+			tlb.data_conferma,
+			tlcc.data_invio_conv,
+			tlcc.data_conferma_conv,
+			tlcc.lettura_conv,
 		FROM users.utenti_coc u
-		left join users.t_lettura_bollettino tlb
-			on u.telegram_id::text = tlb.id_telegram::text
-		left join users.t_lettura_conv_coc tlcc 
-			on u.telegram_id::text = tlcc.id_telegram::text
+		LEFT JOIN users.t_lettura_conv_coc tlcc 
+			ON u.telegram_id::text = tlcc.id_telegram::text
+		LEFT JOIN users.t_lettura_bollettino tlb
+			ON u.telegram_id::text = tlb.id_telegram::text
+			AND tlb.id_convocazione = tlcc.id_convocazione  
 		JOIN users.tipo_funzione_coc jtfc 
 			ON jtfc.id = u.funzione
-		ORDER BY u.telegram_id, tlcc.data_invio_conv desc, tlb.data_invio desc;";
+		ORDER BY u.telegram_id, tlcc.data_invio_conv DESC, tlb.data_invio DESC;";
 
 $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array());
