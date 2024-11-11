@@ -32,7 +32,7 @@ $query="SELECT DISTINCT ON (u.telegram_id)
 			tlb.data_conferma,
 			tlcc.data_invio_conv,
 			tlcc.data_conferma_conv,
-			tlcc.lettura_conv,
+			tlcc.lettura_conv
 		FROM users.utenti_coc u
 		LEFT JOIN users.t_lettura_conv_coc tlcc 
 			ON u.telegram_id::text = tlcc.id_telegram::text
