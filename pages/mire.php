@@ -123,49 +123,6 @@ function roundToQuarterHour($now){
                     </div>
                 </form>
 
-				<?php
-				if(isset($_POST["conferma2"])){ 
-					$ids=$_POST["mira"];
-					$tipo_lettura = $_POST["tipo"];
-					
-
-					if ($_POST["data_inizio"]==''){
-						date_default_timezone_set('Europe/Rome');
-						$data_inizio = date('Y-m-d H:i');
-					} else{
-						$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-					}
-					
-					// creo una lista di valori da inserire a db
-					$values = [];
-
-					// popolo la lista di valori
-					foreach ($ids as $id) {
-						$id=str_replace("'", "", $id);
-						$values[] = "($id, $tipo_lettura, '$data_inizio')";
-					}
-					
-					//costruisco la query di inserimento
-					if (!empty($values)) {
-						$values_str = implode(", ", $values);
-						$query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES $values_str;";
-						$result = pg_query($conn, $query);
-
-						if (!$result) {
-							echo "Errore durante l'inserimento delle letture: " . pg_last_error($conn);
-						} else {
-							$mire_ids_str = implode(",", $mire_ids);
-							$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('geodb', '" . $_SESSION["Utente"] . "', 'Inserite letture per le mire: $mire_ids_str');";
-							
-							$result_log = pg_query($conn, $query_log);
-
-							if (!$result_log) {
-								echo "Errore durante il log dell'operazione: " . pg_last_error($conn);
-							} 
-						}				
-					}
-				}
-				?>  
                	<hr>
 				<div class="row">
 					<?php
