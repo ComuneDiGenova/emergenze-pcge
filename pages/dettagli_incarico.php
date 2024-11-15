@@ -363,7 +363,7 @@ require('navbar_up.php');
 								?>
 								<h4><br><b>Ora inizio esecuzione incarico</b>: <?php echo $r['time_start']; ?></h4>
 							<?php } 
-							echo 'check_operatore: '.$check_operatore.'<br>';
+							// echo 'check_operatore: '.$check_operatore.'<br>';
 							if ($check_uo==1 or $check_operatore==1){
 							?>
 							<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#chiudi"><i class="fas fa-stop"></i> Chiudi</button>
