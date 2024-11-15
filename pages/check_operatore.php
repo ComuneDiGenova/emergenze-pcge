@@ -105,8 +105,8 @@ if ($check_operatore==1 or $check_squadra==1 or $check_uo==1){
 	echo ' <h3><i class="fas fa-user-check" style="color:#5fba7d"></i></h3>';
 }
 
-echo 'check_operatore: '.$check_operatore.'<br>';
-echo 'id_profilo: '.$id_profilo.'<br>';
-echo 'id_profilo0: '.$id_profilo0.'<br>';
-echo 'profilo_sistema: '.$profilo_sistema.'<br>';
+// echo 'check_operatore: '.$check_operatore.'<br>';
+// echo 'id_profilo: '.$id_profilo.'<br>';
+// echo 'id_profilo0: '.$id_profilo0.'<br>';
+// echo 'profilo_sistema: '.$profilo_sistema.'<br>';
 ?>
