@@ -29,9 +29,10 @@
 
         // Inizializza una lista per i valori da inserire
         $values = [];
-        date_default_timezone_set('Europe/Rome');
+
         $data_inizio = date('Y-m-d H:i'); 
 
+        
         // Costruisci la lista di valori per la query
         foreach ($data as $item) {
             // Assicurati che ogni elemento abbia sia 'id' che 'value'
@@ -45,7 +46,7 @@
             }
         }
 
-        // Costruisci la query di inserimento
+        Costruisci la query di inserimento
         if (!empty($values)) {
             $values_str = implode(", ", $values);
             $query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES $values_str;";
@@ -73,4 +74,6 @@
     } else {
         echo "Richiesta non valida.";
     }
+
+    header("location: ../mire.php")
 ?>

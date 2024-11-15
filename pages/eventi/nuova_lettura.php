@@ -17,13 +17,20 @@
 	$query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES ($id, $id_lettura, '$data_ora')";
     $result = pg_query($conn, $query);
 
-	echo $query;
-	// Inserisci il log dell'operazione
-	$log_message = "Inserita lettura mira . " . $id;
-	$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('geodb', $utente, $log_message)";
-    $result_log = pg_query($conn, $query_log);
+	echo $data_inizio;
+	echo "<br>";
 
-	// Ricarico la pagina
-	header("location: ../mire.php");
-	exit;
+	// $query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
+	// echo $query;
+	// $result = pg_query($conn, $query);
+	// echo "<br>";
+
+	// $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
+	// $result = pg_query($conn, $query_log);
+
+	// echo "<br>";
+	// echo $query_log;
+
+	// header("location: ../mire.php");
+
 ?>

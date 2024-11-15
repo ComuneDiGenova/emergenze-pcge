@@ -18,7 +18,6 @@
 
 		// Inizializza una lista per i valori da inserire
 		$values = [];
-
 		$data_inizio = date('Y-m-d H:i'); // Usa l'ora attuale
 
 		// Crea la lista di valori da inserire nel database
