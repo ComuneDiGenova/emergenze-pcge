@@ -94,26 +94,30 @@ async def send_welcome(message: types.Message):
 
 @dp.callback_query_handler(text='ricevuto')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
-    answer_data = query.data
+    """Questa funzione aggiorna lo stato di lettura del bollettino di PC"""
     
+    answer_data = query.data
+        
     # always answer callback queries, even if you have nothing to say
-    #await query.answer(f'You answered with {answer_data!r}')
+    # await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'ricevuto':
         tg_id = query.from_user.id
+        # logging.info(tg_id)
         query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
                                                 u.nome,
                                                 u.cognome,
                                                 u.telegram_id,
-                                                tp.id,
-                                                tp.data_invio,
-                                                tp.lettura,
-                                                tp.data_conferma
+                                                tlb.id,
+                                                tlb.data_invio,
+                                                tlb.lettura,
+                                                tlb.data_conferma,
+                                                tlb.id_bollettino
                                 FROM users.utenti_coc u
-                                JOIN users.t_convocazione tp 
-                                    ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{tg_id}'
-                                ORDER BY u.telegram_id, tp.data_invio DESC, tp.data_invio_conv DESC;"""
+                                JOIN users.t_lettura_bollettino tlb 
+                                    ON u.telegram_id::text = tlb.id_telegram::text
+                                WHERE tlb.id_telegram = CAST({tg_id} AS text)
+                                ORDER BY u.telegram_id,tlb.data_invio DESC NULLS LAST, tlb.id_bollettino DESC NULLS LAST;"""
         
         result_s=esegui_query(query_convocazione, 's')
 
@@ -122,7 +126,9 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         #if len(result_s) !=0:
         id = result_s[0][4]
-        query_conferma=f"UPDATE users.t_convocazione SET lettura=true, data_conferma=now() WHERE id_telegram ='{tg_id}' and id = {id}"
+        query_conferma=f"""UPDATE users.t_lettura_bollettino 
+                            SET lettura=true, data_conferma=now() 
+                            WHERE id = {id};"""
         result_c=esegui_query(query_conferma, 'u')
         if result_c == 1:
             text="Si è verificato un problema nell'invio della conferma di lettura."
@@ -138,6 +144,9 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     
 @dp.callback_query_handler(text='convocazione')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
+    """Questa funzione aggiorna la conferma di lettura della convocazione COC"""
+    
+    # logging.info("conferma convocazione")
     answer_data = query.data
 
     # always answer callback queries, even if you have nothing to say
@@ -151,26 +160,25 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
                                                     u.nome,
                                                     u.cognome,
                                                     u.telegram_id,
-                                                    tp.id,
-                                                    tp.data_invio,
-                                                    tp.lettura,
-                                                    tp.data_conferma,
-                                                    tp.data_invio_conv,
-                                                    tp.data_conferma_conv,
-                                                    tp.lettura_conv 
+                                                    tlcc.id,
+                                                    tlcc.data_invio_conv,
+                                                    tlcc.data_conferma_conv,
+                                                    tlcc.lettura_conv 
                                 FROM users.utenti_coc u
-                                JOIN users.t_convocazione tp 
-                                    ON u.telegram_id::text = tp.id_telegram::text
-                                WHERE tp.id_telegram = '{tg_id}' AND tp.data_invio_conv IS NOT null
-                                ORDER BY u.telegram_id, tp.data_invio_conv DESC, tp.data_invio_conv DESC;"""
+                                join users.t_lettura_conv_coc tlcc
+                                    ON u.telegram_id::text = tlcc.id_telegram::text
+                                WHERE tlcc.id_telegram = '{tg_id}' AND tlcc.data_invio_conv IS NOT null
+                                ORDER BY u.telegram_id, tlcc.data_invio_conv DESC, tlcc.id_convocazione DESC;"""
         
         result_s2=esegui_query(query_convocazione2, 's')
 
         # logging.debug(result_s2)
 
         # if len(result_s2) != 0:
-        user_id = result_s2[0][4]
-        query_conferma2=f"UPDATE users.t_convocazione SET lettura_conv=true, data_conferma_conv=now() WHERE id_telegram ='{tg_id}' and id = {user_id}"
+        row_id = result_s2[0][4]
+        query_conferma2=f"""UPDATE users.t_lettura_conv_coc 
+                            SET lettura_conv=true, data_conferma_conv=now() 
+                            WHERE id_telegram ='{tg_id}' and id = {row_id};"""
         result_c2 = esegui_query(query_conferma2, 'u')
         
         if result_c2 == 1:

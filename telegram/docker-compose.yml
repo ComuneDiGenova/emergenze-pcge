@@ -1,4 +1,4 @@
-version: '3.8'
+ #version: '3.8'
 
 networks:
   default:
@@ -43,9 +43,9 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
-    # volumes:
-    #   - ./bots:/home/${ENVUSER}/bots:rw
-    #   - ./logs:/home/${ENVUSER}/log
+    volumes:
+      - ./bots:/home/${ENVUSER}/bots:rw
+      - ./logs:/home/${ENVUSER}/log:rw
 
   postgresql:
       image: postgis/postgis:9.6-2.5-alpine
@@ -53,8 +53,11 @@ services:
       volumes:
         - ./dumps:/share/dumps:rw
         - ./postgis-data:/var/lib/postgresql/data:rw
+        - /etc/timezone:/etc/timezone:ro
+        - /etc/localtime:/etc/localtime:ro
       environment:
         # If you need to create multiple database you can add coma separated databases eg gis,data
+        - PGTZ=Europe/Rome
         - POSTGRES_DB=gis
         - POSTGRES_USER=docker
         - POSTGRES_PASSWORD=docker

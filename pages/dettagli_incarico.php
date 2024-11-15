@@ -123,10 +123,10 @@ require('navbar_up.php');
 						require('./check_operatore.php');
 						//echo $id_profilo;
 					?>            
-            
+						
                <h4><br><b>Unità operativa</b>: <?php echo $r['descrizione_uo']; ?>
                <?php
-			   
+		   
                $uo_desc=$r['descrizione_uo'];
                if ($check_uo==1){
 						echo ' ( <i class="fas fa-user-check" style="color:#5fba7d"></i> )';
@@ -363,6 +363,7 @@ require('navbar_up.php');
 								?>
 								<h4><br><b>Ora inizio esecuzione incarico</b>: <?php echo $r['time_start']; ?></h4>
 							<?php } 
+							echo 'check_operatore: '.$check_operatore.'<br>';
 							if ($check_uo==1 or $check_operatore==1){
 							?>
 							<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#chiudi"><i class="fas fa-stop"></i> Chiudi</button>
