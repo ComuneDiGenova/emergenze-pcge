@@ -145,10 +145,10 @@ db.define_table(
 
 db.utente._enable_record_versioning()
 
-db.utente.codiceFiscale.requires = requires = [
+db.utente.codiceFiscale.requires = [
     IS_NOT_EMPTY(error_message="Valore richiesto"),
     isValidCf(),
-    # IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore nullo o già registrato')
+    # IS_NOT_IN_DB(db(db.utente), db.utente.codiceFiscale, error_message='Valore già registrato')
 ]
 
 db.define_table(
