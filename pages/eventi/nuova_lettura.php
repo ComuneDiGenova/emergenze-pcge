@@ -17,17 +17,17 @@
 	echo $data_inizio;
 	echo "<br>";
 
-	$query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
-	echo $query;
-	$result = pg_query($conn, $query);
-	echo "<br>";
+	// $query="INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES(".$id.",".$_POST["tipo"].",'".$data_inizio."');"; 
+	// echo $query;
+	// $result = pg_query($conn, $query);
+	// echo "<br>";
 
-	$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
-	$result = pg_query($conn, $query_log);
+	// $query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','".$_SESSION["Utente"] ."', 'Inserita lettura mira . ".$id."');";
+	// $result = pg_query($conn, $query_log);
 
-	echo "<br>";
-	echo $query_log;
+	// echo "<br>";
+	// echo $query_log;
 
-	header("location: ../mire.php");
+	// header("location: ../mire.php");
 
 ?>
