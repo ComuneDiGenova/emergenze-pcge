@@ -556,6 +556,8 @@ def listen():
 
     set_listen()
     
+    logger.info(db.executesql('SELECT * FROM pg_listening_channels();'))
+    
     while True:
 
         for notification in wait_for_notifications():

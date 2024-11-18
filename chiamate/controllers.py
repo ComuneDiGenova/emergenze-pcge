@@ -231,7 +231,12 @@ def utente():
     if not 'dataRegistrazione' in request.POST:
         request.POST['dataRegistrazione'] = db.utente.dataRegistrazione.default()
 
-    record = db.utente(codiceFiscale=request.POST.get('codiceFiscale'))
+    db(db.utente.codiceFiscale==request.POST.get('codiceFiscale'), ignore_common_filters=True).update(
+        is_active = True,
+        eMail = None
+    )
+
+    record = db(db.utente.codiceFiscale==request.POST.get('codiceFiscale'), ignore_common_filters=True).select().first()
     form = Form(db.utente,
         record = record,
         deletable = False, # dbio=False,
