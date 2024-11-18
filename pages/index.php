@@ -520,12 +520,25 @@ $subtitle = "Dashboard o pagina iniziale";
 
                 }
 
-                function nameFormatterIncarichi(value) {
-                    if (value == 't') {
-                        return '<div style="text-align: center;"><i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i></div>';
-                    } else if (value == 'f') {
-                        return '<div style="text-align: center;"><i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i></div>';
-                    }
+                function nameFormatterIncarichi(value, row) {
+                    
+                    let out = '<div style="text-align: center;">';
+
+                    if (value == 'f') {
+                        out = out.concat('<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i>');
+                    } else if (row.incarichi_chiusi == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#32CD32"></i>');
+                    } else if (value == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i>');
+                    };
+
+                    if (row.presa_visione_verbatel=='t') {
+                        out = out.concat(' <i class="fas fa-circle" title="sola presa visione" style="color:#0000ff"></i>');
+                    };
+
+                    out = out.concat('</div>')
+
+                    return out;
                 }
 
 
@@ -535,12 +548,14 @@ $subtitle = "Dashboard o pagina iniziale";
 
                     // Return only responsabile_presidio if responsabile_incarico is empty, and viceversa
                     if (responsabileIncarico === '' && responsabilePresidio === '') {
-                        return '';  // Return empty if both fields are empty
-                    } else if (responsabilePresidio === '') {
-                        return `<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`;
-                    } else if (responsabileIncarico === '') {
-                        return `<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`;
-                    }  else if (row.incarichi === 't') {
+                        return out;  // Return empty if both fields are empty
+                    }
+
+                    if (responsabilePresidio === '') {
+                        out = out.concat(`<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`);
+                    } else if (responsabileIncarico === 'f') {
+                        out = out.concat(`<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`);
+                    } else if (row.incarichi === 't') {
                         // If both are present, display both with a line break
                         return `<div style="text-align: center;">
                                     <span style="color: orange;">${responsabileIncarico}</span><br>
