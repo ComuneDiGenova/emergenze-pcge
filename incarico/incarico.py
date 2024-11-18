@@ -311,12 +311,12 @@ def after_update_incarico(id:int) -> None:
             # Invio info a PL
             incarico_id = mio_incarico.pop('idSegnalazione')
             response = intervento.update(myintervento.intervento_id, **mio_incarico)
-    # else:
-    #     _, mio_incarico = fetch(id)
-    #     if mio_incarico['stato']==3:
-    #         incarico_id = mio_incarico.pop('idSegnalazione')
-    #         response = intervento.update(intervento.intervento_id, **mio_incarico)
-    #         return
+        # else:
+        #     _, mio_incarico = fetch(id)
+        #     if mio_incarico['stato']==3:
+        #         incarico_id = mio_incarico.pop('idSegnalazione')
+        #         response = intervento.update(intervento.intervento_id, **mio_incarico)
+        #         return
         
 
     # TODO: Verificare se la segnalazione corrispondente è in capo a PM e non ha
