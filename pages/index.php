@@ -205,11 +205,16 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="incarichi" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
                                                                     data-formatter="nameFormatterIncarichi"
-                                                                    data-visible="true">Incarichi<br>in corso</th>
-                                                                <th data-field="responsabile_incarico" data-sortable="false"
+                                                                    data-visible="true">
+                                                                    Incarichi / Presidi<br>in corso</th>
+                                                                <th data-field="responsabile" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
-                                                                    data-formatter="nameFormatterResponsabileIncarico"
-                                                                    data-visible="true">Responsabile<br>Incarico</th>
+                                                                    data-formatter="nameFormatterResponsabile"
+                                                                    data-visible="true">
+                                                                    Responsabile <br>
+                                                                    <span style="color: orange;"> Incarico</span> / 
+                                                                    <span style="color: purple;">Presidio</span>
+                                                                </th>
                                                                 <th data-field="num" data-sortable="false"
                                                                     data-visible="true">Num<br>segn</th>
                                                             </tr>
@@ -248,11 +253,15 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 data-halign="center" data-valign="center"
                                                                 data-formatter="nameFormatterIncarichi"
                                                                 data-visible="true">
-                                                                Incarichi<br>in corso</th>
-                                                            <th data-field="responsabile_incarico" data-sortable="false"
+                                                                Incarichi / Presidi<br>in corso</th>
+                                                            <th data-field="responsabile" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
-                                                                data-formatter="nameFormatterResponsabileIncarico"
-                                                                data-visible="true">Responsabile<br>Incarico</th>
+                                                                data-formatter="nameFormatterResponsabile"
+                                                                data-visible="true">
+                                                                Responsabile <br>
+                                                                <span style="color: orange;"> Incarico</span> / 
+                                                                <span style="color: purple;">Presidio</span>
+                                                            </th>
                                                             <th data-field="num" data-sortable="false"
                                                                 data-visible="true">
                                                                 Num<br>segn</th>
@@ -534,7 +543,7 @@ $subtitle = "Dashboard o pagina iniziale";
 
                     if (row.presa_visione_verbatel=='t') {
                         out = out.concat(' <i class="fas fa-circle" title="sola presa visione" style="color:#0000ff"></i>');
-                    };
+                    }
 
                     out = out.concat('</div>')
 
@@ -546,25 +555,25 @@ $subtitle = "Dashboard o pagina iniziale";
                     let responsabileIncarico = row.responsabile_incarico ? row.responsabile_incarico : '';
                     let responsabilePresidio = row.responsabile_presidio ? row.responsabile_presidio : '';
 
-                    // Return only responsabile_presidio if responsabile_incarico is empty, and viceversa
+                    let out = '';
                     if (responsabileIncarico === '' && responsabilePresidio === '') {
                         return out;  // Return empty if both fields are empty
                     }
 
                     if (responsabilePresidio === '') {
                         out = out.concat(`<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`);
-                    } else if (responsabileIncarico === 'f') {
+                    } else if (responsabileIncarico === '') {
                         out = out.concat(`<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`);
                     } else if (row.incarichi === 't') {
                         // If both are present, display both with a line break
-                        return `<div style="text-align: center;">
+                        out = out.concat(`<div style="text-align: center;">
                                     <span style="color: orange;">${responsabileIncarico}</span><br>
                                     <span style="color: purple;">${responsabilePresidio}</span>
-                                </div>`;
-                    } else {
-                        return '';  
+                                </div>`);
                     }
-                }
+
+                    return out;
+                };
 
 
                 function sourceFormatter(value, row) {
