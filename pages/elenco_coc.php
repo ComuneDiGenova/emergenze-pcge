@@ -143,6 +143,7 @@ $subtitle="Convocazione COC Direttivo";
                             <textarea class="form-control" name="testoCoC" id="testoCoC" rows="10" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Invia Convocazione COC</button>
+                        <small style="color: red;">Attenzione! è possibile effettuare una convocazione ogni 10'</small>
                     </form>
                     </div>
                     <div class="modal-footer">
@@ -150,7 +151,11 @@ $subtitle="Convocazione COC Direttivo";
                     </div>
                 </div>
             </div>
+            
         </div>
+        <div>
+            <small style="color: red;">Attenzione! è possibile effettuare una convocazione ogni 10'</small>
+        </div>      
         
         <div class="row">
             <div class="noprint" id="toolbar">
