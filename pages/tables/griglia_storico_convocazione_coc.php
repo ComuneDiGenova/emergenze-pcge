@@ -33,11 +33,13 @@ $query = "SELECT
 			users.t_lettura_bollettino tlb
 			ON u.telegram_id::text = tlb.id_telegram::text
 			AND tlcc.id_bollettino = tlb.id_bollettino
+		WHERE 
+            tlcc.data_invio_conv >= NOW() - INTERVAL '1 month'
 		GROUP BY 
 			jtfc.funzione, u.cognome, u.nome, tlb.data_invio, tlb.lettura, tlb.data_conferma,
 			tlcc.data_invio_conv, tlcc.lettura_conv, tlcc.data_conferma_conv
 		ORDER BY 
-			u.cognome, u.nome, tlcc.data_invio_conv, tlb.data_invio;";
+			tlcc.data_invio_conv, tlb.data_invio, u.cognome, u.nome;";
 
 $result = pg_query($conn, $query);
 
