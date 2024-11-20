@@ -44,12 +44,12 @@ if(!$conn) {
 				(select max(id_lettura) 
 					from geodb.lettura_mire  
 					where num_id_mira = p.id and 
-					data_ora > (now()- interval '1 hour') and data_ora < (now()- interval '10 minutes') 
+					data_ora > (now()- interval '1 hour') and data_ora < (now()- interval '30 minutes') 
 				) as \"1\",
 				(select max(id_lettura) 
 					from geodb.lettura_mire  
 					where num_id_mira = p.id and 
-					data_ora > (now()- interval '10 minutes') and data_ora < now() 
+					data_ora > (now()- interval '30 minutes') and data_ora < now() 
 				) as \"0\",
 				now() as \"NOW\"
 			FROM geodb.punti_monitoraggio_ok p
@@ -72,44 +72,44 @@ if(!$conn) {
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-						and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '06:00:00'::interval) 
-						and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '05:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '06:00:00'::interval) 
+						and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '05:00:00'::interval)
 				) AS \"6\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-						and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '05:00:00'::interval) 
-						and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '04:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '05:00:00'::interval) 
+						and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '04:00:00'::interval)
 				) as \"5\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-						and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '04:00:00'::interval) 
-						and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '03:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '04:00:00'::interval) 
+						and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '03:00:00'::interval)
 				) AS \"4\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-						and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '03:00:00'::interval) 
-						and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '02:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '03:00:00'::interval) 
+						and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '02:00:00'::interval)
 				) AS \"3\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-						and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '02:00:00'::interval)
-						and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '01:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '02:00:00'::interval)
+						and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '01:00:00'::interval)
 				) AS \"2\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text
-					and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '01:00:00'::interval) 
-					and lettura_idrometri_arpa.data_ora < (timezone('utc'::text, now()) - '00:10:00'::interval)
+					and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '01:00:00'::interval) 
+					and lettura_idrometri_arpa.data_ora < (timezone('Europe/Rome'::text, now()) - '00:10:00'::interval)
 				) AS \"1\",
 				( select greatest(max(lettura_idrometri_arpa.lettura),0) as max
 					from geodb.lettura_idrometri_arpa
 					where p.shortcode::text = lettura_idrometri_arpa.id_station::text 
-					and lettura_idrometri_arpa.data_ora > (timezone('utc'::text, now()) - '00:25:00'::interval) 
-					and lettura_idrometri_arpa.data_ora < timezone('utc'::text, now())
+					and lettura_idrometri_arpa.data_ora > (timezone('Europe/Rome'::text, now()) - '00:25:00'::interval) 
+					and lettura_idrometri_arpa.data_ora < timezone('Europe/Rome'::text, now())
 				) AS \"0\",
 				now() as \"NOW\"
 			FROM geodb.tipo_idrometri_arpa p
@@ -132,44 +132,44 @@ if(!$conn) {
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '06:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '05:00:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '06:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '05:00:00'::interval)
 				) AS \"6\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '05:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '04:00:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '05:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '04:00:00'::interval)
 				) AS \"5\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '04:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '03:00:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '04:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '03:00:00'::interval)
 				) AS \"4\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '03:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '02:00:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '03:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '02:00:00'::interval)
 				) AS \"3\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '02:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '01:00:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '02:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '01:00:00'::interval)
 				) AS \"2\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '01:00:00'::interval) 
-						and lettura_idrometri_comune.data_ora < (timezone('utc'::text, now()) - '00:10:00'::interval)
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '01:00:00'::interval) 
+						and lettura_idrometri_comune.data_ora < (timezone('Europe/Rome'::text, now()) - '00:10:00'::interval)
 				) AS \"1\",
 				( select greatest(max(lettura_idrometri_comune.lettura),0) as max
 					from geodb.lettura_idrometri_comune
 					where p.id::text = lettura_idrometri_comune.id_station::text 
-						and lettura_idrometri_comune.data_ora > (timezone('utc'::text, now()) - '00:25:00'::interval) 
-						and lettura_idrometri_comune.data_ora < timezone('utc'::text, now())
+						and lettura_idrometri_comune.data_ora > (timezone('Europe/Rome'::text, now()) - '00:25:00'::interval) 
+						and lettura_idrometri_comune.data_ora < timezone('Europe/Rome'::text, now())
 				) AS \"0\",
 				now() as \"NOW\"
 			FROM geodb.tipo_idrometri_comune p 
