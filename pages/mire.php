@@ -168,26 +168,15 @@ function roundToQuarterHour($now){
                	<hr>
 				<div class="row">
 					<?php
-						$now = getdate();
-						$ora0 = roundToQuarterHour($now);
-						echo "<br><br>";
-						$data = getdate(strtotime('- 30 minutes'));
-						$ora1 = roundToQuarterHour($data);
-						
-						$data = getdate(strtotime('- 90 minutes'));
-						$ora2 = roundToQuarterHour($data);
-						
-						$data = getdate(strtotime('- 150 minutes'));
-						$ora3 = roundToQuarterHour($data);
-						
-						$data = getdate(strtotime('- 210 minutes'));
-						$ora4 = roundToQuarterHour($data);
-						
-						$data = getdate(strtotime('- 270 minutes'));
-						$ora5 = roundToQuarterHour($data);
-						
-						$data = getdate(strtotime('- 330 minutes'));
-						$ora6 = roundToQuarterHour($data);
+						$now = time();
+
+						$ora0 = roundToQuarterHour(getdate($now));
+						$ora1 = roundToQuarterHour(getdate($now - 30 * 60));   // -30 minuti
+						$ora2 = roundToQuarterHour(getdate($now - 90 * 60));   // -90 minuti
+						$ora3 = roundToQuarterHour(getdate($now - 150 * 60));  // -150 minuti
+						$ora4 = roundToQuarterHour(getdate($now - 210 * 60));  // -210 minuti
+						$ora5 = roundToQuarterHour(getdate($now - 270 * 60));  // -270 minuti
+						$ora6 = roundToQuarterHour(getdate($now - 330 * 60));  // -330 minuti
 					?>
 				</div>
 				<style>
