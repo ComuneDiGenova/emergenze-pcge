@@ -1,36 +1,33 @@
 <?php 
+  $subtitle="Elenco segnalazioni pervenute (eventi attivi e/o in fase di chiusura)";
 
-$subtitle="Elenco segnalazioni pervenute (eventi attivi e/o in fase di chiusura)";
+  if(isset($_GET["f"])){
+    $getfiltri=$_GET["f"];
+  }
+  if(isset($_GET["a"])){
+    $filtro_evento_attivo=$_GET["a"];
+  }
+  if(isset($_GET["m"])){
+    $filtro_municipio=$_GET["m"];
+  }
+  if(isset($_GET["from"])){
+    $filtro_from=$_GET["from"];
+  }
+  if(isset($_GET["to"])){
+    $filtro_to=$_GET["to"];
+  }
+  if(isset($_GET["r"])){
+    $resp=$_GET["r"];
+  }
 
+  $uri=basename($_SERVER['REQUEST_URI']);
 
+  $pagina=basename($_SERVER['PHP_SELF']); 
 
-
-if(isset($_GET["f"])){
-	$getfiltri=$_GET["f"];
-}
-if(isset($_GET["a"])){
-	$filtro_evento_attivo=$_GET["a"];
-}
-if(isset($_GET["m"])){
-	$filtro_municipio=$_GET["m"];
-}
-if(isset($_GET["from"])){
-	$filtro_from=$_GET["from"];
-}
-if(isset($_GET["to"])){
-	$filtro_to=$_GET["to"];
-}
-if(isset($_GET["r"])){
-	$resp=$_GET["r"];
-}
-
-//echo $filtro_evento_attivo; 
-
-
-$uri=basename($_SERVER['REQUEST_URI']);
-//echo $uri;
-
-$pagina=basename($_SERVER['PHP_SELF']); 
+  require('./req.php');
+  require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
+  require('./check_evento.php');
+  require('./tables/filtri_segnalazioni.php');
 
 ?>
 <!DOCTYPE html>
@@ -45,15 +42,8 @@ $pagina=basename($_SERVER['PHP_SELF']);
     <meta name="author" content="roberto" >
 
     <title>Gestione emergenze</title>
-<?php 
-require('./req.php');
 
-require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
-
-require('./check_evento.php');
-
-require('./tables/filtri_segnalazioni.php');
-?>
+    <script src=".scripts/elenco_segnalazioni.js"></script>
     
 </head>
 
@@ -61,27 +51,20 @@ require('./tables/filtri_segnalazioni.php');
 
     <div id="wrapper">
 
-        <?php 
-            require('./navbar_up.php');
+    <?php 
+      require('./navbar_up.php');
 			if ($check_test==1){
 				$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
 			} else {
 				$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
 			}
-        ?>  
-        <?php 
-            require('./navbar_left.php');
-        ?> 
+    ?>  
+    <?php 
+        require('./navbar_left.php');
+    ?> 
             
 
-        <div id="page-wrapper">
-            <!--div class="row">
-                <div class="col-lg-12">
-                    <h1 class="page-header">Elenco segnalazioni</h1>
-                </div>
-            </div-->
-
-            
+        <div id="page-wrapper">           
             <br><br>
             <div class="row">
 
@@ -320,14 +303,14 @@ require('./tables/filtri_segnalazioni.php');
     Copia il seguente link per accedere ai geowebservice WMS del Comune di Genova:<br>
     <input readonly="readonly" id="wms" size="50" value="https://mappe.comune.genova.it/geoserver/wms?"><br><button class="btn" onclick="copybuttonwms()">Copia Url</button>
     
-    <script>
-function copybuttonwms() {
-  var copyText = document.getElementById("wms");
-  copyText.select();
-  document.execCommand("copy");
-  alert("Link WMS copiato: " + copyText.value);
-}
-</script>
+<!-- <script>
+  function copybuttonwms() {
+    var copyText = document.getElementById("wms");
+    copyText.select();
+    document.execCommand("copy");
+    alert("Link WMS copiato: " + copyText.value);
+  }
+</script> -->
     
   </div>
 </div>
@@ -336,14 +319,14 @@ function copybuttonwms() {
     Copia il seguente link per accedere ai geowebservice WFS del Comune di Genova:<br><!--a href="http://sit.comune.vicenza.it/geoserver/Internet_VI/wfs?" target="_blank"> http://sit.comune.vicenza.it/geoserver/Internet_VI/wfs?</a-->
     <input readonly="readonly" id="wfs" size="50" value="https://mappe.comune.genova.it/geoserver/wfs?"><br><button class="btn" onclick="copybuttonwfs()">Copia Url</button>
     
-    <script>
+<!-- <script>
 function copybuttonwfs() {
   var copyText = document.getElementById("wfs");
   copyText.select();
   document.execCommand("copy");
   alert("Link WFS copiato: " + copyText.value);
 }
-</script>
+</script> -->
   </div>
 </div>
 
@@ -418,84 +401,78 @@ function copybuttonwfs() {
 
 <script>
 
- function nameFormatterBKP(value) {
-        if (value=='t'){
-        		return '<i class="fas fa-play" style="color:#5cb85c"></i> in lavorazione';
-        } else if (value=='f') {
-        	   return '<i class="fas fa-stop"></i> chiusa';
-        } else {
-        	   return '<i class="fas fa-exclamation" style="color:#ff0000"></i> da prendere in carico';;
-        }
+//  function nameFormatterBKP(value) {
+//         if (value=='t'){
+//         		return '<i class="fas fa-play" style="color:#5cb85c"></i> in lavorazione';
+//         } else if (value=='f') {
+//         	   return '<i class="fas fa-stop"></i> chiusa';
+//         } else {
+//         	   return '<i class="fas fa-exclamation" style="color:#ff0000"></i> da prendere in carico';;
+//         }
 
-    }
+//     }
 
- function nameFormatter(value) {
-        if (value=='t'){
-        		return 'in lavorazione';
-        } else if (value=='f') {
-        	   return 'chiusa';
-        } else {
-        	   return 'da prendere in carico';;
-        }
+//  function nameFormatter(value) {
+//         if (value=='t'){
+//         		return 'in lavorazione';
+//         } else if (value=='f') {
+//         	   return 'chiusa';
+//         } else {
+//         	   return 'da prendere in carico';;
+//         }
 
-    }
+//     }
     
- function nameFormatterEdit(value) {
+//  function nameFormatterEdit(value) {
         
-		return '<a class="btn btn-warning" target="_blank" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
+// 		return '<a class="btn btn-warning" target="_blank" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
  
-    }
+//     }
 	
 	
- function manutenzioni(value) {
-	if (value){	
-		return '<a class="btn btn-info" target="_new" href="<?php echo $url_manutenzioni;?>id='+value+'"> '+value+' </a>';
-	} else {
-		return '-';
-	}
-}
+//  function manutenzioni(value) {
+// 	if (value){	
+// 		return '<a class="btn btn-info" target="_new" href="<?php echo $url_manutenzioni;?>id='+value+'"> '+value+' </a>';
+// 	} else {
+// 		return '-';
+// 	}
+// }
 
-  function nameFormatterRischio(value) {
-        //return '<i class="fas fa-'+ value +'"></i>' ;
+//   function nameFormatterRischio(value) {
+//         //return '<i class="fas fa-'+ value +'"></i>' ;
         
-        if (value=='t'){
-        		return '<i class="fas fa-exclamation-triangle" style="color:#ff0000"></i>';
-        } else if (value=='f') {
-        	   return '<i class="fas fa-check" style="color:#5cb85c"></i>';
-        }
-        else {
-        		return '<i class="fas fa-question" style="color:#505050"></i>';
-        }
-    }
+//         if (value=='t'){
+//         		return '<i class="fas fa-exclamation-triangle" style="color:#ff0000"></i>';
+//         } else if (value=='f') {
+//         	   return '<i class="fas fa-check" style="color:#5cb85c"></i>';
+//         }
+//         else {
+//         		return '<i class="fas fa-question" style="color:#505050"></i>';
+//         }
+//     }
 
 
-function nameFormatterMappa1(value, row) {
-	//var test_id= row.id;
-	return' <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMap'+value+'"><i class="fas fa-map-marked-alt"></i></button> \
-    <div class="modal fade" id="myMap'+value+'" role="dialog"> \
-    <div class="modal-dialog"> \
-      <div class="modal-content">\
-        <div class="modal-header">\
-          <button type="button" class="close" data-dismiss="modal">&times;</button>\
-          <h4 class="modal-title">Anteprima segnalazione '+value+'</h4>\
-        </div>\
-        <div class="modal-body">\
-        <iframe class="embed-responsive-item" style="width:100%; padding-top:0%; height:600px;" src="./mappa_leaflet.php#17/'+row.lat +'/'+row.lon +'"></iframe>\
-        </div>\
-        <!--div class="modal-footer">\
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
-        </div-->\
-      </div>\
-    </div>\
-  </div>\
-</div>';
-}
-	
-	
-
-
-
-
+// function nameFormatterMappa1(value, row) {
+// 	//var test_id= row.id;
+// 	return' <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMap'+value+'"><i class="fas fa-map-marked-alt"></i></button> \
+//     <div class="modal fade" id="myMap'+value+'" role="dialog"> \
+//     <div class="modal-dialog"> \
+//       <div class="modal-content">\
+//         <div class="modal-header">\
+//           <button type="button" class="close" data-dismiss="modal">&times;</button>\
+//           <h4 class="modal-title">Anteprima segnalazione '+value+'</h4>\
+//         </div>\
+//         <div class="modal-body">\
+//         <iframe class="embed-responsive-item" style="width:100%; padding-top:0%; height:600px;" src="./mappa_leaflet.php#17/'+row.lat +'/'+row.lon +'"></iframe>\
+//         </div>\
+//         <!--div class="modal-footer">\
+//           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
+//         </div-->\
+//       </div>\
+//     </div>\
+//   </div>\
+// </div>';
+// }
 
 </script>
 
@@ -512,10 +489,8 @@ function nameFormatterMappa1(value, row) {
 
 <?php 
 
-require('./footer.php');
-
-require('./req_bottom.php');
-
+  require('./footer.php');
+  require('./req_bottom.php');
 
 ?>
 
@@ -524,36 +499,36 @@ require('./req_bottom.php');
 </body>
 
 <script>
-    // DA MODIFICARE NELLA PRIMA RIGA L'ID DELLA TABELLA VISUALIZZATA (in questo caso t_volontari)
-    $(function () {
-    	var $table = $('#segnalazioni');
-        $('#toolbar').find('select').change(function () {
-            $table.bootstrapTable('destroy').bootstrapTable({
-                exportDataType: $(this).val()
-            });
-        });
-    });
+//     // DA MODIFICARE NELLA PRIMA RIGA L'ID DELLA TABELLA VISUALIZZATA (in questo caso t_volontari)
+//     $(function () {
+//     	var $table = $('#segnalazioni');
+//         $('#toolbar').find('select').change(function () {
+//             $table.bootstrapTable('destroy').bootstrapTable({
+//                 exportDataType: $(this).val()
+//             });
+//         });
+//     });
 	
 	
 	
 
-$(document).ready(function(){
-    $("form[id=filtro_cr]").submit(function(){
-		if ($('input[type=checkbox][id=filtro_cr]').filter(':checked').length < 1){
-        alert("Seleziona almeno una criticità!");
-		return false;
-		}
-    });
-});
+// $(document).ready(function(){
+//     $("form[id=filtro_cr]").submit(function(){
+// 		if ($('input[type=checkbox][id=filtro_cr]').filter(':checked').length < 1){
+//         alert("Seleziona almeno una criticità!");
+// 		return false;
+// 		}
+//     });
+// });
 
-$(document).ready(function(){
-    $("form[id=filtro_mun]").submit(function(){
-		if ($('input[type=checkbox][id=filtro_mun]').filter(':checked').length < 1){
-        alert("Seleziona almeno un municipio!");
-		return false;
-		}
-    });
-});
+// $(document).ready(function(){
+//     $("form[id=filtro_mun]").submit(function(){
+// 		if ($('input[type=checkbox][id=filtro_mun]').filter(':checked').length < 1){
+//         alert("Seleziona almeno un municipio!");
+// 		return false;
+// 		}
+//     });
+// });
 </script>
 
 </html>
