@@ -121,13 +121,13 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         
         result_s=esegui_query(query_convocazione, 's')
 
-        # logging.debug(result_s)
+        logging.debug(result_s)
         # logging.info(query_convocazione)
         
         #if len(result_s) !=0:
         id = result_s[0][4]
         query_conferma=f"""UPDATE users.t_lettura_bollettino 
-                            SET lettura=true, data_conferma=now() 
+                            SET lettura=true, data_conferma=NOW() AT TIME ZONE 'Europe/Rome'
                             WHERE id = {id};"""
         result_c=esegui_query(query_conferma, 'u')
         if result_c == 1:
@@ -135,7 +135,9 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         else:
             name = result_s[0][1]
             data = result_s[0][5]
+            data = data.strftime('%d-%m-%Y %H:%M')
             text=f"Gentile {name}, hai dato conferma di lettura dell'emanazione dell'allerta emanata in data {data}."
+            
             await bot.delete_message(tg_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
@@ -177,7 +179,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
         # if len(result_s2) != 0:
         row_id = result_s2[0][4]
         query_conferma2=f"""UPDATE users.t_lettura_conv_coc 
-                            SET lettura_conv=true, data_conferma_conv=now() 
+                            SET lettura_conv=true, data_conferma_conv=NOW() AT TIME ZONE 'Europe/Rome' 
                             WHERE id_telegram ='{tg_id}' and id = {row_id};"""
         result_c2 = esegui_query(query_conferma2, 'u')
         
