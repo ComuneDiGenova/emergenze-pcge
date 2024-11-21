@@ -35,21 +35,21 @@
 
 <head>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="roberto" >
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="roberto" >
 
-    <title>Gestione emergenze</title>
+  <title>Gestione emergenze</title>
 
-    <script src=".scripts/elenco_segnalazioni.js"></script>
+  <script src=".scripts/elenco_segnalazioni.js"></script>
     
 </head>
 
 <body>
 
-    <div id="wrapper">
+  <div id="wrapper">
 
     <?php 
       require('./navbar_up.php');
@@ -58,92 +58,80 @@
 			} else {
 				$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
 			}
-    ?>  
-    <?php 
-        require('./navbar_left.php');
+
+      require('./navbar_left.php');
     ?> 
             
 
-        <div id="page-wrapper">           
-            <br><br>
-            <div class="row">
+    <div id="page-wrapper">           
+        <br><br>
+        <div class="row">
 
-<p>
+          <p>
             <a class="btn btn-primary" data-toggle="collapse" href="#collapsecriticita" role="button" aria-expanded="false" aria-controls="collapseExample">
-            <i class="fas fa-filter"></i>  Filtra per criticità
-          </a>
+              <i class="fas fa-filter"></i>  Filtra per criticità
+            </a>
 		  
-		  <a class="btn btn-primary" data-toggle="collapse" href="#collapsemunicipio" role="button" aria-expanded="false" aria-controls="collapseExample">
-            <i class="fas fa-home"></i>  Filtra per municipio
-          </a>
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapsemunicipio" role="button" aria-expanded="false" aria-controls="collapseExample">
+                  <i class="fas fa-home"></i>  Filtra per municipio
+            </a>
 		  
-		  <a class="btn btn-primary" data-toggle="collapse" href="#collapsedata" role="button" aria-expanded="false" aria-controls="collapseExample">
-            <i class="fas fa-hourglass"></i>  Filtra per data
-          </a>
-			<?php if($filtro_evento_attivo==1){?>
-			<a class="btn btn-primary" href="./elenco_segnalazioni.php?r=<?php echo $resp;?>&m=<?php echo $filtro_municipio?>&f=<?php echo $getfiltri?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>">
-            <i class="fas fa-play"></i> <i class="fas fa-pause"></i> Vedi tutti gli eventi (non solo gli attivi)
-          </a>
-			<?php } else {?>  
-           <a class="btn btn-primary" href="./elenco_segnalazioni.php?r=<?php echo $resp;?>&a=1&m=<?php echo $filtro_municipio?>&f=<?php echo $getfiltri?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>">
-            <i class="fas fa-play"></i> Vedi solo eventi attivi
-          </a>
-		  <?php }?> 
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapsedata" role="button" aria-expanded="false" aria-controls="collapseExample">
+                  <i class="fas fa-hourglass"></i>  Filtra per data
+            </a>
+            <?php if($filtro_evento_attivo==1){?>
+            <a class="btn btn-primary" href="./elenco_segnalazioni.php?r=<?php echo $resp;?>&m=<?php echo $filtro_municipio?>&f=<?php echo $getfiltri?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>">
+                  <i class="fas fa-play"></i> <i class="fas fa-pause"></i> Vedi tutti gli eventi (non solo gli attivi)
+                </a>
+            <?php } else {?>  
+                <a class="btn btn-primary" href="./elenco_segnalazioni.php?r=<?php echo $resp;?>&a=1&m=<?php echo $filtro_municipio?>&f=<?php echo $getfiltri?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>">
+                  <i class="fas fa-play"></i> Vedi solo eventi attivi
+                </a>
+            <?php }?> 
 		  
-		  <?php if($resp!=''){?>
-			<a class="btn btn-primary" href="./<?php echo $pagina?>?u=<?php echo $uo?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>&f=<?php echo $getfiltri?>&a=<?php echo $filtro_evento_attivo?>&m=<?php echo $filtro_municipio?>">
-            <i class="fas fa-users"></i> Vedi tutte le segnalazioni 
-            (non solo quelle di cui sei responsabile)
-          </a>
-			<?php } else {?>  
-           <a class="btn btn-primary" href="./<?php echo $pagina?>?r=<?php echo $profilo_ok?>&u=<?php echo $uo?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>&f=<?php echo $getfiltri?>&a=<?php echo $filtro_evento_attivo?>&m=<?php echo $filtro_municipio?>">
-            <i class="fas fa-user-check"></i> Vedi solo le segnalazioni di cui sei responsabile
-          </a>
-		  <?php }?>
-        </p>
-        
-		
-		
+            <?php if($resp!=''){?>
+            <a class="btn btn-primary" href="./<?php echo $pagina?>?u=<?php echo $uo?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>&f=<?php echo $getfiltri?>&a=<?php echo $filtro_evento_attivo?>&m=<?php echo $filtro_municipio?>">
+                  <i class="fas fa-users"></i> Vedi tutte le segnalazioni 
+                  (non solo quelle di cui sei responsabile)
+                </a>
+            <?php } else {?>  
+                <a class="btn btn-primary" href="./<?php echo $pagina?>?r=<?php echo $profilo_ok?>&u=<?php echo $uo?>&to=<?php echo $filtro_to?>&from=<?php echo $filtro_from?>&f=<?php echo $getfiltri?>&a=<?php echo $filtro_evento_attivo?>&m=<?php echo $filtro_municipio?>">
+                  <i class="fas fa-user-check"></i> Vedi solo le segnalazioni di cui sei responsabile
+                </a>
+            <?php }?>
+          </p>
 
-
-		<div class="collapse" id="collapsecriticita">
-          <div class="card card-body">
-         		  
-          <form id="filtro_cr" action="./tables/decodifica_filtro0.php?r=<?php echo $resp;?>&a=<?php echo $filtro_evento_attivo?>&from=<?php echo $filtro_from?>&to=<?php echo $filtro_to?>&m=<?php echo $filtro_municipio?>" method="post">
-            <input type="hidden" name="pagina" id="hiddenField" value="<?php echo $pagina; ?>" />
+          <div class="collapse" id="collapsecriticita">
+              <div class="card card-body">
+                    
+                <form id="filtro_cr" action="./tables/decodifica_filtro0.php?r=<?php echo $resp;?>&a=<?php echo $filtro_evento_attivo?>&from=<?php echo $filtro_from?>&to=<?php echo $filtro_to?>&m=<?php echo $filtro_municipio?>" method="post">
+                  <input type="hidden" name="pagina" id="hiddenField" value="<?php echo $pagina; ?>" />
 			
-			<?php
-            $query='SELECT * FROM segnalazioni.tipo_criticita where valido=\'t\' ORDER BY descrizione;';
-            $result = pg_query($conn, $query);
-	         #echo $result;
-	         //exit;
-	         //$rows = array();
-            //echo '<div class="form-check form-check-inline">';
-            echo '<div class="row">';
-	         while($r = pg_fetch_assoc($result)) {
-					echo '<div class="form-check col-md-3">';
-	            echo '  <input class="form-check-input" type="checkbox" id="filtro_cr" name="filter'.$r['id'].'"  value=1" >';
-	            echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['descrizione'].'</label>';
-	            echo "</div>";
-	            
-            }
-            echo "</div>";
-
-        ?>
-        <!--hr-->
+                  <?php
+                    $query="SELECT * FROM segnalazioni.tipo_criticita where valido='t' ORDER BY descrizione;";
+                    $result = pg_query($conn, $query);
+                    echo '<div class="row">';
+                    while($r = pg_fetch_assoc($result)) {
+                      echo '<div class="form-check col-md-3">';
+                          echo '  <input class="form-check-input" type="checkbox" id="filtro_cr" name="filter'.$r['id'].'"  value=1" >';
+                          echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['descrizione'].'</label>';
+                          echo "</div>";
+                        
+                    }
+                    echo "</div>";
+                  ?>
 		
-			<button id="checkBtn_filtri" type="submit" class="btn btn-primary"> 
-			<?php if ($getfiltri=='' or intval($getfiltri)==0) {?>
-				Filtra 
-			<?php } else {?>
-				Aggiorna filtro
-			<?php }?>
-			</button>
+                  <button id="checkBtn_filtri" type="submit" class="btn btn-primary"> 
+                    <?php if ($getfiltri=='' or intval($getfiltri)==0) {?>
+                      Filtra 
+                    <?php } else {?>
+                      Aggiorna filtro
+                    <?php }?>
+                  </button>
 			
-
-        </form>
-          </div>
-        </div>
+                </form>
+              </div>
+            </div>
 		
 		<div class="collapse" id="collapsemunicipio">
           <div class="card card-body">
@@ -151,24 +139,20 @@
           <form id="filtro_mun" action="./tables/decodifica_filtro1.php?r=<?php echo $resp;?>&a=<?php echo $filtro_evento_attivo?>&from=<?php echo $filtro_from?>&to=<?php echo $filtro_to?>&f=<?php echo $getfiltri?>" method="post">
             <input type="hidden" name="pagina" id="hiddenField" value="<?php echo $pagina; ?>" />
 			<?php
-            $query='SELECT * FROM geodb.municipi ORDER BY codice_mun;';
-            $result = pg_query($conn, $query);
-	         #echo $result;
-	         //exit;
-	         //$rows = array();
-            //echo '<div class="form-check form-check-inline">';
-            echo '<div class="row">';
-	         while($r = pg_fetch_assoc($result)) {
-					echo '<div class="form-check col-md-3">';
-	            echo '  <input class="form-check-input" type="checkbox" id="filtro_mun" name="filter'.$r['codice_mun'].'"  value=1" >';
-	            echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['codice_mun'].' - '.$r['nome_munic'].'</label>';
-	            echo "</div>";
-	            
-            }
-            echo "</div>";
+        $query="SELECT * FROM geodb.municipi ORDER BY codice_mun;";
+        $result = pg_query($conn, $query);
+        echo '<div class="row">';
 
-        ?>
-        <!--hr-->
+        while($r = pg_fetch_assoc($result)) {
+          echo '<div class="form-check col-md-3">';
+              echo '  <input class="form-check-input" type="checkbox" id="filtro_mun" name="filter'.$r['codice_mun'].'"  value=1" >';
+              echo '  <label class="form-check-label" for="inlineCheckbox1">'.$r['codice_mun'].' - '.$r['nome_munic'].'</label>';
+              echo "</div>";
+            
+        }
+        echo "</div>";
+
+      ?>
 		
 			<button id="checkBtn_filtri" type="submit" class="btn btn-primary"> 
 			<?php if ($getfiltri=='' or intval($getfiltri)==0) {?>
@@ -257,7 +241,7 @@
 			Download KML <i class="fas fa-download"></i></button> 
 			 - 
 			<?php			
-			} // end if profilo_ok
+			}
 			?>
 			<button type="button" class="btn btn-info" data-toggle="modal" data-target="#download">
 			Geoservizi WMS e WFS <i class="fa fa-map"></i></button>
@@ -301,17 +285,7 @@
 <div class="collapse" id="collapseExample">
   <div class="well">
     Copia il seguente link per accedere ai geowebservice WMS del Comune di Genova:<br>
-    <input readonly="readonly" id="wms" size="50" value="https://mappe.comune.genova.it/geoserver/wms?"><br><button class="btn" onclick="copybuttonwms()">Copia Url</button>
-    
-<!-- <script>
-  function copybuttonwms() {
-    var copyText = document.getElementById("wms");
-    copyText.select();
-    document.execCommand("copy");
-    alert("Link WMS copiato: " + copyText.value);
-  }
-</script> -->
-    
+    <input readonly="readonly" id="wms" size="50" value="https://mappe.comune.genova.it/geoserver/wms?"><br><button class="btn" onclick="copybuttonwms()">Copia Url</button>    
   </div>
 </div>
 <div class="collapse" id="collapseExample2">
@@ -319,20 +293,12 @@
     Copia il seguente link per accedere ai geowebservice WFS del Comune di Genova:<br><!--a href="http://sit.comune.vicenza.it/geoserver/Internet_VI/wfs?" target="_blank"> http://sit.comune.vicenza.it/geoserver/Internet_VI/wfs?</a-->
     <input readonly="readonly" id="wfs" size="50" value="https://mappe.comune.genova.it/geoserver/wfs?"><br><button class="btn" onclick="copybuttonwfs()">Copia Url</button>
     
-<!-- <script>
-function copybuttonwfs() {
-  var copyText = document.getElementById("wfs");
-  copyText.select();
-  document.execCommand("copy");
-  alert("Link WFS copiato: " + copyText.value);
-}
-</script> -->
+
   </div>
 </div>
 
-</div> <!-- center -->
-<!--hr>
-<h4> <i class="fa fa-map"></i> Download file in locale </h4-->
+</div>
+
 						
 						
 					</div>
@@ -399,83 +365,6 @@ function copybuttonwfs() {
 
 <br><br>
 
-<script>
-
-//  function nameFormatterBKP(value) {
-//         if (value=='t'){
-//         		return '<i class="fas fa-play" style="color:#5cb85c"></i> in lavorazione';
-//         } else if (value=='f') {
-//         	   return '<i class="fas fa-stop"></i> chiusa';
-//         } else {
-//         	   return '<i class="fas fa-exclamation" style="color:#ff0000"></i> da prendere in carico';;
-//         }
-
-//     }
-
-//  function nameFormatter(value) {
-//         if (value=='t'){
-//         		return 'in lavorazione';
-//         } else if (value=='f') {
-//         	   return 'chiusa';
-//         } else {
-//         	   return 'da prendere in carico';;
-//         }
-
-//     }
-    
-//  function nameFormatterEdit(value) {
-        
-// 		return '<a class="btn btn-warning" target="_blank" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
- 
-//     }
-	
-	
-//  function manutenzioni(value) {
-// 	if (value){	
-// 		return '<a class="btn btn-info" target="_new" href="<?php echo $url_manutenzioni;?>id='+value+'"> '+value+' </a>';
-// 	} else {
-// 		return '-';
-// 	}
-// }
-
-//   function nameFormatterRischio(value) {
-//         //return '<i class="fas fa-'+ value +'"></i>' ;
-        
-//         if (value=='t'){
-//         		return '<i class="fas fa-exclamation-triangle" style="color:#ff0000"></i>';
-//         } else if (value=='f') {
-//         	   return '<i class="fas fa-check" style="color:#5cb85c"></i>';
-//         }
-//         else {
-//         		return '<i class="fas fa-question" style="color:#505050"></i>';
-//         }
-//     }
-
-
-// function nameFormatterMappa1(value, row) {
-// 	//var test_id= row.id;
-// 	return' <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMap'+value+'"><i class="fas fa-map-marked-alt"></i></button> \
-//     <div class="modal fade" id="myMap'+value+'" role="dialog"> \
-//     <div class="modal-dialog"> \
-//       <div class="modal-content">\
-//         <div class="modal-header">\
-//           <button type="button" class="close" data-dismiss="modal">&times;</button>\
-//           <h4 class="modal-title">Anteprima segnalazione '+value+'</h4>\
-//         </div>\
-//         <div class="modal-body">\
-//         <iframe class="embed-responsive-item" style="width:100%; padding-top:0%; height:600px;" src="./mappa_leaflet.php#17/'+row.lat +'/'+row.lon +'"></iframe>\
-//         </div>\
-//         <!--div class="modal-footer">\
-//           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
-//         </div-->\
-//       </div>\
-//     </div>\
-//   </div>\
-// </div>';
-// }
-
-</script>
-
 
 
 
@@ -497,38 +386,5 @@ function copybuttonwfs() {
 
     
 </body>
-
-<script>
-//     // DA MODIFICARE NELLA PRIMA RIGA L'ID DELLA TABELLA VISUALIZZATA (in questo caso t_volontari)
-//     $(function () {
-//     	var $table = $('#segnalazioni');
-//         $('#toolbar').find('select').change(function () {
-//             $table.bootstrapTable('destroy').bootstrapTable({
-//                 exportDataType: $(this).val()
-//             });
-//         });
-//     });
-	
-	
-	
-
-// $(document).ready(function(){
-//     $("form[id=filtro_cr]").submit(function(){
-// 		if ($('input[type=checkbox][id=filtro_cr]').filter(':checked').length < 1){
-//         alert("Seleziona almeno una criticità!");
-// 		return false;
-// 		}
-//     });
-// });
-
-// $(document).ready(function(){
-//     $("form[id=filtro_mun]").submit(function(){
-// 		if ($('input[type=checkbox][id=filtro_mun]').filter(':checked').length < 1){
-//         alert("Seleziona almeno un municipio!");
-// 		return false;
-// 		}
-//     });
-// });
-</script>
 
 </html>
