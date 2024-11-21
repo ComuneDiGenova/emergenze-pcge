@@ -90,24 +90,6 @@ $(function () {
     });
 });
 	
-// $(document).ready(function(){
-//     $("form[id=filtro_cr]").submit(function(){
-// 		if ($('input[type=checkbox][id=filtro_cr]').filter(':checked').length < 1){
-//         alert("Seleziona almeno una criticità!");
-// 		return false;
-// 		}
-//     });
-// });
-
-// $(document).ready(function(){
-//     $("form[id=filtro_mun]").submit(function(){
-// 		if ($('input[type=checkbox][id=filtro_mun]').filter(':checked').length < 1){
-//         alert("Seleziona almeno un municipio!");
-// 		return false;
-// 		}
-//     });
-// });
-
 $(document).ready(function() {
     $("form[id=filtro_cr], form[id=filtro_mun]").submit(function() {
         let checkboxId = $(this).attr("id");
