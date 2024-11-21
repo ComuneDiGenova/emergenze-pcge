@@ -2,7 +2,7 @@
     session_start();
     require('../validate_input.php');
 
-    include explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
+    include explode('emergenze-pcge', getcwd())[0].'emergenze-pcge/conn.php';
 
     // Verifica se la richiesta è POST
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,7 +46,7 @@
             }
         }
 
-        Costruisci la query di inserimento
+        // Costruisci la query di inserimento
         if (!empty($values)) {
             $values_str = implode(", ", $values);
             $query = "INSERT INTO geodb.lettura_mire (num_id_mira, id_lettura, data_ora) VALUES $values_str;";
