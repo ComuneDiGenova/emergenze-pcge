@@ -46,6 +46,8 @@ def get_cursor(host=ip, dbname=db, user=user, password=pwd, port=port, autocommi
     print(conn)
     conn.autocommit = autocommit
     curr = conn.cursor()
+    
+    curr.execute("SET TIMEZONE TO 'Europe/Rome';")
     return curr
 
 
@@ -210,7 +212,7 @@ def convoca_coc(messaggio):
               
                 # query insert DB
                 query_convocazione=f"""INSERT INTO users.t_lettura_bollettino(data_invio, id_telegram, id_bollettino) 
-                                        VALUES (date_trunc('hour', NOW() AT TIME ZONE 'Europe/Rome') + date_part('minute', NOW() AT TIME ZONE 'Europe/Rome')::int / 10 * interval '10 min', 
+                                        VALUES (date_trunc('hour', NOW()) + date_part('minute', NOW())::int / 10 * interval '10 min', 
                                                 {chat_id_coc}, {id_bollettino});""" 
                 curr.execute(query_convocazione)
                 
