@@ -1,26 +1,16 @@
 <?php
 session_start();
-//require('../validate_input.php');
+
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 $profilo = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT);
 $livello = pg_escape_string($_GET['l']);
-// $boll_pc = filter_input(INPUT_GET, 'boll_pc', FILTER_VALIDATE_INT) ?? 0;
-
-// if ($profilo === 3){
-// 	$filter = ' ';
-// } elseif ($profilo === 8){
-// 	$filter= ' WHERE id_profilo=\''.$profilo.'\' and nome_munic = \''.$livello.'\' ';
-// } else {
-// 	$filter= ' WHERE id_profilo=\''.$profilo.'\' ';
-// }
 
 
 if (!$conn) {
     echo json_encode(['error' => 'Connection failed!']);
     exit;
 }
-
 
 $query="SELECT DISTINCT ON (u.telegram_id) 
 			u.matricola_cf,
