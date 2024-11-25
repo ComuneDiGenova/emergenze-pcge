@@ -38,7 +38,10 @@ if(!$conn) {
 			END, ' - '
 		) AS responsabile_incarico,
 		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
-		bool_and(i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) AS incarichi_chiusi,
+		-- non si considera l'incarico iniziale corrispondente all'intervento verbatel iniziale
+		count(case
+			when (i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) then 1
+		end)>1 AS incarichi_chiusi,
 		bool_and(coalesce(sdv.intervento_id, 0)::boolean and (s.id_profilo=6)) as presa_visione_verbatel
 	FROM 
 		segnalazioni.v_segnalazioni_lista_pp s
