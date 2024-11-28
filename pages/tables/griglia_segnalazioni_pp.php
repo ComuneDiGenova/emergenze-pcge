@@ -45,7 +45,10 @@ if(!$conn) {
 				ELSE null
 			END, ' - '
 		) AS responsabile_incarico,
-		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel
+		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
+		count(case
+			when (i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) then 1
+		end)>0 AS incarichi_chiusi
 	FROM 
 		segnalazioni.v_segnalazioni_lista_pp s
 	JOIN 
