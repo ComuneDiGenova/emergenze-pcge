@@ -533,12 +533,13 @@ $subtitle = "Dashboard o pagina iniziale";
                     
                     let out = '<div style="text-align: center;">';
 
-                    if (value == 'f') {
-                        out = out.concat('<i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i>');
-                    } else if (row.incarichi_chiusi == 't') {
-                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#32CD32"></i>');
+
+                    if (row.incarichi_chiusi == 'f') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#ff0000"></i>');
                     } else if (value == 't') {
                         out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i>');
+                    } else {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#32CD32"></i>');
                     };
 
                     if (row.presa_visione_verbatel=='t') {
