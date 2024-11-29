@@ -43,7 +43,7 @@
 
   <title>Gestione emergenze</title>
 
-  <script src=".scripts/elenco_segnalazioni.js"></script>
+  <script src="./scripts/elenco_segnalazioni.js"></script>
     
 </head>
 
