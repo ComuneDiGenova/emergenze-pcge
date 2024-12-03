@@ -20,60 +20,76 @@ if(!$conn) {
 } else {
 
 	$query = "SELECT 
-		s.id, 
-		s.criticita, 
-		s.id_evento, 
-		s.num, 
-		s.in_lavorazione, 
-		s.localizzazione, 
-		s.nome_munic,
-		st_x(s.geom) AS lon, 
-		st_y(s.geom) AS lat,
-		s.incarichi,
+		MAX(seg.id) AS id,
+		COUNT(seg.id) AS num,
+		STRING_AGG(seg.descrizione::text, '<br>') AS descrizione,
+		ARRAY_TO_STRING(ARRAY_AGG(DISTINCT crit.descrizione::text), '<br>') AS criticita,
+		ARRAY_TO_STRING(ARRAY_AGG(DISTINCT mun.nome_munic::text), '<br>') AS municipio,
+		STRING_AGG(
+			COALESCE(
+				(civ.desvia || ' ' || civ.testo),
+				civici_laterale.desvia_testo
+			), '<br>'
+		) AS localizzazione,
+		join_lav.id_segnalazione_in_lavorazione AS id_lavorazione,
+		lav.in_lavorazione,
+		lav.id_profilo,
+		COALESCE(
+			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico<3)>0, 
+			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico<3)>0, 
+			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari<3)>0, 
+			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo<3)>0
+		) AS incarichi,
+		COALESCE(
+			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico=3)>1, 
+			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico=3)>0, 
+			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari=3)>0, 
+			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo=3)>0
+		) AS incarichi_chiusi,
+		seg.id_evento,
+		MAX(seg.geom::text) AS geom,
+		evento.fine_sospensione,
 		string_agg(
 			CASE 
-				WHEN i.id_stato_incarico::varchar = '2' THEN i.descrizione_uo::varchar
-				WHEN ii.id_stato_incarico::varchar = '2' THEN ii.descrizione_uo::varchar
+				WHEN inc_esterni.id_stato_incarico::varchar = '2' THEN inc_esterni.descrizione_uo::varchar
+				WHEN inc_interni.id_stato_incarico::varchar = '2' THEN inc_interni.descrizione_uo::varchar
 				ELSE null
 			END, ' - '
 		) AS responsabile_incarico,
-		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
-		-- non si considera l'incarico iniziale corrispondente all'intervento verbatel iniziale
-		count(case
-			when (i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) then 1
-		end)>1 AS incarichi_chiusi,
-		bool_and(coalesce(sdv.intervento_id, 0)::boolean and (s.id_profilo=6)) as presa_visione_verbatel
+		bool_and(coalesce(verb.intervento_id, 0)::boolean and (lav.id_profilo=6)) as presa_visione_verbatel
 	FROM 
-		segnalazioni.v_segnalazioni_lista_pp s
-	JOIN 
-		segnalazioni.join_segnalazioni_in_lavorazione j
-		ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
-	LEFT JOIN 
-		segnalazioni.v_incarichi i
-		ON s.id_lavorazione = i.id_lavorazione
-	LEFT JOIN 
-		segnalazioni.v_incarichi_interni ii
-		ON s.id_lavorazione = ii.id_lavorazione
-	LEFT JOIN 
-		verbatel.segnalazioni_da_verbatel sdv
-		ON sdv.segnalazione_id = s.id
-	WHERE
-		sdv.segnalazione_id is NOT NULL
-		AND (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL)
-		AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW())
-		AND j.sospeso = 'f'
+		segnalazioni.t_segnalazioni seg
+	JOIN segnalazioni.tipo_criticita crit ON crit.id = seg.id_criticita
+	JOIN eventi.t_eventi evento ON evento.id = seg.id_evento
+	LEFT JOIN segnalazioni.join_segnalazioni_in_lavorazione join_lav ON join_lav.id_segnalazione = seg.id
+	LEFT JOIN segnalazioni.t_segnalazioni_in_lavorazione lav ON join_lav.id_segnalazione_in_lavorazione = lav.id
+	LEFT JOIN geodb.municipi mun ON seg.id_municipio = mun.id::integer
+	LEFT JOIN geodb.civici civ ON civ.id = seg.id_civico
+	LEFT JOIN LATERAL (
+		SELECT CONCAT('~ ', civ_est.desvia, ' ', civ_est.testo) AS desvia_testo
+		FROM geodb.civici civ_est
+		WHERE civ_est.geom && ST_Expand(ST_Transform(seg.geom, 3003), 250)
+		ORDER BY ST_Distance(civ_est.geom, ST_Transform(seg.geom, 3003))
+		LIMIT 1
+	) civici_laterale ON civ.id IS NULL
+	LEFT JOIN segnalazioni.v_incarichi_last_update inc_esterni 
+		ON inc_esterni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_esterni.id_stato_incarico < 4
+	LEFT JOIN segnalazioni.v_incarichi_interni_last_update inc_interni 
+		ON inc_interni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_interni.id_stato_incarico < 4
+	LEFT JOIN segnalazioni.v_provvedimenti_cautelari_last_update prov_caut 
+		ON prov_caut.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND prov_caut.id_stato_provvedimenti_cautelari < 4
+	LEFT JOIN segnalazioni.v_sopralluoghi_last_update sopralluoghi 
+		ON sopralluoghi.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND sopralluoghi.id_stato_sopralluogo < 4
+	LEFT JOIN verbatel.segnalazioni_da_verbatel verb ON verb.segnalazione_id = seg.id
+	WHERE lav.in_lavorazione = true
+		AND verb.segnalazione_id IS NOT NULL
 	GROUP BY 
-		s.id, 
-		sdv.intervento_id, 
-		s.criticita, 
-		s.id_evento, 
-		s.num, 
-		s.in_lavorazione, 
-		s.localizzazione, 
-		s.nome_munic, 
-		lon, 
-		lat, 
-		s.incarichi;";
+		join_lav.id_segnalazione_in_lavorazione, 
+		lav.in_lavorazione, 
+		lav.id_profilo, 
+		seg.id_evento, 
+		evento.fine_sospensione
+	ORDER BY lav.in_lavorazione DESC;";
 
 	$result = pg_query($conn, $query);
 
