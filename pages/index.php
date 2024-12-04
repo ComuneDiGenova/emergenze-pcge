@@ -122,6 +122,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="nome_munic" data-sortable="true"
                                                                     data-visible="true">Mun.</th>
                                                                 <th data-field="localizzazione" data-sortable="false"
+                                                                    data-formatter="nameFormatterLocalizzazione"
                                                                     data-visible="true">Civico</th>
                                                                 <th style="word-break:break-all; word-wrap:break-word;"
                                                                     data-field="data_ora" data-sortable="true"
@@ -201,6 +202,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 <th data-field="nome_munic" data-sortable="true"
                                                                     data-visible="true">Mun.</th>
                                                                 <th data-field="localizzazione" data-sortable="false"
+                                                                    data-formatter="nameFormatterLocalizzazione"
                                                                     data-visible="true">Civico</th>
                                                                 <th data-field="incarichi" data-sortable="false"
                                                                     data-halign="center" data-valign="center"
@@ -250,6 +252,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                             <th data-field="nome_munic" data-sortable="true"
                                                                 data-visible="true">Mun.</th>
                                                             <th data-field="localizzazione" data-sortable="false"
+                                                                data-formatter="nameFormatterLocalizzazione"
                                                                 data-visible="true">Civico</th>
                                                             <th data-field="incarichi" data-sortable="false"
                                                                 data-halign="center" data-valign="center"
@@ -282,6 +285,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                                                 return '<i class="fas fa-exclamation" title="da eleaborare" style="color:#ff0000"></i>';
                                                             }
 
+<<<<<<< Updated upstream
                                                         }
 
                                                         function nameFormatterIncarichi(value) {
@@ -344,6 +348,55 @@ $subtitle = "Dashboard o pagina iniziale";
                                                             </div>';
                                                         }
                                                     </script>
+=======
+                                                <hr>
+                                                <h4>Segnalazioni provenienti da Polizia Locale</h4>
+                                                <table id="segnalazioni_verbatel" class="table table-condensed"
+                                                    style="vertical-align: middle;" data-toggle="table"
+                                                    data-url="./tables/griglia_segnalazioni_verbatel.php"
+                                                    data-show-export="false" data-search="true"
+                                                    data-click-to-select="true" data-pagination="true"
+                                                    data-sidePagination="true" data-show-refresh="true"
+                                                    data-show-toggle="false" data-show-columns="true"
+                                                    data-toolbar="#toolbar">
+                                                    <thead>
+                                                        <tr>
+                                                            <th data-field="id" style="vertical-align:center"
+                                                                data-sortable="false" data-formatter="nameFormatterEdit"
+                                                                data-visible="true"></th>
+                                                            <th data-field="id_evento" data-sortable="true"
+                                                                data-visible="true">Evento</th>
+                                                            <th data-field="in_lavorazione" data-sortable="true"
+                                                                data-halign="center" data-valign="center"
+                                                                data-formatter="nameFormatter" data-visible="true">Stato
+                                                            </th>
+                                                            <th data-field="criticita" data-sortable="true"
+                                                                data-visible="true">Tipo<br>criticità</th>
+                                                            <th data-field="nome_munic" data-sortable="true"
+                                                                data-visible="true">Mun.</th>
+                                                            <th data-field="localizzazione" data-sortable="false"
+                                                                data-formatter="nameFormatterLocalizzazione"
+                                                                data-visible="true">Civico</th>
+                                                            <th data-field="incarichi" data-sortable="false"
+                                                                data-halign="center" data-valign="center"
+                                                                data-formatter="nameFormatterIncarichi"
+                                                                data-visible="true">
+                                                                Incarichi / Presidi<br>in corso</th>
+                                                            <th data-field="responsabile" data-sortable="false"
+                                                                data-halign="center" data-valign="center"
+                                                                data-formatter="nameFormatterResponsabile"
+                                                                data-visible="true">
+                                                                Responsabile <br>
+                                                                <span style="color: orange;"> Incarico</span> / 
+                                                                <span style="color: purple;">Presidio</span>
+                                                            </th>
+                                                            <th data-field="num" data-sortable="false"
+                                                                data-visible="true">
+                                                                Num<br>segn</th>
+                                                        </tr>
+                                                    </thead>
+                                                    
+>>>>>>> Stashed changes
 
                                                 </table>
 
@@ -544,6 +597,111 @@ $subtitle = "Dashboard o pagina iniziale";
                 window.addEventListener("hashchange", function () { scrollBy(0, -70) })
             </script>
 
+<<<<<<< Updated upstream
+=======
+                function nameFormatter(value) {
+                    if (value == 't') {
+                        return '<i class="fas fa-play" title="in lavorazione" style="color:#5cb85c"></i>';
+                    } else if (value == 'f') {
+                        return '<i class="fas title="chiusa" fa-stop"></i>';
+                    } else {
+                        return '<i class="fas fa-exclamation" title="da eleaborare" style="color:#ff0000"></i>';
+                    }
+
+                }
+
+                function nameFormatterIncarichi(value, row) {
+                    
+                    let out = '<div style="text-align: center;">';
+
+                    if (value == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i>');
+                    } else if (row.incarichi_chiusi == 't') {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#32CD32"></i>');
+                    } else {
+                        out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#ff0000"></i>');
+                    };
+
+                    if (row.presa_visione_verbatel=='t') {
+                        out = out.concat(' <i class="fas fa-circle" title="sola presa visione" style="color:#0000ff"></i>');
+                    }
+
+                    out = out.concat('</div>')
+
+                    return out;
+                }
+
+
+                function nameFormatterResponsabile(value, row) {
+                    let responsabileIncarico = row.responsabile_incarico ? row.responsabile_incarico : '';
+                    let responsabilePresidio = row.responsabile_presidio ? row.responsabile_presidio : '';
+
+                    let out = '';
+                    if (responsabileIncarico === '' && responsabilePresidio === '') {
+                        return out;  // Return empty if both fields are empty
+                    }
+
+                    if (responsabilePresidio === '') {
+                        out = out.concat(`<div style="text-align: center; color: orange;">${responsabileIncarico}</div>`);
+                    } else if (responsabileIncarico === '') {
+                        out = out.concat(`<div style="text-align: center; color: purple;">${responsabilePresidio}</div>`);
+                    } else if (row.incarichi === 't') {
+                        // If both are present, display both with a line break
+                        out = out.concat(`<div style="text-align: center;">
+                                    <span style="color: orange;">${responsabileIncarico}</span><br>
+                                    <span style="color: purple;">${responsabilePresidio}</span>
+                                </div>`);
+                    }
+
+                    return out;
+                };
+
+
+                function sourceFormatter(value, row) {
+                    if (value == 't') {
+                        return '👮🏻‍♂ <b style="color:blue;">PL</b>';
+                    } else {
+                        return '';
+                    };
+                };
+
+                function nameFormatterEdit(value) {
+
+                    return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
+
+                }
+
+                function nameFormatterMappa1(value, row) {
+                    return ' <button type="button" class="btn btn-info btn-sm" title="anteprima mappa" data-toggle="modal" data-target="#myMap' + value + '"><i class="fas fa-map-marked-alt"></i></button> \
+                        <div class="modal fade" id="myMap'+ value + '" role="dialog"> \
+                        <div class="modal-dialog"> \
+                        <div class="modal-content">\
+                            <div class="modal-header">\
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>\
+                            <h4 class="modal-title">Anteprima segnalazione '+ value + '</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                            <iframe class="embed-responsive-item" style="width:100%; padding-top:0%; height:600px;" src="./mappa_leaflet.php#17/'+ row.lat + '/' + row.lon + '"></iframe>\
+                            </div>\
+                            <!--div class="modal-footer">\
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
+                            </div-->\
+                        </div>\
+                        </div>\
+                    </div>\
+                    </div>';
+                }
+
+                function nameFormatterLocalizzazione(value, row) {
+                    if (value.startsWith('~')) {
+                        return '<i>'+value+'</i>'
+                    } else {
+                        return '<b>'+value+'</b>'
+                    };
+                }
+
+                </script>
+>>>>>>> Stashed changes
 
     </body>
 
