@@ -55,6 +55,7 @@ services:
         - ./postgis-data:/var/lib/postgresql/data:rw
         - /etc/timezone:/etc/timezone:ro
         - /etc/localtime:/etc/localtime:ro
+        - { type: bind, source: "./etc/postgres.init.d", target: /docker-entrypoint-initdb.d }
       environment:
         # If you need to create multiple database you can add coma separated databases eg gis,data
         - PGTZ=Europe/Rome
