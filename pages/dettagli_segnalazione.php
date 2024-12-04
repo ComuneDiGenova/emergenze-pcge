@@ -179,7 +179,53 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 						<?php }
 						} 
 						?>
+
+						<br></br>
 						
+						<!-- Bottone riassegnazione-->
+						<div style="text-align: center;">
+							<button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#riassegnazione">
+								<i class="fas fa-plus"></i> Assegna ad altro evento
+							</button>
+						</div>
+
+						<!-- Modal riassegnazione -->
+						<div id="riassegnazione" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+								<!-- Modal content -->
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal">&times;</button>
+										<h4 class="modal-title">Riassegna Segnalazione</h4>
+									</div>
+									<div class="modal-body">
+										<form id="reassignForm" method="POST">
+											<!-- Campo nascosto protetto -->
+											<input type="hidden" name="id_segnalazione" id="id_segnalazione" value="<?php echo $id;?>">
+
+											<!-- Dropdown eventi -->
+											<div class="form-group">
+												<label for="id_evento">A quale evento vuoi assegnare la segnalazione?</label>
+												<select name="id_evento" id="id_evento" class="form-control" required>
+													<option value="" disabled selected>Seleziona evento</option>
+												</select>
+											</div>
+
+											<!-- Feedback per l'utente -->
+											<div id="feedback" style="display: none; color: red;"></div>
+											
+											<hr>
+											<button id="conferma" type="submit" class="btn btn-primary noprint">Riassegna</button>
+										</form>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default noprint" data-dismiss="modal">Annulla</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
 						<br>
 						<?php 
 						$query_altre="SELECT * FROM segnalazioni.".$table." where id_lavorazione=".$id_lavorazione." and id <>".$r['id']."";
@@ -1153,49 +1199,6 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 </div>  
 
 <br></br>
-
-<!-- Bottone riassegnazione-->
-<div style="text-align: center;">
-    <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#riassegnazione">
-        <i class="fas fa-plus"></i> Assegna ad altro evento
-    </button>
-</div>
-
-<!-- Modal riassegnazione -->
-<div id="riassegnazione" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Riassegna Segnalazione</h4>
-            </div>
-            <div class="modal-body">
-                <form id="reassignForm" method="POST">
-                    <!-- Campo nascosto protetto -->
-                    <input type="hidden" name="id_segnalazione" id="id_segnalazione" value="<?php echo $id;?>">
-
-                    <!-- Dropdown eventi -->
-                    <div class="form-group">
-                        <label for="id_evento">A quale evento vuoi assegnare la segnalazione?</label>
-                        <select name="id_evento" id="id_evento" class="form-control" required>
-                            <option value="" disabled selected>Seleziona evento</option>
-                        </select>
-                    </div>
-
-                    <!-- Feedback per l'utente -->
-                    <div id="feedback" style="display: none; color: red;"></div>
-                    
-                    <hr>
-                    <button id="conferma" type="submit" class="btn btn-primary noprint">Riassegna</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default noprint" data-dismiss="modal">Annulla</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <hr>
 						
