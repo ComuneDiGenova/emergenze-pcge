@@ -22,7 +22,6 @@ $query="SELECT DISTINCT ON (u.telegram_id)
 			TO_CHAR(tlb.data_conferma, 'YYYY-MM-DD HH24:MI:SS') AS data_conferma,
 			TO_CHAR(tlcc.data_invio_conv, 'YYYY-MM-DD HH24:MI:SS') AS data_invio_conv,
 			TO_CHAR(tlcc.data_conferma_conv, 'YYYY-MM-DD HH24:MI:SS') AS data_conferma_conv,
-
 			tlcc.lettura_conv
 		FROM users.utenti_coc u
 		LEFT JOIN users.t_lettura_conv_coc tlcc 
