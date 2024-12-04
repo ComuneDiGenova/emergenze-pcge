@@ -39,25 +39,38 @@ testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',
         Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 
 con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
-query='''SELECT u.matricola_cf,
-                u.nome,
-                u.cognome,
-                u.telegram_id,
-                tp.data_invio,
-                tp.lettura,
-                tp.data_conferma,
-                tp.data_invio_conv,
-                tp.lettura_conv,
-                tp.data_conferma_conv
-        FROM users.utenti_coc u
-        RIGHT JOIN users.t_convocazione tp 
-            ON u.telegram_id::text = tp.id_telegram::text
-        WHERE tp.data_invio_conv = (select max(tp.data_invio_conv) 
-        FROM users.t_convocazione tp) and tp.lettura_conv is not true
-        GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, 
-                tp.data_conferma, tp.data_invio, tp.data_invio_conv, 
-                tp.lettura_conv, tp.data_conferma_conv
-        ORDER BY tp.data_invio_conv DESC;'''
+query="""SELECT 
+            u.matricola_cf,
+            u.nome,
+            u.cognome,
+            u.telegram_id,
+            tlcc.data_invio_conv,
+            tlcc.lettura_conv,
+            tlcc.data_conferma_conv
+        FROM 
+            users.utenti_coc u
+        RIGHT JOIN 
+            users.t_lettura_conv_coc tlcc 
+            ON u.telegram_id::text = tlcc.id_telegram::text
+        WHERE 
+            tlcc.data_invio_conv = (
+                SELECT 
+                    MAX(tlcc.data_invio_conv) 
+                FROM 
+                    users.t_lettura_conv_coc tlcc
+            ) 
+            AND tlcc.lettura_conv IS NOT TRUE
+        GROUP BY 
+            u.matricola_cf, 
+            u.nome, 
+            u.cognome, 
+            u.telegram_id, 
+            tlcc.data_invio_conv, 
+            tlcc.lettura_conv, 
+            tlcc.data_conferma_conv
+        ORDER BY 
+            tlcc.data_invio_conv DESC;"""
+            
 curr = con.cursor()
 con.autocommit = True
 try:

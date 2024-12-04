@@ -2,7 +2,7 @@
     session_start();
     require('../validate_input.php');
 
-    include explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
+    include explode('emergenze-pcge', getcwd())[0].'emergenze-pcge/conn.php';
 
     // Verifica se la richiesta è POST
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,9 +29,10 @@
 
         // Inizializza una lista per i valori da inserire
         $values = [];
-        date_default_timezone_set('Europe/Rome');
+
         $data_inizio = date('Y-m-d H:i'); 
 
+        
         // Costruisci la lista di valori per la query
         foreach ($data as $item) {
             // Assicurati che ogni elemento abbia sia 'id' che 'value'
@@ -73,4 +74,6 @@
     } else {
         echo "Richiesta non valida.";
     }
+
+    header("location: ../mire.php")
 ?>

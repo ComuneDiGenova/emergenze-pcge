@@ -1,72 +1,67 @@
 <?php
 session_start();
-//require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
-$profilo=(int)pg_escape_string($_GET['p']);
-$livello=pg_escape_string($_GET['l']);
-if ($profilo==3){
-	$filter = ' ';
-} else if($profilo==8){
-	$filter= ' WHERE id_profilo=\''.$profilo.'\' and nome_munic = \''.$livello.'\' ';
-} else {
-	$filter= ' WHERE id_profilo=\''.$profilo.'\' ';
+
+// Esegui la query
+$query = "SELECT 
+			jtfc.funzione AS funzione,
+			u.cognome AS cognome,
+			u.nome AS nome,
+			tlb.data_invio::timestamp::date AS data_invio,
+			tlb.data_invio::timestamp::time AS ora_invio,
+			CASE 
+				WHEN tlb.lettura IS TRUE THEN 't' 
+				ELSE '' 
+			END AS lettura,
+			tlb.data_conferma AS data_conferma,
+			tlcc.data_invio_conv::timestamp::date AS data_invio_conv,
+			tlcc.data_invio_conv::timestamp::time AS ora_convocazione,
+			CASE 
+				WHEN tlcc.lettura_conv IS TRUE THEN 't' 
+				ELSE '' 
+			END AS lettura_conv,
+			tlcc.data_conferma_conv AS data_conferma_conv
+		FROM 
+			users.utenti_coc u
+		JOIN 
+			users.tipo_funzione_coc jtfc 
+			ON jtfc.id = u.funzione
+		RIGHT JOIN 
+			users.t_lettura_conv_coc tlcc
+			ON u.telegram_id::text = tlcc.id_telegram::text
+		LEFT JOIN 
+			users.t_lettura_bollettino tlb
+			ON u.telegram_id::text = tlb.id_telegram::text
+			AND tlcc.id_bollettino = tlb.id_bollettino
+		WHERE 
+            tlcc.data_invio_conv >= NOW() - INTERVAL '1 month'
+		GROUP BY 
+			jtfc.funzione, u.cognome, u.nome, tlb.data_invio, tlb.lettura, tlb.data_conferma,
+			tlcc.data_invio_conv, tlcc.lettura_conv, tlcc.data_conferma_conv
+		ORDER BY 
+			tlcc.data_invio_conv, tlb.data_invio, u.cognome, u.nome;";
+
+$result = pg_query($conn, $query);
+
+$data = [];
+
+// Processa i risultati della query e inseriscili in un array
+while ($row = pg_fetch_assoc($result)) {
+    $data[] = [
+        'funzione' => $row['funzione'],
+        'cognome' => $row['cognome'],
+        'nome' => $row['nome'],
+        'data_invio' => $row['data_invio'],
+        'ora_invio' => $row['ora_invio'],
+        'lettura' => $row['lettura'],
+        'data_conferma' => $row['data_conferma'],
+        'data_invio_conv' => $row['data_invio_conv'],
+        'ora_convocazione' => $row['ora_convocazione'],
+        'lettura_conv' => $row['lettura_conv'],
+        'data_conferma_conv' => $row['data_conferma_conv']
+    ];
 }
 
-
-if(!$conn) {
-    die('Connessione fallita !<br />');
-} else {
-	//$idcivico=$_GET["id"];
-	$query="SELECT u.matricola_cf,
-	jtfc.funzione,
-    u.nome,
-    u.cognome,
-    u.telegram_id,
-    tp.data_invio::timestamp::date,
-	tp.data_invio::timestamp::time as ora_invio,
-    tp.lettura,
-    tp.data_conferma, 
-	tp.data_invio_conv::timestamp::date,
-	tp.data_invio_conv::timestamp::time as ora_convocazione,
-	tp.data_conferma_conv,
-	tp.lettura_conv 
-   	FROM users.utenti_coc u
-    right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-    join users.tipo_funzione_coc jtfc on jtfc.id = u.funzione
-  	WHERE tp.data_invio < (select max(tp.data_invio) FROM users.t_convocazione tp) 
-  	GROUP BY u.matricola_cf, u.nome, u.cognome, u.telegram_id, tp.lettura, tp.data_conferma, tp.data_invio, jtfc.funzione, tp.data_invio_conv, tp.data_conferma_conv,tp.lettura_conv
- 	order by tp.data_invio desc;";
-	// $query="SELECT u.matricola_cf,
-	// u.nome,
-	// u.cognome,
-	// u.telegram_id,
-	// tp.data_invio,
-	// tp.lettura,
-	// tp.data_conferma
-	// FROM users.utenti_coc u
-	// right JOIN users.t_convocazione tp ON u.telegram_id::text = tp.id_telegram::text
-	// order by tp.data_invio desc";
-    $result = pg_prepare($conn, "myquery0", $query);
-	$result = pg_execute($conn, "myquery0", array());
-    //echo $query;
-	//$result = pg_query($conn, $query);
-	#echo $query;
-	#exit;
-	$rows = array();
-	while($r = pg_fetch_assoc($result)) {
-    		$rows[] = $r;
-    		//$rows[] = $rows[]. "<a href='puntimodifica.php?id=" . $r["NAME"] . "'>edit <img src='../../famfamfam_silk_icons_v013/icons/database_edit.png' width='16' height='16' alt='' /> </a>";
-	}
-	pg_close($conn);
-	#echo $rows ;
-	if (empty($rows)==FALSE){
-		//print $rows;
-		print json_encode(array_values(pg_fetch_all($result)));
-	} else {
-		echo "[{\"NOTE\":'No data'}]";
-	}
-}
-
-?>
-
-
+// Imposta l'intestazione per il JSON e restituisci i dati
+header('Content-Type: application/json');
+echo json_encode($data);
