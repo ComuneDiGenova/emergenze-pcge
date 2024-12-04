@@ -79,6 +79,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
            
 					$result=pg_query($conn, $query);
 					while($r = pg_fetch_assoc($result)) {
+						
 						$lon=$r['lon'];
 						$lat=$r['lat'];
 						$id_civico=$r['id_civico'];
@@ -410,7 +411,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 										} else if($check_evento_aperto==0){
 											$query_incarichi= $query_incarichi." FROM segnalazioni.v_incarichi_eventi_chiusi_last_update WHERE id_lavorazione=".$id_lavorazione;
 										}
-
+										// $query_incarichi= $query_incarichi." GROUP BY id, id_stato_incarico,descrizione,descrizione_stato,descrizione_uo, note_ente, time_start;";
+										
+										// echo $query_incarichi;
 										$result_incarichi=pg_query($conn, $query_incarichi);
 										$i=0;
 										while ($r_incarichi = pg_fetch_assoc($result_incarichi)) {
@@ -442,6 +445,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
 										
+							
 									if($check_operatore==1 and $r['in_lavorazione']!='f') {
 										?>
 									<hr><p>
@@ -516,7 +520,8 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 											echo " - " .$r_incarichi['descrizione_uo'];
 											echo " - <a class=\"btn btn-info noprint\" href=\"dettagli_incarico_interno.php?id=".$r_incarichi['id']."\" target=\"_blank\"> <i class=\"fas fa-info\"></i> Dettagli</a>";
 										}
-
+										
+									//echo $check_open_ii;
 									if(($check_operatore==1 or $check_open_ii==1)and $r['in_lavorazione']!='f' ) {
 										?>
 									
@@ -690,38 +695,26 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 							<?php 
 								}
 							}
+							//echo '</h4>';	
 						} else if($r['id_profilo']==6) {
+							//echo "<h4><i class=\"fas fa-lock\"></i> In carico al Distretto";
 							if ($check_operatore == 1) { 
 								if($check_incarichi_aperti==1 OR $check_incarichi_interni_aperti==1 OR $check_sopralluoghi==1 OR $check_chiusura<0 ){
 									echo "Per trasferire / chiudere la segnalazione è necessario chiudere gli incarichi attivi<br><br>";
 								} else {
 							
-								?>										
+								?>
+									<!--div style="text-align: center;"-->										
 									<a href="segnalazioni/trasferisci.php?l=<?php echo $r['id_lavorazione'];?>&id=<?php echo $id?>&t=4" class="btn btn-info noprint"><i class="fas fa-exchange-alt"></i> Trasferisci alla centrale COA</a> - 
+									<!--/div-->
 								<?php
 								}
 							}
-
+						//echo '</h4>';
 						}
-
-						// echo 'check_operatore: '.$check_operatore;
-						// echo '<br>';
-						// echo 'check_incarichi_interni_aperti: '.$check_incarichi_interni_aperti;
-						// echo '<br>';
-						// echo 'check_sopralluoghi: '.$check_sopralluoghi;
-						// echo '<br>';
-						// echo 'check_chiusura: '.$check_chiusura;
-						// echo '<br>';
-						// echo 'id_profilo: '.$id_profilo;
-						// echo '<br>';
-						// echo 'profilo_sistema: '.$profilo_sistema;
-						// echo '<br>';
-						// echo 'profilo_cod_munic: '.$profilo_cod_munic;
-						// echo '<br>';
-						// echo 'id_municipio: '.$id_municipio;
-						// echo '<br>';
-
-
+						
+						
+						//echo $check_operatore;
 						if($check_operatore==1) {
 	   					echo '<button type="button" class="btn btn-danger noprint"  data-toggle="modal" ';
 	   					// check sugli incarichi / sopralluoghi attivi
@@ -729,10 +722,14 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 	   						echo 'disabled="" title="Impossibile chiudere la segnalazione. Incarichi / presidi / provvedimenti cautelari risultano ancora in corso o non presi in carico."';
 	   					}
 	   					echo 'data-target="#chiudi"><i class="fas fa-times"></i> Chiudi segnalazione </button>';
-	   					}
-						?>
-						</div>
+	   				}
 
+						?>
+						
+						</div>
+						
+						
+						
 						<!-- Modal incarico-->
 						<div id="new_incarico" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -745,6 +742,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 							  </div>
 							  <div class="modal-body">
 							  
+
 								<form autocomplete="off" action="incarichi/nuovo_incarico.php?id=<?php echo $id_lavorazione; ?>&s=<?php echo $id; ?>" method="POST">
 								<input type="hidden" name="id_profilo" id="hiddenField" value="<?php echo $profilo_sistema ?>" />
 								
@@ -761,6 +759,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 										$query = $query ." where (cod not like '%MU%' and descrizione not like '%".$id_municipio."%') or (cod like '%MU%' and descrizione like '% ".integerToRoman($id_municipio)."%')";
 										$query = $query ." order by descrizione;";
 									}
+								//$result = pg_query($conn, $query);
+								//echo $query;
+
 								?>
 								<div class="form-group">
 									  <label for="id_civico">Seleziona l'Unità Operativa cui assegnare l'incarico:</label> <font color="red">*</font>
@@ -806,6 +807,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 										<input type="text" name="descrizione" class="form-control" required="">
 									   <small>Specificare in cosa consiste l'incarico da un punto di vista operativo</small>
 									  </div>            
+										  
+
+
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico</button>
 									</form>
@@ -862,6 +866,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 										<input type="text" name="descrizione" class="form-control" required="">
 										<small>Specificare in cosa consiste l'incarico da un punto di vista operativo</small>
 									  </div>            
+										  
+
+
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint">Invia incarico interno</button>
 									</form>
@@ -874,7 +881,8 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 
 						  </div>
 						</div>
-
+						
+						
 						<!-- Modal sopralluogo-->
 						<div id="new_sopralluogo" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -893,7 +901,8 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 								
 									<?php
 									$query2= "SELECT id, nome FROM users.v_squadre WHERE id_stato=2 AND num_componenti > 0 and cod_afferenza = '".$cod_profilo_squadra."' ORDER BY nome;";
-
+									//$query2="SELECT cf, nome FROM users.v_squadre WHERE id_stato=2 AND num_componenti > 0 and profilo = '".$profilo_squadre."' ORDER BY nome;";
+									//echo $query2;
 									$result2 = pg_query($conn, $query2);
 									?>
 									<div class="form-group">
@@ -914,6 +923,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 											 <label for="descrizione"> Descrizione</label> <font color="red">*</font>
 										<input type="text" name="descrizione" class="form-control" required="">
 									  </div>            
+										  
+
+
 
 								<button  id="conferma" type="submit" class="btn btn-primary noprint"  data-toggle="tooltip" data-placement="top" title="Cliccando su questo tasto confermi le informazioni precedenti e assegni il presidio alla squadra specificata">Assegna presidio</button>
 									</form>
@@ -923,9 +935,11 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 								<button type="button" class="btn btn-default noprint" data-dismiss="modal">Annulla</button>
 							  </div>
 							</div>
+
 						  </div>
 						</div>
-
+						
+						
 						<!-- Modal chiusura-->
 						<div id="chiudi" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
@@ -965,8 +979,17 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 								<label class="radio-inline"><input type="radio" name="invio" value="">No</label>
 							</div>
 
-								<br><br>
+								<!--div class="form-group">
+								<label for="cat" class="auto-length">
+									<input type="checkbox" name="cat" id="cat">
+									Cliccare qua per confermare la chiusura dell'evento 
+								</label>
+								</div-->
 
+								<br><br>
+						
+						
+						
 						        <button id="conferma_chiudi" type="submit" class="btn btn-danger noprint">Conferma chiusura segnalazione</button>
 						            </form>
 						
@@ -978,15 +1001,21 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 						
 						  </div>
 						</div> 
-
+						
+						
+						
+						
 						<hr>
 						<?php 
 						} 
-
+						
+						
+						
 						if($check_lav==0){
 						// controllo se ci sono altre segnalazioni sullo stesso civico
 						$check_civico=0;
 						$query_civico="SELECT * FROM segnalazioni.".$table." where id_civico=".$r['id_civico']." and id !=".$id." and id_evento=".$r['id_evento']." and in_lavorazione='t';";
+						//echo $query_civico . "<br>";
 						$c=0;
 						$result_civico=pg_query($conn, $query_civico);
 								while($r_civico = pg_fetch_assoc($result_civico)) {
@@ -1013,7 +1042,8 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 												echo ' <i class="fas fa-circle fa-1x" style="color:#ffd800"></i> ';
 											}
 											?>
-
+									      
+									      
 									      </h4>
 									    </div>
 									    <div id="c_civico_s<?php echo $r_civico['id'];?>" class="panel-collapse collapse">
@@ -1028,7 +1058,9 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 											echo ' <i class="fas fa-circle fa-1x" style="color:#ffd800"></i> Non è specificato se ci siano persone a rischio';
 										}
 									?>
-
+						
+						
+						
 									<br><b>Data e ora inserimento</b>: <?php echo $r_civico['data_ora']; ?>
 									<br><b>Descrizione</b>: <?php echo $r_civico['descrizione']; ?>
 									
@@ -1044,14 +1076,15 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 						    </div>
 						  </div>
 						</div>
-						<?php	
+								<?php	
 								}
 						 if($check_civico==0 and $r['id_civico']!=''){
 						 	echo "Non ci sono altre segnalazioni aperte in corrispondenza dello stesso civico.<br><br>";
 						 }
-						?>
-
-						<?php 
+						 ?>
+						 
+						 
+						 <?php 
 						// controllo se ci sono altre segnalazioni nelle vicinanze
 						$check_vic=0;
 						$geom_s=$r['geom'];
@@ -1061,6 +1094,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 						} else {
 							$query_vic="SELECT * FROM segnalazioni.".$table." where st_distance(st_transform('".$r['geom']."'::geometry(point,4326),3003),st_transform(geom,3003))< 200 and id_evento=".$r['id_evento']." and id !=".$id." and in_lavorazione='t';";
 						}
+						//echo $query_vic."<br>";
 						$result_vic=pg_query($conn, $query_vic);
 								while($r_vic = pg_fetch_assoc($result_vic)) {
 									$check_vic=1;
