@@ -25,7 +25,7 @@ if(!$conn) {
 		STRING_AGG(seg.descrizione::text, '<br>') AS descrizione,
 		ARRAY_TO_STRING(ARRAY_AGG(DISTINCT crit.descrizione::text), '<br>') AS criticita,
 		ARRAY_TO_STRING(ARRAY_AGG(DISTINCT mun.nome_munic::text), '<br>') AS municipio,
-		STRING_AGG(
+		STRING_AGG(DISTINCT
 			COALESCE(
 				(civ.desvia || ' ' || civ.testo),
 				civici_laterale.desvia_testo

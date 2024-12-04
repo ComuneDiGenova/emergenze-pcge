@@ -575,15 +575,6 @@ $subtitle = "Dashboard o pagina iniziale";
                     return out;
                 };
 
-
-                function sourceFormatter(value, row) {
-                    if (value == 't') {
-                        return '👮🏻‍♂ <b style="color:blue;">PL</b>';
-                    } else {
-                        return '';
-                    };
-                };
-
                 function nameFormatterEdit(value) {
 
                     return '<a class="btn btn-warning btn-sm" title="Vai ai dettagli" target="_blank" href=./dettagli_segnalazione.php?id=' + value + '>' + value + '<!--i class="fas fa-edit"></i--></a>';
