@@ -21,12 +21,15 @@ services:
         - UID=${UID}
         - GID=${GID}
     environment:
+      ENVUSER: ${ENVUSER}
       EMERGENZE_BOT_TOKEN: ${EMERGENZE_BOT_TOKEN}
     restart: unless-stopped
     stdin_open: true
     tty: true
-    # volumes:
-    #   - ./bots:/home/${ENVUSER}/bots:rw
+    volumes:
+      - ./bots:/home/${ENVUSER}/bots:rw
+      - ./logs:/home/${ENVUSER}/log:rw
+      - ../../emergenze_uploads:/home/${ENVUSER}/emergenze_uploads:rw
 
   botgram_convocazione_coc:
     container_name: convocazione_coc-bot
