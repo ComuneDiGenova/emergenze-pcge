@@ -17,15 +17,27 @@ build:
 	@cd backend && docker compose build --build-arg UID=${CURRENT_UID} --build-arg GID=${CURRENT_UID}
 
 up-storage:
-	@docker compose up postgresql
-
-up:
 	@docker compose up postgresql -d
-	@cd backend && docker compose up -d
 
-down:
+down-storage:
 	@docker compose down
+
+up-backend-only:
+	@cd backend && UID=${CURRENT_UID} GID=${CURRENT_GID} docker compose up -d
+
+up-backend: up-storage up-backend-only
+
+down-backend:
 	@cd backend && docker compose down
 
-stop:
-	@cd backend && docker compose stop
+up-bot-only:
+	@cd telegram && docker compose up -d
+
+up-bot: up-storage up-bot-only
+
+down-bot:
+	@cd telegram && docker compose down
+
+up: up-storage up-backend-only up-bot-only
+
+down: down-storage down-backend down-backenddown-bot
