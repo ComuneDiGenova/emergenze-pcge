@@ -14,6 +14,7 @@ import time
 import conn
 from datetime import datetime, timedelta
 import urllib.parse
+import pytz
 
 
 # Configure logging
@@ -85,8 +86,8 @@ con.close()
 #print(result)
 
 for p in result:
-    print(p[4])
-    if datetime.now()>=(p[4]+timedelta(minutes=5)): 
+    # print(p[4])
+    if datetime.now(pytz.timezone('Europe/Rome'))>=(p[4]+timedelta(minutes=5)): 
         #print(p[4]+timedelta(minutes=5))
         telegram_bot_sendtext(testo,p[3])
  
