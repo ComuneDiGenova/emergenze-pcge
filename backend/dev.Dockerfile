@@ -19,8 +19,6 @@ RUN update-alternatives --config python
 
 RUN service memcached restart
 
-RUN echo "TEST: ${GID} - ${UNAME}"
-
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -l -o -m -u $UID -g $GID -s /bin/bash $UNAME
 

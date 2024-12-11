@@ -31,7 +31,7 @@ while getopts "f:d:" opt; do
         d) DATA_FILE="$OPTARG" ;;  # Nome del file di popolamento
         D) DB_NAME="$OPTARG" ;;    # Nome del database
         *) 
-            echo "Uso: $0 [-f <file_sql>] [-d <nome_database>]"
+            echo "Uso: $0 [-p <path>] [-m <sql_model_file>] [-d <sql_data_file>] [-D <db_name>]"
             exit 1
             ;;
     esac
