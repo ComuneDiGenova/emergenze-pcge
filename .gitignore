@@ -27,6 +27,7 @@ pages/eventi/*.pyc
 pages/eventi/*.log
 pages/eventi/crash.log
 **/conn.php
+**/conn.py
 **/config.py
 pages/eventi/bot.pid
 pages/eventi/bot_photos/*
