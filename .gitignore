@@ -26,7 +26,8 @@ pages/segnalazioni/conn_mssql.py
 pages/eventi/*.pyc
 pages/eventi/*.log
 pages/eventi/crash.log
-conn.php
+**/conn.php
+**/config.py
 pages/eventi/bot.pid
 pages/eventi/bot_photos/*
 pages/campagin_api/index.php
