@@ -6,7 +6,7 @@
 import logging
 import requests
 import os
-
+from dotenv import load_dotenv
 import psycopg2
 import emoji
 import config
@@ -14,7 +14,10 @@ import time
 import conn
 from datetime import datetime, timedelta
 import urllib.parse
+import pytz
 
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '.env'))
 
 # Configure logging
 logfile='{}/notifica_conferma_lettura_conv_bot.log'.format(os.path.dirname(os.path.realpath(__file__)))
@@ -23,7 +26,11 @@ if os.path.exists(logfile):
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.ERROR)
 
-TOKENCOC=config.TOKEN_COC
+TOKENCOC=os.getenv('EMERGENZE_COC_BOT_TOKEN')
+
+if not TOKENCOC:
+    logging.error('EMERGENZE_COC_BOT_TOKEN non trovato. Assicurati che il file .env contenga la variabile TOKEN_COC.')
+    raise ValueError('EMERGENZE_COC_BOT_TOKEN non trovato')
 
 
 def telegram_bot_sendtext(bot_message,chat_id):
@@ -87,7 +94,7 @@ con.close()
 for p in result:
     # print(datetime.now()<=(p[7]))
     # print(p)
-    if datetime.now()>=(p[7]+timedelta(minutes=5)):
+    if datetime.now(pytz.timezone('Europe/Rome'))>=(p[4]+timedelta(minutes=5)):
         telegram_bot_sendtext(testo,p[3])
  
     else:

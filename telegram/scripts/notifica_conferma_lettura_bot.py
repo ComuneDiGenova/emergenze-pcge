@@ -6,16 +6,18 @@
 import logging
 import requests
 import os
-
+from dotenv import load_dotenv
 import psycopg2
 import emoji
-import config
+# import config
 import time
 import conn
 from datetime import datetime, timedelta
 import urllib.parse
 import pytz
 
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '.env'))
 
 # Configure logging
 logfile='{}/notifica_conferma_lettura_bot.log'.format(os.path.dirname(os.path.realpath(__file__)))
@@ -24,13 +26,17 @@ if os.path.exists(logfile):
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.ERROR)
 
-TOKENCOC=config.TOKEN_COC
+TOKEN=os.getenv('EMERGENZE_BOT_TOKEN')
+
+if not TOKEN:
+    logging.error('EMERGENZE_BOT_TOKEN non trovato. Assicurati che il file .env contenga la variabile TOKEN_COC.')
+    raise ValueError('EMERGENZE_BOT_TOKEN non trovato')
 
 
 def telegram_bot_sendtext(bot_message,chat_id):
     
     urllib.parse.quote('/', safe='')
-    send_text = 'https://api.telegram.org/bot' + TOKENCOC + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + urllib.parse.quote(bot_message)
+    send_text = 'https://api.telegram.org/bot' + TOKEN + '/sendMessage?chat_id=' + chat_id + '&parse_mode=Markdown&text=' + urllib.parse.quote(bot_message)
     response = requests.get(send_text)
     return response.json()
 
