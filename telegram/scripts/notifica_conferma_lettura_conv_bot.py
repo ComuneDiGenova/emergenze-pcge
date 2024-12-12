@@ -9,9 +9,6 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 import emoji
-import config
-import time
-import conn
 from datetime import datetime, timedelta
 import urllib.parse
 import pytz
@@ -33,6 +30,17 @@ if not TOKENCOC:
     raise ValueError('EMERGENZE_COC_BOT_TOKEN non trovato')
 
 
+DB_HOST = os.getenv('conn_ip')
+DB_NAME = os.getenv('conn_db')
+DB_USER = os.getenv('conn_user')
+DB_PASSWORD = os.getenv('conn_pwd')
+DB_PORT = os.getenv('conn_port', 5432)
+
+if not all([DB_HOST, DB_NAME, DB_USER, DB_PASSWORD]):
+    logging.error('Parametri di connessione al database non trovati. Assicurati che il file .env contenga conn_ip, conn_db, conn_user, e conn_pwd.')
+    raise ValueError('Parametri di connessione al database non trovati')
+
+
 def telegram_bot_sendtext(bot_message,chat_id):
     
     urllib.parse.quote('/', safe='')
@@ -45,7 +53,18 @@ testo=f"""{emoji.emojize(':warning:',use_aliases=True)} {emoji.emojize(':bell:',
         Non è ancora stata inviata la conferma di avvenuta lettura della CONVOCAZIONE del COC. 
         Si prega di dare riscontro alla comunicazione precedentemente inviata premendo il tasto OK."""
 
-con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
+try:
+    con=psycopg2.connect(
+        host=DB_HOST,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        port=DB_PORT
+    )
+except psycopg2.Error as e:
+    logging.error(f'Errore durante la connessione al database: {e}')
+    raise
+
 query="""SELECT 
             u.matricola_cf,
             u.nome,
@@ -80,6 +99,7 @@ query="""SELECT
             
 curr = con.cursor()
 con.autocommit = True
+
 try:
     curr.execute(query)
 except Exception as e:
