@@ -2,7 +2,6 @@
 services:
 
   backend:
-    user: ${UID}:${GID}
     env_file:
       - .env
     build:
@@ -12,13 +11,16 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - .:/home/py4web/apps/emergenze
-      - ${UPLOADS:-../../emergenze_uploads}:/home/py4web/apps/emergenze/emergenze_uploads
+      - type: bind
+        source: ./
+        target: /home/py4web/apps/emergenze
+      - type: bind
+        source: ${UPLOADS:-../../emergenze_uploads}
+        target: /home/py4web/apps/emergenze/emergenze_uploads
     command: py4web run --password_file password.txt --host 0.0.0.0 --port 8000 apps
     restart: unless-stopped
 
   db-listener:
-    user: ${UID}:${GID}
     env_file:
       - .env
     build:
@@ -28,7 +30,11 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - .:/home/py4web/apps/emergenze
-      - ${UPLOADS:-../../emergenze_uploads}:/home/py4web/apps/emergenze/emergenze_uploads
+      - type: bind
+        source: .
+        target: /home/py4web/apps/emergenze
+      - type: bind
+        source: ${UPLOADS:-../../emergenze_uploads}
+        target: /home/py4web/apps/emergenze/emergenze_uploads
     command: py4web call apps emergenze.listener.listen
     restart: unless-stopped

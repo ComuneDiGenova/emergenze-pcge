@@ -22,7 +22,7 @@ services:
         - GID=${GID}
     environment:
       ENVUSER: ${ENVUSER}
-      EMERGENZE_BOT_TOKEN: ${EMERGENZE_BOT_TOKEN}
+      EMERGENZE_BOT_TOKEN: ${EMERGENZE_BOT_TOKEN:-}
     restart: unless-stopped
     stdin_open: true
     tty: true
@@ -42,7 +42,7 @@ services:
         - GID=${GID}
     environment:
       ENVUSER: ${ENVUSER}
-      EMERGENZE_COC_BOT_TOKEN: ${EMERGENZE_COC_BOT_TOKEN}
+      EMERGENZE_COC_BOT_TOKEN: ${EMERGENZE_COC_BOT_TOKEN:-}
     restart: unless-stopped
     stdin_open: true
     tty: true

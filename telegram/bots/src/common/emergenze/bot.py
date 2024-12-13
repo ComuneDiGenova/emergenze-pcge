@@ -75,7 +75,10 @@ def esegui_query(connection,query,query_type):
         return result
     else:
         return 0
-    
+
+if not API_TOKEN:
+    # Niente da fare denza token
+    exit()
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
@@ -117,7 +120,7 @@ def keyboard (kb_config):
         await bot.send_message(tid[0], txt) '''
 
 
-@ dp.callback_query_handler ()
+@dp.callback_query_handler ()
 async def callback (callback_query: types.CallbackQuery):
 
     await bot.answer_callback_query (callback_query.id, text= callback_query.data,)

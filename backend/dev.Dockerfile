@@ -6,8 +6,8 @@
 FROM ubuntu:20.04
 
 ARG UNAME=py4web
-ARG UID
-ARG GID
+ARG UID=1000
+ARG GID=1000
 
 ARG user=py4web
 ARG password=none
@@ -33,6 +33,10 @@ RUN cd /home/$user/py-alert-system && \
     cp .env-template.env .env && \
     pip uninstall --yes alertsystem && \
     make package && pip install dist/alertsystem-0.0.0-py3-none-any.whl
+
+RUN mkdir -p /home/$user/apps/emergenze/emergenze_uploads
+RUN chown $user:$user -R /home/$user/apps
+RUN chmod ug+rwx -R /home/$user/apps
 
 USER $user
 
