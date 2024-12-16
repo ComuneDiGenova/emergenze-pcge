@@ -1,0 +1,29 @@
+.panel-allerta {
+    border-color: var(--color-allerta);
+}
+.panel-allerta > .panel-heading {
+    border-color: var(--color-allerta);
+    color: white;
+    background-color: var(--color-allerta);
+}
+.panel-allerta > a {
+    color: var(--color-allerta);
+}
+.panel-allerta > a:hover {
+    color: #337ab7;
+}
+
+/* Print-specific styles */
+@media print {
+    p.bodyText {
+        font-family: georgia, times, serif;
+    }
+
+    .rows-print-as-pages .row {
+        page-break-before: auto;
+    }
+
+    .noprint {
+        display: none;
+    }
+}
