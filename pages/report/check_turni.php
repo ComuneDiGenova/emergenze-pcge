@@ -1,30 +1,34 @@
 
 <?php
 $check_turni=0;
-// qua va messo un ciclo su tabelle
-//$table='t_coordinamento';
 
+$tabelle_turni = [
+    't_coordinamento',
+    't_monitoraggio_meteo',
+    't_operatore_anpas',
+    't_operatore_nverde',
+    't_operatore_volontari',
+    't_presidio_territoriale',
+    't_tecnico_pc'
+];
 
-$array_monodimensionale = array('t_coordinamento', 't_monitoraggio_meteo', 't_operatore_anpas', 't_operatore_nverde', 't_operatore_volontari', 't_presidio_territoriale', 't_tecnico_pc');
+foreach ($tabelle_turni as $table) {
 
-
-
-foreach ($array_monodimensionale as $table) {
-	echo "<br>";
-	echo $table;
 	$condizione="matricola_cf='".$cf."') and 
 	(
-	(data_start < '".$data_fine."' and data_start > '".$data_inizio."') OR
-	(data_end < '".$data_fine."' and data_end > '".$data_inizio."') OR
-	(data_start < '".$data_inizio."' and data_end > '".$data_fine."')";
+	(data_start < '".$fine_data."' and data_start > '".$inizio_data."') OR
+	(data_end < '".$fine_data."' and data_end > '".$inizio_data."') OR
+	(data_start < '".$inizio_data."' and data_end > '".$fine_data."')";
 
-	$query= "select matricola_cf
-	from report.".$table."
-	where 
-	(".$condizione.");";
+	$query= "SELECT matricola_cf
+            FROM report.".$table."
+            WHERE (".$condizione.");";
+
 	$result = pg_query($conn, $query);
+
 	echo "<br>";
-	//echo $query;
+	echo $query;
+    exit;
 	while($r = pg_fetch_assoc($result)) {
 		$check_turni=1;
 		echo "Sono dentro<br>";

@@ -173,7 +173,7 @@ function renderDateTimeFields($prefix, $labelDate, $labelTime, $required = true)
             <div class="form-group col-md-6">
                 <select class="form-control" name="<?= $prefix ?>_hh" id="<?= $prefix ?>_hh" <?= $requiredAttr ?>>
                     <option value="">Ora</option>
-                    <?php for ($j = 0; $j <= 24; $j++): ?>
+                    <?php for ($j = 0; $j <= 23; $j++): ?>
                         <option value="<?= str_pad($j, 2, '0', STR_PAD_LEFT) ?>">
                             <?= str_pad($j, 2, '0', STR_PAD_LEFT) ?>
                         </option>
@@ -192,9 +192,26 @@ function renderDateTimeFields($prefix, $labelDate, $labelTime, $required = true)
             </div>
         </div>
     </div>
+
+    <script>
+        // Forza il formato data nel campo input
+        document.addEventListener("DOMContentLoaded", function() {
+            var dateInput = document.getElementById("<?= $prefix ?>_data");
+            if (dateInput) {
+                dateInput.addEventListener("change", function() {
+                    var date = new Date(this.value);
+                    if (!isNaN(date.getTime())) {
+                        var formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                        this.value = formattedDate;
+                    }
+                });
+            }
+        });
+    </script>
     <?php
     return ob_get_clean();
 }
+
 
 
 function renderModal($id, $title, $formAction, $employees) {
