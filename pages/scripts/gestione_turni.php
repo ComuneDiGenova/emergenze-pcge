@@ -49,7 +49,15 @@ HTML;
                                     <option value="NO_TURNO">TURNO VUOTO</option>
 HTML;
         foreach ($personnelList as $person) {
-            echo '<option value="'.$person['matricola'].'">'.$person['cognome'].' '.$person['nome'].'</option>';
+            $extraInfo = '';
+            if (!empty($person['settore']) && !empty($person['ufficio'])) {
+                $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+            }
+            
+            // Formatto l'output
+            echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
+                . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
+                . $extraInfo . '</option>';
         }
 
         // Data Inizio
@@ -57,8 +65,8 @@ HTML;
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Data inizio (AAAA-MM-GG):</label>
-                                <input type="date" class="form-control" name="data_inizio" required>
+                                <label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
+						        <input type="text" class="form-control" name="data_inizio" id="js-date" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora inizio:</label>
@@ -92,7 +100,7 @@ HTML;
                             </div>
                             <div class="form-group">
                                 <label>Data fine (AAAA-MM-GG):</label>
-                                <input type="date" class="form-control" name="data_fine" required>
+                                <input type="text" class="form-control" name="data_fine" id="js-date2" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora fine:</label>

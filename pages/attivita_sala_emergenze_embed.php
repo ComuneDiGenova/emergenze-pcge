@@ -16,14 +16,14 @@
             'modal_id' => 'new_coord',
             'form_action' => 'report/nuovo_coord.php',
             'db_table' => 'report.t_coordinamento',
-            'personnel_query' => "SELECT matricola, cognome, nome FROM varie.v_dipendenti ORDER BY cognome",
+            'personnel_query' => "SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti ORDER BY cognome",
             'emptyMessage' => 'In questo momento non ci sono coordinatori di sala.'
         ], $conn, $profilo_sistema);
 
         
         // Operatore Monitoraggio Meteo
         renderShiftSection([
-            'title' => 'Coordinatore di Sala',
+            'title' => 'Monitoraggio Meteo',
             'modal_id' => 'new_mm',
             'form_action' => 'report/nuovo_mm.php',
             'db_table' => 'report.t_monitoraggio_meteo',

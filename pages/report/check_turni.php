@@ -1,47 +1,50 @@
-
 <?php
-$check_turni=0;
+function checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) {
+    $tabelle_turni = [
+        't_coordinamento',
+        't_monitoraggio_meteo',
+        't_operatore_anpas',
+        't_operatore_nverde',
+        't_operatore_volontari',
+        't_presidio_territoriale',
+        't_tecnico_pc'
+    ];
 
-$tabelle_turni = [
-    't_coordinamento',
-    't_monitoraggio_meteo',
-    't_operatore_anpas',
-    't_operatore_nverde',
-    't_operatore_volontari',
-    't_presidio_territoriale',
-    't_tecnico_pc'
-];
+    $check_turni = false;
 
-foreach ($tabelle_turni as $table) {
+    foreach ($tabelle_turni as $table) {
+        $query = "SELECT matricola_cf
+                  FROM report.$table
+                  WHERE matricola_cf = $1
+                  AND (
+                      (data_start < $3 AND data_start > $2) OR
+                      (data_end < $3 AND data_end > $2) OR
+                      (data_start <= $2 AND data_end >= $3)
+                  );";
 
-	$condizione="matricola_cf='".$cf."') and 
-	(
-	(data_start < '".$fine_data."' and data_start > '".$inizio_data."') OR
-	(data_end < '".$fine_data."' and data_end > '".$inizio_data."') OR
-	(data_start < '".$inizio_data."' and data_end > '".$fine_data."')";
+        echo "Query: $query<br>";
+        echo "Parametri: CF = $cf, Start = $data_inizio, End = $data_fine<br>";
 
-	$query= "SELECT matricola_cf
-            FROM report.".$table."
-            WHERE (".$condizione.");";
+        $result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine]);
 
-	$result = pg_query($conn, $query);
+        if (pg_num_rows($result) > 0) {
+            echo "Turno sovrapposto rilevato nella tabella $table<br>";
+            $check_turni = true;
 
+            // Aggiornamento flag warning_turno
+            $updateQuery = "UPDATE report.$table
+                            SET warning_turno = 't'
+                            WHERE matricola_cf = $1
+                            AND (
+                                (data_start < $3 AND data_start > $2) OR
+                                (data_end < $3 AND data_end > $2) OR
+                                (data_start <= $2 AND data_end >= $3)
+                            );";
 
-	while($r = pg_fetch_assoc($result)) {
-		$check_turni=1;
-		echo "Sono dentro<br>";
-		$query2="update report.".$table." SET warning_turno='t' where (".$condizione.");";
-		echo $query2;
-		$result2 = pg_query($conn, $query2);
-	}
+            pg_query_params($conn, $updateQuery, [$cf, $data_inizio, $data_fine]);
+        }
+    }
+
+    // return $check_turni;
 }
-
-// echo "<br>Check_turni=".$check_turni."<br>";
-
-if($check_turni==1){
-	$wt='t';
-} else {
-	$wt='f';
-}
-
 ?>
