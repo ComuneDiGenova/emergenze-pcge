@@ -26,9 +26,7 @@ foreach ($tabelle_turni as $table) {
 
 	$result = pg_query($conn, $query);
 
-	echo "<br>";
-	echo $query;
-    exit;
+
 	while($r = pg_fetch_assoc($result)) {
 		$check_turni=1;
 		echo "Sono dentro<br>";
@@ -38,11 +36,12 @@ foreach ($tabelle_turni as $table) {
 	}
 }
 
-echo "<br>Check_turni=".$check_turni."<br>";
+// echo "<br>Check_turni=".$check_turni."<br>";
+
 if($check_turni==1){
 	$wt='t';
 } else {
 	$wt='f';
 }
-//exit;
+
 ?>

@@ -8,42 +8,43 @@ require('../check_evento.php');
 
 //$id=$_GET["id"];
 //$id=str_replace("'", "", $id);
-
+echo print_r($_POST)
+exit;
 $cf=$_POST["cf"];
-$data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
-$data_fine=$_POST["data_fine"].' '.$_POST["hh_end"].':'.$_POST["mm_end"];
-//$d1 = new DateTime($data_inizio);
-//$d2 = new DateTime($data_fine);
-$d1 =  strtotime($data_inizio);
-$d2 =  strtotime($data_fine);
+$inizio_data=$_POST["inizio_data"].' '.$_POST["start_hh"].':'.$_POST["start_mm"];
+$fine_data=$_POST["fine_data"].' '.$_POST["end_hh"].':'.$_POST["end_mm"];
+//$d1 = new DateTime($inizio_data);
+//$d2 = new DateTime($fine_data);
+$d1 =  strtotime($inizio_data);
+$d2 =  strtotime($fine_data);
 
 
 if ($d1 >= $d2) {
-	echo 'La data/ora di fine ('.$data_fine.') deve essere posteriore alla data/ora di inizio ('.$data_inizio.'). ';
+	echo 'La data/ora di fine ('.$fine_data.') deve essere posteriore alla data/ora di inizio ('.$inizio_data.'). ';
 	echo '<br><a href="../attivita_sala_emergenze.php"> Torna alla pagina precedente';
 	exit;
 }
 
 require('check_turni.php');
 
-//$d1 = DateTime::createFromFormat('Y-m-d H:M', strtotime($data_inizio));
-//$d2 = DateTime::createFromFormat('Y-m-d H:M', $data_fine);
-echo $data_inizio;
+//$d1 = DateTime::createFromFormat('Y-m-d H:M', strtotime($inizio_data));
+//$d2 = DateTime::createFromFormat('Y-m-d H:M', $fine_data);
+echo $inizio_data;
 echo "<br>";
-echo $data_fine;
+echo $fine_data;
 echo "<br>";
 echo $d1;
 echo "<br>";
 echo $d2;
 echo "<br>";
 if ($d1 >= $d2) {
-	echo "Errore: la data di inizio (".$data_inizio.") deve essere antecedente la fine (".$data_fine.")";
+	echo "Errore: la data di inizio (".$inizio_data.") deve essere antecedente la fine (".$fine_data.")";
 	exit;
 }
 //exit;
 
 $query="INSERT INTO report.t_coordinamento (matricola_cf,data_start,data_end, warning_turno) VALUES";
-$query= $query." ('".$cf."','".$data_inizio."','".$data_fine."','".$wt."');";
+$query= $query." ('".$cf."','".$inizio_data."','".$fine_data."','".$wt."');";
 echo $query;
 //exit;
 $result = pg_query($conn, $query);

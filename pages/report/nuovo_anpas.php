@@ -6,7 +6,8 @@ require('../validate_input.php');
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 require('../check_evento.php');
 
-// echo print_r($_POST);
+echo print_r($_POST);
+exit;
 $cf=$_POST["cf"];
 $inizio_data=$_POST["inizio_data"].' '.$_POST["inizio_hh"].':'.$_POST["inizio_mm"];
 $fine_data=$_POST["fine_data"].' '.$_POST["fine_hh"].':'.$_POST["fine_mm"];
