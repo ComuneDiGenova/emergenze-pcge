@@ -73,10 +73,6 @@ $id = $_GET['id'];
                     </h4>
                 </div>
 
-                <?php 
-                    // require('./operatore_nverde_embed.php'); 
-                ?>
-
             </div>
         </div>
 
