@@ -55,19 +55,26 @@ $id = $_GET['id'];
                 <?php 
                     require('./attivita_sala_emergenze_embed.php'); 
                 ?>
+            </div>
 
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="row">
+            <br></br>
+            </div>
+
+            <div class="row">
+
+                <div class="col-xs-16 col-sm-6 col-md-6 col-lg-6">
                     <h4>Attivazione numero verde: 
                         <?php if ($contatore_nverde > 0) { ?>
-                            <i> Attivo</i>
+                            <i class="text-success">Attivo</i>
                         <?php } else { ?>
-                            <i> Non attivo</i>
+                            <i class="text-danger">Non attivo</i>
                         <?php } ?>
                     </h4>
                 </div>
 
                 <?php 
-                    require('./operatore_nverde_embed.php'); 
+                    // require('./operatore_nverde_embed.php'); 
                 ?>
 
             </div>

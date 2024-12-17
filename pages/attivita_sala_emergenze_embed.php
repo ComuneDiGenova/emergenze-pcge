@@ -11,7 +11,7 @@
     </div>
 
     <?php
-    // Combined configuration for all roles (grouped in rows of two)
+    // Formattazione condizionale query per tutti i ruoli
     $roles = [
         [
             'title' => 'Coordinatore di Sala',
@@ -67,10 +67,19 @@
             'joins' => '',
             'emptyMessage' => 'In questo momento non ci sono operatori Postazione presidio sanitario',
         ],
+        [
+            'title' => 'Operatore Numero Verde',
+            'modalId' => 'new_oNV',
+            'action' => 'report/nuovo_oNV.php',
+            'data' => getDipendenti($conn),
+            'table' => 'report.t_operatore_nverde',
+            'joins' => "LEFT JOIN varie.v_dipendenti u ON r.matricola_cf = u.matricola",
+            'emptyMessage' => 'In questo momento non ci sono operatori del Numero Verde',
+        ]
     ];
     ?>
 
-    <!-- Iterate and Render Rows Dynamically -->
+    <!-- Itero e renderizzo dinamicamente le righe (a gruppi di 2) -->
     <?php foreach (array_chunk($roles, 2) as $row): ?>
 <div class="row">
     <?php foreach ($row as $role): ?>
