@@ -53,7 +53,7 @@ HTML;
             if (!empty($person['settore']) && !empty($person['ufficio'])) {
                 $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
             }
-            
+
             // Formatto l'output
             echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
                 . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
@@ -164,7 +164,7 @@ HTML;
             echo "<br>";
         }
     } else {
-        // Display empty message if no shifts are found
+        // emptyMessage se non trova nessuno in turno
         echo "- <i class='fas fa-circle' style='color: red;'></i> $emptyMessage<br>";
     }
     echo "</div></div>";

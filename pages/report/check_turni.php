@@ -45,6 +45,6 @@ function checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) {
         }
     }
 
-    // return $check_turni;
+    return $check_turni;
 }
 ?>
