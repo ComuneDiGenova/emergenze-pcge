@@ -50,21 +50,37 @@ HTML;
                                     <option value="">Seleziona personale</option>
                                     <option value="NO_TURNO">TURNO VUOTO</option>
 HTML;
-        foreach ($personnelList as $person) {
-            $extraInfo = '';
-            // Coordinatore Sala
-            if (!empty($person['settore']) && !empty($person['ufficio'])) {
-                $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
-            }
-            // Monitoraggio Meteo
-            if (!empty($person['livello1'])) {
-                $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
-            }
+    foreach ($personnelList as $person) {
+        // Formattazione personalizzata in base al `modal_id`
+        $extraInfo = '';
+        switch ($modalId) {
+            case 'new_coord': // Coordinatore di Sala
+                if (!empty($person['settore']) && !empty($person['ufficio'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+                }
+                break;
 
-            echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
-                . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
-                . $extraInfo . '</option>';
+            case 'new_mm': // Monitoraggio Meteo
+                if (!empty($person['livello1'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
+                }
+                break;
+
+            // case 'new_pt': // Operatore Presidi Territoriali
+            //     if (!empty($person['settore'])) {
+            //         $extraInfo = ' (' . htmlspecialchars($person['settore']) . ')';
+            //     }
+            //     break;
+
+            default:
+                // Formattazione generale
+                $extraInfo = '';
         }
+
+    echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
+        . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
+        . $extraInfo . '</option>';
+}
 
         echo <<<HTML
                                 </select>
