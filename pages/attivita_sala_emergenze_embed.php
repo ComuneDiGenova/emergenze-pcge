@@ -16,7 +16,9 @@
             'modal_id' => 'new_coord',
             'form_action' => 'report/nuovo_coord.php',
             'db_table' => 'report.t_coordinamento',
-            'personnel_query' => "SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti ORDER BY cognome",
+            'personnel_query' => "SELECT matricola, cognome, nome, settore, ufficio 
+                                FROM varie.v_dipendenti 
+                                ORDER BY cognome",
             'emptyMessage' => 'In questo momento non ci sono coordinatori di sala.'
         ], $conn, $profilo_sistema);
 
@@ -27,7 +29,12 @@
             'modal_id' => 'new_mm',
             'form_action' => 'report/nuovo_mm.php',
             'db_table' => 'report.t_monitoraggio_meteo',
-            'personnel_query' => "SELECT cf as matricola, cognome, nome FROM users.v_utenti_esterni WHERE id1=9",
+            'personnel_query' => "SELECT cf as matricola, cognome, nome, '' as livello1 
+                                FROM users.v_utenti_esterni 
+                                WHERE id1=9
+                                UNION 
+                                SELECT matricola, cognome, nome, settore || ' - '|| ufficio as livello1 
+                                FROM varie.v_dipendenti",
             'emptyMessage' => 'In questo momento non ci sono responsabili Monitoraggio Meteo.'
         ], $conn, $profilo_sistema);
 

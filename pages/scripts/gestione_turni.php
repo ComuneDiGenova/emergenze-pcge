@@ -1,6 +1,4 @@
 <?php
-
-
 function renderShiftSection($params, $conn, $profilo_sistema) {
 
 
@@ -54,8 +52,13 @@ HTML;
 HTML;
         foreach ($personnelList as $person) {
             $extraInfo = '';
+            // Coordinatore Sala
             if (!empty($person['settore']) && !empty($person['ufficio'])) {
                 $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+            }
+            // Monitoraggio Meteo
+            if (!empty($person['livello1'])) {
+                $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
             }
 
             echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
@@ -159,7 +162,8 @@ HTML;
     if ($shifts) {
         foreach ($shifts as $row) {
             echo "- {$row['cognome']} {$row['nome']} dalle ";
-            echo date('H:i', strtotime($row['data_start'])) . " alle " . date('H:i', strtotime($row['data_end']));
+            echo date('H:i', strtotime($row['data_start'])). " del " .date('d/m/Y', strtotime($row['data_start']))." alle ";
+            echo date('H:i', strtotime($row['data_end'])). " del " .date('d/m/Y', strtotime($row['data_end']));
 
             // Mostra warning
             if ($row['warning_turno'] == 't') {

@@ -36,7 +36,8 @@
 
 
 .modal-dialog {
-    display: flex;
+    max-width: 600px;
+    width: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
