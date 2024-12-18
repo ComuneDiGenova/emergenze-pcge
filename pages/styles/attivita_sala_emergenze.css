@@ -1,3 +1,4 @@
+/* Stili per i pannelli di allerta */
 .panel-allerta {
     border-color: var(--color-allerta);
 }
@@ -13,7 +14,7 @@
     color: #337ab7;
 }
 
-/* Print-specific styles */
+/* Stili per la stampa */
 @media print {
     p.bodyText {
         font-family: georgia, times, serif;
@@ -25,5 +26,71 @@
 
     .noprint {
         display: none;
+    }
+}
+
+/* Allineamento dei modali */
+.shift-container {
+    overflow: hidden;
+}
+
+
+.modal-dialog {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Miglioramento layout form */
+.modal-body {
+    padding: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Gestione degli avvisi */
+.warning {
+    color: orange;
+    font-weight: bold;
+}
+
+/* Pulsanti */
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.btn-primary:hover {
+    background-color: #004085;
+    border-color: #004085;
+}
+.btn-default {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+.btn-default:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+}
+
+/* Tabella delle sovrapposizioni */
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+/* Layout responsivo per i modali */
+@media (max-width: 768px) {
+    .modal-dialog {
+        width: 100%;
+        margin: 10px;
     }
 }

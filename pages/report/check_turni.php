@@ -22,16 +22,20 @@ function checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) {
                       (data_start <= $2 AND data_end >= $3)
                   );";
 
-        echo "Query: $query<br>";
-        echo "Parametri: CF = $cf, Start = $data_inizio, End = $data_fine<br>";
-
+        echo "<b>Debug Query:</b> $query<br>";
         $result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine]);
 
+        if (!$result) {
+            echo "Errore query: " . pg_last_error($conn) . "<br>";
+            continue;
+        }
+
         if (pg_num_rows($result) > 0) {
-            echo "Turno sovrapposto rilevato nella tabella $table<br>";
+            echo "<b>Turno sovrapposto trovato nella tabella:</b> $table<br>";
+
             $check_turni = true;
 
-            // Aggiornamento flag warning_turno
+            // Aggiorna warning_turno
             $updateQuery = "UPDATE report.$table
                             SET warning_turno = 't'
                             WHERE matricola_cf = $1
@@ -41,10 +45,19 @@ function checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) {
                                 (data_start <= $2 AND data_end >= $3)
                             );";
 
-            pg_query_params($conn, $updateQuery, [$cf, $data_inizio, $data_fine]);
+            $updateResult = pg_query_params($conn, $updateQuery, [$cf, $data_inizio, $data_fine]);
+
+            if (!$updateResult) {
+                echo "Errore aggiornamento: " . pg_last_error($conn) . "<br>";
+            } else {
+                echo "<b>Warning_turno aggiornato correttamente nella tabella:</b> $table<br>";
+            }
+        } else {
+            echo "<b>Nessuna sovrapposizione trovata nella tabella:</b> $table<br>";
         }
     }
 
     return $check_turni;
 }
+
 ?>

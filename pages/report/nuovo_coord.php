@@ -27,6 +27,8 @@ if ($d1 >= $d2) {
     exit;
 }
 
+// echo "CF: $cf, Data Inizio: $data_inizio, Data Fine: $data_fine<br>";
+// exit;
 // Controllo sovrapposizione turni
 $wt = checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) ? 't' : 'f';
 
