@@ -7,5 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
             feedbackMessage.style.opacity = "0";
             setTimeout(() => feedbackMessage.remove(), 1000); // Rimuove il messaggio dal DOM
         }, 10000);
+
+        // Rimuove i parametri dall'URL (così non ricompaiono se premi F5)
+        const url = new URL(window.location);
+        url.searchParams.delete("status");
+        url.searchParams.delete("message");
+        window.history.replaceState({}, document.title, url.toString());
     }
 });
