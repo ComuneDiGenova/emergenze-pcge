@@ -10,21 +10,26 @@ import urllib.request
 import xml.etree.ElementTree as et
 
 import psycopg2
-from conn import *
-
 import datetime
 
-import config
+from dotenv import load_dotenv
 
 import telepot
 import json
 
 # Il token non è aggiornato su GitHub per evitare usi impropri
-TOKEN = config.EMERGENZE_BOT_TOKEN
-TOKENCOC = config.EMERGENZE_COC_BOT_TOKEN
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '.env'))
+TOKEN = os.getenv('EMERGENZE_BOT_TOKEN')
+TOKENCOC = os.getenv('EMERGENZE_COC_BOT_TOKEN')
 
 bot = telepot.Bot(TOKEN)
 botCOC = telepot.Bot(TOKENCOC)
+
+DB_HOST = os.getenv('conn_ip')
+DB_NAME = os.getenv('conn_db')
+DB_USER = os.getenv('conn_user')
+DB_PASSWORD = os.getenv('conn_pwd')
+DB_PORT = os.getenv('conn_port', 5432)
 
 # Link
 sito_allerta = "https://allertaliguria.regione.liguria.it"
@@ -38,17 +43,20 @@ messages = {'MessaggioProtezioneCivile': 'PC',      # Prot. Civ.
             }
 
 
-def get_cursor(host=ip, dbname=db, user=user, password=pwd, port=port, autocommit=True):
+def get_cursor(host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, port=DB_PORT, autocommit=True):
     """
     Funzione di creazione di un cursore per il lancio query di psycopg
     """
-    conn = psycopg2.connect(host=ip, dbname=db, user=user, password=pwd, port=port)
-    print(conn)
-    conn.autocommit = autocommit
-    curr = conn.cursor()
-    
-    curr.execute("SET TIMEZONE TO 'Europe/Rome';")
-    return curr
+    try:
+        conn = psycopg2.connect(host=host, dbname=dbname, user=user, password=password, port=port)
+        conn.autocommit = autocommit
+        conn.cursor().execute("SET TIMEZONE TO 'Europe/Rome';")
+        curr = conn.cursor()
+        
+        return curr
+    except psycopg2.DatabaseError as e:
+        print(f"Errore di connessione al database: {e}")
+        raise
 
 
 def urllibwrapper(url):
