@@ -93,6 +93,12 @@ HTML;
                 }
                 break;
 
+            case 'new_oNV': // Operatore Numero Verde
+                if (!empty($person['settore']) && !empty($person['ufficio'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+                }
+                break;
+
 
             default:
                 // Formattazione generale
