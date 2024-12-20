@@ -53,62 +53,38 @@ HTML;
                                     <option value="">Seleziona personale</option>
                                     <option value="NO_TURNO">TURNO VUOTO</option>
 HTML;
-    foreach ($personnelList as $person) {
-        // Formattazione personalizzata in base al `modal_id`
-        $extraInfo = '';
-        switch ($modalId) {
-            case 'new_coord': // Coordinatore di Sala
-                if (!empty($person['settore']) && !empty($person['ufficio'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
-                }
-                break;
+foreach ($personnelList as $person) {
+    // Mappa dei campi personalizzati per ogni modal_id
+    $fieldMapping = [
+        'new_coord' => ['settore', 'ufficio'],               // Coordinatore di Sala
+        'new_mm' => ['livello1'],                            // Monitoraggio Meteo
+        'new_pt' => ['settore', 'ufficio'],                 // Operatore Presidi Territoriali
+        'new_tPC' => ['settore', 'ufficio'],                // Tecnico Protezione Civile
+        'new_oV' => ['livello1'],                           // Operatore Gestione Volontari
+        'new_anpas' => ['livello1'],                        // Postazione Presidio Sanitario
+        'new_oNV' => ['settore', 'ufficio'],                // Operatore Numero Verde
+    ];
 
-            case 'new_mm': // Monitoraggio Meteo
-                if (!empty($person['livello1'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
-                }
-                break;
+    $extraInfo = '';
 
-            case 'new_pt': // Operatore Presidi Territoriali
-                if (!empty($person['settore']) && !empty($person['ufficio'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
-                }
-                break;
-
-            case 'new_tPC':// Tecnico Protezione Civile
-                if (!empty($person['settore']) && !empty($person['ufficio'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
-                }
-                break;
-
-            case 'new_oV': // Operatore Gestione Volontari
-                if (!empty($person['livello1'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
-                }
-                break;
-
-            case 'new_anpas': // Postazione Presidio Sanitario
-                if (!empty($person['livello1'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
-                }
-                break;
-
-            case 'new_oNV': // Operatore Numero Verde
-                if (!empty($person['settore']) && !empty($person['ufficio'])) {
-                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
-                }
-                break;
-
-
-            default:
-                // Formattazione generale
-                $extraInfo = '';
+    if (isset($fieldMapping[$modalId])) {
+        $fields = $fieldMapping[$modalId];
+        $extraFields = [];
+        foreach ($fields as $field) {
+            if (!empty($person[$field])) {
+                $extraFields[] = htmlspecialchars($person[$field]);
+            }
         }
+        if (!empty($extraFields)) {
+            $extraInfo = ' (' . implode(' - ', $extraFields) . ')';
+        }
+    }
 
     echo '<option value="' . htmlspecialchars($person['matricola']) . '">'
         . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
         . $extraInfo . '</option>';
 }
+
 
         echo <<<HTML
                                 </select>
