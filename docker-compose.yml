@@ -1,0 +1,26 @@
+services:
+
+  postgresql:
+      image: postgis/postgis:9.6-2.5-alpine
+      user: 0:${RID:-1000}
+      volumes:
+        - ./storage/dumps:/share/dumps:rw
+        - ./postgis-data:/var/lib/postgresql/data:rw
+        - /etc/timezone:/etc/timezone:ro
+        - /etc/localtime:/etc/localtime:ro
+        - { type: bind, source: "./storage/etc/postgres.init.d", target: /docker-entrypoint-initdb.d }
+      environment:
+        # If you need to create multiple database you can add coma separated databases eg gis,data
+        - PGTZ=Europe/Rome
+        - POSTGRES_DB=gis
+        - POSTGRES_USER=docker
+        - POSTGRES_PASSWORD=docker
+        - ALLOW_IP_RANGE=0.0.0.0/0
+        # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+        - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+        - RUN_AS_ROOT=true
+      ports:
+        - "5432:5432"
+      restart: unless-stopped
+      healthcheck:
+        test: "PGPASSWORD=docker pg_isready -h 127.0.0.1 -U docker -d gis"

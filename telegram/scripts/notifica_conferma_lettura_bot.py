@@ -23,11 +23,11 @@ if os.path.exists(logfile):
 
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s',filename=logfile,level=logging.ERROR)
 
-TOKEN=os.getenv('EMERGENZE_BOT_TOKEN')
+TOKEN=os.getenv('EMERGENZE_COC_BOT_TOKEN')
 
 if not TOKEN:
-    logging.error('EMERGENZE_BOT_TOKEN non trovato. Assicurati che il file .env contenga la variabile TOKEN_COC.')
-    raise ValueError('EMERGENZE_BOT_TOKEN non trovato')
+    logging.error('EMERGENZE_COC_BOT_TOKEN non trovato. Assicurati che il file .env contenga la variabile TOKEN_COC.')
+    raise ValueError('EMERGENZE_COC_BOT_TOKEN non trovato')
 
 DB_HOST = os.getenv('conn_ip')
 DB_NAME = os.getenv('conn_db')
