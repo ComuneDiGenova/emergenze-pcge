@@ -9,21 +9,15 @@ $(document).ready(function () {
 });
 
 
-
 $(document).ready(function() {
-    $('#js-date').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date2').datepicker({
+    $('.datepicker').datepicker({
         format: "yyyy-mm-dd",
         clearBtn: true,
         autoclose: true,
         todayHighlight: true
     });
 });
+
 
 function printDiv(divName) {
     var printContents = document.getElementById(divName).innerHTML;

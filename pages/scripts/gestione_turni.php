@@ -87,7 +87,7 @@ HTML;
                             </div>
                             <div class="form-group">
                                 <label for="data_inizio">Data inizio (AAAA-MM-GG)</label>
-                                <input type="text" class="form-control" name="data_inizio" id="js-date" required>
+                                <input type="text" class="form-control datepicker" name="data_inizio" id="js-date-{$modalId}" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora inizio:</label>
@@ -120,7 +120,7 @@ HTML;
                             </div>
                             <div class="form-group">
                                 <label>Data fine (AAAA-MM-GG):</label>
-                                <input type="text" class="form-control" name="data_fine" id="js-date2" required>
+                                <input type="text" class="form-control datepicker" name="data_fine" id="js-date2" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora fine:</label>
