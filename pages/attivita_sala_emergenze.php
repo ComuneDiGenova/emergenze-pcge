@@ -49,8 +49,6 @@ $id = $_GET['id'];
         ?> 
 
         <div id="page-wrapper">
-            <div class="row"></div>
-
             <div class="row">
                 <?php 
                     require('./attivita_sala_emergenze_embed.php'); 
@@ -62,8 +60,7 @@ $id = $_GET['id'];
             </div>
 
             <div class="row">
-
-                <div class="col-xs-16 col-sm-6 col-md-6 col-lg-6">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                     <h4>Attivazione numero verde: 
                         <?php if ($contatore_nverde > 0) { ?>
                             <i class="text-success">Attivo</i>
@@ -72,7 +69,6 @@ $id = $_GET['id'];
                         <?php } ?>
                     </h4>
                 </div>
-
             </div>
         </div>
 

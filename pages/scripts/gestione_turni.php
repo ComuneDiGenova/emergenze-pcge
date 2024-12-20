@@ -11,7 +11,7 @@ function renderShiftSection($params, $conn, $profilo_sistema) {
     $emptyMessage = $params['emptyMessage'] ?? "Nessun record trovato."; // Messaggio di default
 
     // Titolo e pulsante Aggiungi
-    echo '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 shift-container">';
+    echo '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 shift-container">';
     echo "<hr><h4>$title";
 
     if ($profilo_sistema <= 3) {

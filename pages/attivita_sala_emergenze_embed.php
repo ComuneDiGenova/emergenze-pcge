@@ -10,7 +10,7 @@
 
     <!-- Titolo della pagina -->
     <div class="row">
-        <div class="col-12">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
             <h3>Attività sala emergenze - EVOLUTIVA A-3-T55</h3>
         </div>
     </div>
