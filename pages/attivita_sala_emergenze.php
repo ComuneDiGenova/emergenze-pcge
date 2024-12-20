@@ -59,18 +59,61 @@ $id = $_GET['id'];
             <br></br>
             </div>
 
+        <div class="container mt-4">
             <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                    <h4>Attivazione numero verde: 
-                        <?php if ($contatore_nverde > 0) { ?>
-                            <i class="text-success">Attivo</i>
-                        <?php } else { ?>
-                            <i class="text-danger">Non attivo</i>
-                        <?php } ?>
-                    </h4>
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <h4>Attivazione numero verde: 
+                            <?php if ($contatore_nverde > 0) { ?>
+                                <i class="text-success">Attivo</i>
+                            <?php } else { ?>
+                                <i class="text-danger">Non attivo</i>
+                            <?php } ?>
+                        </h4>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <br></br>
+        </div>
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <h4>Associa Dipendente ad un Evento:</h4>
+                    <form id="associaDipendente" action="associa_dipendente_evento.php" method="POST">
+                        <div class="form-group">
+                            <label for="dipendente">Seleziona Dipendente:</label>
+                            <select name="dipendente" id="dipendente" class="form-control" required>
+                                <option value="">Seleziona un dipendente</option>
+                                <?php
+                                // Query per ottenere l'elenco dei dipendenti
+                                $query = "SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti ORDER BY cognome";
+                                $result = pg_query($conn, $query);
+
+                                // Popola il menu a tendina
+                                while ($row = pg_fetch_assoc($result)) {
+                                    // Verifica e formatta settore e ufficio
+                                    $extraInfo = '';
+                                    if (!empty($row['settore']) && !empty($row['ufficio'])) {
+                                        $extraInfo = ' (' . htmlspecialchars($row['settore']) . ' - ' . htmlspecialchars($row['ufficio']) . ')';
+                                    }
+                                
+                                    echo '<option value="' . htmlspecialchars($row['matricola']) . '">'
+                                        . htmlspecialchars($row['cognome']) . ' ' . htmlspecialchars($row['nome'])
+                                        . $extraInfo
+                                        . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Associa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
 
         <?php 
             require('./footer.php');
