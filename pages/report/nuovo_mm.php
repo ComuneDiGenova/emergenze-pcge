@@ -1,76 +1,60 @@
 <?php
-
 session_start();
 require('../validate_input.php');
-
-include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
+include explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
 require('../check_evento.php');
+require('check_turni.php');
 
-//$id=$_GET["id"];
-//$id=str_replace("'", "", $id);
+// Recupero della sessione
+$operatore = $_SESSION['username'];
 
+// echo print_r($_POST);
+// exit;
+
+// Recupero e sanificazione input
 $cf=$_POST["cf"];
 $data_inizio=$_POST["data_inizio"].' '.$_POST["hh_start"].':'.$_POST["mm_start"];
 $data_fine=$_POST["data_fine"].' '.$_POST["hh_end"].':'.$_POST["mm_end"];
-//$d1 = new DateTime($data_inizio);
-//$d2 = new DateTime($data_fine);
+
+// Conversione delle date in timestamp
 $d1 =  strtotime($data_inizio);
 $d2 =  strtotime($data_fine);
 
-
+// Validazione delle date
 if ($d1 >= $d2) {
-	echo 'La data/ora di fine ('.$data_fine.') deve essere posteriore alla data/ora di inizio ('.$data_inizio.'). ';
-	echo '<br><a href="../attivita_sala_emergenze.php"> Torna alla pagina precedente';
-	exit;
+    echo 'La data/ora di fine (' . $data_fine . ') deve essere posteriore alla data/ora di inizio (' . $data_inizio . '). ';
+    echo '<br><a href="../attivita_sala_emergenze.php">Torna alla pagina precedente</a>';
+    exit;
 }
 
-require('check_turni.php');
+// echo "CF: $cf, Data Inizio: $data_inizio, Data Fine: $data_fine<br>";
+// exit;
+// Controllo sovrapposizione turni
+$wt = checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) ? 't' : 'f';
 
-//$d1 = DateTime::createFromFormat('Y-m-d H:M', strtotime($data_inizio));
-//$d2 = DateTime::createFromFormat('Y-m-d H:M', $data_fine);
-echo $data_inizio;
-echo "<br>";
-echo $data_fine;
-echo "<br>";
-echo $d1;
-echo "<br>";
-echo $d2;
-echo "<br>";
-if ($d1 >= $d2) {
-	echo "Errore: la data di inizio (".$data_inizio.") deve essere antecedente la fine (".$data_fine.")";
-	exit;
+// Query di inserimento del turno
+$query="INSERT INTO report.t_monitoraggio_meteo (matricola_cf,data_start,data_end, warning_turno) 
+        VALUES ($1, $2, $3, $4);";
+
+$result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine, $wt]);
+
+if (!$result) {
+    echo "Errore durante l'inserimento del turno: " . pg_last_error($conn);
+    exit;
 }
 
+// Query di log dell'operazione
+$query_log = "INSERT INTO varie.t_log (schema, operatore, operazione) 
+              VALUES ('report', $1, $2);";
 
-$query="INSERT INTO report.t_monitoraggio_meteo (matricola_cf,data_start,data_end, warning_turno) VALUES";
-$query= $query." ('".$cf."','".$data_inizio."','".$data_fine."','".$wt."');";
-echo $query;
-//exit;
-$result = pg_query($conn, $query);
-echo "<br>";
+$result_log = pg_query_params($conn, $query_log, [$operatore, "Inserimento Operatore Meteo. CF: $cf"]);
 
+if (!$result_log) {
+    echo "Errore durante l'inserimento del log: " . pg_last_error($conn);
+    exit;
+}
 
-
-
-
-//exit;
-
-
-
-$query_log= "INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('report','".$operatore ."', 'Inserimento responsabile Monitoraggio Meteo: ".$cf."');";
-$result = pg_query($conn, $query_log);
-
-
-
-//$idfascicolo=str_replace('A','',$idfascicolo);
-//$idfascicolo=str_replace('B','',$idfascicolo);
-echo "<br>";
-echo $query_log;
-
-//exit;
-//header("location: ../reportistica.php");
+// Reindirizzamento alla pagina precedente
 header('Location: ' . $_SERVER['HTTP_REFERER']);
-
-
-
+exit;
 ?>
