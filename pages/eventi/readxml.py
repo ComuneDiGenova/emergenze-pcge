@@ -20,8 +20,8 @@ import telepot
 import json
 
 # Il token non è aggiornato su GitHub per evitare usi impropri
-TOKEN = config.TOKEN
-TOKENCOC = config.TOKEN_COC
+TOKEN = config.EMERGENZE_BOT_TOKEN
+TOKENCOC = config.EMERGENZE_COC_BOT_TOKEN
 
 bot = telepot.Bot(TOKEN)
 botCOC = telepot.Bot(TOKENCOC)
