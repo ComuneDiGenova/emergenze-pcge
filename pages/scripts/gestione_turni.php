@@ -5,7 +5,7 @@ function renderShiftSection($params, $conn, $profilo_sistema) {
     // Scomposizione dei parametri
     $title = $params['title'];
     $modalId = $params['modal_id'];
-    $formAction = $params['form_action'];
+    // $formAction = $params['form_action'];
     $dbTable = $params['db_table'];
     $personnelQuery = $params['personnel_query'];
     $emptyMessage = $params['emptyMessage'] ?? "Nessun record trovato."; // Messaggio di default
@@ -43,7 +43,10 @@ HTML;
                         <h4 class="modal-title">Inserire {$title}</h4>
                     </div>
                     <div class="modal-body">
-                        <form action="{$formAction}" method="POST">
+                        <form action="./report/nuovo_turno.php" method="POST">
+                            <!-- Campo hidden per db_table -->
+                            <input type="hidden" name="title" value="{$title}">
+                            <input type="hidden" name="db_table" value="{$dbTable}">
                             <div class="form-group">
                                 <label for="cf">Seleziona personale:</label>
                                 <select name="cf" class="form-control" required>
