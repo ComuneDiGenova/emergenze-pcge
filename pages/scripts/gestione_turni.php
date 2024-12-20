@@ -69,11 +69,30 @@ HTML;
                 }
                 break;
 
-            // case 'new_pt': // Operatore Presidi Territoriali
-            //     if (!empty($person['settore'])) {
-            //         $extraInfo = ' (' . htmlspecialchars($person['settore']) . ')';
-            //     }
-            //     break;
+            case 'new_pt': // Operatore Presidi Territoriali
+                if (!empty($person['settore']) && !empty($person['ufficio'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+                }
+                break;
+
+            case 'new_tPC':// Tecnico Protezione Civile
+                if (!empty($person['settore']) && !empty($person['ufficio'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['settore']) . ' - ' . htmlspecialchars($person['ufficio']) . ')';
+                }
+                break;
+
+            case 'new_oV': // Operatore Gestione Volontari
+                if (!empty($person['livello1'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
+                }
+                break;
+
+            case 'new_anpas': // Postazione Presidio Sanitario
+                if (!empty($person['livello1'])) {
+                    $extraInfo = ' (' . htmlspecialchars($person['livello1']) . ')';
+                }
+                break;
+
 
             default:
                 // Formattazione generale

@@ -50,6 +50,11 @@ if (!$result_log) {
 }
 
 // Reindirizzamento alla pagina precedente
-header('Location: ../attivita_sala_emergenze.php');
+if ($result) {
+    header('Location: ../attivita_sala_emergenze.php?status=success&message=Turno%20aggiunto%20con%20successo.');
+} else {
+    header('Location: ../attivita_sala_emergenze.php?status=error&message=Errore%20durante%20l%27inserimento.');
+}
 exit;
+
 ?>
