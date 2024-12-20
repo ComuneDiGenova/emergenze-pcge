@@ -42,7 +42,9 @@
             'title' => 'Operatore Presidi Territoriali',
             'modal_id' => 'new_pt',
             'db_table' => 'report.t_presidio_territoriale',
-            'personnel_query' => "SELECT matricola, cognome, nome FROM varie.v_dipendenti ORDER BY cognome",
+            'personnel_query' => "SELECT matricola, cognome, nome, settore, ufficio
+                                 FROM varie.v_dipendenti 
+                                 ORDER BY cognome",
             'emptyMessage' => 'In questo momento non ci sono operatori Presidi Territoriali.'
         ], $conn, $profilo_sistema);
 
