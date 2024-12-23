@@ -103,7 +103,7 @@
         renderShiftSection([
             'title' => 'Operatore Numero Verde',
             'modal_id' => 'new_oNV',
-            'db_table' => 'report.t_operatore_numero_verde',
+            'db_table' => 'report.t_operatore_nverde',
             'personnel_query' => $query_dipendenti,
             'emptyMessage' => 'In questo momento non ci sono operatori Numero Verde.'
         ], $conn, $profilo_sistema);
