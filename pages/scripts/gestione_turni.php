@@ -1,11 +1,9 @@
 <?php
 function renderShiftSection($params, $conn, $profilo_sistema) {
 
-
     // Scomposizione dei parametri
     $title = $params['title'];
     $modalId = $params['modal_id'];
-    // $formAction = $params['form_action'];
     $dbTable = $params['db_table'];
     $personnelQuery = $params['personnel_query'];
     $emptyMessage = $params['emptyMessage'] ?? "Nessun record trovato."; // Messaggio di default
@@ -44,7 +42,7 @@ HTML;
                     </div>
                     <div class="modal-body">
                         <form action="./report/nuovo_turno.php" method="POST">
-                            <!-- Campo hidden per db_table -->
+                            <!-- Campo hidden per passare title e db_table -->
                             <input type="hidden" name="title" value="{$title}">
                             <input type="hidden" name="db_table" value="{$dbTable}">
                             <div class="form-group">
@@ -84,7 +82,6 @@ foreach ($personnelList as $person) {
         . htmlspecialchars($person['cognome']) . ' ' . htmlspecialchars($person['nome'])
         . $extraInfo . '</option>';
 }
-
 
         echo <<<HTML
                                 </select>
@@ -155,6 +152,30 @@ HTML;
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Pulsante per aggiungere menu a scelta multipla -->
+                            <div class="form-group">
+                                <button type="button" id="add-event-dropdown" class="btn btn-secondary">Eventi</button>
+                                <select name="evento[]" id="event-dropdown" class="form-control mt-2" multiple>
+HTML;
+$eventQuery = "SELECT te.id,
+                      te.id || ' - ' || tne.nota as descrizione
+               FROM eventi.t_eventi te 
+               JOIN eventi.t_note_eventi tne 
+                 ON te.id = tne.id_evento
+               WHERE te.valido = true AND te.data_ora_fine_evento IS NULL;";
+$eventResult = pg_query($conn, $eventQuery);
+$eventList = pg_fetch_all($eventResult);
+
+foreach ($eventList as $event) {
+    echo '<option value="' . htmlspecialchars($event['id']) . '">'
+        . htmlspecialchars($event['descrizione']) . '</option>';
+}
+
+                                echo <<<HTML
+                                </select>
+                            </div>
+
                             <div class="form-group text-right">
                                 <button type="submit" class="btn btn-primary">Inserisci</button>
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
