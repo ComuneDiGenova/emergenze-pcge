@@ -156,7 +156,7 @@ HTML;
                             <!-- Pulsante per aggiungere menu a scelta multipla -->
                             <div class="form-group">
                                 <button type="button" id="add-event-dropdown" class="btn btn-secondary">Eventi</button>
-                                <select name="evento[]" id="event-dropdown" class="form-control mt-2" multiple>
+                                <select name="id_event_list[]" id="event-dropdown" class="form-control mt-2" multiple>
 HTML;
 $eventQuery = "SELECT te.id,
                       te.id || ' - ' || tne.nota as descrizione

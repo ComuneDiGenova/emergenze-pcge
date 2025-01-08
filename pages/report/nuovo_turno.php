@@ -17,6 +17,10 @@ $data_inizio = $_POST['data_inizio'] . ' ' . $_POST['hh_start'] . ':' . $_POST['
 $data_fine = $_POST['data_fine'] . ' ' . $_POST['hh_end'] . ':' . $_POST['mm_end'];
 $title = htmlspecialchars($_POST['title'], ENT_QUOTES, 'UTF-8');
 $db_table = htmlspecialchars($_POST['db_table'], ENT_QUOTES, 'UTF-8');
+$id_event_list = json_encode($_POST['id_event_list']);
+
+// echo print_r($id_event_list);
+// exit;
 
 // Validazioni
 if (strtotime($data_inizio) >= strtotime($data_fine)) {
@@ -30,10 +34,10 @@ if (strtotime($data_inizio) >= strtotime($data_fine)) {
 $wt = checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) ? 't' : 'f';
 
 // Inserimento turno
-$query = "INSERT INTO $db_table (matricola_cf, data_start, data_end, warning_turno) 
-          VALUES ($1, $2, $3, $4);";
+$query = "INSERT INTO $db_table (matricola_cf, data_start, data_end, warning_turno, id_evento) 
+          VALUES ($1, $2, $3, $4, $5);";
 
-$result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine, $wt]);
+$result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine, $wt, $id_event_list]);
 
 if (!$result) {
     die("Errore durante l'inserimento in $db_table.");
