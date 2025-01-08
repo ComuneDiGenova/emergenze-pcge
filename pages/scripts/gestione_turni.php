@@ -1,14 +1,42 @@
 <?php
 function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null) {
 
+    $query_dipendenti = "SELECT matricola, cognome, nome, settore, ufficio 
+        FROM varie.v_dipendenti 
+        ORDER BY cognome;";
+
+    $query_meteo = "SELECT cf as matricola, cognome, nome, '' as livello1 
+        FROM users.v_utenti_esterni 
+        WHERE id1=9
+        UNION 
+        SELECT matricola, cognome, nome, settore || ' - '|| ufficio as livello1 
+        FROM varie.v_dipendenti
+        ORDER BY cognome;";
+
+    $query_volontari = "SELECT cf as matricola, cognome, nome, livello1
+        FROM users.v_utenti_esterni 
+        WHERE id1=1 or id1=8
+        UNION 
+        SELECT matricola AS cf, cognome, nome, settore || ' - '|| ufficio as livello1
+        FROM varie.v_dipendenti
+        ORDER BY cognome;";
+
     // Scomposizione dei parametri
     $title = $params['title'];
     $modalId = $params['modal_id'];
     $dbTable = $params['db_table'];
-    $personnelQuery = $params['personnel_query'];
-
-
+    $query_type = $params['query_type'];
     $emptyMessage = $params['emptyMessage'] ?? "Nessun record trovato."; // Messaggio di default
+
+    // renderizzo la query in base a query_type
+    if ($query_type == 'dipendenti') {
+        $personnelQuery = $query_dipendenti;
+    } else if ($query_type == 'meteo') {
+        $personnelQuery = $query_meteo;
+    } else if ($query_type == 'volontari') {
+        $personnelQuery = $query_volontari;
+    }
+    
 
     // Titolo e pulsante Aggiungi
     echo '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 shift-container">';
@@ -195,11 +223,31 @@ HTML;
     }
 
     // Mostra turni
-    $query = "SELECT u.cognome, u.nome, r.data_start, r.data_end, 
-              r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
-              FROM {$dbTable} r 
-              LEFT JOIN varie.v_dipendenti u ON r.matricola_cf = u.matricola
-              WHERE r.data_start < now() AND r.data_end > now()";
+    if ($query_type == 'dipendenti' or $query_type == 'meteo') {
+        $query = "SELECT u.cognome, u.nome, r.data_start, r.data_end, 
+                                    r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
+                                    FROM {$dbTable} r 
+                                    LEFT JOIN varie.v_dipendenti u ON r.matricola_cf = u.matricola
+                                    WHERE r.data_start < now() AND r.data_end > now()";
+    } else if ($query_type == 'volontari') {
+        $query = "SELECT r.matricola_cf,
+            case 
+                when u.cognome is not null then u.cognome
+                when d.cognome is not null then d.cognome 
+            end as cognome,
+            case 
+                when u.nome is not null then u.nome
+                when d.nome is not null then d.nome 
+            end  as nome,
+            r.data_start, r.data_end, r.warning_turno, r.modificato,
+            EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
+            from {$dbTable} r
+            LEFT JOIN users.v_utenti_esterni u 
+                ON r.matricola_cf=u.cf
+            LEFT JOIN varie.dipendenti d 
+                ON r.matricola_cf=d.matricola
+            WHERE r.data_start < now() AND r.data_end > now()";
+    } 
 
     // Filtra per id_evento solo se è definito
     $id_evento = isset($_GET['id']) && is_numeric($_GET['id']) ? $_GET['id'] : null;
