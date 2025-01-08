@@ -22,16 +22,11 @@ $id=pg_escape_string($_GET['id']);
 function roundToQuarterHour($now){
 	$minutes = $now['minutes'] - $now['minutes']%15;
 	$test = $now['minutes']%15;
-	//echo 'minuti now: '.$now['minutes'].'</br>';
-	//echo 'minuti now 15: '.$test.'</br>';
-	//echo 'minuti: '.$minutes.'</br>';
 	if ($minutes < 10) {
 		$minutes = '0'.$minutes;
-		//echo 'minuti if: ' .$minutes.'</br>';
 	}
 
 	$rounded = $now["mday"]."/".$now["mon"]."/".substr($now["year"],-2)."<br>".$now['hours'].":".$minutes;
-	//echo 'ora finale: '.$rounded.'</br>';
 	return $rounded;
 }
 
@@ -43,13 +38,9 @@ function roundToQuarterHour2($now = null) {
     return $rounded;
 }
 
-//require('./tables/griglia_dipendenti_save.php');
 require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
-//require('./conn.php');
-
 require('./check_evento.php');
-
 
 ?>
 
@@ -76,19 +67,7 @@ require('navbar_up.php');
 
         <div id="page-wrapper">
             <div class="row">
-                <!--div class="col-sm-12">
-                    <h1 class="page-header">Dashboard</h1>
-                </div-->
-                <!-- /.col-sm-12 -->
             </div>
-            <!-- /.row -->
-            
-            
-            <?php //echo $note_debug; ?>
-           
-
-            
-			
 
             <div class="row">
 			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
@@ -157,7 +136,6 @@ require('navbar_up.php');
 				}
 				echo $r3["nome_munic"];
 				$k=$k+1;
-				//$municipir[]=array($id,$r3["nome_munic"]);
 			}
 			$check_chiusura=0;
 			echo '<br><b>Data e ora inizio</b>: '.$inizio_evento;
@@ -192,17 +170,6 @@ require('navbar_up.php');
 				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_eventi_chiusi_last_update';
 			}
 			
-			?>
-			
-
-
-			
-			
-			<!--hr>
-			<div class="row">
-			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			
-			<?php
 			$query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$id.";";
 			$result = pg_query($conn, $query);
 			while($r = pg_fetch_assoc($result)) {	
@@ -215,9 +182,7 @@ require('navbar_up.php');
 				$data_end = strftime('%A %e %B %G', $timestamp);
 				$ora_end = date('H:i', $timestamp);								
 				$color=str_replace("'","",$r["rgb_hex"]);
-				//echo $color;
-				//echo '<span class="dot" style="background-color:'.$color.'"></span>';
-				//echo "<style> .fas { color: ".$color."; -webkit-print-color-adjust: exact;}</style>";
+
 				echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b>Allerta ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
 			}
 			?>
@@ -245,12 +210,6 @@ require('navbar_up.php');
 			<hr>
 			</div>
 			
-			<div class="row">
-			 
-			 <?php //require('./monitoraggio_meteo_embed.php'); ?>
-            
-			</div>
-			
 			<hr>
 			<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -269,9 +228,6 @@ require('navbar_up.php');
 								echo "<h3>Elenco comunicazioni generiche</h3>";
 							}
 							$c=$c+1;
-							//echo '<button type="button" class="btn btn-info noprint"  data-toggle="modal" 
-							//data-target="#update_mon_'.$r['id'].'">
-							//<i class="fas fa-edit"></i> Edit </button>';
 							echo " <li><b>Comunicazione del ".$r['data_aggiornamento']."</b>: ";
 							echo $r['testo'];
 							if ($r['allegato']!=''){
@@ -330,14 +286,10 @@ require('navbar_up.php');
 			 <?php require('./monitoraggio_meteo_embed.php'); ?>
 			</div>
 
-			<!--hr-->
-
 			<div class="row">
 			<?php require('./comunicazioni_embed.php'); ?>
 			</div>
 
-			<!--hr-->
-			
 			<div class="row">
             <?php require('./attivita_sala_emergenze_embed.php'); ?>
 			</div>
@@ -361,8 +313,6 @@ require('navbar_up.php');
 			<?php
 
 			$query="SELECT * FROM eventi.t_attivazione_nverde WHERE id_evento=".$id." and data_ora_fine <= now();";
-			//echo $query;
-			//exit;
 				$result = pg_query($conn, $query);
 			while($r = pg_fetch_assoc($result)) {
 				$check_nverde=2;
@@ -382,7 +332,6 @@ require('navbar_up.php');
 				$data_end = strftime('%A %e %B %G', $timestamp);
 				$ora_end = date('H:i', $timestamp);								
 				$color=str_replace("'","",$r["rgb_hex"]);
-				//echo $color;
 				echo "<li> <i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\007c37\"></i> <b>Numero verde  attivo</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " </li>";
 			}
 			}
@@ -400,21 +349,10 @@ require('navbar_up.php');
             <h4>Numero chiamate ricevute</h4>
             
             <?php 
-            /*$query_e="SELECT e.id, tt.descrizione 
-            FROM eventi.t_eventi e
-            JOIN eventi.join_tipo_evento t ON t.id_evento=e.id
-            JOIN eventi.tipo_evento tt on tt.id=t.id_tipo_evento
-			 	WHERE e.valido != 'f'
-			   GROUP BY e.id, tt.descrizione;";
-             
-            $result_e = pg_query($conn, $query_e);
-				//echo "<ul>";
-				while($r_e = pg_fetch_assoc($result_e)) {*/
-					//echo '<b>Tipo Evento</b>:'.$r_e['descrizione']. '<br>';
 					$query="SELECT count(r.id)
 					FROM segnalazioni.t_richieste_nverde r 
 					WHERE r.id_evento = ".$id.";";
-					//echo $query;
+
 					$result = pg_query($conn, $query);
 					while($r = pg_fetch_assoc($result)) {
 						echo "<b>Richieste generiche:</b>".$r['count']."<br>";
@@ -422,30 +360,18 @@ require('navbar_up.php');
 					$query="SELECT count(r.id)
 					FROM segnalazioni.t_segnalazioni r 
 					WHERE r.id_evento = ".$id.";";
-					//echo $query;
+
 					$result = pg_query($conn, $query);
 					while($r = pg_fetch_assoc($result)) {
 						echo "<b>Segnalazioni:</b>".$r['count']."<br><br>";
 					}
-				/*}*/ 
-            
-            
-            
             ?>
             
             
             </div>            
             </div>
-            <!-- /.row -->            
+      
             <hr>
-            
-            
-            <?php 
-             
-            //require('./conteggi_dashboard.php');
-            
-            //require('./contatori.php');
-            ?>
             
             <div class="row">
                 
@@ -805,16 +731,7 @@ while($r = pg_fetch_assoc($result)) {
 	} else {
 		echo 'Nessun presidio assegnato - ';
 	}
-	
-	
-	
-	
-	
-	/*if ($r['conteggio_sopralluoghi']>0){
-		echo ' '.$r['conteggio_incarichi'].' presidi assegnati - ';
-	} else {
-		echo 'Nessun presidio assegnato - ';
-	}*/
+
 	if ($r['conteggio_pc']>0){
 		if ($r['conteggio_pc']==1){
 			echo ' <h4>'.$r['conteggio_pc'].' provvedimento cautelare assegnato </h4> ';
@@ -825,76 +742,7 @@ while($r = pg_fetch_assoc($result)) {
 	} else {
 		echo '<h4> Nessun provvedidimento cautelare assegnato </h4> ';
 	}
-	/*$query_com="SELECT data_ora_stato, mittente, destinatario, testo 
-	FROM segnalazioni.v_segnalazioni 
-	WHERE id_lavorazione=".$r['id_segnalazione_in_lavorazione'].";";
-	$result_com = pg_query($conn, $query_com);
-	while($r_com = pg_fetch_assoc($result_com)) {
 	
-	}
-	*/
-	/*	if ($r['conteggio_incarichi']>0){
-			echo '<br>--<br><b>Incarichi:</b> ';
-			$query_i = 'SELECT 
-			data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_incarichi_last_update s 
-			WHERE s.id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato ORDER BY data_ora_invio asc;';
-			//echo $query_i;
-			$result_i = pg_query($conn, $query_i);
-			while($r_i = pg_fetch_assoc($result_i)) {
-				echo '<br>' .$r_i['data_ora_invio'];
-				echo ' - ' . $r_i['descrizione_stato']. ' - ';
-				echo $r_i['descrizione_uo'] .' ('.$r_i['descrizione'].')';
-			}
-		}
-	
-		if ($r['conteggio_incarichi_interni']>0){
-			echo '<br>--<br><b>Incarichi interni:</b> ';
-			$query_i = 'SELECT 
-			data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_incarichi_interni_last_update s 
-			WHERE s.id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato  
-			ORDER BY data_ora_invio asc;';
-			//echo $query_i;
-			$result_i = pg_query($conn, $query_i);
-			while($r_i = pg_fetch_assoc($result_i)) {
-				echo '<br>' .$r_i['data_ora_invio'];
-				echo ' - ' . $r_i['descrizione_stato']. ' - ';
-				echo $r_i['descrizione_uo'] .' ('.$r_i['descrizione'].')';
-			}
-		}
-		
-		
-		
-		if ($r['conteggio_sopralluoghi']>0){
-			echo '<br>--<br><b>Presidi:</b> ';
-			$query_i = 'SELECT 
-			data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato
-			FROM segnalazioni.v_sopralluoghi_last_update s 
-			WHERE id_lavorazione='.$r['id_lavorazione'].' GROUP BY data_ora_invio, 
-			descrizione, 
-			descrizione_uo, descrizione_stato ORDER BY data_ora_invio asc;';
-			//echo $query_i;
-			$result_i = pg_query($conn, $query_i);
-			while($r_i = pg_fetch_assoc($result_i)) {
-				echo '<br>' .$r_i['data_ora_invio'];
-				echo ' - ' . $r_i['descrizione_stato']. ' - ';
-				echo $r_i['descrizione_uo'] .' ('.$r_i['descrizione'].')';
-			}
-		}
-		
-		*/
-	//echo "<b>Note:</b>".$r['localizzazione']."<br>";
 	echo "<hr>";
 }
   
@@ -923,7 +771,6 @@ while($r = pg_fetch_assoc($result)) {
     }
 
   function nameFormatterRischio(value) {
-        //return '<i class="fas fa-'+ value +'"></i>' ;
         
         if (value=='t'){
         		return '<i class="fas fa-exclamation-triangle" style="color:#ff0000"></i>';
@@ -937,7 +784,6 @@ while($r = pg_fetch_assoc($result)) {
 
 
 function nameFormatterMappa1(value, row) {
-	//var test_id= row.id;
 	return' <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMap'+value+'"><i class="fas fa-map-marked-alt"></i></button> \
     <div class="modal fade" id="myMap'+value+'" role="dialog"> \
     <div class="modal-dialog"> \
@@ -965,129 +811,6 @@ function nameFormatterMappa1(value, row) {
 
 
 </script>			 
-                
-                
-                
-                    <!--div id="panel-riepilogo" class="panel panel-default">
-                        <div class="panel-heading">
-                            <i class="fa fa-bell fa-fw"></i> Pannello riepilogo
-                        </div>
-                        
-                        <div class="panel-body">
-                            <div class="list-group">
-                               
-                                		<?php if($segn_limbo>0){?>
-                                			 <a href="#segn_limbo_table" class="list-group-item">
-	                                    <i class="fa fa-exclamation fa-fw" style="color:red"></i> Nuove segnalazioni da elaborare!
-	                                    <span class="pull-right text-muted small"><em><?php echo $segn_limbo; ?></em>
-	                                    </span>
-	                                    </a>
-                                    <?php }?>
-                                
-								
-											<?php if($inc_limbo>0){?>
-                                			 <div class="list-group-item" >
-	                                    <i class="fa fa-exclamation fa-fw" style="color:red"></i> Nuovi incarichi ancora da prendere in carico!
-	                                    <span class="pull-right text-muted small"><em><?php echo $inc_limbo; ?></em>
-	                                    </span>
-	                                    
-	                                    </div>
-                                    <?php }?>
-								
-								<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-users"></i> <b>Gestione squadre</b>
-                                    <br><br>
-                                     - <i class="fa fa-play"></i> Squadre in azione
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_in_azione; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-pause"></i> Squadre a disposizione
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_disposizione; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Squadre a riposo
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_riposo; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale squadre eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_riposo; ?></em>
-                                    </span>
-                                </div>
-                            
-                            <a href="./gestione_squadre.php" class="btn btn-default btn-block">Vai alla gestione squadre</a>
-							
-							
-							<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-pencil-ruler"></i> <b>Presidi</b>
-                                    <br><br>
-                                     - <i class="fa fa-pause"></i> Assegnati
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_assegnati; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-play"></i> In corso
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_corso; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Conclusi
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_conclusi; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale presidi eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_tot; ?></em>
-                                    </span>
-                                </div>
-                            
-                            <a href="./nuovo_sopralluogo.php" class="btn btn-default btn-block">Crea un nuovo presidio</a>
-							
-							</div>
-							
-							<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-exclamation-triangle"></i> <b>Provvedimenti cautelari</b>
-                                    <br><br>
-                                     - <i class="fa fa-pause"></i> Assegnati
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_assegnati; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-play"></i> In corso
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_corso; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Portati a termine
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_conclusi; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale provvedimenti cautelari eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_tot; ?></em>
-                                    </span>
-                                </div>
-                            
-
-                            <a href="./elenco_pc.php" class="btn btn-default btn-block">Elenco provvedimenti cautelari</a>
-							
-							</div>
-                        
-						
-						
-						
-						
-
-                    </div-->
-
-
-                    
-                    
-                    
-                    
-                    
             </div> 
             
             
@@ -1276,9 +999,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
                 
                 
 				?>
-				
-				
-				
 				<hr>
 				
 				
@@ -1333,16 +1053,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 			echo ' - Rimosso alle ore '.$r2['ora_rimozione'].' del '.$r2['data_rimozione'];
 		}
 		echo "</h4>";
-		
-		//*********************************************************************************************************
-		// cerco gli incarichi associati a quel provvedimento cautelare
-		
-		/*if ($r['conteggio_incarichi']>0){
-		if ($r['conteggio_incarichi']==1){
-			echo ' <h4> '.$r['conteggio_incarichi'].' incarico assegnato </h4>';
-		} else {
-			echo ' <h4> '.$r['conteggio_incarichi'].' incarichi assegnati </h4>';
-		}*/
+
 		$query3 = "SELECT i.id,
 		to_char(i.data_ora_invio, 'DD/MM/YYYY'::text) AS data_invio,
 		to_char(i.data_ora_invio, 'HH24:MI'::text) AS ora_invio,
@@ -1391,12 +1102,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 			echo "</li>";
 		}
 		echo "</ul>";
-	/*} else {
-		echo 'Nessun incarico assegnato - ';
-	}*/
-		
-		
-		
 
 	echo '<a class="btn btn-info noprint" target="_new" href="dettagli_provvedimento_cautelare.php?id='.$r2["id"].'"> Visualizza dettagli in nuova scheda</a>';
 	echo "</li>";
@@ -1507,13 +1212,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 						<th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
 						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
@@ -1524,23 +1222,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
 						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<!-- <th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
-						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th> -->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1557,23 +1238,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th> -->
 						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
 						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
@@ -1582,15 +1247,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
 						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
 						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<!-- <th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
-						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th> -->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1607,31 +1263,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
-						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th> -->
+						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th> -->
 						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
 						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
 						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
@@ -1640,12 +1272,10 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
 						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
 						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
 				<h4>Valori Idrometri ARPAL </h4>
-				<!--div id="tabella"-->
 				<h5><a name="idro-arpal-tab1">Tab. 1</a>: acquisizioni dalle <?php echo date("H:i", $_ora24) ?> alle <?php echo date("H:i", $_ora17) ?> (<a href="#idro-arpal-tab2" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
 				<table  id="t_idro_arpal" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report_esteso.php" 
 				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
@@ -1659,13 +1289,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 						<th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
 						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
@@ -1675,24 +1298,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<!-- <th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
-						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1709,22 +1314,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th> -->
 						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
 						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
@@ -1733,16 +1323,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
 						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
 						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
-						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1759,30 +1339,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th> -->
 						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
 						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
 						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
@@ -1792,12 +1349,10 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
 						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
 						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
-						<!-- <th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th> -->
 					</tr>
 				</thead>
 				</table><br>
 				<h4>Valori Idrometri COMUNE </h4>
-				<!--div id="tabella"-->
 				<h5><a name="idro-tab1">Tab. 1</a>: acquisizioni dalle <?php echo date("H:i", $_ora24) ?> alle <?php echo date("H:i", $_ora17) ?> (<a href="#idro-tab2" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)</h5>
 				<table  id="t_idro_com" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report_esteso.php" 
 				data-show-search-clear-button="true" data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
@@ -1811,13 +1366,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
+
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 						<th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
 						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
@@ -1827,24 +1376,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
 						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
 						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<!-- <th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
-						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1862,22 +1393,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th> -->
 						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
 						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
 						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
@@ -1886,16 +1402,6 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
 						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
 						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th>
-						<!-- <th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
-						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
-						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-						<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-						<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-						<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3;?></th>  
-						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th> -->
-						<!--th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th-->
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
@@ -1913,30 +1419,7 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 					<tr>
 						<th class="noprint" data-field="state" data-checkbox="true"></th>    
 						<th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-						<!--th data-field="tipo" data-sortable="true" data-visible="true" data-filter-control="select">Tipo</th-->
-						<!--th data-field="id" data-sortable="true" data-visible="false" data-filter-control="select">Id</th-->
-						<!--th data-field="perc_al_g" data-sortable="true" <?php if ($perc!='perc_al_g'){?> data-visible="false" <?php }?> data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta gialla" style="color:#ffd800;"></i></th>
-						<th data-field="perc_al_a" data-sortable="true" <?php if ($perc!='perc_al_a'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percoso allerta arancione" style="color:#ff8c00;"></i></th>
-						<th data-field="perc_al_r" data-sortable="true"  <?php if ($perc!='perc_al_r'){?> data-visible="false" <?php }?>data-filter-control="select"><i class="fas fa-location-arrow" title="Percorso allerta rossa" style="color:#e00000;"></i></th>
-						<th data-field="arancio" data-sortable="true" data-visible="false"> Liv arancione</th>
-						<th data-field="rosso" data-sortable="true" data-visible="false" >Liv rosso</th-->
 						<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-						<!-- <th data-field="24" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora24;?></th>
-						<th data-field="23" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora23;?></th>
-						<th data-field="22" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora22;?></th>
-						<th data-field="21" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora21;?></th>
-						<th data-field="20" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora20;?></th>
-						<th data-field="19" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora19;?></th>
-						<th data-field="18" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora18;?></th>
-						<th data-field="17" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora17;?></th>
-						<th data-field="16" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora16;?></th>
-						<th data-field="15" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora15;?></th>            
-						<th data-field="14" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora14;?></th>
-						<th data-field="13" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora13;?></th>
-						<th data-field="12" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora12;?></th>            
-						<th data-field="11" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora11;?></th>
-						<th data-field="10" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora10;?></th>  
-						<th data-field="9" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora9;?></th> -->
 						<th data-field="8" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora8;?></th>
 						<th data-field="7" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora7;?></th>
 						<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
@@ -1946,26 +1429,11 @@ data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 						<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
 						<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
 						<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
-						<!--th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th-->
 					</tr>
 				</thead>
 				</table><br>
 
 				<script>
-// function nameFormatterInsert(value, row) {
-// 	if(row.tipo != 'IDROMETRO COMUNE' && row.tipo != 'IDROMETRO ARPA'){
-// 		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#new_lettura'+value+'">\
-// 		<i class="fas fa-search-plus" title="Aggiungi lettura per '+row.nome+'"></i></button> - \
-// 		<a class="btn btn-info" href="mira.php?id='+value+'"> <i class="fas fa-chart-line" title=Visualizza ed edita dati storici></i></a>';
-// 	} else if (row.tipo=='IDROMETRO ARPA') {
-// 		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_a'+value+'">\
-// 		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
-// 	 } else if (row.tipo=='IDROMETRO COMUNE') {
-// 		return' <button type="button" class="btn btn-info noprint" data-toggle="modal" data-target="#grafico_i_c'+value+'">\
-// 		<i class="fas fa-chart-line" title="Visualizza grafico idro lettura per '+row.nome+'"></i></button>';
-// 	 }
-// }
-
 
 function nameFormatterLettura(value,row) {
 	if(row.tipo=='IDROMETRO ARPA' ){
@@ -1987,7 +1455,6 @@ function nameFormatterLettura(value,row) {
 			return '-';
 		}
 	} else if(row.tipo=='IDROMETRO COMUNE'){
-	//	return Math.round(value*1000)/1000;
 		<?php
 		$query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
 		$result_soglie = pg_query($conn, $query_soglie);
@@ -2056,38 +1523,7 @@ require('./req_bottom.php');
 
 ?>
 
-<script>
-
-	/*var mymap = L.map('mapid').setView([44.411156, 8.932661], 12);
-
-	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-		maxZoom: 18,
-		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-		id: 'mapbox.streets'
-	}).addTo(mymap);
-
-	L.marker([44.411156, 8.932661]).addTo(mymap)
-		.bindPopup("<b>Hello world!</b><br />I am a leafletJS popup.").openPopup();
-
-
-
-
-	var popup = L.popup();
-
-	function onMapClick(e) {
-		popup
-			.setLatLng(e.latlng)
-			.setContent("You clicked the map at " + e.latlng.toString())
-			.openOn(mymap);
-	}
-
-	mymap.on('click', onMapClick);*/
-
-
-
-  
+<script>  
 $(document).ready(function() {
     $('#js-date').datepicker({
         format: "yyyy-mm-dd",
