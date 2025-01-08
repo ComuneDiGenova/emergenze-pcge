@@ -1,11 +1,13 @@
 <?php
-function renderShiftSection($params, $conn, $profilo_sistema) {
+function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null) {
 
     // Scomposizione dei parametri
     $title = $params['title'];
     $modalId = $params['modal_id'];
     $dbTable = $params['db_table'];
     $personnelQuery = $params['personnel_query'];
+
+
     $emptyMessage = $params['emptyMessage'] ?? "Nessun record trovato."; // Messaggio di default
 
     // Titolo e pulsante Aggiungi
@@ -193,9 +195,19 @@ HTML;
               r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
               FROM {$dbTable} r 
               LEFT JOIN varie.v_dipendenti u ON r.matricola_cf = u.matricola
-              WHERE r.data_start < now() AND r.data_end > now() 
-              ORDER BY r.data_start;";
+              WHERE r.data_start < now() AND r.data_end > now()";
 
+    // Filtra per id_evento solo se è definito
+    $id_evento = isset($_GET['id']) && is_numeric($_GET['id']) ? $_GET['id'] : null;
+
+    if ($id_evento !== null) {
+        $query .= " AND r.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+    }
+
+    // aggiungo ORDER BY alla query per completarla
+    $query .= " ORDER BY r.data_start;";
+
+    // eseguo la query e la renderizzo
     $result = pg_query($conn, $query);
     $shifts = pg_fetch_all($result);
 
