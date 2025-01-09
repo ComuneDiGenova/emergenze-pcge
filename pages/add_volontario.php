@@ -117,10 +117,10 @@ $subtitle = "Form aggiunta utente esterno";
 
                 <div class="form-group">
                     <label for="provincia">Provincia:</label> <font color="red">*</font>
-                    <select class="selectpicker show-tick form-control" data-live-search="true" onchange="getCivico(this.value);" required>
+                    <select class="selectpicker show-tick form-control" data-live-search="true" onchange="getComuni(this.value);" required>
                         <option value="">Seleziona la provincia</option>
                         <?php 
-                        $query2 = "SELECT * FROM \"varie\".\"province\";";
+                        $query2 = "SELECT * FROM varie.province;";
                         $result2 = pg_query($conn, $query2);
                         while ($r2 = pg_fetch_assoc($result2)) {
                             echo "<option value='{$r2['cod']}'>{$r2['nome']}</option>";
@@ -135,6 +135,8 @@ $subtitle = "Form aggiunta utente esterno";
                         <option value="">Seleziona il comune</option>
                     </select>
                 </div>
+
+                <script src="scripts/add_volontario.js"></script>
 
                 <div class="form-group">
                     <label for="indirizzo">Indirizzo:</label> <font color="red">*</font>
