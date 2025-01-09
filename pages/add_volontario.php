@@ -1,7 +1,25 @@
-<?php 
-
+<?php
 $subtitle = "Form aggiunta utente esterno";
 ?>
+
+
+<?php
+    session_start();
+    if (isset($_SESSION['import_message'])) {
+        echo "<div id='import-message' style='background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border: 1px solid #c3e6cb; border-radius: 5px;'>
+            {$_SESSION['import_message']}
+        </div>";
+        unset($_SESSION['import_message']); // Rimuovi il messaggio dopo averlo mostrato
+    }
+?>
+<script>
+    // Nasconde il messaggio dopo 5 secondi
+    setTimeout(() => {
+        const msgDiv = document.getElementById('import-message');
+        if (msgDiv) msgDiv.style.display = 'none';
+    }, 5000);
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,6 +58,45 @@ $subtitle = "Form aggiunta utente esterno";
                 </div>
             </div>
 
+            <div class="form-group">
+                <a href="templates/utenti_template.xlsx" class="btn btn-success" style="margin-left: 10px;">
+                    <i class="fa fa-download"></i> Scarica Template
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadModal">
+                    <i class="fa fa-upload"></i> Carica CSV
+                </button>
+            </div>
+
+            <!-- Modale per il caricamento del file CSV -->
+            <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form action="scripts/upload_csv.php" method="POST" enctype="multipart/form-data">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="uploadModalLabel">Carica file CSV</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="csvFile">Seleziona un file CSV:</label>
+                                    <input type="file" name="csvFile" class="form-control" accept=".csv" required>
+                                    <small class="form-text text-muted">
+                                        Assicurati che il file CSV abbia le colonne richieste: <strong>CF, nome, cognome, data di nascita, comune, telefono, email, ecc.</strong>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                                <button type="submit" class="btn btn-primary">Carica e Importa</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form aggiunta utente singolo -->
             <form action="add_volontario2.php" method="POST">
                 <!-- Credenziali -->
                 <h4><i class="fa fa-address-card"></i> Credenziali:</h4>
