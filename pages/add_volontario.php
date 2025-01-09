@@ -13,7 +13,7 @@ $subtitle = "Form aggiunta utente esterno";
     <meta name="author" content="roberto">
 
     <title>Gestione emergenze</title>
-    
+
     <?php 
     require('./req.php');
     require(explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php');
@@ -25,7 +25,7 @@ $subtitle = "Form aggiunta utente esterno";
     <div id="wrapper">
         <div id="navbar1">
             <?php require('navbar_up.php'); ?>
-        </div>  
+        </div>
 
         <?php require('./navbar_left.php'); ?>
 
@@ -34,13 +34,15 @@ $subtitle = "Form aggiunta utente esterno";
                 <div class="col-lg-12">
                     <h1 class="page-header">
                         <i class="fa fa-user-plus"></i> Aggiunta all'anagrafe del personale esterno
-                        <br><small>(volontari, personale delle Municipalizzate, etc)</small>
+                        <br>
+                        <small>(volontari, personale delle Municipalizzate, etc)</small>
                     </h1>
                 </div>
             </div>
 
             <form action="add_volontario2.php" method="POST">
-                <h4><i class="fa fa-address-card"></i> Credenziali:</h4> 
+                <!-- Credenziali -->
+                <h4><i class="fa fa-address-card"></i> Credenziali:</h4>
 
                 <div class="form-group">
                     <label for="nome">Nome</label> <font color="red">*</font>
@@ -61,6 +63,7 @@ $subtitle = "Form aggiunta utente esterno";
                     </small>
                 </div>
 
+                <!-- Data di nascita -->
                 <div class="form-group">
                     <label for="data_nascita">Data nascita:</label> <font color="red">*</font>
                     <div class="form-row">
@@ -94,6 +97,7 @@ $subtitle = "Form aggiunta utente esterno";
                     </div>
                 </div>
 
+                <!-- Nazionalità -->
                 <div class="form-group">
                     <label for="naz">Nazionalità:</label> <font color="red">*</font>
                     <select class="form-control" name="naz">
@@ -108,6 +112,7 @@ $subtitle = "Form aggiunta utente esterno";
                     </select>
                 </div>
 
+                <!-- Residenza/Domicilio -->
                 <h4><i class="fa fa-building"></i> Residenza / Domicilio:</h4>
 
                 <div class="form-group">
@@ -142,6 +147,7 @@ $subtitle = "Form aggiunta utente esterno";
                     <input type="text" name="cap" class="form-control" maxlength="5">
                 </div>
 
+                <!-- Contatti -->
                 <h4><i class="fa fa-phone"></i> Contatti:</h4>
 
                 <div class="form-group">
@@ -164,6 +170,7 @@ $subtitle = "Form aggiunta utente esterno";
                     <input type="email" name="mail" class="form-control" required>
                 </div>
 
+                <!-- Unita Operative -->
                 <div class="form-group">
                     <label for="UO_I">Unità operativa I livello:</label> <font color="red">*</font>
                     <select name="UO_I" class="selectpicker show-tick form-control" data-live-search="true" required>
