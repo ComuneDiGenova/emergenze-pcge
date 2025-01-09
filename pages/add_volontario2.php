@@ -31,8 +31,8 @@ if (!preg_match('/^[A-Z0-9]{16}$/', $cf)) {
     exit;
 }
 
-$nome = pg_escape_string(trim($_POST['nome'] ?? ''));
-$cognome = pg_escape_string(trim($_POST['cognome'] ?? ''));
+$nome = strtoupper(pg_escape_string(trim($_POST['nome'] ?? '')));
+$cognome = strtoupper(pg_escape_string(trim($_POST['cognome'] ?? '')));
 $indirizzo = pg_escape_string(trim($_POST['indirizzo'] ?? ''));
 
 // Controlla se il Codice Fiscale esiste già

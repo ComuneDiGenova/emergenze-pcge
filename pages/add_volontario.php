@@ -70,9 +70,10 @@ $subtitle = "Form aggiunta utente esterno";
                         <div class="form-group col-md-4">
                             <select class="form-control" name="dd" required>
                                 <option value="">Giorno</option>
-                                <?php for ($j = 1; $j <= 31; $j++) echo "<option value='$j'>$j</option>"; ?>
+                                <?php for ($j = 1; $j <= 31; $j++) echo "<option value='" . sprintf('%02d', $j) . "'>" . sprintf('%02d', $j) . "</option>"; ?>
                             </select>
                         </div>
+
                         <div class="form-group col-md-4">
                             <select class="form-control" name="mm" required>
                                 <option value="">Mese</option>
@@ -80,11 +81,12 @@ $subtitle = "Form aggiunta utente esterno";
                                 setlocale(LC_TIME, 'it_IT.iso88591');
                                 for ($m = 1; $m <= 12; $m++) {
                                     $month_label = strftime('%B', mktime(0, 0, 0, $m, 1));
-                                    echo "<option value='$m'>$month_label</option>";
+                                    echo "<option value='" . sprintf('%02d', $m) . "'>" . sprintf('%02d', $m) . " - $month_label</option>";
                                 }
                                 ?>
                             </select>
                         </div>
+
                         <div class="form-group col-md-4">
                             <select class="form-control" name="yyyy" required>
                                 <option value="">Anno</option>
