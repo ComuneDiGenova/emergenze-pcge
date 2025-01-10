@@ -185,7 +185,7 @@ HTML;
                             </div>
                             <!-- Pulsante per aggiungere menu a scelta multipla -->
                             <div class="form-group">
-                                <button type="button" id="add-event-checkbox" class="btn btn-secondary">Eventi</button>
+                                <button type="button" id="add-event-checkbox" class="btn btn-secondary">Seleziona Eventi:</button>
                                 <div id="event-checkboxes" class="form-control mt-2" style="height: auto; overflow-y: auto;">
 HTML;
 $eventQuery = "SELECT te.id,
