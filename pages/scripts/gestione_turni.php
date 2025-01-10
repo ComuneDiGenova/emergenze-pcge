@@ -71,7 +71,7 @@ HTML;
                         <h4 class="modal-title">Inserire {$title}</h4>
                     </div>
                     <div class="modal-body">
-                        <form action="./report/nuovo_turno.php" method="POST">
+                        <form action="./report/nuovo_turno.php" method="POST" class="shift-form">
                             <!-- Campo hidden per passare title e db_table -->
                             <input type="hidden" name="title" value="{$title}">
                             <input type="hidden" name="db_table" value="{$dbTable}">
@@ -119,7 +119,7 @@ foreach ($personnelList as $person) {
                             </div>
                             <div class="form-group">
                                 <label for="data_inizio">Data inizio (AAAA-MM-GG)</label>
-                                <input type="text" class="form-control datepicker" name="data_inizio" id="js-date-{$modalId}" required>
+                                <input type="text" class="form-control datepicker" name="data_inizio" id="js-date-{$modalId}" autocomplete="off" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora inizio:</label>
@@ -152,7 +152,7 @@ HTML;
                             </div>
                             <div class="form-group">
                                 <label>Data fine (AAAA-MM-GG):</label>
-                                <input type="text" class="form-control datepicker" name="data_fine" id="js-date2" required>
+                                <input type="text" class="form-control datepicker" name="data_fine" id="js-date2" autocomplete="off" required>
                             </div>
                             <div class="form-group">
                                 <label>Ora fine:</label>
@@ -199,7 +199,7 @@ $eventList = pg_fetch_all($eventResult);
 
 foreach ($eventList as $event) {
     echo '<div class="form-check">';
-    echo '<input class="form-check-input me-6" type="checkbox" name="id_event_list[]" value="' . htmlspecialchars($event['id']) . '" id="event-' . htmlspecialchars($event['id']) . '">';
+    echo '<input class="form-check-input event-checkbox" type="checkbox" name="id_event_list[]" value="' . htmlspecialchars($event['id']) . '" id="event-' . htmlspecialchars($event['id']) . '">';
     echo '<label class="form-check-label" for="event-' . htmlspecialchars($event['id']) . '">';
     echo '&nbsp;&nbsp;';
     echo htmlspecialchars($event['descrizione']);
