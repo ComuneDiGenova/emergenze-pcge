@@ -224,12 +224,12 @@ HTML;
 
     // Mostra turni
     if ($query_type == 'dipendenti' or $query_type == 'meteo') {
-        $query = "SELECT u.cognome, u.nome, r.data_start, r.data_end, 
+        $query = "SELECT DISTINCT u.cognome, u.nome, r.data_start, r.data_end, 
                     r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
                     FROM {$dbTable} r 
                     LEFT JOIN varie.v_dipendenti_all u ON r.matricola_cf = u.matricola";
     } else if ($query_type == 'volontari') {
-        $query = "SELECT r.matricola_cf,
+        $query = "SELECT DISTINCT r.matricola_cf,
             case 
                 when u.cognome is not null then u.cognome
                 when d.cognome is not null then d.cognome 
@@ -251,16 +251,39 @@ HTML;
     // Filtra per id_evento solo se è definito
     $id_evento = isset($_GET['id']) && is_numeric($_GET['id']) ? $_GET['id'] : null;
 
+    // Costruisci la condizione WHERE
+    $where_conditions = [];
+
     if ($id_evento !== null) {
-        $query .= "WHERE data_start < (SELECT coalesce(data_ora_chiusura, now()) FROM eventi.t_eventi where id = ".$id_evento.")
-            AND data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id_evento.")
-            ANDr.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+        $where_conditions[] = "r.data_start < (SELECT COALESCE(data_ora_chiusura, NOW()) FROM eventi.t_eventi WHERE id = {$id_evento})";
+        $where_conditions[] = "r.data_end >= (SELECT data_ora_inizio_evento FROM eventi.t_eventi WHERE id = {$id_evento})";
+        $where_conditions[] = "r.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
     } else {
-        $query .= "WHERE r.data_start < now() AND r.data_end > now()";
+        $where_conditions[] = "r.data_start < NOW()";
+        $where_conditions[] = "r.data_end > NOW()";
     }
 
-    // aggiungo ORDER BY alla query per completarla
-    $query .= " ORDER BY r.data_start;";
+    // Aggiungi le condizioni WHERE alla query
+    if (!empty($where_conditions)) {
+        $query .= " WHERE " . implode(' AND ', $where_conditions);
+    }
+
+    // Aggiungo ORDER BY alla fine
+    $query .= " ORDER BY r.data_start";
+
+    // echo $query;
+    // exit;
+
+    // if ($id_evento !== null) {
+    //     $query .= "WHERE data_start < (SELECT coalesce(data_ora_chiusura, now()) FROM eventi.t_eventi where id = ".$id_evento.")
+    //             AND data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id_evento.")
+    //             ANDr.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+    // } else {
+    //     $query .= "WHERE r.data_start < now() AND r.data_end > now()";
+    // }
+
+    // // aggiungo ORDER BY alla query per completarla
+    // $query .= " ORDER BY r.data_start;";
 
     // eseguo la query e la renderizzo
     $result = pg_query($conn, $query);
