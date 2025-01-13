@@ -2,7 +2,7 @@
 function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null) {
 
     $query_dipendenti = "SELECT matricola, cognome, nome, settore, ufficio 
-        FROM varie.v_dipendenti 
+        FROM varie.v_dipendenti_all 
         ORDER BY cognome;";
 
     $query_meteo = "SELECT cf as matricola, cognome, nome, '' as livello1 
@@ -10,7 +10,7 @@ function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null)
         WHERE id1=9
         UNION 
         SELECT matricola, cognome, nome, settore || ' - '|| ufficio as livello1 
-        FROM varie.v_dipendenti
+        FROM varie.v_dipendenti_all
         ORDER BY cognome;";
 
     $query_volontari = "SELECT cf as matricola, cognome, nome, livello1
@@ -18,7 +18,7 @@ function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null)
         WHERE id1=1 or id1=8
         UNION 
         SELECT matricola AS cf, cognome, nome, settore || ' - '|| ufficio as livello1
-        FROM varie.v_dipendenti
+        FROM varie.v_dipendenti_all
         ORDER BY cognome;";
 
     // Scomposizione dei parametri
@@ -225,10 +225,9 @@ HTML;
     // Mostra turni
     if ($query_type == 'dipendenti' or $query_type == 'meteo') {
         $query = "SELECT u.cognome, u.nome, r.data_start, r.data_end, 
-                                    r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
-                                    FROM {$dbTable} r 
-                                    LEFT JOIN varie.v_dipendenti u ON r.matricola_cf = u.matricola
-                                    WHERE r.data_start < now() AND r.data_end > now()";
+                    r.warning_turno, EXTRACT(EPOCH FROM (r.data_end - r.data_start)) / 3600 AS duration
+                    FROM {$dbTable} r 
+                    LEFT JOIN varie.v_dipendenti_all u ON r.matricola_cf = u.matricola";
     } else if ($query_type == 'volontari') {
         $query = "SELECT r.matricola_cf,
             case 
@@ -244,16 +243,20 @@ HTML;
             from {$dbTable} r
             LEFT JOIN users.v_utenti_esterni u 
                 ON r.matricola_cf=u.cf
-            LEFT JOIN varie.dipendenti d 
-                ON r.matricola_cf=d.matricola
-            WHERE r.data_start < now() AND r.data_end > now()";
+            LEFT JOIN varie.v_dipendenti_all d 
+                ON r.matricola_cf=d.matricola";
     } 
+
 
     // Filtra per id_evento solo se è definito
     $id_evento = isset($_GET['id']) && is_numeric($_GET['id']) ? $_GET['id'] : null;
 
     if ($id_evento !== null) {
-        $query .= " AND r.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+        $query .= "WHERE data_start < (SELECT coalesce(data_ora_chiusura, now()) FROM eventi.t_eventi where id = ".$id_evento.")
+            AND data_end >= (select data_ora_inizio_evento FROM eventi.t_eventi where id = ".$id_evento.")
+            ANDr.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+    } else {
+        $query .= "WHERE r.data_start < now() AND r.data_end > now()";
     }
 
     // aggiungo ORDER BY alla query per completarla

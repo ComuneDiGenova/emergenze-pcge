@@ -91,9 +91,3 @@
             'emptyMessage' => 'In questo momento non ci sono operatori Numero Verde.'
         ], $conn, $profilo_sistema, $id_evento);
 ?>
-
-
-
-    
-
-
