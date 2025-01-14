@@ -1,44 +1,63 @@
-
 <?php
-$check_turni=0;
-// qua va messo un ciclo su tabelle
-//$table='t_coordinamento';
+function checkTurniSovrapposti($conn, $cf, $data_inizio, $data_fine) {
+    $tabelle_turni = [
+        't_coordinamento',
+        't_monitoraggio_meteo',
+        't_operatore_anpas',
+        't_operatore_nverde',
+        't_operatore_volontari',
+        't_presidio_territoriale',
+        't_tecnico_pc'
+    ];
 
+    $check_turni = false;
 
-$array_monodimensionale = array('t_coordinamento', 't_monitoraggio_meteo', 't_operatore_anpas', 't_operatore_nverde', 't_operatore_volontari', 't_presidio_territoriale', 't_tecnico_pc');
+    foreach ($tabelle_turni as $table) {
+        $query = "SELECT matricola_cf
+                  FROM report.$table
+                  WHERE matricola_cf = $1
+                  AND (
+                      (data_start < $3 AND data_start > $2) OR
+                      (data_end < $3 AND data_end > $2) OR
+                      (data_start <= $2 AND data_end >= $3)
+                  );";
 
+        echo "<b>Debug Query:</b> $query<br>";
+        $result = pg_query_params($conn, $query, [$cf, $data_inizio, $data_fine]);
 
+        if (!$result) {
+            echo "Errore query: " . pg_last_error($conn) . "<br>";
+            continue;
+        }
 
-foreach ($array_monodimensionale as $table) {
-	echo "<br>";
-	echo $table;
-	$condizione="matricola_cf='".$cf."') and 
-	(
-	(data_start < '".$data_fine."' and data_start > '".$data_inizio."') OR
-	(data_end < '".$data_fine."' and data_end > '".$data_inizio."') OR
-	(data_start < '".$data_inizio."' and data_end > '".$data_fine."')";
+        if (pg_num_rows($result) > 0) {
+            echo "<b>Turno sovrapposto trovato nella tabella:</b> $table<br>";
 
-	$query= "select matricola_cf
-	from report.".$table."
-	where 
-	(".$condizione.");";
-	$result = pg_query($conn, $query);
-	echo "<br>";
-	//echo $query;
-	while($r = pg_fetch_assoc($result)) {
-		$check_turni=1;
-		echo "Sono dentro<br>";
-		$query2="update report.".$table." SET warning_turno='t' where (".$condizione.");";
-		echo $query2;
-		$result2 = pg_query($conn, $query2);
-	}
+            $check_turni = true;
+
+            // Aggiorna warning_turno
+            $updateQuery = "UPDATE report.$table
+                            SET warning_turno = 't'
+                            WHERE matricola_cf = $1
+                            AND (
+                                (data_start < $3 AND data_start > $2) OR
+                                (data_end < $3 AND data_end > $2) OR
+                                (data_start <= $2 AND data_end >= $3)
+                            );";
+
+            $updateResult = pg_query_params($conn, $updateQuery, [$cf, $data_inizio, $data_fine]);
+
+            if (!$updateResult) {
+                echo "Errore aggiornamento: " . pg_last_error($conn) . "<br>";
+            } else {
+                echo "<b>Warning_turno aggiornato correttamente nella tabella:</b> $table<br>";
+            }
+        } else {
+            echo "<b>Nessuna sovrapposizione trovata nella tabella:</b> $table<br>";
+        }
+    }
+
+    return $check_turni;
 }
 
-echo "<br>Check_turni=".$check_turni."<br>";
-if($check_turni==1){
-	$wt='t';
-} else {
-	$wt='f';
-}
-//exit;
 ?>
