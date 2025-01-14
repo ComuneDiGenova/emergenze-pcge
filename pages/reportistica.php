@@ -184,25 +184,24 @@ function roundToQuarterHour2($now = null) {
 
 			?>
 			<hr>
-			<div class="row">
-				<?php require('./allerte_embed.php'); ?>
+                <div class="row">
+                    <?php require('./allerte_embed.php'); ?>
+                </div>
+                
+                <div class="row">
+                    <?php require('./monitoraggio_meteo_embed.php'); ?>
+                </div>
+            </hr>
+			
 			<hr>
-			</div>
-			
-			<div class="row">
-			 <?php require('./monitoraggio_meteo_embed.php'); ?>
-			</div>
-			
-			<hr>
-			<div class="row">
-			<?php require('./comunicazioni_embed.php'); ?>
-			</div>
-			
-			<div class="row">
-			
-            <?php require('./attivita_sala_emergenze_embed.php'); ?>
-			
-			</div>
+                <div class="row">
+                    <?php require('./comunicazioni_embed.php'); ?>
+                </div>
+                
+                <div class="row">
+                    <?php require('./attivita_sala_emergenze_embed.php'); ?>
+                </div>
+            </hr>
 			
 			<hr>
             <div class="row">

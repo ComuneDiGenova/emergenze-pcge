@@ -4,21 +4,6 @@ $subtitle="Report esteso (dettagli squadre e personale impiegato)";
 
 $id=pg_escape_string($_GET['id']);
 
-
-?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="roberto" >
-
-    <title>Gestione emergenze</title>
-<?php 
 function roundToQuarterHour($now){
 	$minutes = $now['minutes'] - $now['minutes']%15;
 	$test = $now['minutes']%15;
@@ -42,257 +27,188 @@ require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 require('./check_evento.php');
 
+
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="roberto" >
+
+    <title>Gestione emergenze</title>
     
 </head>
 
 <body>
-
     <div id="wrapper">
-
+        <!-- Navbar superiore -->
         <div id="navbar1">
-<?php
-require('navbar_up.php');
-?>
-</div>  
+            <?php
+                require('navbar_up.php');
+            ?>
+        </div>
+
+        <!-- Navbar laterale -->
         <?php 
             require('./navbar_left.php');
-            
-         
-
         ?> 
             
 
         <div id="page-wrapper">
             <div class="row">
-            </div>
+			    <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+			        <h3>
+                        Evento n. <?php echo str_replace("'", "", $id); ?> - Tipo: 
+                        <?php
+                        $query_e = "SELECT e.id, tt.id as id_evento, tt.descrizione, n.nota, to_char(e.data_ora_inizio_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_inizio_evento, 
+                                        to_char(e.data_ora_chiusura, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_chiusura, 
+                                        to_char(e.data_ora_fine_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_fine_evento 
+                                    FROM eventi.t_eventi e
+                                    JOIN eventi.join_tipo_evento t 
+                                        ON t.id_evento=e.id
+                                    LEFT JOIN eventi.t_note_eventi n 
+                                        ON n.id_evento=e.id
+                                    JOIN eventi.tipo_evento tt 
+                                        ON tt.id=t.id_tipo_evento
+                                    WHERE e.id ={$id};";
+                        $result_e = pg_query($conn, $query_e);
+                        while($r_e = pg_fetch_assoc($result_e)) {
+                            echo $r_e['descrizione'];
+                            $id_evento=$r_e['id_evento'];
+                            $descrizione_evento = $r_e['descrizione'];
+                            $nota_evento=$r_e['nota'];
+                            $inizio_evento=$r_e['data_ora_inizio_evento'];
+                            $chiusura_evento=$r_e['data_ora_chiusura'];
+                            $fine_evento=$r_e['data_ora_fine_evento'];
+                        }
+                        if ($profilo_sistema>0 and $profilo_sistema<=3){
+                        ?>
+                        <button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
+                        <i class="fa fa-print" aria-hidden="true"></i>Stampa pagina report</button>
+			            <?php } ?>
+			        </h3>
+			    </div>
+			    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			        <h3> 
+                        Data:
+			            <script>
+                            var d = new Date();
+                            var curr_date = d.getDate();
+                            var curr_month = d.getMonth()+1;
+                            var curr_year = d.getFullYear();
+                            document.write(curr_date + "/" + curr_month + "/" + curr_year);
+			            </script>
+			            Ora:
+			            <script>
+                            var d = new Date();
+                            var curr_h = ('0'+d.getHours()).slice(-2);
+                            var curr_min = ('0'+d.getMinutes()).slice(-2);
+                            document.write(curr_h + ":" + curr_min);
+                        </script>
+			        </h3>
+			    </div>
+			</div>
 
-            <div class="row">
-			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-			<h3>Evento n. <?php echo str_replace("'", "", $id); ?> - Tipo: 
-			<?php
-			$query_e='SELECT e.id, tt.id as id_evento, tt.descrizione, n.nota, to_char(e.data_ora_inizio_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_inizio_evento, 
-			to_char(e.data_ora_chiusura, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_chiusura, 
-			to_char(e.data_ora_fine_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_fine_evento 
-            FROM eventi.t_eventi e
-            JOIN eventi.join_tipo_evento t ON t.id_evento=e.id
-			LEFT JOIN eventi.t_note_eventi n ON n.id_evento=e.id
-            JOIN eventi.tipo_evento tt on tt.id=t.id_tipo_evento
-			 	WHERE e.id =' .$id.';';
-				$result_e = pg_query($conn, $query_e);
-				while($r_e = pg_fetch_assoc($result_e)) {
-					echo $r_e['descrizione'];
-					$id_evento=$r_e['id_evento'];
-					$descrizione_evento = $r_e['descrizione'];
-					$nota_evento=$r_e['nota'];
-					$inizio_evento=$r_e['data_ora_inizio_evento'];
-					$chiusura_evento=$r_e['data_ora_chiusura'];
-					$fine_evento=$r_e['data_ora_fine_evento'];
-				}
-			if ($profilo_sistema>0 and $profilo_sistema<=3){
-			?>
-			<button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
-			<i class="fa fa-print" aria-hidden="true"></i>Stampa pagina report</button>
-			<?php } ?>
-			</h3>
-			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
-			<h3> Data:
-			<script>
-			var d = new Date();
-			var curr_date = d.getDate();
-			var curr_month = d.getMonth()+1;
-			var curr_year = d.getFullYear();
-			document.write(curr_date + "/" + curr_month + "/" + curr_year);
-			</script>
-			Ora:
-			<script>
-			var d = new Date();
-			var curr_h = ('0'+d.getHours()).slice(-2);
-			var curr_min = ('0'+d.getMinutes()).slice(-2);
-			document.write(curr_h + ":" + curr_min);
-			</script>
-			</h3>
-			</div>
-			</div>
+            <!-- Dati principali dell'evento -->
 			<hr>
-			<?php
-			echo '<div class="row"><div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">';
-			echo ' <img src="../img/pc_ge_sm.png" alt=""></div>';
-			echo '<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">';
-			if (isset($nota_evento)){
-				echo '<h2>'.$nota_evento.'</h2>'; 
-			}
-			echo '<b>Municipi interessati</b>: ';
-			$query3="SELECT  b.nome_munic From eventi.join_municipi a,geodb.municipi b  WHERE a.id_evento=".$id." and a.id_municipio::integer=b.codice_mun::integer;";
-			//echo $query3;
-			$result3 = pg_query($conn, $query3);
-			$k=0;
-			while($r3 = pg_fetch_assoc($result3)) {
-				if ($k>0){
-					echo ', ';
-				}
-				echo $r3["nome_munic"];
-				$k=$k+1;
-			}
-			$check_chiusura=0;
-			echo '<br><b>Data e ora inizio</b>: '.$inizio_evento;
-			if ($chiusura_evento!=''){
-				echo '<br><b>Data e ora inizio fase di chiusura</b>: '.$chiusura_evento;
-			}
-			if ($fine_evento!=''){
-				echo '<br><b>Data e ora chiusura definitiva</b>: '.$fine_evento;
-			}
-			if ($chiusura_evento!='' && $fine_evento=='' ){
-				echo ' - <i class="fas fa-hourglass-end"></i> Evento in chiusura';
-			}
-			if ($chiusura_evento!='' && $fine_evento!='' ){
-				$check_chiusura=1;
-				echo ' - <i class="fas fa-stop"></i> Evento chiuso';
-			}
-			echo '</div></div>';
+                <?php
+                    echo '<div class="row"><div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">';
+                    echo ' <img src="../img/pc_ge_sm.png" alt=""></div>';
+                    echo '<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">';
+                    if (isset($nota_evento)){
+                        echo '<h2>'.$nota_evento.'</h2>'; 
+                    }
+                    echo '<b>Municipi interessati</b>: ';
+                    $query3 = "SELECT b.nome_munic 
+                                FROM eventi.join_municipi a,geodb.municipi b  
+                                WHERE a.id_evento={$id} 
+                                AND a.id_municipio::integer=b.codice_mun::integer;";
+
+                    $result3 = pg_query($conn, $query3);
+                    $k=0;
+                    while($r3 = pg_fetch_assoc($result3)) {
+                        if ($k>0){
+                            echo ', ';
+                        }
+                        echo $r3["nome_munic"];
+                        $k=$k+1;
+                    }
+                    $check_chiusura=0;
+                    echo '<br><b>Data e ora inizio</b>: '.$inizio_evento;
+                    if ($chiusura_evento!=''){
+                        echo '<br><b>Data e ora inizio fase di chiusura</b>: '.$chiusura_evento;
+                    }
+                    if ($fine_evento!=''){
+                        echo '<br><b>Data e ora chiusura definitiva</b>: '.$fine_evento;
+                    }
+                    if ($chiusura_evento!='' && $fine_evento=='' ){
+                        echo ' - <i class="fas fa-hourglass-end"></i> Evento in chiusura';
+                    }
+                    if ($chiusura_evento!='' && $fine_evento!='' ){
+                        $check_chiusura=1;
+                        echo ' - <i class="fas fa-stop"></i> Evento chiuso';
+                    }
+                    echo '</div></div>';
 
 
-			// check sulle viste da usare
-			if ($check_chiusura==0){
-				$v_incarichi_last_update='v_incarichi_last_update';
-				$v_incarichi_interni_last_update='v_incarichi_interni_last_update';
-				$v_sopralluoghi_last_update='v_sopralluoghi_last_update';
-				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_last_update';
-				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_last_update';
-			} else if ($check_chiusura==1) {
-				$v_incarichi_last_update='v_incarichi_eventi_chiusi_last_update';
-				$v_incarichi_interni_last_update='v_incarichi_interni_eventi_chiusi_last_update';
-				$v_sopralluoghi_last_update='v_sopralluoghi_eventi_chiusi_last_update';
-				$v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_eventi_chiusi_last_update';
-				$v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_eventi_chiusi_last_update';
-			}
-			
-			$query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$id.";";
-			$result = pg_query($conn, $query);
-			while($r = pg_fetch_assoc($result)) {	
+                    // check sulle viste da usare
+                    if ($check_chiusura==0){
+                        $v_incarichi_last_update='v_incarichi_last_update';
+                        $v_incarichi_interni_last_update='v_incarichi_interni_last_update';
+                        $v_sopralluoghi_last_update='v_sopralluoghi_last_update';
+                        $v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_last_update';
+                        $v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_last_update';
+                    } else if ($check_chiusura==1) {
+                        $v_incarichi_last_update='v_incarichi_eventi_chiusi_last_update';
+                        $v_incarichi_interni_last_update='v_incarichi_interni_eventi_chiusi_last_update';
+                        $v_sopralluoghi_last_update='v_sopralluoghi_eventi_chiusi_last_update';
+                        $v_sopralluoghi_mobili_last_update='v_sopralluoghi_mobili_eventi_chiusi_last_update';
+                        $v_provvedimenti_cautelari_last_update='v_provvedimenti_cautelari_eventi_chiusi_last_update';
+                    }
+                    
+                    $query="SELECT * FROM eventi.v_allerte WHERE id_evento=".$id.";";
+                    $result = pg_query($conn, $query);
+                    while($r = pg_fetch_assoc($result)) {	
 
-				$timestamp = strtotime($r["data_ora_inizio_allerta"]);
-				setlocale(LC_TIME, 'it_IT.UTF8');
-				$data_start = strftime('%A %e %B %G', $timestamp);
-				$ora_start = date('H:i', $timestamp);
-				$timestamp = strtotime($r["data_ora_fine_allerta"]);
-				$data_end = strftime('%A %e %B %G', $timestamp);
-				$ora_end = date('H:i', $timestamp);								
-				$color=str_replace("'","",$r["rgb_hex"]);
+                        $timestamp = strtotime($r["data_ora_inizio_allerta"]);
+                        setlocale(LC_TIME, 'it_IT.UTF8');
+                        $data_start = strftime('%A %e %B %G', $timestamp);
+                        $ora_start = date('H:i', $timestamp);
+                        $timestamp = strtotime($r["data_ora_fine_allerta"]);
+                        $data_end = strftime('%A %e %B %G', $timestamp);
+                        $ora_end = date('H:i', $timestamp);								
+                        $color=str_replace("'","",$r["rgb_hex"]);
 
-				echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b>Allerta ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
-			}
-			?>
-			
- 
-			</div>	
-			
-			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<?php
-			$query="SELECT * FROM eventi.v_foc WHERE id_evento=".$id.";";
-			$result = pg_query($conn, $query);
-			while($r = pg_fetch_assoc($result)) {
-				$timestamp = strtotime($r["data_ora_inizio_foc"]);
-				setlocale(LC_TIME, 'it_IT.UTF8');
-				$data_start = strftime('%A %e %B %G', $timestamp);
-				$ora_start = date('H:i', $timestamp);
-				$timestamp = strtotime($r["data_ora_fine_foc"]);
-				$data_end = strftime('%A %e %B %G', $timestamp);
-				$ora_end = date('H:i', $timestamp);
-				$color=str_replace("'","",$r["rgb_hex"]);								
-				echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b> Fase di ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
-			}
-			?>
-			</div>
+                        echo "<i class=\"fas fa-circle fa-1x\" style=\"color:".$color."\"></i> <b>Allerta ".$r["descrizione"]."</b> dalle ".$ora_start." di ".$data_start." alle ore " .$ora_end ." di ".$data_end. " <br>";
+                    }
+                ?>
+            </hr>
+            
 			<hr>
-			</div>
+                <div class="row">
+                    <?php require('./allerte_embed.php'); ?>
+                </div>
+                
+                <div class="row">
+                    <?php require('./monitoraggio_meteo_embed.php'); ?>
+                </div>
+            </hr>
 			
 			<hr>
-			<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <h3>Comunicazioni generiche</h3>
-				<button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#comunicazione">
-					   <i class="fas fa-plus"></i> Aggiungi comunicazione</button>
-					   <ul>
-	   					<?php
-						$query='SELECT id, to_char(data_aggiornamento, \'DD/MM/YY HH24:MI\'::text) AS data_aggiornamento, testo, allegato FROM report.t_comunicazione 
-						WHERE id_evento = '.$id.';';
-						//echo $query;
-						$result = pg_query($conn, $query);
-						$c=0;
-						while($r = pg_fetch_assoc($result)) {
-							if ($c==0){
-								echo "<h3>Elenco comunicazioni generiche</h3>";
-							}
-							$c=$c+1;
-							echo " <li><b>Comunicazione del ".$r['data_aggiornamento']."</b>: ";
-							echo $r['testo'];
-							if ($r['allegato']!=''){
-								echo " (<a href=\"../../".$r['allegato']."\">Allegato</a>)";
-							}
-							echo "</li>";
-						}
-						echo "</ul><hr>";
-						?>
-						
-			</div>
-			</div-->
-			
-			<!-- Modal comunicazione da UO-->
-						<div id="comunicazione" class="modal fade" role="dialog">
-						  <div class="modal-dialog">
-
-							<!-- Modal content-->
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Comunicazioni sull'evento / Verbale COC</h4>
-							  </div>
-							  <div class="modal-body">
-							  
-
-								<form autocomplete="off"  enctype="multipart/form-data"  action="eventi/comunicazione.php?id=<?php echo $id; ?>" method="POST">
-										 <div class="form-group">
-										<label for="note">Testo comunicazione <?php echo $id_evento;?></label>  <font color="red">*</font>
-										<textarea required="" class="form-control" id="note"  name="note" rows="3"></textarea>
-									  </div>
-									
-									<!--	RICORDA	  enctype="multipart/form-data" nella definizione del form    -->
-									<div class="form-group">
-									   <label for="note">Eventuale allegato (es. verbale COC)</label>
-										<input type="file" class="form-control-file" name="userfile" id="userfile">
-									</div>
-
-								<button  id="conferma" type="submit" class="btn btn-primary">Invia comunicazione</button>
-									</form>
-
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-							  </div>
-							</div>
-
-						  </div>
-						</div>
-			
-			<div class="row">
-				<?php require('./allerte_embed.php'); ?>
-			</div>
-			<hr>
-			<div class="row">
-			 <?php require('./monitoraggio_meteo_embed.php'); ?>
-			</div>
-
-			<div class="row">
-			<?php require('./comunicazioni_embed.php'); ?>
-			</div>
-
-			<div class="row">
-            <?php require('./attivita_sala_emergenze_embed.php'); ?>
-			</div>
+                <div class="row">
+                    <?php require('./comunicazioni_embed.php'); ?>
+                </div>
+                
+                <div class="row">
+                    <?php require('./attivita_sala_emergenze_embed.php'); ?>
+                </div>
+            </hr>
 			
 			<hr>
             <div class="row">
