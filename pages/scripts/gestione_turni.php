@@ -257,7 +257,7 @@ HTML;
     if ($id_evento !== null) {
         $where_conditions[] = "r.data_start < (SELECT COALESCE(data_ora_chiusura, NOW()) FROM eventi.t_eventi WHERE id = {$id_evento})";
         $where_conditions[] = "r.data_end >= (SELECT data_ora_inizio_evento FROM eventi.t_eventi WHERE id = {$id_evento})";
-        $where_conditions[] = "r.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb";
+        $where_conditions[] = "(r.id_evento::jsonb @> '[\"$id_evento\"]'::jsonb OR r.id_evento::jsonb is null)";
     } else {
         $where_conditions[] = "r.data_start < NOW()";
         $where_conditions[] = "r.data_end > NOW()";
@@ -271,8 +271,8 @@ HTML;
     // Aggiungo ORDER BY alla fine
     $query .= " ORDER BY r.data_start";
 
-    // echo $query;
-    // exit;
+    echo $query;
+    exit;
 
     // if ($id_evento !== null) {
     //     $query .= "WHERE data_start < (SELECT coalesce(data_ora_chiusura, now()) FROM eventi.t_eventi where id = ".$id_evento.")
