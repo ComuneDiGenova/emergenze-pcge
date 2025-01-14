@@ -271,8 +271,8 @@ HTML;
     // Aggiungo ORDER BY alla fine
     $query .= " ORDER BY r.data_start";
 
-    echo $query;
-    exit;
+    // echo $query;
+    // exit;
 
     // if ($id_evento !== null) {
     //     $query .= "WHERE data_start < (SELECT coalesce(data_ora_chiusura, now()) FROM eventi.t_eventi where id = ".$id_evento.")
