@@ -137,6 +137,8 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 									?>
 									<h4><br><b>Note chiusura</b>: <?php echo $r['descrizione_chiusura']; ?></h4>
 									<?php
+									// A-3-T70
+									// RIMUOVERE *************************************************************
 										$query_ch="SELECT invio_manutenzioni, id_man 
 													FROM segnalazioni.t_segnalazioni_in_lavorazione 
 													WHERE id = ".$id_lavorazione." ;";
@@ -148,6 +150,7 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 												con id = '. $r_ch['id_man'].'</h4>';
 											}
 										}
+									// *************************************************************
 								}
 									?>
 						<hr>
@@ -972,12 +975,14 @@ $check_spostamento=1; // se 1 posso spostare in caso contrario diventa 0
 								<label class="radio-inline"><input type="radio" name="risolta"value="f">No</label>
 							</div>
 
-
+							<!-- A-3-T70
+							RIMUOVERE ************************************************************* -->
 							<div class="form-group">
 								<label for="nome"> Pensi sia necessario inviarla automaticamente al sistema delle Manutenzioni?</label> <br>
 								<label class="radio-inline"><input type="radio" name="invio" value="man">Sì</label>
 								<label class="radio-inline"><input type="radio" name="invio" value="">No</label>
 							</div>
+							<!-- ************************************************************* -->
 
 								<!--div class="form-group">
 								<label for="cat" class="auto-length">
