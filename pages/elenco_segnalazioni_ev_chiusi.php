@@ -269,9 +269,13 @@ require('./tables/filtri_segnalazioni.php');
 			<?php			
 			} // end if profilo_ok
 			?>
-			<button type="button" class="btn btn-info" data-toggle="modal" data-target="#download">
-			Geoservizi WMS e WFS <i class="fa fa-map"></i></button>
-		  
+
+			<?php			
+			require('./ows_modal.php');
+			?>
+		
+
+
         <div id="toolbar">
             <select class="form-control">
                 <option value="">Esporta i dati visualizzati</option>
