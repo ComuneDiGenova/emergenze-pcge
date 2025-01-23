@@ -42,13 +42,13 @@ function nameFormatterEdit(value) {
 
 // A-3-T70
 // RIMUOVERE *************************************************************
-function manutenzioni(value) {
-    if (value){	
-        return '<a class="btn btn-info" target="_new" href="' + urlManutenzioni + 'id=' + value + '"> ' + value + ' </a>';
-    } else {
-        return '-';
-    }
-}
+// function manutenzioni(value) {
+//     if (value){	
+//         return '<a class="btn btn-info" target="_new" href="' + urlManutenzioni + 'id=' + value + '"> ' + value + ' </a>';
+//     } else {
+//         return '-';
+//     }
+// }
 // *************************************************************
 
 function nameFormatterRischio(value) {    

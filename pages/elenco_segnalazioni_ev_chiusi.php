@@ -56,12 +56,12 @@ require('./tables/filtri_segnalazioni.php');
         <?php
 			// A-3-T70
 			// RIMUOVERE *************************************************************
-            require('./navbar_up.php');
-			if ($check_test==1){
-				$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
-			} else {
-				$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
-			}
+            // require('./navbar_up.php');
+			// if ($check_test==1){
+			// 	$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
+			// } else {
+			// 	$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
+			// }
 			// *************************************************************
         ?>  
         <?php 
@@ -309,7 +309,7 @@ require('./tables/filtri_segnalazioni.php');
 
 		<!-- A-3-T70
 		RIMUOVERE ************************************************************* -->
-		<th data-field="id_man" data-sortable="true" data-visible="true" data-formatter="manutenzioni" data-filter-control="input">Id<br>manut.</th>
+		<!-- <th data-field="id_man" data-sortable="true" data-visible="true" data-formatter="manutenzioni" data-filter-control="input">Id<br>manut.</th> -->
 		<!-- ************************************************************* -->
 		<th data-field="id_evento" data-sortable="true"  data-visible="true" data-filter-control="select">Id<br>evento</th>
 		<!--th data-field="tipo_evento" data-sortable="true"  data-visible="true">Tipo<br>evento</th-->
@@ -372,13 +372,13 @@ function nameFormatterEdit(value) {
 
 // A-3-T70
 // RIMUOVERE *************************************************************
-function manutenzioni(value) {
-	if (value){	
-		return '<a class="btn btn-info" target="_new" href="<?php echo $url_manutenzioni;?>id='+value+'"> '+value+' </a>';
-	} else {
-		return '-';
-	}
-}
+// function manutenzioni(value) {
+// 	if (value){	
+// 		return '<a class="btn btn-info" target="_new" href="<?php echo $url_manutenzioni;?>id='+value+'"> '+value+' </a>';
+// 	} else {
+// 		return '-';
+// 	}
+// }
 // *************************************************************
 
   function nameFormatterRischio(value) {

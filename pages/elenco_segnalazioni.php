@@ -54,12 +54,12 @@
     <?php 
       // A-3-T70
 			// RIMUOVERE *************************************************************
-      require('./navbar_up.php');
-			if ($check_test==1){
-				$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
-			} else {
-				$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
-			}
+      // require('./navbar_up.php');
+			// if ($check_test==1){
+			// 	$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
+			// } else {
+			// 	$url_manutenzioni="http://is.comune.genova.it/isManutenzioni/0001154.asp?";
+			// }
       // *************************************************************
       require('./navbar_left.php');
     ?> 
@@ -355,7 +355,7 @@
             <th data-field="note" data-sortable="false" data-visible="true" >Note</th>
             <!-- A-3-T70
 		        RIMUOVERE ************************************************************* -->
-			      <th data-field="id_man" data-sortable="true" data-visible="true" data-formatter="manutenzioni" data-filter-control="input">Id<br>manut.</th>
+			      <!-- <th data-field="id_man" data-sortable="true" data-visible="true" data-formatter="manutenzioni" data-filter-control="input">Id<br>manut.</th> -->
             <!-- ************************************************************* -->
             <th data-field="id_evento" data-sortable="true"  data-visible="true" data-filter-control="select">Id<br>evento</th>
             <th data-field="tipo_evento" data-sortable="true"  data-visible="true" data-filter-control="select">Tipo<br>evento</th>
