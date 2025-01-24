@@ -51,10 +51,10 @@
 
   <div id="wrapper">
 
-    <?php 
+    <?php
+      require('./navbar_up.php');
       // A-3-T70
 			// RIMUOVERE *************************************************************
-      // require('./navbar_up.php');
 			// if ($check_test==1){
 			// 	$url_manutenzioni="http://istest.comune.genova.it/isManutenzioni/0002484.asp?";
 			// } else {
