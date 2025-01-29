@@ -71,7 +71,7 @@ $subtitle = "Form aggiunta utente esterno";
             <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <form action="scripts/upload_csv.php" method="POST" enctype="multipart/form-data">
+                        <form id="csvUploadForm" action="scripts/upload_csv.php" method="POST" enctype="multipart/form-data">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="uploadModalLabel">Carica file CSV</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -81,7 +81,7 @@ $subtitle = "Form aggiunta utente esterno";
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="csvFile">Seleziona un file CSV:</label>
-                                    <input type="file" name="csvFile" class="form-control" accept=".csv" required>
+                                    <input type="file" id="csvFile" name="csvFile" class="form-control" accept=".csv" required>
                                     <small class="form-text text-muted">
                                         Assicurati che il file CSV abbia le colonne richieste: <strong>CF, nome, cognome, data di nascita, comune, telefono, email, ecc.</strong>
                                     </small>
