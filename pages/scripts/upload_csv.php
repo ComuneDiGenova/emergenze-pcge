@@ -1,5 +1,4 @@
 <?php
-// Inizio della sessione
 session_start();
 
 // Connessione al database
@@ -12,6 +11,15 @@ include $conn_path;
 // Controlla che un file sia stato caricato
 if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) {
     $csvFile = $_FILES['csvFile']['tmp_name'];
+    $fileName = $_FILES['csvFile']['name'];
+    $fileType = $_FILES['csvFile']['type'];
+    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+    // Controllo del formato: deve essere .csv
+    $allowedMimeTypes = ['text/csv', 'text/plain', 'application/vnd.ms-excel'];
+    if (!in_array($fileType, $allowedMimeTypes) || strtolower($fileExtension) !== 'csv') {
+        die("Errore: il file caricato non è un CSV valido. Per favore carica un file con estensione .csv.");
+    }
     
     // Apri il file CSV
     if (($handle = fopen($csvFile, 'r')) !== FALSE) {
