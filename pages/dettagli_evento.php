@@ -70,12 +70,12 @@ require('navbar_up.php');
 					};
 					
 					echo '<small>(id='.$evento_attivo.')</small>';
-	               	echo ' - <a href="reportistica2.php?esteso=False?id='.$evento_attivo.'" class="btn btn-info" target="_blank"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report 8h';
+	               	echo ' - <a href="reportistica2.php?id='.$evento_attivo.'&esteso=FALSE" class="btn btn-info" target="_blank"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report 8h';
 					if($profilo_sistema<=2){
 						echo ' (stampa)';
 					}
 					echo '</a>';
-					echo ' - <a href="reportistica2.php?esteso=True?id='.$evento_attivo.'" class="btn btn-info" target="_blank"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report esteso';
+					echo ' - <a href="reportistica2.php?id='.$evento_attivo.'&esteso=TRUE" class="btn btn-info" target="_blank"><i class="fa fa-file-invoice" aria-hidden="true"></i> Report esteso';
 					if($profilo_sistema<=2){
 						echo ' (stampa)';
 					}
