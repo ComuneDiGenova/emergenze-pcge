@@ -403,7 +403,7 @@ def upgrade(
     if sospeso and profilo_id == settings.PM_PROFILO_ID:
         raise NotImplementedError()
 
-    message = f"La segnalazione n. {lavorazione_id} è stata presa in carico come profilo {profilo.descrizione}"
+    message = f"La segnalazione n. {segnalazione_id} è stata presa in carico come profilo {profilo.descrizione}"
     _ = db.storico_segnalazione_lavorazione.insert(
         lavorazione_id=lavorazione_id, aggiornamento=message
     )
