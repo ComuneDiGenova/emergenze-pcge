@@ -182,14 +182,16 @@ $orari = getMonitoraggioOrari();
             <hr>
 
             <!-- REPORT SEGNALAZIONI -->
+
             <div class="row">
-               
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h3>Elenco segnalazioni </h3>
-			    </div>
+                </div>
             </div>
-            <div class="row">            
-            
+
+            <hr>
+
+            <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">			
                     <h4>Riepilogo</h4>
                 </div>
@@ -201,35 +203,44 @@ $orari = getMonitoraggioOrari();
                     ?>
                 </div>
 
-
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">			
                     <table id="segnalazioni_count" class="table table-condensed" 
-                    style="word-break:break-all; word-wrap:break-word;" data-toggle="table" 
-                    data-url="./tables/griglia_segnalazioni_conteggi.php?id=<?php echo $id?>" 
-                    data-show-export="false" data-search="false" data-click-to-select="false" 
-                    data-pagination="false" data-sidePagination="false" data-show-refresh="false" 
-                    data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
+                        style="word-break:break-all; word-wrap:break-word;" 
+                        data-toggle="table" 
+                        data-url="./tables/griglia_segnalazioni_conteggi.php?id=<?php echo $id?>" 
+                        data-show-export="false" data-search="false" data-click-to-select="false" 
+                        data-pagination="false" data-sidePagination="false" data-show-refresh="false" 
+                        data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
                         <thead>
                             <tr>
-                                <th data-field="criticita" data-sortable="false" data-visible="true" >Tipologia</th>
+                                <th data-field="criticita" data-sortable="false" data-visible="true">Tipologia</th>
                                 <th data-field="pervenute" data-sortable="true" data-visible="true">Pervenute</th>
                                 <th data-field="risolte" data-sortable="true" data-visible="true">Risolte</th>
                             </tr>
                         </thead>
                     </table>
                 </div>             
+            </div>
 
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">			 
-                        <h4>Dettaglio segnalazioni in elaborazione o chiuse</h4>
-                        <?php
-                            echo getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, 
-                                                            $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, 
-                                                            $v_sopralluoghi_last_update, $esteso);
-                        ?>
-                    </div>                                            
+            <hr>	
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">			 
+                    <h4>Dettaglio segnalazioni in elaborazione o chiuse</h4>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <?php
+                        echo getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, 
+                                                    $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, 
+                                                    $v_sopralluoghi_last_update, $esteso);
+                    ?>
+                </div>                                            
+            </div>
+
+
 
             <hr>
 
