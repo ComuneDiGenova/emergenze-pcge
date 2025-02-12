@@ -368,6 +368,7 @@ function nameFormatterMappa1($value, $row) {
     ';
 }
 
+
 /**
  * Recupera e formatta i dettagli delle segnalazioni per un evento.
  *
@@ -379,7 +380,7 @@ function nameFormatterMappa1($value, $row) {
  * @param string $v_provvedimenti_cautelari_last_update Nome della vista provvedimenti cautelari.
  * @return string HTML formattato con i dettagli delle segnalazioni.
  */
-function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update, $esteso) {
+function fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update) {
     $query = "SELECT 
             min(s.data_ora) as data_ora,
             count(s.id) AS num,
@@ -389,11 +390,13 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
             array_to_string(array_agg(DISTINCT m.nome_munic::text), ', '::text) AS nome_munic,
             string_agg(
                 CASE
-                    WHEN s.id_civico IS NULL THEN ( SELECT concat('~ ', civici.desvia, ' ', civici.testo) AS concat
-                    FROM geodb.civici
-                    WHERE civici.geom && st_expand(st_transform(s.geom, 3003), 250::double precision)
-                    ORDER BY st_distance(civici.geom, st_transform(s.geom, 3003))
-                    LIMIT 1)
+                    WHEN s.id_civico IS NULL 
+                        THEN ( SELECT concat('~ ', civici.desvia, ' ', civici.testo) AS concat
+                            FROM geodb.civici
+                            WHERE civici.geom && st_expand(st_transform(s.geom, 3003), 250::double precision)
+                            ORDER BY st_distance(civici.geom, st_transform(s.geom, 3003))
+                            LIMIT 1
+                        )
                     ELSE (g.desvia::text || ' '::text) || g.testo::text
                 END, ', '::text
             ) AS localizzazione,
@@ -420,31 +423,30 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
             (
                 SELECT count(i.id) AS sum
                 FROM segnalazioni.t_incarichi i
-                    JOIN segnalazioni.join_segnalazioni_incarichi j 
-                        ON j.id_incarico= i.id
+                JOIN segnalazioni.join_segnalazioni_incarichi j 
+                    ON j.id_incarico= i.id
                 WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
-            ) as conteggio_incarichi,
+            ) AS conteggio_incarichi,
             (
                 SELECT count(i.id) AS sum
                 FROM segnalazioni.t_incarichi_interni i
-                    JOIN segnalazioni.join_segnalazioni_incarichi_interni j 
-                        ON j.id_incarico= i.id
+                JOIN segnalazioni.join_segnalazioni_incarichi_interni j 
+                    ON j.id_incarico= i.id
                 WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
-            ) as conteggio_incarichi_interni,
+            ) AS conteggio_incarichi_interni,
             (
                 SELECT count(i.id) AS sum
                 FROM segnalazioni.t_sopralluoghi i
-                    JOIN segnalazioni.join_segnalazioni_sopralluoghi j 
-                        ON j.id_sopralluogo= i.id
+                JOIN segnalazioni.join_segnalazioni_sopralluoghi j 
+                    ON j.id_sopralluogo= i.id
                 WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
-            ) as conteggio_sopralluoghi,
+            ) AS conteggio_sopralluoghi,
             (
                 SELECT count(i.id) AS sum
                 FROM segnalazioni.t_provvedimenti_cautelari i
-                    JOIN segnalazioni.join_segnalazioni_provvedimenti_cautelari j 
-                        ON j.id_provvedimento = i.id
+                JOIN segnalazioni.join_segnalazioni_provvedimenti_cautelari j ON j.id_provvedimento = i.id
                 WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
-            ) as conteggio_pc,
+            ) AS conteggio_pc,
             max(s.geom::text) AS geom
         FROM segnalazioni.t_segnalazioni s
         JOIN segnalazioni.tipo_criticita c 
@@ -462,21 +464,34 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
         WHERE s.id_evento = $1 AND jl.id_segnalazione_in_lavorazione > 0
         GROUP BY jl.id_segnalazione_in_lavorazione, l.in_lavorazione, l.id_profilo, s.id_evento, e.fine_sospensione, l.descrizione_chiusura
         ORDER BY data_ora ASC;";
-    
+
     $result = pg_query_params($conn, $query, [$id]);
 
     if (!$result) {
-        return "<p>Errore nella query.</p>";
+        return [];
     }
+
+    return pg_fetch_all($result);
+}
+
+
+function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update, $esteso) {
+    $dati = fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update);
     
-    
+    if (!$dati) {
+        return "<p>Errore nella query o nessun dato trovato.</p>";
+    }
+
     $output = '';
-    while ($r = pg_fetch_assoc($result)) {
+    foreach ($dati as $r) {
         ob_start();
-        if ($esteso == FALSE){
-            include './templates/template_dettaglio_segnalazioni.php';
-        } else if ($esteso == TRUE) {
+        
+        if ($esteso) {
+            echo "ESTESO";
             include './templates/template_dettaglio_segnalazioni_esteso.php';
+        } else {
+            echo "NON ESTESO";
+            include './templates/template_dettaglio_segnalazioni.php';
         }
         
         $output .= ob_get_clean();
@@ -484,6 +499,7 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
 
     return $output;
 }
+
 
 
 // ** ============= PROVVEDIMENTI CAUTELARI ============= **//

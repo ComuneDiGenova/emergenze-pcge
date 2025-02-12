@@ -1,6 +1,7 @@
 <?php 
 require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
+require('./check_evento.php');
 require('./scripts/reportistica_functions.php');
 
 // Redirect to access restriction page se non ha permessi
@@ -11,12 +12,13 @@ if ($profilo_sistema > 3) {
 
 // Sanifica l'input ID e verifica se il report è esteso oppure no
 $id = $_GET['id'];
-$esteso = $_GET['esteso']=="TRUE"; // casto come booleano il parametro esteso
+$esteso = filter_var($_GET['esteso'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
-if ($esteso){
-    $subtitle="Report esteso (dettagli squadre e personale impiegato)";
+
+if ($esteso) {
+    $subtitle = "Report esteso (dettagli squadre e personale impiegato)";
 } else {
-    $subtitle="Report 8h (riepilogo segnalazioni in corso di evento)";
+    $subtitle = "Report 8h (riepilogo segnalazioni in corso di evento)";
 }
 
 // Recupera i dati dell'evento
@@ -180,7 +182,6 @@ $orari = getMonitoraggioOrari();
                         echo "<b>Segnalazioni:</b> " . htmlspecialchars($chiamate['segnalazioni']) . "<br>";
                     ?>
                 </div>
-                
             </div>
 
             <hr>

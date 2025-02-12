@@ -35,7 +35,7 @@
     <?php if (!empty($r['descrizione_chiusura'])): ?>
         <b>Note chiusura:</b> <?= htmlspecialchars($r['descrizione_chiusura']) ?><br>
     <?php endif; ?>
-
+    
     <?php if (empty($r['descrizione_chiusura'])): ?>
         <?php if ($r['incarichi'] == 't'): ?>
             <i class="fas fa-circle" title="incarichi in corso" style="color:#f2d921"></i> Lavorazione in corso
@@ -43,8 +43,8 @@
             <i class="fas fa-circle" title="nessun incarico in corso" style="color:#ff0000"></i> Nessuna lavorazione in corso
         <?php endif; ?>
     <?php endif; ?>
-    <br>
     
+    <!-- Sezione Incarichi -->
     <?php if ($r['conteggio_incarichi'] > 0): ?>
         <h4><?= $r['conteggio_incarichi'] ?> incarico/i assegnato/i</h4>
         <div class="incarichi">
@@ -70,11 +70,10 @@
             ?>
         </div>
     <?php else: ?>
-        <p>Nessun incarico assegnato</p>
+        <b>Nessun incarico assegnato - </b>
     <?php endif; ?>
 
-    <br>
-
+    <!-- Sezione Incarichi Interni -->
     <?php if ($r['conteggio_incarichi_interni'] > 0): ?>
         <br>--<br><b>Incarichi interni:</b>
         <div class="incarichi-interni">
@@ -99,7 +98,21 @@
             ?>
         </div>
     <?php else: ?>
-        <p>Nessun incarico interno assegnato</p>
+        <b>Nessun incarico interno assegnato - </b>
+    <?php endif; ?>
+
+    <!-- Sezione Sopralluoghi -->
+    <?php if ($r['conteggio_sopralluoghi'] > 0): ?>
+        <b><?= htmlspecialchars($r['conteggio_sopralluoghi']) ?> presidi assegnati - </b>
+    <?php else: ?>
+        <b>Nessun presidio assegnato - </b>
+    <?php endif; ?>
+
+    <!-- Sezione Provvedimenti Cautelari -->
+    <?php if ($r['conteggio_pc'] > 0): ?>
+        <b><?= htmlspecialchars($r['conteggio_pc']) ?> provvedimenti cautelari assegnati</b>
+    <?php else: ?>
+        <b>Nessun provvedimento cautelare assegnato</b>
     <?php endif; ?>
     
     <hr>
