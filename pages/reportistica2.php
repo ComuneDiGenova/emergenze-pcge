@@ -8,12 +8,17 @@ require('./scripts/reportistica_functions.php');
 if ($profilo_sistema > 3) {
     header("location: ./divieto_accesso.php");
 }
-$subtitle = "Reportistica";
+
 
 // Sanifica l'input ID e verifica se il report è esteso oppure no
 $id = $_GET['id'];
 $esteso = $_GET['esteso']=="TRUE"; // casto come booleano il parametro esteso
 
+if ($esteso){
+    $subtitle="Report esteso (dettagli squadre e personale impiegato)";
+} else {
+    $subtitle="Report 8h (riepilogo segnalazioni in corso di evento)";
+}
 
 // Recupera i dati dell'evento
 $evento = getEvento($conn, $id);
