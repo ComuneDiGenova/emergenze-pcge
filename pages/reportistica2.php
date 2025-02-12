@@ -1,7 +1,6 @@
 <?php 
 require('./req.php');
 require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
-require('./check_evento.php');
 require('./scripts/reportistica_functions.php');
 
 // Redirect to access restriction page se non ha permessi
