@@ -475,8 +475,10 @@ function fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_inc
 }
 
 
-function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update, $esteso) {
-    $dati = fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update);
+function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, 
+                                    $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update, $esteso) {
+    $dati = fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, 
+                                        $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update);
     
     if (!$dati) {
         return "<p>Errore nella query o nessun dato trovato.</p>";
@@ -487,13 +489,18 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
         ob_start();
         
         if ($esteso) {
-            echo "ESTESO";
             include './templates/template_dettaglio_segnalazioni_esteso.php';
         } else {
-            echo "NON ESTESO";
             include './templates/template_dettaglio_segnalazioni.php';
         }
         
+        $output .= ob_get_clean();
+    }
+
+    // AGGIUNTA PRESIDI PER REPORT ESTESO
+    if ($esteso) {
+        ob_start();
+        include './templates/template_presidi.php';
         $output .= ob_get_clean();
     }
 

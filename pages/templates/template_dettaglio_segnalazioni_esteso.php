@@ -145,8 +145,8 @@
                 JOIN users.v_squadre_all u 
                     ON u.id::text = i.id_squadra::text
                 JOIN eventi.t_eventi e 
-                    ON e.id = {$id}
-                WHERE j.id_segnalazione_in_lavorazione = {$r['id_lavorazione']}
+                    ON e.id = $1
+                WHERE j.id_segnalazione_in_lavorazione = $2
                 AND st.data_ora_stato = (
                                         SELECT max(data_ora_stato) 
                                         FROM segnalazioni.stato_incarichi_interni 
@@ -156,8 +156,9 @@
                         note_ente, note_rifiuto, descrizione_stato,parziale, id_stato_incarico;";
 
                 echo "<ul>";
-
-                $result_incarichi_interni = pg_query($conn, $query_incarichi_interni);
+                
+                $parameters = [$id, $r['id_lavorazione']];
+                $result_incarichi_interni = pg_query_params($conn, $query_incarichi_interni, $parameters);
 
                 if ($result_incarichi_interni) {
                     while ($r_ii = pg_fetch_assoc($result_incarichi_interni)) {
@@ -207,7 +208,7 @@
                         }
 
                         echo "<ul>";
-                        require('./templates/query_storico_squadre_incarichi.php');
+                            require('./templates/query_storico_squadre_incarichi.php');
                         echo "</ul>";
 
                         echo "</li>";
@@ -223,14 +224,98 @@
 
     <!-- Sezione Sopralluoghi -->
     <?php if ($r['conteggio_sopralluoghi'] > 0): ?>
-        <b><?= htmlspecialchars($r['conteggio_sopralluoghi']) ?> presidi assegnati - </b>
+        <h4><?= htmlspecialchars($r['conteggio_sopralluoghi']) ?> presidi assegnati</h4>
+        <ul>
+            <?php
+                $query_sopralluoghi = "SELECT i.id,
+                        to_char(i.data_ora_invio, 'DD/MM/YYYY'::text) AS data_invio,
+                        to_char(i.data_ora_invio, 'HH24:MI'::text) AS ora_invio,
+                        i.descrizione,
+                        to_char(i.time_preview, 'DD/MM/YYYY HH24:MI:SS'::text) AS time_preview,
+                        to_char(i.time_start, 'DD/MM/YYYY HH24:MI:SS'::text) AS time_start,
+                        to_char(i.time_stop, 'DD/MM/YYYY HH24:MI:SS'::text) AS time_stop,
+                        i.note_ente,
+                        st.id_stato_sopralluogo,
+                        t.descrizione AS descrizione_stato
+                    FROM segnalazioni.t_sopralluoghi i
+                        JOIN segnalazioni.join_segnalazioni_sopralluoghi j 
+                            ON j.id_sopralluogo = i.id
+                        JOIN segnalazioni.stato_sopralluoghi st 
+                            ON st.id_sopralluogo = i.id
+                        JOIN segnalazioni.tipo_stato_sopralluoghi t 
+                            ON t.id = st.id_stato_sopralluogo
+                        JOIN segnalazioni.join_sopralluoghi_squadra ii 
+                            ON ii.id_sopralluogo = i.id
+                        JOIN users.v_squadre_all u 
+                            ON u.id::text = ii.id_squadra::text
+                        JOIN eventi.t_eventi e 
+                            ON e.id = $1
+                        WHERE j.id_segnalazione_in_lavorazione = $2
+                        AND st.data_ora_stato = (select max(data_ora_stato) from segnalazioni.stato_sopralluoghi where id_sopralluogo =i.id) 
+                        GROUP BY i.id, data_invio, ora_invio, i.descrizione, time_preview, time_start, time_stop, 
+                                note_ente, descrizione_stato, id_stato_sopralluogo;";
+
+                echo "<ul>";
+
+                $parameters = [$id, $r['id_lavorazione']];
+                $result_sopralluoghi = pg_query_params($conn, $query_sopralluoghi, $parameters);
+
+                if ($result_sopralluoghi) {
+                    while ($r_sopr = pg_fetch_assoc($result_sopralluoghi)) {
+
+                        if($r_sopr['id_stato_sopralluogo']==1){
+                            echo '<i class="fas fa-exclamation" title="Presidio inviato, ma non ancora preso in carico" style="color:#ff0000"></i>';
+                        } else if ($r_sopr['id_stato_sopralluogo']==2){
+                            echo '<i class="fas fa-play" title="Presidio in lavorazione" style="color:#f2d921"></i>';
+                        } else if($r_sopr['id_stato_sopralluogo']==3){
+                            echo '<i class="fas fa-check" title="Presidio chiuso" style="color:#5cb85c"></i>';
+                        }else if($r_sopr['id_stato_sopralluogo']==4){
+                            echo '<i class="fas fa-exclamation" title="Presidio rifiutato" style="color:#ff0000"></i>';
+                        }
+                        echo " Presidio ".$r_sopr['descrizione_stato']." assegnato il " .$r_sopr['data_invio']. " alle " .$r_sopr['ora_invio']. " ";
+                        echo " - Descrizione Presidio: " .$r_sopr['descrizione']." ";
+                        if ($r_sopr['note_ente']!=''){
+                            echo ' - Note chiusura: '.$r_sopr['note_ente'].' ';
+                        }
+
+
+                        if($r_sopr['id_stato_sopralluogo']==4){
+                            $query_s="SELECT a.id, a.data_ora_invio as data_ora, a.data_ora_invio as data_ora_cambio, max(s.data_ora_stato) as time_stop, a.id_squadra::integer, b.nome
+                            FROM segnalazioni.t_sopralluoghi_mobili a
+                            JOIN users.t_squadre b ON a.id_squadra::integer = b.id::integer  
+                            JOIN segnalazioni.stato_sopralluoghi_mobili s ON s.id_sopralluogo=a.id
+                            WHERE a.id=".$r_sopr['id']."
+                            GROUP BY a.id, a.data_ora_invio, a.id_squadra, b.nome";
+                        } else { 
+                            $query_s="SELECT a.id_sopralluogo, a.data_ora, a.data_ora_cambio, c.time_stop,a.id_squadra, b.nome 
+                            FROM segnalazioni.join_sopralluoghi_mobili_squadra a
+                            JOIN users.t_squadre b ON a.id_squadra=b.id 
+                            JOIN segnalazioni.t_sopralluoghi_mobili c ON c.id=a.id_sopralluogo
+                            WHERE id_sopralluogo =".$r_sopr['id']." 
+                            ORDER BY data_ora";
+                        }
+
+                        $result_s = pg_query($conn, $query_s);
+
+                        echo "<ul>";
+                        require('./templates/query_storico_squadre_incarichi.php');
+                        echo "</ul>";
+
+                        echo "</li>";
+                    }
+                } else {
+                    echo "<li>Errore nel recupero dei sopralluoghi.</li>";
+                }
+            ?>
+        </ul>
     <?php else: ?>
         <b>Nessun presidio assegnato - </b>
     <?php endif; ?>
 
+
     <!-- Sezione Provvedimenti Cautelari -->
     <?php if ($r['conteggio_pc'] > 0): ?>
-        <b><?= htmlspecialchars($r['conteggio_pc']) ?> provvedimenti cautelari assegnati</b>
+        <h4><?= htmlspecialchars($r['conteggio_pc']) ?> provvedimenti cautelari assegnati</h4>
     <?php else: ?>
         <b>Nessun provvedimento cautelare assegnato</b>
     <?php endif; ?>

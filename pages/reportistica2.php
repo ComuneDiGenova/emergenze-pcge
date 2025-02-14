@@ -187,7 +187,6 @@ $orari = getMonitoraggioOrari();
             <hr>
 
             <!-- REPORT SEGNALAZIONI -->
-
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h3>Elenco segnalazioni </h3>
@@ -246,9 +245,6 @@ $orari = getMonitoraggioOrari();
             </div>
 
 
-
-            <hr>
-
             <!-- REPORT PROVVEDIMENTI CAUTELARI -->
             <div class="row">              
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -277,138 +273,116 @@ $orari = getMonitoraggioOrari();
             </div>
             
             <!-- REPORT MIRE -->
+
             <?php 
-            if ($id_evento == 3 || $id_evento == 1): ?>
-            <div class="row">              
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <h3>Monitoraggio (Letture Mire e Idrometri nelle 8 ore precedenti)</h3>
+            if ($evento["id_evento"] == 3 || $evento["id_evento"] == 1): ?>
+                <div class="row">              
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <h3>Monitoraggio (Letture Mire e Idrometri nelle 8 ore precedenti)</h3>
 
-                    <h4>Letture Mire e Rivi</h4>
+                        <h4>Letture Mire e Rivi</h4>
 
-                    <h5><a name="mire-tab1">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
-                        (<a title="Vai alle acquisizioni più recenti" href="#mire-tab2"><i class="fas fa-angle-down"></i></a>)
-                    </h5>
-                    <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
-                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
-                        data-search="true" data-click-to-select="true" data-show-print="true"  
-                        data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-                        data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-                        data-filter-control="true" data-toolbar="#toolbar">
-            
-                        <thead>
-                            <tr>
-                                <th class="noprint" data-field="state" data-checkbox="true"></th>    
-                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-                                <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-                                <?php for ($i = 16; $i >= 9; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
+                        <h5><a name="mire-tab1">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a title="Vai alle acquisizioni più recenti" href="#mire-tab2"><i class="fas fa-angle-down"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
 
-                    <h5><a name="mire-tab2">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
-                        (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab1"><i class="fas fa-angle-up"></i></a>)
-                    </h5>
-                    <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
-                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                        <h5><a name="mire-tab2">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab1"><i class="fas fa-angle-up"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <br></br>
+
+                        <h4>Valori Idrometri ARPAL </h4>
+                        <h5><a name="mire-tab3">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a href="#mire-tab4" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
+                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
                         data-search="true" data-click-to-select="true" data-show-print="true"  
                         data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
                         data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
                         data-filter-control="true" data-toolbar="#toolbar">
                 
                         <thead>
+
                             <tr>
                                 <th class="noprint" data-field="state" data-checkbox="true"></th>    
-                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-                                <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-                                <?php for ($i = 9; $i >= 0; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
+                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+                                    <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
 
-                    <br></br>
+                        <h5><a name="mire-tab4">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab3"><i class="fas fa-angle-up"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
 
-                    <h4>Valori Idrometri ARPAL </h4>
-                    <h5><a name="mire-tab3">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
-                        (<a href="#mire-tab4" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)
-                    </h5>
-                    <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
-                    data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
-                    data-search="true" data-click-to-select="true" data-show-print="true"  
-                    data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-                    data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-                    data-filter-control="true" data-toolbar="#toolbar">
-            
-                    <thead>
+                        <br></br>
 
-                        <tr>
-                            <th class="noprint" data-field="state" data-checkbox="true"></th>    
-                            <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-                                <?php for ($i = 16; $i >= 9; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
-
-                    <h5><a name="mire-tab4">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
-                        (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab3"><i class="fas fa-angle-up"></i></a>)
-                    </h5>
-                    <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
-                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
-                        data-search="true" data-click-to-select="true" data-show-print="true"  
-                        data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-                        data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-                        data-filter-control="true" data-toolbar="#toolbar">
-                
-                        <thead>
-                            <tr>
-                                <th class="noprint" data-field="state" data-checkbox="true"></th>    
-                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
-                                <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
-                                <?php for ($i = 9; $i >= 0; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
-
-                    <br></br>
-
-                    <h4>Valori Idrometri COMUNE </h4>
-                    <h5><a name="mire-tab5">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
-                        (<a title="Vai alle acquisizioni più recenti" href="#mire-tab6"><i class="fas fa-angle-down"></i></a>)
-                    </h5>				
-                    <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
-                    data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
-                    data-search="true" data-click-to-select="true" data-show-print="true"  
-                    data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-                    data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-                    data-filter-control="true" data-toolbar="#toolbar">
-            
-                    <thead>
-
-                        <tr>
-                            <th class="noprint" data-field="state" data-checkbox="true"></th>    
-                            <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-                            <?php for ($i = 16; $i >= 9; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
-
-                    <h5><a name="mire-tab6">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
-                        (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab5"><i class="fas fa-angle-up"></i></a>)
-                    </h5>				
+                        <h4>Valori Idrometri COMUNE </h4>
+                        <h5><a name="mire-tab5">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a title="Vai alle acquisizioni più recenti" href="#mire-tab6"><i class="fas fa-angle-down"></i></a>)
+                        </h5>				
                         <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
                         data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
                         data-search="true" data-click-to-select="true" data-show-print="true"  
@@ -421,67 +395,90 @@ $orari = getMonitoraggioOrari();
                             <tr>
                                 <th class="noprint" data-field="state" data-checkbox="true"></th>    
                                 <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
-                                <?php for ($i = 9; $i >= 0; $i--): ?>
-                                    <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
-                                        data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
-                                <?php endfor; ?>
-                            </tr>
-                        </thead>
-                    </table>
+                                <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
 
-                    <script>
-                    function nameFormatterLettura(value,row) {
-                        if(row.tipo=='IDROMETRO ARPA' ){
-                            <?php
-                            $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
-                            $result_soglie = pg_query($conn, $query_soglie);
-                            while($r_soglie = pg_fetch_assoc($result_soglie)) {
-                                $arancio=$r_soglie['liv_arancione'];
-                                $rosso=$r_soglie['liv_rosso'];
-                            }
-                            ?>
-                            if(value < row.arancio ){
-                                return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
-                            } else if (value > row.arancio && value < row.rosso) {
-                                return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
-                            } else if (value > row.rosso) {
-                                return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+                        <h5><a name="mire-tab6">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab5"><i class="fas fa-angle-up"></i></a>)
+                        </h5>				
+                            <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <script>
+                        function nameFormatterLettura(value,row) {
+                            if(row.tipo=='IDROMETRO ARPA' ){
+                                <?php
+                                $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
+                                $result_soglie = pg_query($conn, $query_soglie);
+                                while($r_soglie = pg_fetch_assoc($result_soglie)) {
+                                    $arancio=$r_soglie['liv_arancione'];
+                                    $rosso=$r_soglie['liv_rosso'];
+                                }
+                                ?>
+                                if(value < row.arancio ){
+                                    return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.arancio && value < row.rosso) {
+                                    return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.rosso) {
+                                    return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+                                } else {
+                                    return '-';
+                                }
+                            } else if(row.tipo=='IDROMETRO COMUNE'){
+                                <?php
+                                $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
+                                $result_soglie = pg_query($conn, $query_soglie);
+                                while($r_soglie = pg_fetch_assoc($result_soglie)) {
+                                    $arancio=$r_soglie['liv_arancione'];
+                                    $rosso=$r_soglie['liv_rosso'];
+                                }
+                                ?>
+                                if(value < row.arancio ){
+                                    return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.arancio && value < row.rosso) {
+                                    return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.rosso) {
+                                    return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+                                } else {
+                                    return '-';
+                                }
                             } else {
-                                return '-';
-                            }
-                        } else if(row.tipo=='IDROMETRO COMUNE'){
-                            <?php
-                            $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
-                            $result_soglie = pg_query($conn, $query_soglie);
-                            while($r_soglie = pg_fetch_assoc($result_soglie)) {
-                                $arancio=$r_soglie['liv_arancione'];
-                                $rosso=$r_soglie['liv_rosso'];
-                            }
-                            ?>
-                            if(value < row.arancio ){
-                                return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
-                            } else if (value > row.arancio && value < row.rosso) {
-                                return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
-                            } else if (value > row.rosso) {
-                                return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
-                            } else {
-                                return '-';
-                            }
-                        } else {
-                            if(value==1){
-                                return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
-                            } else if (value==2) {
-                                return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
-                            } else if (value==3) {
-                                return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
-                            } else {
-                                return '-';
-                            }
-                        }		
-                    }
-                    </script>
+                                if(value==1){
+                                    return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
+                                } else if (value==2) {
+                                    return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
+                                } else if (value==3) {
+                                    return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
+                                } else {
+                                    return '-';
+                                }
+                            }		
+                        }
+                        </script>
+                    </div>
                 </div>
-            </div>
             <?php endif; ?>
 
             <div class="row">
