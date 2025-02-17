@@ -97,14 +97,9 @@ function getNumVerdeStatus($conn, $id) {
               WHERE id_evento = $1 
               AND data_ora_fine <= now();";
 
-    $result = executeQuery($conn, $query, [$id]);
+    $result = executeQuery($conn, $query, [$id])[0];
 
-    if ($result && pg_num_rows($result) > 0) {
-        $row = pg_fetch_assoc($result);
-        return (int) $row['count'];
-    }
-
-    return 0; // Nessun record trovato
+    return $result["count"];
 }
 
 /**
