@@ -115,6 +115,5 @@ th, td {
 }
 
 .row {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+    padding-left: 20 !important;
 }
