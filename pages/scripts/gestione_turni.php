@@ -1,25 +1,25 @@
 <?php
 function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null) {
 
-    $query_dipendenti = "SELECT matricola, cognome, nome, settore, ufficio 
+    $query_dipendenti = "SELECT DISTINCT ON (cognome, matricola) matricola, cognome, nome, settore, ufficio 
         FROM varie.v_dipendenti_all 
-        ORDER BY cognome;";
+        ORDER BY cognome, matricola";
 
-    $query_meteo = "SELECT cf as matricola, cognome, nome, '' as livello1 
+    $query_meteo = "SELECT DISTINCT ON (cognome, cf) cf AS matricola, cognome, nome, '' AS livello1 
         FROM users.v_utenti_esterni 
         WHERE id1=9
         UNION 
-        SELECT matricola, cognome, nome, settore || ' - '|| ufficio as livello1 
+        SELECT DISTINCT ON (cognome, matricola) matricola, cognome, nome, settore || ' - '|| ufficio AS livello1 
         FROM varie.v_dipendenti_all
-        ORDER BY cognome;";
+        ORDER BY cognome, matricola;";
 
-    $query_volontari = "SELECT cf as matricola, cognome, nome, livello1
+    $query_volontari = "SELECT DISTINCT ON (cognome, matricola) cf AS matricola, cognome, nome, livello1
         FROM users.v_utenti_esterni 
-        WHERE id1=1 or id1=8
+        WHERE id1=1 OR id1=8
         UNION 
-        SELECT matricola AS cf, cognome, nome, settore || ' - '|| ufficio as livello1
+        SELECT DISTINCT ON (cognome, cf) matricola AS cf, cognome, nome, settore || ' - '|| ufficio AS livello1
         FROM varie.v_dipendenti_all
-        ORDER BY cognome;";
+        ORDER BY cognome, matricola;";
 
     // Scomposizione dei parametri
     $title = $params['title'];
