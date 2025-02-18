@@ -95,3 +95,25 @@
         margin: 10px;
     }
 }
+
+
+#segnalazioni_count {
+    max-height: 300px !important; /* Limita l'altezza */
+    overflow-y: auto !important; /* Attiva lo scrolling verticale */
+    display: block !important;
+}
+
+.table {
+    margin-bottom: 0 !important; /* Evita margini extra sotto la tabella */
+    padding: 0 !important;
+}
+
+th, td {
+    height: auto !important;
+    padding: 5px !important; /* Riduce il padding tra le celle */
+    line-height: 1 !important;
+}
+
+.row {
+    padding-left: 20 !important;
+}

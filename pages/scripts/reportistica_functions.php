@@ -97,14 +97,9 @@ function getNumVerdeStatus($conn, $id) {
               WHERE id_evento = $1 
               AND data_ora_fine <= now();";
 
-    $result = executeQuery($conn, $query, [$id]);
+    $result = executeQuery($conn, $query, [$id])[0];
 
-    if ($result && pg_num_rows($result) > 0) {
-        $row = pg_fetch_assoc($result);
-        return (int) $row['count'];
-    }
-
-    return 0; // Nessun record trovato
+    return $result["count"];
 }
 
 /**
@@ -368,6 +363,7 @@ function nameFormatterMappa1($value, $row) {
     ';
 }
 
+
 /**
  * Recupera e formatta i dettagli delle segnalazioni per un evento.
  *
@@ -379,79 +375,133 @@ function nameFormatterMappa1($value, $row) {
  * @param string $v_provvedimenti_cautelari_last_update Nome della vista provvedimenti cautelari.
  * @return string HTML formattato con i dettagli delle segnalazioni.
  */
-function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update) {
+function fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update) {
     $query = "SELECT 
-        min(s.data_ora) as data_ora,
-        count(s.id) AS num,
-        string_agg(s.id::text, ', '::text) AS id_segn,
-        string_agg(s.descrizione::text, ', '::text) AS descrizione,
-        array_to_string(array_agg(DISTINCT c.descrizione::text), ', '::text) AS criticita,
-        array_to_string(array_agg(DISTINCT m.nome_munic::text), ', '::text) AS nome_munic,
-        string_agg(
-            CASE
-                WHEN s.id_civico IS NULL THEN ( SELECT concat('~ ', civici.desvia, ' ', civici.testo) AS concat
-                   FROM geodb.civici
-                  WHERE civici.geom && st_expand(st_transform(s.geom, 3003), 250::double precision)
-                  ORDER BY st_distance(civici.geom, st_transform(s.geom, 3003))
-                 LIMIT 1)
-                ELSE (g.desvia::text || ' '::text) || g.testo::text
-            END, ', '::text) AS localizzazione,
-        jl.id_segnalazione_in_lavorazione AS id_lavorazione,
-        l.in_lavorazione,
-        l.descrizione_chiusura,
-        l.id_profilo,
+            min(s.data_ora) as data_ora,
+            count(s.id) AS num,
+            string_agg(s.id::text, ', '::text) AS id_segn,
+            string_agg(s.descrizione::text, ', '::text) AS descrizione,
+            array_to_string(array_agg(DISTINCT c.descrizione::text), ', '::text) AS criticita,
+            array_to_string(array_agg(DISTINCT m.nome_munic::text), ', '::text) AS nome_munic,
+            string_agg(
+                CASE
+                    WHEN s.id_civico IS NULL 
+                        THEN ( SELECT concat('~ ', civici.desvia, ' ', civici.testo) AS concat
+                            FROM geodb.civici
+                            WHERE civici.geom && st_expand(st_transform(s.geom, 3003), 250::double precision)
+                            ORDER BY st_distance(civici.geom, st_transform(s.geom, 3003))
+                            LIMIT 1
+                        )
+                    ELSE (g.desvia::text || ' '::text) || g.testo::text
+                END, ', '::text
+            ) AS localizzazione,
+            jl.id_segnalazione_in_lavorazione AS id_lavorazione,
+            l.in_lavorazione,
+            l.descrizione_chiusura,
+            l.id_profilo,
             CASE
                 WHEN ((SELECT count(i.id) 
-                       FROM segnalazioni.\"$v_incarichi_last_update\" i
-                       WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR 
-                     ((SELECT count(i.id) 
-                       FROM segnalazioni.\"$v_incarichi_interni_last_update\" i
-                       WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR 
-                     ((SELECT count(i.id) 
-                       FROM segnalazioni.\"$v_provvedimenti_cautelari_last_update\" i
-                       WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_provvedimenti_cautelari < 3)) > 0 OR 
-                     ((SELECT count(i.id) 
-                       FROM segnalazioni.\"$v_sopralluoghi_last_update\" i
-                       WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_sopralluogo < 3)) > 0 
+                        FROM segnalazioni.\"$v_incarichi_last_update\" i
+                        WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR 
+                        ((SELECT count(i.id) 
+                        FROM segnalazioni.\"$v_incarichi_interni_last_update\" i
+                        WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_incarico < 3)) > 0 OR 
+                        ((SELECT count(i.id) 
+                        FROM segnalazioni.\"$v_provvedimenti_cautelari_last_update\" i
+                        WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_provvedimenti_cautelari < 3)) > 0 OR 
+                        ((SELECT count(i.id) 
+                        FROM segnalazioni.\"$v_sopralluoghi_last_update\" i
+                        WHERE i.id_lavorazione = jl.id_segnalazione_in_lavorazione AND i.id_stato_sopralluogo < 3)) > 0 
                 THEN 't'
                 ELSE 'f'
-            END AS incarichi
+            END AS incarichi,
+            (
+                SELECT count(i.id) AS sum
+                FROM segnalazioni.t_incarichi i
+                JOIN segnalazioni.join_segnalazioni_incarichi j 
+                    ON j.id_incarico= i.id
+                WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
+            ) AS conteggio_incarichi,
+            (
+                SELECT count(i.id) AS sum
+                FROM segnalazioni.t_incarichi_interni i
+                JOIN segnalazioni.join_segnalazioni_incarichi_interni j 
+                    ON j.id_incarico= i.id
+                WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
+            ) AS conteggio_incarichi_interni,
+            (
+                SELECT count(i.id) AS sum
+                FROM segnalazioni.t_sopralluoghi i
+                JOIN segnalazioni.join_segnalazioni_sopralluoghi j 
+                    ON j.id_sopralluogo= i.id
+                WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
+            ) AS conteggio_sopralluoghi,
+            (
+                SELECT count(i.id) AS sum
+                FROM segnalazioni.t_provvedimenti_cautelari i
+                JOIN segnalazioni.join_segnalazioni_provvedimenti_cautelari j ON j.id_provvedimento = i.id
+                WHERE j.id_segnalazione_in_lavorazione = jl.id_segnalazione_in_lavorazione
+            ) AS conteggio_pc,
+            max(s.geom::text) AS geom
         FROM segnalazioni.t_segnalazioni s
-        JOIN segnalazioni.tipo_criticita c ON c.id = s.id_criticita
-        JOIN eventi.t_eventi e ON e.id = s.id_evento
-        LEFT JOIN segnalazioni.join_segnalazioni_in_lavorazione jl ON jl.id_segnalazione = s.id
-        LEFT JOIN segnalazioni.t_segnalazioni_in_lavorazione l ON jl.id_segnalazione_in_lavorazione = l.id
-        LEFT JOIN geodb.municipi m ON s.id_municipio = m.id::integer
-        LEFT JOIN geodb.civici g ON g.id = s.id_civico
+        JOIN segnalazioni.tipo_criticita c 
+            ON c.id = s.id_criticita
+        JOIN eventi.t_eventi e 
+            ON e.id = s.id_evento
+        LEFT JOIN segnalazioni.join_segnalazioni_in_lavorazione jl 
+            ON jl.id_segnalazione = s.id
+        LEFT JOIN segnalazioni.t_segnalazioni_in_lavorazione l 
+            ON jl.id_segnalazione_in_lavorazione = l.id
+        LEFT JOIN geodb.municipi m 
+            ON s.id_municipio = m.id::integer
+        LEFT JOIN geodb.civici g 
+            ON g.id = s.id_civico
         WHERE s.id_evento = $1 AND jl.id_segnalazione_in_lavorazione > 0
         GROUP BY jl.id_segnalazione_in_lavorazione, l.in_lavorazione, l.id_profilo, s.id_evento, e.fine_sospensione, l.descrizione_chiusura
         ORDER BY data_ora ASC;";
-    
+
     $result = pg_query_params($conn, $query, [$id]);
 
     if (!$result) {
-        return "<p>Errore nella query.</p>";
+        return [];
+    }
+
+    return pg_fetch_all($result);
+}
+
+
+function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, 
+                                    $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update, $esteso) {
+    $dati = fetchDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incarichi_interni_last_update, 
+                                        $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update);
+    
+    if (!$dati) {
+        return "<p>Errore nella query o nessun dato trovato.</p>";
     }
 
     $output = '';
-    while ($r = pg_fetch_assoc($result)) {
-        $output .= "<b>Id segnalazioni:</b> {$r['id_segn']} - ";
-        if ($r['num'] > 1) {
-            $output .= "<b>Num. segnalazioni collegate:</b> {$r['num']} - ";
+    foreach ($dati as $r) {
+        ob_start();
+        
+        if ($esteso) {
+            include './templates/template_dettaglio_segnalazioni_esteso.php';
+        } else {
+            include './templates/template_dettaglio_segnalazioni.php';
         }
-        $output .= "<b>Stato:</b> " . ($r['in_lavorazione'] === 't' ? 
-            '<i class="fas fa-play" style="color:#5cb85c"></i> in lavorazione' : 
-            '<i class="fas fa-stop"></i> chiusa') . "<br>";
-        $output .= "<b>Data e ora segnalazione:</b> {$r['data_ora']}<br>";
-        $output .= "<b>Tipo criticità:</b> {$r['criticita']}<br>";
-        $output .= "<b>Descrizione:</b> {$r['descrizione']}<br>";
-        $output .= "<b>Municipio:</b> {$r['nome_munic']}<br>";
-        $output .= "<b>Indirizzo:</b> {$r['localizzazione']}<br>";
-        $output .= "<hr>";
+        
+        $output .= ob_get_clean();
+    }
+
+    // AGGIUNTA PRESIDI PER REPORT ESTESO
+    if ($esteso) {
+        ob_start();
+        include './templates/template_presidi.php';
+        $output .= ob_get_clean();
     }
 
     return $output;
 }
+
 
 
 // ** ============= PROVVEDIMENTI CAUTELARI ============= **//
