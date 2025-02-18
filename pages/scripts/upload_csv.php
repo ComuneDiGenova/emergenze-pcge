@@ -71,10 +71,22 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
             $id1 = nullable($row['unita_operativa_I_liv']);
             $numero_gg = nullable($row['Numero_tessera']);
 
-            // Costruisce la query INSERT
+            // Costruisce la query INSERT, in caso di conflitto esegue UPDATE
             $query = "INSERT INTO users.utenti_esterni (cf, nome, cognome, data_nascita, comune_residenza, cap, indirizzo, telefono1, mail, id1, numero_gg)
                     VALUES ('$cf', '$nome', '$cognome', '$data_nascita', '$comune', $cap, $indirizzo, $telefono, $mail, $id1, $numero_gg)
-                    ON CONFLICT (cf) DO NOTHING;"; // Ignora duplicati basati sul CF
+                    ON CONFLICT (cf) 
+                    DO UPDATE SET 
+                        nome = EXCLUDED.nome,
+                        cognome = EXCLUDED.cognome,
+                        data_nascita = EXCLUDED.data_nascita,
+                        comune_residenza = EXCLUDED.comune_residenza,
+                        cap = EXCLUDED.cap,
+                        indirizzo = EXCLUDED.indirizzo,
+                        telefono1 = EXCLUDED.telefono1,
+                        mail = EXCLUDED.mail,
+                        id1 = EXCLUDED.id1,
+                        numero_gg = EXCLUDED.numero_gg;";
+
 
             $result = pg_query($conn, $query);
             if ($result) {
