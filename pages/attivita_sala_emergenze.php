@@ -59,7 +59,6 @@ $id = $_GET['id'];
             <br></br>
             </div>
 
-        <div class="container mt-4">
             <div class="row">
                     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                         <h4>Attivazione numero verde: 
@@ -73,17 +72,14 @@ $id = $_GET['id'];
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <br></br>
-        </div>
+    <?php 
+        require('./footer.php');
+        require('./req_bottom.php');
+    ?>
 
+    <script src="./scripts/attivita_sala_emergenze.js"></script>
 
-        <?php 
-            require('./footer.php');
-            require('./req_bottom.php');
-        ?>
-
-        <script src="./scripts/attivita_sala_emergenze.js"></script>
-    </body>
+</body>
 </html>
