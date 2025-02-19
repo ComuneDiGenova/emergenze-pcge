@@ -194,6 +194,43 @@ function numeroVerdeFormatter($conn, $id) {
     return $html;
 }
 
+function getChiamateEvento($conn, $id) {
+    // Recupera il numero di richieste generiche
+    $queryRichieste = "SELECT count(r.id) AS count FROM segnalazioni.t_richieste_nverde r WHERE r.id_evento = $1;";
+    $resultRichieste = executeQuery($conn, $queryRichieste, [$id]);
+    
+    $richiesteGeneriche = 0;
+    if ($resultRichieste && pg_num_rows($resultRichieste) > 0) {
+        $row = pg_fetch_assoc($resultRichieste);
+        $richiesteGeneriche = $row['count'];
+    }
+    
+    // Recupera il numero di segnalazioni
+    $querySegnalazioni = "SELECT count(r.id) AS count FROM segnalazioni.t_segnalazioni r WHERE r.id_evento = $1;";
+    $resultSegnalazioni = executeQuery($conn, $querySegnalazioni, [$id]);
+    
+    $segnalazioni = 0;
+    if ($resultSegnalazioni && pg_num_rows($resultSegnalazioni) > 0) {
+        $row = pg_fetch_assoc($resultSegnalazioni);
+        $segnalazioni = $row['count'];
+    }
+    
+    return [
+        'richieste_generiche' => $richiesteGeneriche,
+        'segnalazioni' => $segnalazioni
+    ];
+}
+
+function formattaChiamateEvento($conn, $id) {
+    $chiamate = getChiamateEvento($conn, $id);
+    
+    $html .= "<h4>Numero chiamate ricevute</h4>";
+    $html .= "<b>Richieste generiche:</b> " . htmlspecialchars($chiamate['richieste_generiche']) . "<br>";
+    $html .= "<b>Segnalazioni:</b> " . htmlspecialchars($chiamate['segnalazioni']) . "<br>";
+    
+    return $html;
+}
+
 /**
  * Ottiene la data e l'ora correnti formattate con flessibilità.
  *
