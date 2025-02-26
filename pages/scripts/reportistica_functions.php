@@ -197,7 +197,7 @@ function numeroVerdeFormatter($conn, $id) {
 
 function getChiamateEvento($conn, $id) {
     // Recupera il numero di richieste generiche
-    $queryRichieste = "SELECT count(r.id) AS count FROM segnalazioni.t_richieste_nverde r WHERE r.id_evento = $1;";
+    $queryRichieste = "SELECT count(r.id) AS count FROM segnalazioni.t_richieste_nverde r WHERE r.id_evento = $1 and n_verde = true;";
     $resultRichieste = executeQuery($conn, $queryRichieste, [$id]);
     
     if ($resultRichieste) {
@@ -206,7 +206,7 @@ function getChiamateEvento($conn, $id) {
     }
     
     // Recupera il numero di segnalazioni
-    $querySegnalazioni = "SELECT count(r.id) AS count FROM segnalazioni.t_segnalazioni r WHERE r.id_evento = $1;";
+    $querySegnalazioni = "SELECT count(r.id) AS count FROM segnalazioni.t_segnalazioni r WHERE r.id_evento = $1 AND nverde = true;";
     $resultSegnalazioni = executeQuery($conn, $querySegnalazioni, [$id]);
     
     if ($resultSegnalazioni) {
