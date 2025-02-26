@@ -120,7 +120,7 @@ function getChiamateRicevute($conn, $id) {
                        FROM segnalazioni.t_richieste_nverde r
                        WHERE r.id_evento = $1;";
     $result = executeQuery($conn, $queryRichieste, [$id]);
-    if ($result && pg_num_rows($result) > 0) {
+    if ($result && count($result) > 0) {
         $row = pg_fetch_assoc($result);
         $results['richieste_generiche'] = (int)$row['count'];
     }
@@ -130,7 +130,7 @@ function getChiamateRicevute($conn, $id) {
                           FROM segnalazioni.t_segnalazioni r
                           WHERE r.id_evento = $1;";
     $result = executeQuery($conn, $querySegnalazioni, [$id]);
-    if ($result && pg_num_rows($result) > 0) {
+    if ($result && count($result) > 0) {
         $row = pg_fetch_assoc($result);
         $results['segnalazioni'] = (int)$row['count'];
     }
@@ -166,10 +166,11 @@ function numeroVerdeFormatter($conn, $id) {
 
     $result = executeQuery($conn, $query, [$id]);
 
+
     // Formatta HTML per rappresentare lo storico numero verde
-    if ($result && pg_num_rows($result) > 0) {
+    if ($result && count($result) > 0) {
         $html .= "<h5>Storico Numero Verde</h5><ul>";
-        while ($row = pg_fetch_assoc($result)) {
+        foreach ($result as $row) {
             $timestampStart = strtotime($row["data_ora_inizio"]);
             setlocale(LC_TIME, 'it_IT.UTF8');
             $dataStart = strftime('%A %e %B %G', $timestampStart);
@@ -196,23 +197,20 @@ function numeroVerdeFormatter($conn, $id) {
 
 function getChiamateEvento($conn, $id) {
     // Recupera il numero di richieste generiche
-    $queryRichieste = "SELECT count(r.id) AS count FROM segnalazioni.t_richieste_nverde r WHERE r.id_evento = $1;";
+    $queryRichieste = "SELECT count(r.id) AS count FROM segnalazioni.t_richieste_nverde r WHERE r.id_evento = $1 AND n_verde = true;";
     $resultRichieste = executeQuery($conn, $queryRichieste, [$id]);
     
-    $richiesteGeneriche = 0;
-    if ($resultRichieste && pg_num_rows($resultRichieste) > 0) {
-        $row = pg_fetch_assoc($resultRichieste);
-        $richiesteGeneriche = $row['count'];
+    if ($resultRichieste) {
+        $richiesteGeneriche = $resultRichieste[0]['count'];
+
     }
     
     // Recupera il numero di segnalazioni
-    $querySegnalazioni = "SELECT count(r.id) AS count FROM segnalazioni.t_segnalazioni r WHERE r.id_evento = $1;";
+    $querySegnalazioni = "SELECT count(r.id) AS count FROM segnalazioni.t_segnalazioni r WHERE r.id_evento = $1 AND nverde = true;";
     $resultSegnalazioni = executeQuery($conn, $querySegnalazioni, [$id]);
     
-    $segnalazioni = 0;
-    if ($resultSegnalazioni && pg_num_rows($resultSegnalazioni) > 0) {
-        $row = pg_fetch_assoc($resultSegnalazioni);
-        $segnalazioni = $row['count'];
+    if ($resultSegnalazioni) {
+        $segnalazioni = $resultSegnalazioni[0]['count'];
     }
     
     return [
