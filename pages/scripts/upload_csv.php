@@ -8,6 +8,15 @@ if (!file_exists($conn_path)) {
 }
 include $conn_path;
 
+$logFile = __DIR__.'/logs/upload_csv_error_log.txt';
+
+
+function logError($message) {
+    global $logFile;
+    $timestamp = date("Y-m-d H:i:s");
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+}
+
 // Controlla che un file sia stato caricato
 if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) {
     $csvFile = $_FILES['csvFile']['tmp_name'];
@@ -46,7 +55,14 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
         }
 
         $imported = 0;
+        $updated = 0;
+        $firstRow = true;
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            // Salta la prima riga (headers)
+            if ($firstRow) {
+                $firstRow = false;
+                continue;
+            }
 
             // Salta le righe vuote o errate
             if (empty($data) || count($data) !== count($headers)) {
@@ -89,9 +105,19 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
 
 
             $result = pg_query($conn, $query_ue);
+
             if ($result) {
-                $imported++;
+                $row = pg_fetch_assoc($result);
+                if ($row['inserted'] == 't') {
+                    $imported++;
+                } else {
+                    $updated++;
+                }
+            } else {
+                $error = pg_last_error($conn);
+                logError("Errore query utenti_esterni: $error");
             }
+
 
             // Costruisce la query INSERT per la tabella utenti_sistema, settando id profilo = 8 (solo visualizzazione)
             // in caso di conflitto esegue UPDATE
@@ -103,13 +129,12 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
                         id_profilo = {$id_profilo};";
 
             $result = pg_query($conn, $query_us);
-
         }
 
         fclose($handle);
 
         // Salva il messaggio nella variabile di sessione
-        $_SESSION['import_message'] = "Importazione completata: $imported record inseriti con successo.";
+        $_SESSION['import_message'] = "Importazione completata: $imported record inseriti, $updated record aggiornati.";
 
         // Reindirizza alla pagina iniziale
         header("Location: ../add_volontario.php");
