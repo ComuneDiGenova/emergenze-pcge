@@ -62,7 +62,7 @@ require('navbar_up.php');
 					// for ($i=0;$i<$len;$i++){
 	               	echo '<div class="row">';
 	               	echo '<div class="col-lg-5"><h2><i class="fa fa-chevron-circle-down"></i> Evento in chiusura <small>(id='.$eventi_attivi_c[$i].')</small> ';
-	               	echo ' - <a href="reportistica.php?id='.$eventi_attivi_c[$i].'" class="btn btn-info">Riepilogo';
+	               	echo ' - <a href="reportistica2.php?id='.$eventi_attivi_c[$i].'" class="btn btn-info">Riepilogo';
 					if($profilo_sistema<=2){
 						echo ' (stampa report)';
 					}

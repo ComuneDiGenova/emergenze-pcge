@@ -77,12 +77,9 @@ $orari = getMonitoraggioOrari();
 
     <title>Gestione emergenze</title>
 
-    <?php 
-
-    ?>
-
     <!-- Link to CSS file -->
     <link rel="stylesheet" type="text/css" href="./styles/attivita_sala_emergenze.css">
+    <!-- <link rel="stylesheet" type="text/css" href="./styles/reportistica2.css"> -->
 </head>
 
 <body>
@@ -285,8 +282,8 @@ $orari = getMonitoraggioOrari();
                             data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
                             data-search="true" data-click-to-select="true" data-show-print="true"  
                             data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-                            data-filter-control="true" data-toolbar="#toolbar">
+                            data-sidePagination="false" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar" data-search-class="noprint">
                 
                             <thead>
                                 <tr>
@@ -468,7 +465,7 @@ $orari = getMonitoraggioOrari();
                                 } else if (value==3) {
                                     return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
                                 } else {
-                                    return '-';
+                                    return ' - ';
                                 }
                             }		
                         }
@@ -498,6 +495,7 @@ $orari = getMonitoraggioOrari();
         require('./req_bottom.php');
     ?>
     <!-- <script src="./scripts/attivita_sala_emergenze.js"></script> -->
+    <script src="./scripts/reportistica2.js"></script>
 </body>
 
 </html>

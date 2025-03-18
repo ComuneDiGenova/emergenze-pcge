@@ -278,7 +278,7 @@ if (!isset($subtitle)) {
                                   <a href="monitoraggio_meteo.php?id=<?php echo $tipo_eventi_attivi[$i][0]; ?>">
                                    - Vai al monitoraggio meteo <br>
                                  </a>
-                                 <a href="reportistica.php?id=<?php echo $tipo_eventi_attivi[$i][0]; ?>">
+                                 <a href="reportistica2.php?id=<?php echo $tipo_eventi_attivi[$i][0]; ?>">
                                    - Vai alla pagina dei report <br>
                                  </a>
 
@@ -333,7 +333,7 @@ if (!isset($subtitle)) {
                                   <a href="monitoraggio_meteo.php?id=<?php echo $tipo_eventi_c[$i][0]; ?>">
                                    - Vai al monitoraggio meteo <br>
                                  </a>
-                                 <a href="reportistica.php?id=<?php echo $tipo_eventi_c[$i][0]; ?>">
+                                 <a href="reportistica2.php?id=<?php echo $tipo_eventi_c[$i][0]; ?>">
                                    - Vai alla pagina dei report <br>
                                  </a>
                                 <?php

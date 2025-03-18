@@ -1,5 +1,3 @@
-<?php
-?>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
    <h3>Comunicazioni generiche</h3>
    	<button type="button" class="btn btn-info noprint"  data-toggle="modal" data-target="#comunicazione">
@@ -10,45 +8,43 @@
 			WHERE id_evento = '.$id.';';
 			//echo $query;
 			$result = pg_query($conn, $query);
-			$c=0;
-			while($r = pg_fetch_assoc($result)) {
-				if ($c==0){
+			$c = 0;
+			while ($r = pg_fetch_assoc($result)) {
+				if ($c == 0) {
 					echo "<h3>Elenco comunicazioni generiche</h3>";
 				}
-				$c=$c+1;
-				//echo '<button type="button" class="btn btn-info noprint"  data-toggle="modal" 
-				//data-target="#update_mon_'.$r['id'].'">
-				//<i class="fas fa-edit"></i> Edit </button>';
-				echo " <li><b>Comunicazione del ".$r['data_aggiornamento']."</b>: ";
+				$c = $c + 1;
+
+				echo " <li><b>Comunicazione del " . $r['data_aggiornamento'] . "</b>: ";
 				echo $r['testo'];
-				/*if ($r['allegato']!=''){
-					echo " (<a href=\"../../".$r['allegato']."\">Allegato</a>)";
-				}*/
-				if ($r['allegato']!=''){
-				$allegati=explode(";",$r['allegato']);
-				// Count total files
-				$countfiles = count($allegati); 
-				//echo $countfiles;
-				$testo='';
-				// Looping all files
-				if($countfiles > 0) {
-					for($i=0;$i<$countfiles;$i++){
-						$n_a=$i+1;
-						//$testo= $testo. ' - <a href="../../'.$allegati[$i].'"> Allegato '.$n_a.'</a>';
-						if(@is_array(getimagesize('../../'.$allegati[$i]))){
-							//$image = true;
-							$testo= $testo. '<br><img src="../../'.$allegati[$i].'" alt="'.$allegati[$i].'" width="30%"> 
-							<a target="_new" title="Visualizza immagine in nuova scheda" href="../../'.$allegati[$i].'"> Apri immagine'.$n_a.'</a>';
-						} else {
-							//$image = false;
-							$testo= $testo. '<br><a target="_new" href="../../'.$allegati[$i].'"> Apri allegato '.$n_a.' in nuova scheda</a>';
+
+				$testo = ''; // Azzera il testo per ogni iterazione del while
+
+				if ($r['allegato'] != '') {
+					$allegati = explode(";", $r['allegato']);
+					// echo '<br>';
+					// print_r($allegati); // Debug: stampa il contenuto dell'array
+
+					$countfiles = count($allegati);
+
+					if ($countfiles > 0) {
+						for ($i = 0; $i < $countfiles; $i++) {
+							$n_a = $i + 1;
+
+							if (@is_array(getimagesize('../../' . $allegati[$i]))) {
+								$testo .= '<br><img src="../../' . $allegati[$i] . '" alt="' . $allegati[$i] . '" width="30%">
+								<a target="_new" title="Visualizza immagine in nuova scheda" href="../../' . $allegati[$i] . '"> Apri immagine ' . $n_a . '</a>';
+							} else {
+								$testo .= '<br><a target="_new" href="../../' . $allegati[$i] . '"> Apri allegato ' . $n_a . ' in nuova scheda</a>';
+							}
 						}
 					}
 				}
-				}
-				echo $testo;
+
+				echo $testo; // Stampa solo se ci sono allegati
 				echo "</li>";
 			}
+
 			echo "</ul><hr>";
 			?>
 			<!-- Modal comunicazione da UO-->
