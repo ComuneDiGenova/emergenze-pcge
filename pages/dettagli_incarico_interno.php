@@ -201,7 +201,7 @@ require('navbar_up.php');
 				WHERE id_incarico =".$id." 
 				ORDER BY data_ora";
 				//echo $query_s;
-				require('./query_storico_squadre_incarichi.php');
+				require('./templates/query_storico_squadre_incarichi.php');
 				?>
 				</ul>
 					</div>
@@ -597,7 +597,7 @@ require('navbar_up.php');
 							WHERE id_incarico =".$id." 
 							ORDER BY data_ora";
 							//echo $query_s;
-							require('./query_storico_squadre_incarichi.php');
+							require('./templates/query_storico_squadre_incarichi.php');
 							?>
 							<hr>
 						<?php	
