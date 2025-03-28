@@ -796,7 +796,7 @@ while($r = pg_fetch_assoc($result)) {
 			}
 			//echo $query_s;
 			echo "<ul>";
-			require('./query_storico_squadre_incarichi.php');
+			require('./templates/query_storico_squadre_incarichi.php');
 			echo "</ul>";
 			
 			
@@ -1155,7 +1155,7 @@ function nameFormatterMappa1(value, row) {
 		}
 		//echo $query_s;
 		echo "<ul>";
-		require('./query_storico_squadre_incarichi.php');
+		require('./templates/query_storico_squadre_incarichi.php');
 		echo "</ul>";
 
 	
@@ -1231,7 +1231,7 @@ function nameFormatterMappa1(value, row) {
 		}
 		//echo $query_s;
 		echo "<ul>";
-		require('./query_storico_squadre_incarichi.php');
+		require('./templates/query_storico_squadre_incarichi.php');
 		echo "</ul>";
 
 	

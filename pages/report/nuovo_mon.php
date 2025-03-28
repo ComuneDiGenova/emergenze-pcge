@@ -352,7 +352,7 @@ if (!$mail->send()) {
 
 
 //exit;
-//header("location: ../reportistica.php");
+//header("location: ../reportistica2.php");
 header('Location: ' . $_SERVER['HTTP_REFERER']);
 
 

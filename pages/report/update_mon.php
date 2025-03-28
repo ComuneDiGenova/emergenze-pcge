@@ -52,7 +52,7 @@ echo "<br>";
 echo $query_log;
 
 //exit;
-//header("location: ../reportistica.php");
+//header("location: ../reportistica2.php");
 header('Location: ' . $_SERVER['HTTP_REFERER']);
 
 

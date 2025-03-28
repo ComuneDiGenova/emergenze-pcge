@@ -15,7 +15,7 @@ if(!$conn) {
 	-- concat(p.nome,' (', replace(p.note,'LOCALITA',''),')') as nome,
 	p.tipo,
 	p.id::character varying, 
-	date_trunc('second', max(l.data_ora)) as last_update,
+	to_char(date_trunc('minute', max(l.data_ora)), 'YYYY-MM-DD HH:MI') as last_update,
 	(select max(id_lettura) 
 	 from geodb.lettura_mire  
 	 where num_id_mira = p.id and 
@@ -127,7 +127,7 @@ if(!$conn) {
 		//print $rows;
 		print json_encode(array_values(pg_fetch_all($result)));
 	} else {
-		echo "[{\"NOTE\":'No data'}]";
+		echo "[{\"NOTE\":\"No data\"}]";
 	}
 }
 

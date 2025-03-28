@@ -478,7 +478,7 @@
                         
 						
                         <!--li>
-                            <a href="reportistica.php"> <i class="fas fa-chart-pie"></i> Riepilogo e report</a>
+                            <a href="reportistica2.php"> <i class="fas fa-chart-pie"></i> Riepilogo e report</a>
                         </li-->
                          <!--li>
                             <a target="_guida_in_linea" href="https://manuale-sistema-di-gestione-emergenze-comune-di-genova.readthedocs.io/it/latest/"> 
