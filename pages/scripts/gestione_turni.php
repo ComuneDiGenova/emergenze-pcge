@@ -1,7 +1,7 @@
 <?php
 function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null) {
 
-    $query_dipendenti = "SELECT DISTINCT ON (cognome, matricola) matricola, cognome, nome, settore, ufficio 
+    $query_dipendenti = "SELECT matricola, cognome, nome, settore, ufficio 
         FROM varie.v_dipendenti_all 
         ORDER BY cognome, matricola";
 
@@ -9,7 +9,7 @@ function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null)
         FROM users.v_utenti_esterni 
         WHERE id1=9
         UNION 
-        SELECT DISTINCT ON (cognome, matricola) matricola, cognome, nome, settore || ' - '|| ufficio AS livello1 
+        SELECT matricola, cognome, nome, settore || ' - '|| ufficio AS livello1 
         FROM varie.v_dipendenti_all
         ORDER BY cognome, matricola;";
 
@@ -17,7 +17,7 @@ function renderShiftSection($params, $conn, $profilo_sistema, $id_evento = null)
         FROM users.v_utenti_esterni 
         WHERE id1=1 OR id1=8
         UNION 
-        SELECT DISTINCT ON (cognome, cf) matricola AS cf, cognome, nome, settore || ' - '|| ufficio AS livello1
+        SELECT matricola AS cf, cognome, nome, settore || ' - '|| ufficio AS livello1
         FROM varie.v_dipendenti_all
         ORDER BY cognome, matricola;";
 
@@ -102,6 +102,8 @@ foreach ($personnelList as $person) {
         foreach ($fields as $field) {
             if (!empty($person[$field])) {
                 $extraFields[] = htmlspecialchars($person[$field]);
+            } else {
+                $extraFields[] = '';
             }
         }
         if (!empty($extraFields)) {
