@@ -25,8 +25,6 @@ LOGGERS = [
 
 logger = make_logger('script', LOGGERS)
 
-logger.warning('Hello!!!')
-
 if 'EMERGENZE_COC_BOT_TOKEN' not in environ:
     logger.critical('EMERGENZE_COC_BOT_TOKEN non trovato. Assicurati che il file ".env" contenga la variabile EMERGENZE_COC_BOT_TOKEN.')
     raise ValueError('EMERGENZE_COC_BOT_TOKEN non trovato')
