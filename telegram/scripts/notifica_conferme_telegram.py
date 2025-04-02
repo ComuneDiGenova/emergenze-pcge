@@ -23,7 +23,7 @@ LOGGERS = [
     f"warning:{LOG_FILE}",
 ]  # syntax "severity:filename:format" filename can be stderr or stdout
 
-logger = make_logger('script', LOGGERS)
+logger = make_logger(f'script:{THIS_FILE_NAME}', LOGGERS)
 
 if 'EMERGENZE_COC_BOT_TOKEN' not in environ:
     logger.critical('EMERGENZE_COC_BOT_TOKEN non trovato. Assicurati che il file ".env" contenga la variabile EMERGENZE_COC_BOT_TOKEN.')
@@ -33,10 +33,12 @@ if 'EMERGENZE_BOT_TOKEN' not in environ:
     logger.critical('EMERGENZE_BOT_TOKEN non trovato. Assicurati che il file ".env" contenga la variabile EMERGENZE_BOT_TOKEN.')
     raise ValueError('EMERGENZE_BOT_TOKEN non trovato')
 
-tokens = {
-    'bollettino': os.getenv('EMERGENZE_BOT_TOKEN'),
-    'convocazione': os.getenv('EMERGENZE_COC_BOT_TOKEN')
-}
+TOKEN = os.getenv('EMERGENZE_COC_BOT_TOKEN')
+
+# tokens = {
+#     'bollettino': os.getenv('EMERGENZE_BOT_TOKEN'),
+#     'convocazione': os.getenv('EMERGENZE_COC_BOT_TOKEN')
+# }
 
 
 def telegram_bot_sendtext(bot_message, chat_id, token):
@@ -119,5 +121,5 @@ with DBIO() as dbio:
         telegram_bot_sendtext(
             message[p['argomento']],
             p['telegram_id'],
-            tokens[p['argomento']]
+            TOKEN
         )
