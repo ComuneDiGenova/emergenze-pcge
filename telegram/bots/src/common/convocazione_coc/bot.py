@@ -104,7 +104,8 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     if answer_data == 'ricevuto':
         tg_id = query.from_user.id
         # logging.info(tg_id)
-        query_convocazione=f"""SELECT DISTINCT ON (u.telegram_id) u.matricola_cf,
+        query_convocazione = f"""SELECT DISTINCT ON (u.telegram_id)
+    u.matricola_cf,
     u.nome,
     u.cognome,
     u.telegram_id,
@@ -152,7 +153,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
     answer_data = query.data
 
     # always answer callback queries, even if you have nothing to say
-    #await query.answer(f'You answered with {answer_data!r}')
+    # await query.answer(f'You answered with {answer_data!r}')
 
     if answer_data == 'convocazione':
         testo = query.message.text
@@ -181,15 +182,24 @@ ORDER BY u.telegram_id, tlcc.data_invio_conv DESC, tlcc.id_convocazione DESC;"""
 
         # if len(result_s2) != 0:
         row_id = result_s2[0][4]
-        query_conferma2=f"""UPDATE users.t_lettura_conv_coc 
+        name = result_s2[0][1]
+        query_conferma2 = f"""UPDATE users.t_lettura_conv_coc 
                             SET lettura_conv=true, data_conferma_conv=NOW() 
                             WHERE id_telegram ='{tg_id}' and id = {row_id};"""
         result_c2 = esegui_query(query_conferma2, 'u')
 
         if result_c2 == 1:
-            text="Si è verificato un problema nell'invio della conferma di lettura."
+            text = "Si è verificato un problema nell'invio della conferma di lettura."
         else:
-            text=f"Gentile {query.from_user.first_name} hai dato conferma di lettura della Concovocazione del COC Direttivo\n\n{testo}"
+            text = f"""Gentile {query.from_user.first_name}
+hai dato conferma di lettura della Concovocazione del COC Direttivo
+
+{testo}"""
+
+#             text = f"""Gentile {name} (Telegram id: {tg_id})
+# hai dato conferma di lettura della Concovocazione del COC Direttivo ({row_id})
+
+# {testo}"""
             await bot.delete_message(tg_id, query.message.message_id)
     else:
         text = f'Unexpected callback data {answer_data!r}!'
