@@ -35,12 +35,6 @@ if 'EMERGENZE_BOT_TOKEN' not in environ:
 
 TOKEN = os.getenv('EMERGENZE_COC_BOT_TOKEN')
 
-# tokens = {
-#     'bollettino': os.getenv('EMERGENZE_BOT_TOKEN'),
-#     'convocazione': os.getenv('EMERGENZE_COC_BOT_TOKEN')
-# }
-
-
 def telegram_bot_sendtext(bot_message, chat_id, token):
     """ """
     urllib.parse.quote('/', safe='')
