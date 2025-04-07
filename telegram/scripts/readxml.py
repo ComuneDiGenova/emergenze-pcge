@@ -52,7 +52,7 @@ def get_cursor(host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD,
         conn.autocommit = autocommit
         conn.cursor().execute("SET TIMEZONE TO 'Europe/Rome';")
         curr = conn.cursor()
-        
+
         return curr
     except psycopg2.DatabaseError as e:
         print(f"Errore di connessione al database: {e}")
@@ -66,7 +66,7 @@ def urllibwrapper(url):
     Se la connessione fallisce, usa la libreria ssl per creare un nuovo contesto
     senza bypassando il certificato https
     """
-    
+
     try:
         f = urllib.request.urlopen(url)
     except urllib.error.URLError:
@@ -87,7 +87,7 @@ def messageDownloader(xml, name, abbr):
         name (_type_): Nome completo del bollettino da scaricare (come compare nell'xml)
         abbr (_type_): Nome abbreviato del bollettino da scaricare (come compare nell'xml)
     """
-    
+
     for e in xml.findall(name):
         pdf = e.attrib['nomeFilePDF']
         try:
@@ -111,11 +111,11 @@ def scarica_bollettino(tipo, nome, ora):
         tipo (str): Abbreviazione del nome bollettino da scaricare
         nome (str): Campo 'nomeFilePDF' dell'xml
         ora (str): Campo 'dataEmissione' dell'xml
-    
+
     Example:
     scarica_bollettino("PC", "protciv_131299.pdf", "NULL")
     """
-    
+
     if not os.path.isfile("{}/bollettini/{}/{}".format(abs_path_bollettini, tipo, nome)):
         if ora != 'NULL':
             data_read = datetime.datetime.strptime(ora,"%Y%m%d%H%M")
@@ -145,14 +145,14 @@ def scarica_bollettino(tipo, nome, ora):
             messaggio = f"{sito_allerta}/docs/{nome}"
             convoca_utenti_sistema(messaggio)
             convoca_coc(messaggio)
-                
+
     else:
         print(f"File of type 'tipo' already downloaded") 
 
 
 def convoca_utenti_sistema(messaggio):
     curr = get_cursor()
-    
+
     # ciclo su tutte le chat_id
     query_chat_id = """SELECT telegram_id 
                         FROM users.v_utenti_sistema 
@@ -217,21 +217,21 @@ def convoca_coc(messaggio):
                     "reply_markup": {json.dumps(inline_keyboard)}
                 }}' -H "Content-Type: application/json" -X POST https://api.telegram.org/bot{TOKENCOC}/sendMessage
                 """
-              
+
                 # query insert DB
-                query_convocazione=f"""INSERT INTO users.t_lettura_bollettino(data_invio, id_telegram, id_bollettino) 
+                query_convocazione = f"""INSERT INTO users.t_lettura_bollettino(data_invio, id_telegram, id_bollettino) 
                                         VALUES (date_trunc('hour', NOW()) + date_part('minute', NOW())::int / 10 * interval '10 min', 
-                                                {chat_id_coc}, {id_bollettino});""" 
+                                                {chat_id_coc}, {id_bollettino});"""
                 curr.execute(query_convocazione)
-                
+
                 # Execute the command
                 os.system(curl_command)
                 print(inline_keyboard)
-                
+
         except Exception as e:
             print(e)
             print(f"Problema invio messaggio all'utente del coc con chat_id={chat_id_coc}")
-    
+
     curr.close()
 
 
@@ -244,7 +244,7 @@ def main():
     file.close()
 
     root = et.fromstring(data)
-    
+
     nomefile = "{}/bollettini/allerte.txt".format(abs_path_bollettini)
     log_file_allerte = open(nomefile, "w")
 
@@ -252,19 +252,19 @@ def main():
     dataEmissione = datetime.datetime.strptime(root.attrib['dataEmissione'],"%Y%m%d%H%M")
     print("Ultimo aggiornamento: {}".format(dataEmissione))
     log_file_allerte.write("Ultimo aggiornamento: {}\n".format(dataEmissione))
-         
+
     # DEBUG
     # scarica_bollettino("PC", "protciv_175989.pdf", "NULL")
-    
+
     # Scarico i messaggi  
     for k, v in messages.items():
         messageDownloader(root, k, v)
-    
+
     # Leggo allerte e compilo relativo log_file solo per prov. di Genova (Zona)
     for elem in root.findall('Zone'):
         for zone in elem.findall('Zona'):
             zona = zone.attrib["id"]
-            
+
             if zona == 'B':
                 for allerte in zone.findall('AllertaIdrogeologica'):
                     log_file_allerte.write('\n<br><b>Allerta Idrogeologica Zona B</b>')
@@ -276,7 +276,7 @@ def main():
                     log_file_allerte.write('\n<br><b>Allerta Nivologica Zona B</b>')
                     log_file_allerte.write("\n<br>Neve={}".format(allerte.attrib['neve']))
                     log_file_allerte.write("\n<br>Tendenza={}".format(allerte.attrib['tendenza']))
-                                
+
     log_file_allerte.close
 
 def simula_nuovo_bollettino(bollettino='protciv_175989.pdf'):
