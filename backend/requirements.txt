@@ -1,0 +1,10 @@
+geojson
+geomet
+mptools
+psycopg2-binary
+ujson
+# chimate #
+python-codicefiscale
+phonenumbers
+openpyxl
+###########

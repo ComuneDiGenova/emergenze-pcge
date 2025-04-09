@@ -72,6 +72,10 @@ def esegui_query(query, query_type, connection=connection):
         return 0
 
 
+if not API_TOKEN:
+    # Niente da fare denza token
+    exit()
+
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)

@@ -14,7 +14,7 @@ WORKDIR /home/$UNAME
 
 # Ensure the directory has correct permissions
 COPY ./bots ./bots
-# RUN chown -R $UID:$GID ./bots
+RUN chown -R $UID:$GID ./bots
 
 USER $UNAME
 
