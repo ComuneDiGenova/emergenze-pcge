@@ -1,0 +1,28 @@
+name: dbupdate
+channels:
+  - defaults
+dependencies:
+  - ca-certificates=2022.10.11
+  - certifi=2022.9.24
+  - cx_oracle=8.3.0
+  - krb5=1.19.2
+  - ld_impl_linux-64=2.38
+  - libedit=3.1.20221030
+  - libffi=3.3
+  - libgcc-ng=11.2.0
+  - libgomp=11.2.0
+  - libpq=12.9
+  - libstdcxx-ng=11.2.0
+  - ncurses=6.3
+  - openssl=1.1.1s
+  - pip=22.3.1
+  - psycopg2=2.9.3
+  - python=3.9.12
+  - readline=8.2
+  - setuptools=65.5.0
+  - sqlite=3.40.0
+  - tk=8.6.12
+  - tzdata=2022g
+  - wheel=0.37.1
+  - xz=5.2.8
+  - zlib=1.2.13

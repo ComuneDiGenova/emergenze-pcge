@@ -703,6 +703,7 @@ while($r = pg_fetch_assoc($result)) {
 			if ($r2['parziale']=='t'){
 				echo ' - <i class="fas fa-exclamation"></i> Incarico eseguito solo in parte';
 			}
+            
 			if($r2['id_stato_incarico']==4){
 				$query_s="SELECT a.id, a.data_ora_invio as data_ora, a.data_ora_invio as data_ora_cambio, max(s.data_ora_stato) as time_stop, a.id_squadra::integer, b.nome
 				FROM segnalazioni.t_incarichi_interni a
@@ -720,7 +721,7 @@ while($r = pg_fetch_assoc($result)) {
 			}
 			//echo $query_s;
 			echo "<ul>";
-			require('./query_storico_squadre_incarichi.php');
+			require('./templates/query_storico_squadre_incarichi.php');
 			echo "</ul>";
 			
 			
@@ -795,7 +796,7 @@ while($r = pg_fetch_assoc($result)) {
 			}
 			//echo $query_s;
 			echo "<ul>";
-			require('./query_storico_squadre_incarichi.php');
+			require('./templates/query_storico_squadre_incarichi.php');
 			echo "</ul>";
 			
 			
@@ -1154,7 +1155,7 @@ function nameFormatterMappa1(value, row) {
 		}
 		//echo $query_s;
 		echo "<ul>";
-		require('./query_storico_squadre_incarichi.php');
+		require('./templates/query_storico_squadre_incarichi.php');
 		echo "</ul>";
 
 	
@@ -1230,7 +1231,7 @@ function nameFormatterMappa1(value, row) {
 		}
 		//echo $query_s;
 		echo "<ul>";
-		require('./query_storico_squadre_incarichi.php');
+		require('./templates/query_storico_squadre_incarichi.php');
 		echo "</ul>";
 
 	

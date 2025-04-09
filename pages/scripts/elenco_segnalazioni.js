@@ -40,14 +40,16 @@ function nameFormatterEdit(value) {
     return '<a class="btn btn-warning" target="_blank" href=./dettagli_segnalazione.php?id='+value+'> '+value+' </a>';
 }
 
-
-function manutenzioni(value) {
-    if (value){	
-        return '<a class="btn btn-info" target="_new" href="' + urlManutenzioni + 'id=' + value + '"> ' + value + ' </a>';
-    } else {
-        return '-';
-    }
-}
+// A-3-T70
+// RIMUOVERE *************************************************************
+// function manutenzioni(value) {
+//     if (value){	
+//         return '<a class="btn btn-info" target="_new" href="' + urlManutenzioni + 'id=' + value + '"> ' + value + ' </a>';
+//     } else {
+//         return '-';
+//     }
+// }
+// *************************************************************
 
 function nameFormatterRischio(value) {    
     if (value=='t'){

@@ -1,11 +1,69 @@
 <?php 
+require('./req.php');
+require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
+require('./check_evento.php');
+require('./scripts/reportistica_functions.php');
 
-$subtitle="Reportistica";
+// Redirect to access restriction page se non ha permessi
+if ($profilo_sistema > 3) {
+    header("location: ./divieto_accesso.php");
+}
 
 
+// Sanifica l'input ID e verifica se il report è esteso oppure no
+$id = $_GET['id'];
+$esteso = filter_var($_GET['esteso'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
+
+if ($esteso) {
+    $subtitle = "Report esteso (dettagli squadre e personale impiegato)";
+} else {
+    $subtitle = "Report 8h (riepilogo segnalazioni in corso di evento)";
+}
+
+// Recupera i dati dell'evento
+$evento = getEvento($conn, $id);
+
+$data_ora_inizio_evento = $evento['data_ora_inizio_evento'];
+$data_ora_chiusura = $evento['data_ora_chiusura'];
+$data_ora_fine_evento = $evento['data_ora_fine_evento'];
+
+if (!$evento) {
+    echo "<p>Evento non trovato.</p>";
+    exit;
+}
+
+// Recupera la data e l'ora correnti
+$dateTime = getCurrentDateTime();
+
+// Recupera i dati dei municipi
+$municipi = getMunicipi($conn, $id);
+
+// Processa i dettagli dell'evento
+$eventDetails = processEventDetails(
+    $data_ora_inizio_evento,
+    $data_ora_chiusura,
+    $data_ora_fine_evento
+);
+
+$details = $eventDetails['details'];
+$views = $eventDetails['views']; // questo array di viste serve per andare a formattare le segnalazioni appropriate v. getSegnalazioni
+
+//DEBUG
+
+// echo print_r($views);
+// exit;
+
+$v_incarichi_last_update = $views['v_incarichi_last_update'];
+$v_incarichi_interni_last_update = $views['v_incarichi_interni_last_update'];
+$v_provvedimenti_cautelari_last_update = $views['v_provvedimenti_cautelari_last_update'];
+$v_sopralluoghi_last_update = $views['v_sopralluoghi_last_update'];
+
+$giorno = date("d/m");
+$orari = getMonitoraggioOrari();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,1511 +73,429 @@ $subtitle="Reportistica";
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="roberto" >
+    <meta name="author" content="simone" >
 
     <title>Gestione emergenze</title>
-<?php 
-//require('./tables/griglia_dipendenti_save.php');
-require('./req.php');
-require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
-//require('./conn.php');
 
-require('./check_evento.php');
-
-
-?>
-
-
-<style type="text/css">
-            
-            .panel-allerta {
-				  border-color: <?php echo $color_allerta; ?>;
-				}
-				.panel-allerta > .panel-heading {
-				  border-color: <?php echo $color_allerta; ?>;
-				  color: white;
-				  background-color: <?php echo $color_allerta; ?>;
-				}
-				.panel-allerta > a {
-				  color: <?php echo $color_allerta; ?>;
-				}
-				.panel-allerta > a:hover {
-				  color: #337ab7;
-				  /* <?php echo $color_allerta; ?>;*/
-				}
-            
-            
-            
-            
-            </style>
-
-    
+    <!-- Link to CSS file -->
+    <link rel="stylesheet" type="text/css" href="./styles/attivita_sala_emergenze.css">
+    <!-- <link rel="stylesheet" type="text/css" href="./styles/reportistica2.css"> -->
 </head>
 
 <body>
-
     <div id="wrapper">
-
         <div id="navbar1">
-<?php
-require('navbar_up.php');
-?>
-</div>  
-        <?php 
-            require('./navbar_left.php');
-            
-         
+            <?php
+                require('navbar_up.php');
+            ?>
+        </div> 
 
+        <?php 
+            require('./navbar_left.php')
         ?> 
-            
 
         <div id="page-wrapper">
             <div class="row">
-                <!--div class="col-lg-12">
-                    <h1 class="page-header">Dashboard</h1>
-                </div-->
-                <!-- /.col-lg-12 -->
-            </div>
-            <!-- /.row -->
-            
-            
-            <?php //echo $note_debug; ?>
-           
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    <h3>Evento n. <?= htmlspecialchars($id); ?> - Tipo: <?= htmlspecialchars($evento['descrizione']); ?> -
+                        <?php if ($profilo_sistema > 0 && $profilo_sistema <= 3): ?>
+                            <button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
+                                <i class="fa fa-print" aria-hidden="true"></i> Stampa report 
+                            </button>
+                        <?php endif; ?>
+                    </h3>
+                </div>
 
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <h3> Data: <?= htmlspecialchars($dateTime['date']); ?><br>
+                        Ora: <?= htmlspecialchars($dateTime['time']); ?>
+                    </h3>
+                </div>
+            </div>
+            
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <img src="../img/pc_ge_sm.png" alt="">
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                        <?php if ($evento['nota']): ?>
+                            <h2><?= htmlspecialchars($evento['nota']); ?></h2>
+                        <?php endif; ?>
+                    <b>Municipi interessati</b>: 
+                        <?php if (!empty($municipi)): ?>
+                            <?php foreach ($municipi as $municipio): ?>
+                                <?= htmlspecialchars($municipio['nome_munic']); ?>,
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <span>Nessun municipio disponibile</span>
+                        <?php endif; ?>
+                    <br>
+                        <b>Data e ora inizio</b>: <?= htmlspecialchars($data_ora_inizio_evento); ?>
+                        <!-- altri dettagli evento -->
+                        <?php foreach ($details as $detail): ?>
+                            <p><?= $detail; ?></p>
+                        <?php endforeach; ?>
+                </div>
+                <hr>
+            </div>
+
+            <hr>
+
+            <div class="row">
+                    <?php require('./allerte_embed.php'); ?>
+            </div>
             
             <div class="row">
-            <h3>Attività sala emergenze</h3>
-            <div class="col-lg-6">
-            <hr><h4>Coordinamento sala
-            <?php
-				if ($profilo_sistema <= 3){
-				?>	
-				<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_coord">
-				<i class="fas fa-plus"></i> Aggiungi </button>
-				</h4>
-				
-				<!-- Modal reperibilità-->
-				<div id="new_coord" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
-				
-				    <!-- Modal content-->
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Inserire coordinatore sala</h4>
-				      </div>
-				      <div class="modal-body">
-      
-
-        <form autocomplete="off" action="report/nuovo_coord.php" method="POST">
-		
-		<?php
-					
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
-			//echo $query2;
-			$result2 = pg_query($conn, $query2);
-			$arr = pg_fetch_all($result2);
-		?>
-			 <div class="form-group  ">
-				  <label for="cf">Seleziona dipendente comunale:</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona personale</option>
-				<?php
-			foreach ($arr as $result){
-				echo '<option value="'.$result[matricola].'">'.$result[cognome].' '.$result[nome].'('.$result[settore].' - '.$result[ufficio].')</option>';
-			}
-			?>
-			</div> 
- 
-				<div class="form-group">
-						<label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_inizio" id="js-date" required>
-						<!--div class="input-group-addon" id="js-date" >
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora inizio:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_start" required>
-                  <option name="hh_start" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_start" required>
-                  <option name="mm_start" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 59;
-                      $incremento = 15; 
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-					
-					
-					<div class="form-group">
-						<label for="data_fine" >Data fine (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_fine" id="js-date2" required>
-						<!--div class="input-group-addon">
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora fine:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_end" required>
-                  <option name="hh_end" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_end" required>
-                  <option name="mm_end" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 59;
-                      $end_date   = 59;
-                      $incremento = 15;
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-		           
-                  
-
-
-
-        <button  id="conferma" type="submit" class="btn btn-primary">Inserisci coordinatore sala</button>
-            </form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-				
-				
-				
-				<?php
-				}  else {
-					echo "</h4>";
-				}//else if($profilo_sistema <3) {
-				
-				
-				
-				
-				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_coordinamento r ";
-			$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
-			$query = $query. "where data_start < now() and data_end > now() ";
-			//$query = $query. " and id1=".$r0["id1"]."";
-			$query = $query. " order by cognome;";
-			
-			//echo $query;
-			
-			$check_reperibile=0;
-			$result = pg_query($conn, $query);
-			//echo "<ul>";
-			while($r = pg_fetch_assoc($result)) { 
-				$check_reperibile=1;
-				//echo "<li>";
-				echo "- ";
-				echo  $r['cognome']." ".$r['nome']." - Dalle ";
-				echo  $r['data_start']. " alle ".$r['data_end']. "<br>";
-				
-				
-				//echo "</li>";
-			}
-			
-			if ($check_reperibile==0){
-				echo '- <i class="fas fa-circle" style="color: red;"></i> In questo momento non ci sono coordinatori<br>';
-			}
-			
-			//echo "</ul>";
-            
-         ?>   
+                <?php require('./monitoraggio_meteo_embed.php'); ?>
             </div>
-
-
-
-
-
             
-            <div class="col-lg-6">
             <hr>
-            <h4>Resp. Monitoraggio Meteo
-            
-            <?php
-				if ($profilo_sistema <= 3){
-				?>	
-				<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_mm">
-				<i class="fas fa-plus"></i> Aggiungi </button>
-				</h4>
-				
-				<!-- Modal reperibilità-->
-				<div id="new_mm" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
-				
-				    <!-- Modal content-->
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Inserire responsabile Monitoraggio Meteo</h4>
-				      </div>
-				      <div class="modal-body">
-      
 
-        <form autocomplete="off" action="report/nuovo_mm.php" method="POST">
-		
-		<?php
-					
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
-			//echo $query2;
-			//$result2 = pg_query($conn, $query2);
-		?>
-		
-			 <div class="form-group  ">
-				  <label for="cf">Seleziona dipendente comunale:</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona personale</option>
-				<?php
-			foreach ($arr as $result){
-				echo '<option value="'.$result[matricola].'">'.$result[cognome].' '.$result[nome].'('.$result[settore].' - '.$result[ufficio].')</option>';
-			}
-			?>
-				 </select>            
-				 </div>
-			
-            
-   
-           
-				<div class="form-group">
-						<label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_inizio" id="js-date3" required>
-						<!--div class="input-group-addon" id="js-date" >
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora inizio:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_start" required>
-                  <option name="hh_start" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_start" required>
-                  <option name="mm_start" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 59;
-                      $incremento = 15; 
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-					
-					
-					<div class="form-group">
-						<label for="data_fine" >Data fine (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_fine" id="js-date4" required>
-						<!--div class="input-group-addon">
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora fine:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_end" required>
-                  <option name="hh_end" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_end" required>
-                  <option name="mm_end" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 59;
-                      $end_date   = 59;
-                      $incremento = 15;
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-		           
-                  
-
-
-
-        <button  id="conferma" type="submit" class="btn btn-primary">Inserisci responsabile Monitoraggio Meteo</button>
-            </form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-				
-				
-				
-				<?php
-				}  else {
-					echo "</h4>";
-				}//else if($profilo_sistema <3) {
-				
-				
-				
-				
-				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_monitoraggio_meteo r ";
-			$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
-			$query = $query. "where data_start < now() and data_end > now() ";
-			//$query = $query. " and id1=".$r0["id1"]."";
-			$query = $query. " order by cognome;";
-			
-			//echo $query;
-			
-			$check_reperibile=0;
-			$result = pg_query($conn, $query);
-			//echo "<ul>";
-			while($r = pg_fetch_assoc($result)) { 
-				$check_reperibile=1;
-				//echo "<li>";
-				echo "- ";
-				echo  $r['cognome']." ".$r['nome']." - Dalle ";
-				echo  $r['data_start']. " alle ".$r['data_end']. "<br>";
-				
-				
-				//echo "</li>";
-			}
-			
-			if ($check_reperibile==0){
-				echo '- <i class="fas fa-circle" style="color: red;"></i> In questo momento non ci sono responsabili Monitoraggio Meteo <br>';
-			}
-			
-			//echo "</ul>";
-            
-         ?> 
-            
-            
-            </div>
-
-
-
-
-
-            
-            <div class="col-lg-6">
-            <hr>
-            <h4>Resp. Presidi territoriali
-            
-            <?php
-				if ($profilo_sistema <= 3){
-				?>	
-				<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_pt">
-				<i class="fas fa-plus"></i> Aggiungi </button>
-				</h4>
-				
-				<!-- Modal reperibilità-->
-				<div id="new_pt" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
-				
-				    <!-- Modal content-->
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Inserire responsabile Presidi Territoriali</h4>
-				      </div>
-				      <div class="modal-body">
-      
-
-        <form autocomplete="off" action="report/nuovo_pt.php" method="POST">
-		
-		<?php
-					
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
-			//echo $query2;
-			//$result2 = pg_query($conn, $query2);
-		?>
-		
-			 <div class="form-group  ">
-				  <label for="cf">Seleziona dipendente comunale:</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona personale</option>
-				<?php
-				foreach ($arr as $result){
-					echo '<option value="'.$result[matricola].'">'.$result[cognome].' '.$result[nome].'('.$result[settore].' - '.$result[ufficio].')</option>';
-				}
-				?>
-				 </select>            
-				 
-				 </div>
-			
-            
-   
-           
-				<div class="form-group">
-						<label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_inizio" id="js-date5" required>
-						<!--div class="input-group-addon" id="js-date" >
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora inizio:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_start" required>
-                  <option name="hh_start" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_start" required>
-                  <option name="mm_start" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 59;
-                      $incremento = 15; 
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-					
-					
-					<div class="form-group">
-						<label for="data_fine" >Data fine (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_fine" id="js-date6" required>
-						<!--div class="input-group-addon">
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora fine:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_end" required>
-                  <option name="hh_end" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_end" required>
-                  <option name="mm_end" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 59;
-                      $end_date   = 59;
-                      $incremento = 15;
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-		           
-                  
-
-
-
-        <button  id="conferma" type="submit" class="btn btn-primary">Inserisci responsabile Presidi Territoriali</button>
-            </form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-				
-				
-				
-				<?php
-				}  else {
-					echo "</h4>";
-				}//else if($profilo_sistema <3) {
-				
-				
-				
-				
-				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_presidio_territoriale r ";
-			$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
-			$query = $query. "where data_start < now() and data_end > now() ";
-			//$query = $query. " and id1=".$r0["id1"]."";
-			$query = $query. " order by cognome;";
-			
-			//echo $query;
-			
-			$check_reperibile=0;
-			$result = pg_query($conn, $query);
-			//echo "<ul>";
-			while($r = pg_fetch_assoc($result)) { 
-				$check_reperibile=1;
-				//echo "<li>";
-				echo "- ";
-				echo  $r['cognome']." ".$r['nome']." - Dalle ";
-				echo  $r['data_start']. " alle ".$r['data_end']. "<br>";
-				
-				
-				//echo "</li>";
-			}
-			
-			if ($check_reperibile==0){
-				echo '- <i class="fas fa-circle" style="color: red;"></i> In questo momento non ci sono responsabili Monitoraggio Meteo <br>';
-			}
-			
-			//echo "</ul>";
-            
-         ?> 
-            
-            
-            
-            
-            
-            </div>
-
-
-
-
-
-
-            
-             <div class="col-lg-6">
-             <hr>
-            <h4>Tecnico Protezione Civile
-
-<?php
-				if ($profilo_sistema <= 3){
-				?>	
-				<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_tPC">
-				<i class="fas fa-plus"></i> Aggiungi </button>
-				</h4>
-				
-				<!-- Modal reperibilità-->
-				<div id="new_tPC" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
-				
-				    <!-- Modal content-->
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Inserire tecnico P.C.</h4>
-				      </div>
-				      <div class="modal-body">
-      
-
-        <form autocomplete="off" action="report/nuovo_tPC.php" method="POST">
-		
-		<?php
-					
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
-			//echo $query2;
-			//$result2 = pg_query($conn, $query2);
-		?>
-		
-			 <div class="form-group  ">
-				  <label for="cf">Seleziona dipendente comunale:</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona personale</option>
-				<?php
-				foreach ($arr as $result){
-					echo '<option value="'.$result[matricola].'">'.$result[cognome].' '.$result[nome].'('.$result[settore].' - '.$result[ufficio].')</option>';
-				}
-				?>
-				 </select>            
-				 </div>
-			
-            
-   
-           
-				<div class="form-group">
-						<label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_inizio" id="js-date7" required>
-						<!--div class="input-group-addon" id="js-date" >
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora inizio:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_start" required>
-                  <option name="hh_start" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_start" required>
-                  <option name="mm_start" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 59;
-                      $incremento = 15; 
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-					
-					
-					<div class="form-group">
-						<label for="data_fine" >Data fine (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_fine" id="js-date8" required>
-						<!--div class="input-group-addon">
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora fine:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_end" required>
-                  <option name="hh_end" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_end" required>
-                  <option name="mm_end" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 59;
-                      $end_date   = 59;
-                      $incremento = 15;
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-		           
-                  
-
-
-
-        <button  id="conferma" type="submit" class="btn btn-primary">Inserisci tecnico P.C.</button>
-            </form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-				
-				
-				
-				<?php
-				}  else {
-					echo "</h4>";
-				}//else if($profilo_sistema <3) {
-				
-				
-				
-				
-				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_tecnico_pc r ";
-			$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
-			$query = $query. "where data_start < now() and data_end > now() ";
-			//$query = $query. " and id1=".$r0["id1"]."";
-			$query = $query. " order by cognome;";
-			
-			//echo $query;
-			
-			$check_reperibile=0;
-			$result = pg_query($conn, $query);
-			//echo "<ul>";
-			while($r = pg_fetch_assoc($result)) { 
-				$check_reperibile=1;
-				//echo "<li>";
-				echo "- ";
-				echo  $r['cognome']." ".$r['nome']." - Dalle ";
-				echo  $r['data_start']. " alle ".$r['data_end']. "<br>";
-				
-				
-				//echo "</li>";
-			}
-			
-			if ($check_reperibile==0){
-				echo '- <i class="fas fa-circle" style="color: red;"></i> In questo momento non ci sono responsabili Monitoraggio Meteo <br>';
-			}
-			
-			//echo "</ul>";
-            
-         ?>             
-            
-            
-            </div>
-            
-            </div>
-            <!-- /.row -->            
-            <hr>
-            
             <div class="row">
-            <h3>Comunicazioni e informazioni alla popolazione</h3>
-            <div class="col-lg-12">
-            <h4>Attivazione numero verde: <?php echo $descrizione_nverde; ?></h4>
-            
+                <?php require('./comunicazioni_embed.php'); ?>
             </div>
-            
-            
-            <div class="col-lg-6">
-            <hr>
-            <h4>Operatore numero verde
-            
-            <?php
-				if ($profilo_sistema <= 3){
-				?>	
-				<button type="button" class="btn btn-info"  data-toggle="modal" data-target="#new_oNV">
-				<i class="fas fa-plus"></i> Aggiungi </button>
-				</h4>
-				
-				<!-- Modal reperibilità-->
-				<div id="new_oNV" class="modal fade" role="dialog">
-				  <div class="modal-dialog">
-				
-				    <!-- Modal content-->
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal">&times;</button>
-				        <h4 class="modal-title">Inserire operatore Numero Verde</h4>
-				      </div>
-				      <div class="modal-body">
-      
-
-        <form autocomplete="off" action="report/nuovo_oNV.php" method="POST">
-		
-			<?php
-			$query2="SELECT matricola, cognome, nome, settore, ufficio FROM varie.v_dipendenti v
-			ORDER BY cognome";
-			//echo $query2;
-			//$result2 = pg_query($conn, $query2);
-			?>
-
-				<div class="form-group  ">
-				  <label for="cf">Seleziona dipendente comunale:</label> <font color="red">*</font>
-								<select name="cf" id="cf" class="selectpicker show-tick form-control" data-live-search="true" required="">
-								<option value="">Seleziona personale</option>
-				<?php
-				foreach ($arr as $result){
-					echo '<option value="'.$result[matricola].'">'.$result[cognome].' '.$result[nome].'('.$result[settore].' - '.$result[ufficio].')</option>';
-				}
-				?>
-				 </select>            
-				 </div>
-           
-				<div class="form-group">
-						<label for="data_inizio" >Data inizio (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_inizio" id="js-date9" required>
-						<!--div class="input-group-addon" id="js-date" >
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora inizio:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_start" required>
-                  <option name="hh_start" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_start" required>
-                  <option name="mm_start" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 59;
-                      $incremento = 15; 
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-					
-					
-					<div class="form-group">
-						<label for="data_fine" >Data fine (AAAA-MM-GG) </label>                 
-						<input type="text" class="form-control" name="data_fine" id="js-date10" required>
-						<!--div class="input-group-addon">
-							<span class="glyphicon glyphicon-th"></span>
-						</div-->
-					</div> 
-					
-					<div class="form-group"-->
-
-                <label for="ora_inizio"> Ora fine:</label> <font color="red">*</font>
-
-              <div class="form-row">
-   
-   
-    				<div class="form-group col-md-6">
-                  <select class="form-control"  name="hh_end" required>
-                  <option name="hh_end" value="" > Ora </option>
-                    <?php 
-                      $start_date = 0;
-                      $end_date   = 24;
-                      for( $j=$start_date; $j<=$end_date; $j++ ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>	
-                  
-      				<div class="form-group col-md-6">
-                  <select class="form-control"  name="mm_end" required>
-                  <option name="mm_end" value="00" > 00 </option>
-                    <?php 
-                      $start_date = 59;
-                      $end_date   = 59;
-                      $incremento = 15;
-                      for( $j=$start_date; $j<=$end_date; $j+=$incremento ) {
-                      	if($j<10) {
-                        	echo '<option value="0'.$j.'">0'.$j.'</option>';
-                        } else {
-                        	echo '<option value="'.$j.'">'.$j.'</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                  </div>                
-                  
-                </div>  
-                </div>
-		           
-                  
-
-
-
-        <button  id="conferma" type="submit" class="btn btn-primary">Inserisci operatore Numero Verde</button>
-            </form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-				
-				
-				
-				<?php
-				}  else {
-					echo "</h4>";
-				}//else if($profilo_sistema <3) {
-				
-				
-				
-				
-				
-			$query = "SELECT r.matricola_cf, u.cognome, u.nome, r.data_start, r.data_end from report.t_operatore_nverde r ";
-			$query = $query. "JOIN varie.v_dipendenti u ON r.matricola_cf=u.matricola ";
-			$query = $query. "where data_start < now() and data_end > now() ";
-			//$query = $query. " and id1=".$r0["id1"]."";
-			$query = $query. " order by cognome;";
-			
-			//echo $query;
-			
-			$check_reperibile=0;
-			$result = pg_query($conn, $query);
-			//echo "<ul>";
-			while($r = pg_fetch_assoc($result)) { 
-				$check_reperibile=1;
-				//echo "<li>";
-				echo "- ";
-				echo  $r['cognome']." ".$r['nome']." - Dalle ";
-				echo  $r['data_start']. " alle ".$r['data_end']. "<br>";
-				
-				
-				//echo "</li>";
-			}
-			
-			if ($check_reperibile==0){
-				echo '- <i class="fas fa-circle" style="color: red;"></i> In questo momento non ci sono responsabili Monitoraggio Meteo <br>';
-			}
-			
-			//echo "</ul>";
-            
-         ?> 
-            </div>
-            
-           
-            <div class="col-lg-6">
-            <hr>
-            <h4>Numero chiamate ricevute</h4>
-            
-            <?php 
-            $query_e="SELECT e.id, tt.descrizione 
-            FROM eventi.t_eventi e
-            JOIN eventi.join_tipo_evento t ON t.id_evento=e.id
-            JOIN eventi.tipo_evento tt on tt.id=t.id_tipo_evento
-			 	WHERE e.valido != 'f'
-			   GROUP BY e.id, tt.descrizione;";
-             
-            $result_e = pg_query($conn, $query_e);
-				//echo "<ul>";
-				while($r_e = pg_fetch_assoc($result_e)) { 
-             
-					$query="SELECT count(r.id)
-					FROM segnalazioni.t_richieste_nverde r 
-					WHERE r.id_evento = ".$r_e['id'].";";
-					//echo $query;
-					$result = pg_query($conn, $query);
-					while($r = pg_fetch_assoc($result)) { 
-            		echo "<b>Richieste generiche (".$r_e['descrizione']."):</b>".$r['count'];
-            	}
-            
-            
-            }
-            
-            
-            
-            ?>
-            
-            
-            </div>            
-            </div>
-            <!-- /.row -->            
-            <hr>
-            
-            
-            <?php 
-             
-            require('./conteggi_dashboard.php');
-            
-            require('./contatori.php');
-            ?>
-            
-            <div class="row">
-                
-                
-				<div class="col-lg-8">
-                
-                
-                    <!--div id="panel-riepilogo" class="panel panel-default">
-                        <div class="panel-heading">
-                            <i class="fa fa-bell fa-fw"></i> Pannello riepilogo
-                        </div>
                         
-                        <div class="panel-body">
-                            <div class="list-group">
-                               
-                                		<?php if($segn_limbo>0){?>
-                                			 <a href="#segn_limbo_table" class="list-group-item">
-	                                    <i class="fa fa-exclamation fa-fw" style="color:red"></i> Nuove segnalazioni da elaborare!
-	                                    <span class="pull-right text-muted small"><em><?php echo $segn_limbo; ?></em>
-	                                    </span>
-	                                    </a>
-                                    <?php }?>
-                                
-								
-											<?php if($inc_limbo>0){?>
-                                			 <div class="list-group-item" >
-	                                    <i class="fa fa-exclamation fa-fw" style="color:red"></i> Nuovi incarichi ancora da prendere in carico!
-	                                    <span class="pull-right text-muted small"><em><?php echo $inc_limbo; ?></em>
-	                                    </span>
-	                                    
-	                                    </div>
-                                    <?php }?>
-								
-								<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-users"></i> <b>Gestione squadre</b>
-                                    <br><br>
-                                     - <i class="fa fa-play"></i> Squadre in azione
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_in_azione; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-pause"></i> Squadre a disposizione
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_disposizione; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Squadre a riposo
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_riposo; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale squadre eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $squadre_riposo; ?></em>
-                                    </span>
-                                </div>
-                            
-                            <a href="./gestione_squadre.php" class="btn btn-default btn-block">Vai alla gestione squadre</a>
-							
-							
-							<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-pencil-ruler"></i> <b>Presidi</b>
-                                    <br><br>
-                                     - <i class="fa fa-pause"></i> Assegnati
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_assegnati; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-play"></i> In corso
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_corso; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Conclusi
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_conclusi; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale presidi eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $sopralluoghi_tot; ?></em>
-                                    </span>
-                                </div>
-                            
-                            <a href="./nuovo_sopralluogo.php" class="btn btn-default btn-block">Crea un nuovo presidio</a>
-							
-							</div>
-							
-							<div class="list-group-item" >
-											
-                                
-                                    <i class="fa fa-exclamation-triangle"></i> <b>Provvedimenti cautelari</b>
-                                    <br><br>
-                                     - <i class="fa fa-pause"></i> Assegnati
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_assegnati; ?></em>
-                                    </span>
-                                    
-                                    <br>
-                                     - <i class="fa fa-play"></i> In corso
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_corso; ?></em>
-                                    </span>
-                                    <br>
-                                     - <i class="fa fa-stop"></i> Portati a termine
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_conclusi; ?></em>
-                                    </span>
-                                    <hr>
-                                    Totale provvedimenti cautelari eventi attivi:
-                                    <span class="pull-right text-muted small"><em><?php echo $pc_tot; ?></em>
-                                    </span>
-                                </div>
-                            
-
-                            <a href="./elenco_pc.php" class="btn btn-default btn-block">Elenco provvedimenti cautelari</a>
-							
-							</div>
-                        
-						
-						
-						
-						
-
-                    </div-->
-
-
-                    
-                    
-                    
-                    
-                    
-            </div> 
+            <div class="row">
+                <?php require('./attivita_sala_emergenze_embed.php'); ?>
+            </div>
             
-            
-            
-              
-            <div class="col-lg-4">
+            <hr>
+
+            <div class="row">
                 
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h3>Comunicazioni e informazioni alla popolazione</h3>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <?php echo numeroVerdeFormatter($conn, $id); ?>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <?php echo formattaChiamateEvento($conn, $id); ?>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- REPORT SEGNALAZIONI -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h3>Elenco segnalazioni </h3>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">			
+                    <h4>Riepilogo</h4>
+                </div>
+
+                <div class="col-xs-12 col-sm-5 col-md-5 col-lg-5">
+                    <svg width="400" height="300"></svg>
+                    <?php
+                    require('./grafico_criticita.php');
+                    ?>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">			
+                    <table id="segnalazioni_count" class="table table-condensed" 
+                        style="word-break:break-all; word-wrap:break-word;" 
+                        data-toggle="table" 
+                        data-url="./tables/griglia_segnalazioni_conteggi.php?id=<?php echo $id?>" 
+                        data-show-export="false" data-search="false" data-click-to-select="false" 
+                        data-pagination="false" data-sidePagination="false" data-show-refresh="false" 
+                        data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
+                        <thead>
+                            <tr>
+                                <th data-field="criticita" data-sortable="false" data-visible="true">Tipologia</th>
+                                <th data-field="pervenute" data-sortable="true" data-visible="true">Pervenute</th>
+                                <th data-field="risolte" data-sortable="true" data-visible="true">Risolte</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>             
+            </div>
+
+            <hr>	
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">			 
+                    <h4>Dettaglio segnalazioni in elaborazione o chiuse</h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <?php
+                        echo getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, 
+                                                    $v_incarichi_interni_last_update, $v_provvedimenti_cautelari_last_update, 
+                                                    $v_sopralluoghi_last_update, $esteso);
+                    ?>
+                </div>                                            
+            </div>
+
+
+            <!-- REPORT PROVVEDIMENTI CAUTELARI -->
+            <div class="row">              
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h3>
+                        Elenco provvedimenti cautelari:
+                    </h3>
+                    <table  id="pc_count" class="table table-condensed" 
+                    style="word-break:break-all; word-wrap:break-word;" data-toggle="table" 
+                    data-url="./tables/griglia_pc_report.php?id=<?php echo $id?>" 
+                    data-show-export="false" data-search="false" data-click-to-select="false" 
+                    data-pagination="false" data-sidePagination="false" data-show-refresh="true" 
+                    data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
+
+                        <thead>
+                            <tr>
+                                <th data-field="tipo_provvedimento" data-sortable="false" data-visible="true" >Tipologia</th>
+                                <th data-field="descrizione_stato" data-sortable="true" data-visible="true">Stato</th>
+                                <th data-field="count" data-sortable="true" data-visible="true">Totale</th>
+                            </tr>
+                        </thead>
+                    </table>
+                        <?php
+                            echo getElencoProvvedimentiCautelari($conn, $id);
+                        ?>
+                </div>
+            </div>
+            
+            <!-- REPORT MIRE -->
+            <?php 
+            if ($evento["id_evento"] == 3 || $evento["id_evento"] == 1): ?>
+                <div class="row">              
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <h3>Monitoraggio (Letture Mire e Idrometri nelle 8 ore precedenti)</h3>
+
+                        <h4>Letture Mire e Rivi</h4>
+
+                        <h5><a name="mire-tab1">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a title="Vai alle acquisizioni più recenti" href="#mire-tab2"><i class="fas fa-angle-down"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="false" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar" data-search-class="noprint">
                 
-                <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <i class="fa fa-traffic-light fa-fw"></i> Mappa ufficiale <a target="_new" href="http://www.allertaliguria.gov.it">allertaliguria</a> 
-							 <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Altro
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="bollettini_meteo.php">Elenco bollettini allerte</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="http://www.allertaliguria.gov.it">Vai alla pagina www.allertaliguria.gov.it </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                           
-							  <img class="pull-right img-responsive" imageborder="0" alt="Problema di visualizzazione immagine causato da sito http://www.allertaliguria.gov.it/" src="https://mappe.comune.genova.it/allertaliguria/mappa_allerta_render.php">
-                        </div>                    
-                        <!-- /.panel-body -->
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <h5><a name="mire-tab2">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab1"><i class="fas fa-angle-up"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <br></br>
+
+                        <h4>Valori Idrometri ARPAL </h4>
+                        <h5><a name="mire-tab3">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a href="#mire-tab4" title="Vai alle acquisizioni più recenti"><i class="fas fa-angle-down"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
+                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+                        data-search="true" data-click-to-select="true" data-show-print="true"  
+                        data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                        data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                        data-filter-control="true" data-toolbar="#toolbar">
+                
+                        <thead>
+
+                            <tr>
+                                <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+                                    <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <h5><a name="mire-tab4">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab3"><i class="fas fa-angle-up"></i></a>)
+                        </h5>
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_arpal_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json','xml','csv','txt','sql','excel','doc','pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Rio</th>
+                                    <th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <br></br>
+
+                        <h4>Valori Idrometri COMUNE </h4>
+                        <h5><a name="mire-tab5">Tab. 1</a>: acquisizioni dalle <?php echo $orari[16] ?> alle <?php echo $orari[9] ?> 
+                            (<a title="Vai alle acquisizioni più recenti" href="#mire-tab6"><i class="fas fa-angle-down"></i></a>)
+                        </h5>				
+                        <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
+                        data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+                        data-search="true" data-click-to-select="true" data-show-print="true"  
+                        data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                        data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                        data-filter-control="true" data-toolbar="#toolbar">
+                
+                        <thead>
+
+                            <tr>
+                                <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+                                <?php for ($i = 16; $i >= 9; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <h5><a name="mire-tab6">Tab. 2</a>: acquisizioni dalle <?php echo $orari[8] ?> alle <?php echo $orari[0] ?> 
+                            (<a title="Vai alle acquisizioni meno recenti" href="#mire-tab5"><i class="fas fa-angle-up"></i></a>)
+                        </h5>				
+                            <table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_idro_com_report.php" 
+                            data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
+                            data-search="true" data-click-to-select="true" data-show-print="true"  
+                            data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
+                            data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
+                            data-filter-control="true" data-toolbar="#toolbar">
+                    
+                            <thead>
+
+                                <tr>
+                                    <th class="noprint" data-field="state" data-checkbox="true"></th>    
+                                    <th data-field="nome" data-sortable="true" data-visible="true" data-filter-control="input">Idrometro</th>
+                                    <?php for ($i = 9; $i >= 0; $i--): ?>
+                                        <th data-field="<?php echo $i; ?>" data-sortable="false" data-formatter="nameFormatterLettura" 
+                                            data-visible="true"><?php echo $giorno . '<br>' . $orari[$i]; ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <script>
+                        function nameFormatterLettura(value,row) {
+                            if(row.tipo=='IDROMETRO ARPA' ){
+                                <?php
+                                $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_arpa WHERE cod='?>row.id<?php';";
+                                $result_soglie = pg_query($conn, $query_soglie);
+                                while($r_soglie = pg_fetch_assoc($result_soglie)) {
+                                    $arancio=$r_soglie['liv_arancione'];
+                                    $rosso=$r_soglie['liv_rosso'];
+                                }
+                                ?>
+                                if(value < row.arancio ){
+                                    return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.arancio && value < row.rosso) {
+                                    return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.rosso) {
+                                    return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+                                } else {
+                                    return '-';
+                                }
+                            } else if(row.tipo=='IDROMETRO COMUNE'){
+                                <?php
+                                $query_soglie="SELECT liv_arancione, liv_rosso FROM geodb.soglie_idrometri_comune WHERE id='?>row.id<?php';";
+                                $result_soglie = pg_query($conn, $query_soglie);
+                                while($r_soglie = pg_fetch_assoc($result_soglie)) {
+                                    $arancio=$r_soglie['liv_arancione'];
+                                    $rosso=$r_soglie['liv_rosso'];
+                                }
+                                ?>
+                                if(value < row.arancio ){
+                                    return '<font style="color:#00bb2d;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.arancio && value < row.rosso) {
+                                    return '<font style="color:#FFC020;">'+Math.round(value*1000)/1000+'</font>';
+                                } else if (value > row.rosso) {
+                                    return '<font style="color:#cb3234;">'+Math.round(value*1000)/1000+'</font>';
+                                } else {
+                                    return '-';
+                                }
+                            } else {
+                                if(value==1){
+                                    return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
+                                } else if (value==2) {
+                                    return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
+                                } else if (value==3) {
+                                    return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
+                                } else {
+                                    return ' - ';
+                                }
+                            }		
+                        }
+                        </script>
                     </div>
-                
-					<br>
-				<a href="#mappa_segnalazioni" class="btn btn-info"> <i class="fas fa-file-pdf"></i> Tasto per creare report 1 (demo) </a>
-				<br><hr><br>
-				<a href="#mappa_segnalazioni" class="btn btn-info"> <i class="fas fa-file-pdf"></i> Tasto per creare report 2 (demo) </a>
-				<br><br>
-                    
+                </div>
+            <?php endif; ?>
 
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <?php
+                        $date = date_create(date(), timezone_open('Europe/Berlin'));
+                        $data = date_format($date, 'd-m-Y');
+                        $ora = date_format($date, 'H:i');
+                            echo "<hr><div align='center'>Il presente report è stato ottenuto in maniera automatica utilizzando il Sistema 
+                            di Gestione delle Emergenze in data ".$data ." alle ore " .$ora.". 
+                            </div>";
+                    ?>
+                </div>
             </div>
-                <!-- /.col-lg-4 -->
-            </div>
-            <!-- /.row -->
-        </div>
-        <!-- /#page-wrapper -->
 
-    </div>
-    <!-- /#wrapper -->
+        </div> <!-- page-wrapper -->
+    </div> <!-- wrapper -->
 
-<?php 
-
-require('./footer.php');
-
-require('./req_bottom.php');
-
-
-?>
-
-<script>
-
-	/*var mymap = L.map('mapid').setView([44.411156, 8.932661], 12);
-
-	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-		maxZoom: 18,
-		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-		id: 'mapbox.streets'
-	}).addTo(mymap);
-
-	L.marker([44.411156, 8.932661]).addTo(mymap)
-		.bindPopup("<b>Hello world!</b><br />I am a leafletJS popup.").openPopup();
-
-
-
-
-	var popup = L.popup();
-
-	function onMapClick(e) {
-		popup
-			.setLatLng(e.latlng)
-			.setContent("You clicked the map at " + e.latlng.toString())
-			.openOn(mymap);
-	}
-
-	mymap.on('click', onMapClick);*/
-
-
-
-  
-$(document).ready(function() {
-    $('#js-date').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date2').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-      $('#js-date3').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date4').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });  
-     $('#js-date5').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date6').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-      $('#js-date7').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date8').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });  
-    $('#js-date9').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });
-    $('#js-date10').datepicker({
-        format: "yyyy-mm-dd",
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true
-    });  
-    
-    
-});
-
-</script>
-    
-
+    <?php
+        require('./footer.php');
+        require('./req_bottom.php');
+    ?>
+    <!-- <script src="./scripts/attivita_sala_emergenze.js"></script> -->
+    <script src="./scripts/reportistica2.js"></script>
 </body>
 
 </html>

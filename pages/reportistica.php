@@ -96,13 +96,13 @@ require('navbar_up.php');
 			<h3>Evento n. <?php echo str_replace("'", "", $id); ?> - Tipo: 
 			<?php
 			$query_e='SELECT e.id, tt.id as id_evento, tt.descrizione, n.nota, to_char(e.data_ora_inizio_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_inizio_evento, 
-			to_char(e.data_ora_chiusura, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_chiusura, 
-			to_char(e.data_ora_fine_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_fine_evento 
-            FROM eventi.t_eventi e
-            JOIN eventi.join_tipo_evento t ON t.id_evento=e.id
-			LEFT JOIN eventi.t_note_eventi n ON n.id_evento=e.id
-            JOIN eventi.tipo_evento tt on tt.id=t.id_tipo_evento
-			 	WHERE e.id =' .$id.';';
+			            to_char(e.data_ora_chiusura, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_chiusura, 
+			            to_char(e.data_ora_fine_evento, \'DD/MM/YYYY HH24:MI\'::text) AS data_ora_fine_evento 
+                        FROM eventi.t_eventi e
+                        JOIN eventi.join_tipo_evento t ON t.id_evento=e.id
+                        LEFT JOIN eventi.t_note_eventi n ON n.id_evento=e.id
+                        JOIN eventi.tipo_evento tt on tt.id=t.id_tipo_evento
+                        WHERE e.id =' .$id.';';
 				$result_e = pg_query($conn, $query_e);
 				while($r_e = pg_fetch_assoc($result_e)) {
 					echo $r_e['descrizione'];
@@ -121,22 +121,22 @@ require('navbar_up.php');
 			</h3>
 			</div>
 			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
-			<h3> Data:
-			<script>
-			var d = new Date();
-			var curr_date = d.getDate();
-			var curr_month = d.getMonth()+1;
-			var curr_year = d.getFullYear();
-			document.write(curr_date + "/" + curr_month + "/" + curr_year);
-			</script>
-			Ora:
-			<script>
-			var d = new Date();
-			var curr_h = ('0'+d.getHours()).slice(-2);
-			var curr_min = ('0'+d.getMinutes()).slice(-2);
-			document.write(curr_h + ":" + curr_min);
-			</script>
-			</h3>
+                <h3> Data:
+                    <script>
+                    var d = new Date();
+                    var curr_date = d.getDate();
+                    var curr_month = d.getMonth()+1;
+                    var curr_year = d.getFullYear();
+                    document.write(curr_date + "/" + curr_month + "/" + curr_year);
+                    </script>
+                Ora:
+                    <script>
+                    var d = new Date();
+                    var curr_h = ('0'+d.getHours()).slice(-2);
+                    var curr_min = ('0'+d.getMinutes()).slice(-2);
+                    document.write(curr_h + ":" + curr_min);
+                    </script>
+                </h3>
 			</div>
 			</div>
 			<hr>
@@ -323,47 +323,49 @@ require('navbar_up.php');
             ?>
             
             <div class="row">
-                
-                
+               
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <h3>Elenco segnalazioni </h3>
-			</div>
-<hr>
-<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">			
-<h4>Riepilogo</h4>
-</div>
+                    <h3>Elenco segnalazioni </h3>
+			    </div>
+                
+                <hr>
+                
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">			
+                    <h4>Riepilogo</h4>
+                </div>
 
 
 
-<div class="col-xs-12 col-sm-5 col-md-5 col-lg-5">
-<svg width="400" height="300"></svg>
-<?php
-require('./grafico_criticita.php');
-?>
-</div>
+                <div class="col-xs-12 col-sm-5 col-md-5 col-lg-5">
+                    <svg width="400" height="300"></svg>
+                    <?php
+                    require('./grafico_criticita.php');
+                    ?>
+                </div>
 
 
-<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">			
-<table  id="segnalazioni_count" class="table table-condensed" 
-style="word-break:break-all; word-wrap:break-word;" data-toggle="table" 
-data-url="./tables/griglia_segnalazioni_conteggi.php?id=<?php echo $id?>" 
-data-show-export="false" data-search="false" data-click-to-select="false" 
-data-pagination="false" data-sidePagination="false" data-show-refresh="false" 
-data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">			
+                    <table  id="segnalazioni_count" class="table table-condensed" 
+                    style="word-break:break-all; word-wrap:break-word;" data-toggle="table" 
+                    data-url="./tables/griglia_segnalazioni_conteggi.php?id=<?php echo $id?>" 
+                    data-show-export="false" data-search="false" data-click-to-select="false" 
+                    data-pagination="false" data-sidePagination="false" data-show-refresh="false" 
+                    data-show-toggle="false" data-show-columns="false" data-toolbar="#toolbar">
 
-<thead>
+                    <thead>
 
-<tr>
-   <th data-field="criticita" data-sortable="false" data-visible="true" >Tipologia</th>
-   <th data-field="pervenute" data-sortable="true" data-visible="true">Pervenute</th>
-   <th data-field="risolte" data-sortable="true" data-visible="true">Risolte</th>
-</tr>
-</thead>
-</table>
-</div>             
-<hr>		 
-<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">			 
-<h4>Dettaglio segnalazioni in elaborazione o chiuse</h4>
+                    <tr>
+                    <th data-field="criticita" data-sortable="false" data-visible="true" >Tipologia</th>
+                    <th data-field="pervenute" data-sortable="true" data-visible="true">Pervenute</th>
+                    <th data-field="risolte" data-sortable="true" data-visible="true">Risolte</th>
+                    </tr>
+                    </thead>
+                    </table>
+                </div>             
+                <hr>	
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">			 
+                    <h4>Dettaglio segnalazioni in elaborazione o chiuse</h4>
 
 <?php 
 
@@ -512,7 +514,7 @@ while($r = pg_fetch_assoc($result)) {
 			descrizione, 
 			descrizione_uo, descrizione_stato  
 			ORDER BY data_ora_invio asc;';
-			echo $query_i;
+			// echo $query_i;
 			$result_i = pg_query($conn, $query_i);
 			while($r_i = pg_fetch_assoc($result_i)) {
 				echo '<br>' .$r_i['data_ora_invio'];
