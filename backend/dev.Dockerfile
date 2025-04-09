@@ -24,7 +24,7 @@ RUN useradd -l -o -m -u $UID -g $GID -s /bin/bash $UNAME
 
 # RUN groupadd -r $user && useradd -m -r -g $user $user
 
-RUN python3.8 -m pip install -U py4web==v1.20220222.1
+RUN python3.8 -m pip install -U pydal==v20241027.1 py4web==v1.20220222.1
 
 COPY py-alert-system /home/$user/py-alert-system
 RUN cd /home/$user/py-alert-system && \
