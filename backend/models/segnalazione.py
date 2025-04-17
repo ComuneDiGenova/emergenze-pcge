@@ -3,6 +3,8 @@
 from .. import settings
 from .tools import new_id, incarichi_new_id
 from .segnalazione_decodifica import SCHEMA, db, Field
+from datetime import datetime
+from pytz import timezone
 
 from pydal.validators import *
 
@@ -163,7 +165,9 @@ db.define_table('comunicazione',
     ),
     Field('mittente', required=True),
     Field('testo', 'text'),
-    Field('timeref', 'datetime', rname='data_ora_stato'),
+    Field('timeref', 'datetime', rname='data_ora_stato',
+        default = datetime.now(timezone('Europe/Rome')).replace(tzinfo=None)
+    ),
     Field('allegato'),
     primarykey = ['lavorazione_id', 'timeref'],
     rname = f'{SCHEMA}.t_comunicazioni_segnalazioni'
