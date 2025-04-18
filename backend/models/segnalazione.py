@@ -166,7 +166,7 @@ db.define_table('comunicazione',
     Field('mittente', required=True),
     Field('testo', 'text'),
     Field('timeref', 'datetime', rname='data_ora_stato',
-        default = datetime.now(timezone('Europe/Rome')).replace(tzinfo=None)
+        default = lambda: datetime.now(timezone('Europe/Rome')).replace(tzinfo=None)
     ),
     Field('allegato'),
     primarykey = ['lavorazione_id', 'timeref'],
