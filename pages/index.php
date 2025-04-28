@@ -367,7 +367,7 @@ $subtitle = "Dashboard o pagina iniziale";
                                             </button>
                                             <ul class="dropdown-menu pull-right" role="menu">
                                                 <li class="divider"></li>
-                                                <li><a href="elenco_sopralluohi mobili.php">Vai all'elenco di tutti i
+                                                <li><a href="elenco_sopralluoghi_mobili.php">Vai all'elenco di tutti i
                                                         presidi mobili</a>
                                                 </li>
                                             </ul>
