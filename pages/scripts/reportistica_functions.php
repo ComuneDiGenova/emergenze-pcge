@@ -511,7 +511,7 @@ function getDettaglioSegnalazioni($conn, $id, $v_incarichi_last_update, $v_incar
                                         $v_provvedimenti_cautelari_last_update, $v_sopralluoghi_last_update);
     
     if (!$dati) {
-        return "<p>Errore nella query o nessun dato trovato.</p>";
+        echo "<p>Nessun dato trovato.</p>";
     }
 
     $output = '';
