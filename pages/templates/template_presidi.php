@@ -216,7 +216,10 @@
             </h4>
             
             <ul>
-                <?php require('./templates/query_storico_squadre_incarichi.php'); ?>
+                <?php 
+                    $result_s = pg_query($conn, $query_s);
+                    require('./templates/query_storico_squadre_incarichi.php'); 
+                ?>
             </ul>
         </li>
     <?php endwhile; ?>
