@@ -3,20 +3,20 @@
 import os
 
 
-import aiogram.utils.markdown as md # type: ignore
+import aiogram.utils.markdown as md 
 
-from aiogram.types import callback_query, message, message_entity, update # type: ignore
-from aiogram.types.reply_keyboard import ReplyKeyboardRemove # type: ignore
+from aiogram.types import callback_query, message, message_entity, update 
+from aiogram.types.reply_keyboard import ReplyKeyboardRemove 
 
-from aiogram.dispatcher import FSMContext, middlewares # type: ignore
-from aiogram.dispatcher.filters.state import State, StatesGroup # type: ignore
+from aiogram.dispatcher import FSMContext, middlewares 
+from aiogram.dispatcher.filters.state import State, StatesGroup 
 
-from aiogram import Bot, Dispatcher, executor, types # type: ignore
-from aiogram.types import ParseMode # type: ignore
-from aiogram.contrib.fsm_storage.memory import MemoryStorage # type: ignore
+from aiogram import Bot, Dispatcher, executor, types 
+from aiogram.types import ParseMode 
+from aiogram.contrib.fsm_storage.memory import MemoryStorage 
 from datetime import datetime, timedelta
 import psycopg2
-import emoji # type: ignore
+import emoji 
 
 from . import settings
 from .common import logger as logging
