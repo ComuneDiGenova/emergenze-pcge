@@ -8,6 +8,7 @@ from .common import logger as logging
 
 
 import os
+
 from aiogram.types.inline_keyboard import InlineKeyboardButton
 import aiogram.utils.markdown as md
 from aiogram.types import callback_query, message, message_entity, update
@@ -21,6 +22,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from datetime import datetime, timedelta
 import psycopg2
 import emoji
+
 
 
 # API_TOKEN = config.TOKEN
@@ -309,7 +311,7 @@ async def process_presa(message: types.Message, state: FSMContext):
             markup_new.add("Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True)))
             #await message.reply("Hai indicato {} minuti quindi l'ora di inizio è {} circa.\n La presa in carico è:".format(data['orario'], timepreview), reply_markup=markup)
             await message.reply("Come valuti la mira per il rivo scelto?", reply_markup=markup_new)
-        
+       
 #funzione che controlla che schiaccino un bottone tra quelli proposti nella tastiera
 @dp.message_handler(lambda message: message.text not in ["Verde {}".format(emoji.emojize(":green_circle:",use_aliases=True)), "Giallo {}".format(emoji.emojize(":yellow_circle:",use_aliases=True)),"Rosso {}".format(emoji.emojize(":red_circle:",use_aliases=True))], state=FormPresa.mira)
 async def process_gender_invalid(message: types.Message):
@@ -329,7 +331,11 @@ async def process_presa(message: types.Message, state: FSMContext):
             id_lettura=3
         
         # l'id del rivo lo recupero dal dizionario mettendo come chiave il nome del rivo selezionato
-        query_update_mira='INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) VALUES({},{},now()::timestamp(0))'.format(data['rivi'][data['rivo']][0],id_lettura)
+        query_update_mira = """
+            INSERT INTO geodb.lettura_mire (num_id_mira,id_lettura,data_ora) 
+            VALUES({},{}, (now() AT TIME ZONE 'Europe/Rome')::timestamp(0))
+        """.format(data['rivi'][data['rivo']][0],id_lettura)
+        
         query_log='''INSERT INTO varie.t_log (schema,operatore, operazione) VALUES ('geodb','{}', 'Inserita lettura mira . {}')'''.format(data['user'],data['rivi'][data['rivo']][0])
         
         con = psycopg2.connect(host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port)
