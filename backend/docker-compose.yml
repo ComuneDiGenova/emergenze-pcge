@@ -17,6 +17,8 @@ services:
       - type: bind
         source: ${UPLOADS:-../../emergenze_uploads}
         target: /home/py4web/apps/emergenze/emergenze_uploads
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     command: py4web run --password_file password.txt --host 0.0.0.0 --port 8000 apps
     restart: unless-stopped
 
@@ -36,5 +38,7 @@ services:
       - type: bind
         source: ${UPLOADS:-../../emergenze_uploads}
         target: /home/py4web/apps/emergenze/emergenze_uploads
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     command: py4web call apps emergenze.listener.listen
     restart: unless-stopped

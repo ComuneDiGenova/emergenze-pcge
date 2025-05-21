@@ -55,6 +55,10 @@ db = DAL(
         else False,
 )
 
+db.executesql("SET TIME ZONE 'Europe/Rome';")
+
+logger.debug(db.executesql("show timezone;"))
+
 # #######################################################
 # define global objects that may or may not be used by the actions
 # #######################################################

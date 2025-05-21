@@ -10,7 +10,10 @@ from pydal.validators import *
 
 db.define_table('segnalazione',
     Field('id', 'id', default=lambda: new_id(db['segnalazione'])),
-    Field('inizio', 'datetime', rname='data_ora'),
+    Field('inizio', 'datetime',
+        # default = lambda: datetime.now(timezone('Europe/Rome')).replace(tzinfo=None),
+        rname='data_ora',
+    ),
     Field('segnalante_id', 'integer', required=True, notnull=True, rname='id_segnalante'),
     Field('descrizione', required=True, notnull=True),
     Field('criticita_id', 'reference tipo_criticita', required=True, notnull=True,
@@ -182,7 +185,11 @@ unita_operative = map(
 
 db.define_table('incarico',
     Field('id', 'id', default=lambda: incarichi_new_id(db['incarico'])),
-    Field('invio', 'datetime', rname='data_ora_invio', notnull=True),
+    Field('invio', 'datetime',
+        # default = lambda: datetime.now(timezone('Europe/Rome')).replace(tzinfo=None),
+        rname='data_ora_invio',
+        notnull=True
+    ),
     Field('profilo_id', 'reference profilo_utilizatore',
         notnull=True, required=True,
         requires = IS_IN_DB(
