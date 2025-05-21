@@ -31,7 +31,7 @@ $query="SELECT DISTINCT ON (u.telegram_id)
 			AND tlb.id_convocazione = tlcc.id_convocazione  
 		JOIN users.tipo_funzione_coc jtfc 
 			ON jtfc.id = u.funzione
-		ORDER BY u.telegram_id, tlcc.data_invio_conv DESC NULLS LAST, tlb.data_invio DESC NULL LAST;";
+		ORDER BY u.telegram_id, tlcc.data_invio_conv DESC NULLS LAST, tlb.data_invio DESC NULLS LAST;";
 
 $result = pg_prepare($conn, "myquery0", $query);
 $result = pg_execute($conn, "myquery0", array());
