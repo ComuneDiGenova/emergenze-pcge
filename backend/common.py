@@ -24,6 +24,8 @@ from py4web.utils.cors import CORS
 
 from alertsystem import config
 
+from datetime import datetime
+
 # #######################################################
 # implement custom loggers form settings.LOGGERS
 # #######################################################
@@ -238,3 +240,10 @@ alertsystem_config = config.get_config(
         "AS_PASSWORD": settings.ALERTSYSTEM_PASSWORD,
     }
 )
+
+def now(tz=False):
+    if tz is True:
+        return datetime.now(timezone('Europe/Rome'))
+    else:
+        return datetime.now(timezone('Europe/Rome')).replace(tzinfo=None)
+    

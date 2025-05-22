@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from ..common import settings, db, logger
+from ..common import settings, db, logger, now
 # from ..verbatel import Intervento
 from ..verbatel import InterventoWSO2 as Intervento
 import datetime
@@ -34,8 +34,8 @@ def create(segnalazione_id, lavorazione_id, profilo_id, descrizione, municipio_i
         profilo_id = profilo_id,
         descrizione = descrizione,
         uo_id = uo_id,
-        preview = preview if stato_id==1 else datetime.datetime.now(),
-        start = datetime.datetime.now() if stato_id==2 else None,
+        preview = preview if stato_id==1 else now(),
+        start = now() if stato_id==2 else None,
         note = note
     )
 
