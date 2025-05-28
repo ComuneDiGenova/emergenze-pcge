@@ -33,7 +33,7 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
     // Apri il file CSV
     if (($handle = fopen($csvFile, 'r')) !== FALSE) {
         // Leggi la prima riga come intestazione
-        $headers = fgetcsv($handle, 1000, ",");
+        $headers = fgetcsv($handle, 1000, ";");
 
         // Rimuovi il BOM dal primo elemento dell'array delle intestazioni, se presente
         if (isset($headers[0])) {
@@ -57,13 +57,7 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
         $imported = 0;
         $updated = 0;
         $firstRow = true;
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            // Salta la prima riga (headers)
-            if ($firstRow) {
-                $firstRow = false;
-                continue;
-            }
-
+        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
             // Salta le righe vuote o errate
             if (empty($data) || count($data) !== count($headers)) {
                 continue;
@@ -90,32 +84,32 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
             // Costruisce la query INSERT per la tabella utenti_esterni, in caso di conflitto esegue UPDATE
             $query_ue = "INSERT INTO users.utenti_esterni (cf, nome, cognome, data_nascita, comune_residenza, cap, indirizzo, telefono1, mail, id1, numero_gg)
                     VALUES ('$cf', '$nome', '$cognome', '$data_nascita', '$comune', $cap, $indirizzo, $telefono, $mail, $id1, $numero_gg)
-                    ON CONFLICT (cf) 
-                    DO UPDATE SET 
-                        nome = EXCLUDED.nome,
-                        cognome = EXCLUDED.cognome,
-                        data_nascita = EXCLUDED.data_nascita,
-                        comune_residenza = EXCLUDED.comune_residenza,
-                        cap = EXCLUDED.cap,
-                        indirizzo = EXCLUDED.indirizzo,
-                        telefono1 = EXCLUDED.telefono1,
-                        mail = EXCLUDED.mail,
-                        id1 = EXCLUDED.id1,
-                        numero_gg = EXCLUDED.numero_gg;";
+                    ON CONFLICT (cf) DO NOTHING
+                    RETURNING cf;";
 
 
-            $result = pg_query($conn, $query_ue);
+            $result_insert = pg_query($conn, $query_ue);
 
-            if ($result) {
-                $row = pg_fetch_assoc($result);
-                if ($row['inserted'] == 't') {
-                    $imported++;
-                } else {
+            if ($result_insert && pg_num_rows($result_insert) > 0) {
+                $imported++;
+            } else {
+                $query_update = "UPDATE users.utenti_esterni SET
+                        nome = '$nome',
+                        cognome = '$cognome',
+                        data_nascita = '$data_nascita',
+                        comune_residenza = '$comune',
+                        cap = $cap,
+                        indirizzo = $indirizzo,
+                        telefono1 = $telefono,
+                        mail = $mail,
+                        id1 = $id1,
+                        numero_gg = $numero_gg
+                    WHERE cf = '$cf';
+                ";
+                $result_update = pg_query($conn, $query_update);
+                if ($result_update) {
                     $updated++;
                 }
-            } else {
-                $error = pg_last_error($conn);
-                logError("Errore query utenti_esterni: $error");
             }
 
 
@@ -134,7 +128,7 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
         fclose($handle);
 
         // Salva il messaggio nella variabile di sessione
-        $_SESSION['import_message'] = "Importazione completata: $imported record inseriti, $updated record aggiornati.";
+        $_SESSION['import_message'] = "Importazione completata: $imported record aggiunti, $updated record aggiornati.";
 
         // Reindirizza alla pagina iniziale
         header("Location: ../add_volontario.php");
