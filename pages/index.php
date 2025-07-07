@@ -532,7 +532,7 @@ $subtitle = "Dashboard o pagina iniziale";
                 function nameFormatterIncarichi(value, row) {
                     
                     let out = '<div style="text-align: center;">';
-
+                    console.log(value);
                     if (value == 't') {
                         out = out.concat('<i class="fas fa-circle" title="incarichi / presidi in corso" style="color:#f2d921"></i>');
                     } else if (row.incarichi_chiusi == 't') {

@@ -27,59 +27,58 @@ if(!$conn) {
 	//    	and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
 	// 	and j.sospeso='f';";
 
-	$query = "SELECT 
-		s.id, 
-		s.criticita, 
-		s.id_evento, 
-		s.num, 
-		s.in_lavorazione, 
-		s.localizzazione, 
-		s.nome_munic,
-		st_x(s.geom) AS lon, 
-		st_y(s.geom) AS lat,
-		s.incarichi,
-		string_agg(
-			CASE 
-				WHEN i.id_stato_incarico::varchar = '2' THEN i.descrizione_uo::varchar
-				WHEN ii.id_stato_incarico::varchar = '2' THEN ii.descrizione_uo::varchar
-				ELSE null
-			END, ' - '
-		) AS responsabile_incarico,
-		coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
-		count(case
-			when (i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) then 1
-		end)>0 AS incarichi_chiusi
-	FROM 
-		segnalazioni.v_segnalazioni_lista_pp s
-	JOIN 
-		segnalazioni.join_segnalazioni_in_lavorazione j
-		ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
-	LEFT JOIN 
-		segnalazioni.v_incarichi i
-		ON s.id_lavorazione = i.id_lavorazione
-	LEFT JOIN 
-		segnalazioni.v_incarichi_interni ii
-		ON s.id_lavorazione = ii.id_lavorazione
-	LEFT JOIN 
-		verbatel.segnalazioni_da_verbatel sdv
-		ON sdv.segnalazione_id = s.id
-	WHERE
-		sdv.segnalazione_id is null
-		AND (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL)
-		AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW())
-		AND j.sospeso = 'f'
-	GROUP BY 
-		s.id, 
-		sdv.intervento_id, 
-		s.criticita, 
-		s.id_evento, 
-		s.num, 
-		s.in_lavorazione, 
-		s.localizzazione, 
-		s.nome_munic, 
-		lon, 
-		lat, 
-		s.incarichi;";
+	$query = "SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
+					main.lon, main.lat,
+					main.incarichi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
+				FROM (
+					SELECT 
+						s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, st_x(s.geom) AS lon, st_y(s.geom) AS lat,
+						s.incarichi,
+												unnest(
+							array_agg(distinct case 
+													when i.id_stato_incarico = 2 then i.descrizione_uo::varchar
+												end) || 
+							array_agg(distinct case 
+													when ii.id_stato_incarico = 2 then ii.descrizione_uo::varchar
+												end)
+						) as responsabile_incarico,
+						coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
+						count(case
+							when (i.id_stato_incarico = 3 OR ii.id_stato_incarico = 3) then 1
+						end)>0 AS incarichi_chiusi
+					FROM 
+						segnalazioni.v_segnalazioni_lista_pp s
+					JOIN 
+						segnalazioni.join_segnalazioni_in_lavorazione j
+						ON s.id_lavorazione = j.id_segnalazione_in_lavorazione
+					LEFT JOIN 
+						segnalazioni.v_incarichi i
+						ON s.id_lavorazione = i.id_lavorazione
+					LEFT JOIN 
+						segnalazioni.v_incarichi_interni ii
+						ON s.id_lavorazione = ii.id_lavorazione
+					LEFT JOIN 
+						verbatel.segnalazioni_da_verbatel sdv
+						ON sdv.segnalazione_id = s.id
+					WHERE
+						sdv.segnalazione_id is null
+						AND (s.in_lavorazione = 't' OR s.in_lavorazione IS NULL)
+						AND (s.fine_sospensione IS NULL OR s.fine_sospensione < NOW())
+						AND j.sospeso = 'f'
+					GROUP BY 
+						s.id, 
+						sdv.intervento_id, 
+						s.criticita, 
+						s.id_evento, 
+						s.num, 
+						s.in_lavorazione, 
+						s.localizzazione, 
+						s.nome_munic, 
+						lon, 
+						lat, 
+						s.incarichi) AS main
+				GROUP BY main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, 
+						main.nome_munic, lon, lat, main.incarichi;";
 
 	$result = pg_query($conn, $query);
 
