@@ -8,7 +8,7 @@ if(!$conn) {
 } else {
 	//$idcivico=$_GET["id"];
 	$query="SELECT cf, nome, cognome, comune, provincia, 
-	id_profilo, stato_profilo, concat(livello1, ' -', livello2) as livello1, valido 
+	id_profilo, stato_profilo, concat(livello1, ' - ', livello2) as livello1, valido 
 	FROM users.v_utenti_esterni ORDER BY cognome ;";
     
     //echo $query;

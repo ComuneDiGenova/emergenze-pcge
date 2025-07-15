@@ -542,9 +542,9 @@ require('navbar_up.php');
                             <select class="selectpicker show-tick form-control" data-live-search="true" name="id2" id="id2" required>
                             <option value="">Seleziona...</option>
             <?php            
-            $query2="SELECT * From \"users\".\"uo_2_livello\" WHERE id1= ".$r['id1'].";";
-	        $result2 = pg_query($conn, $query2);
-            //echo $query1;    
+            $query2='SELECT * From "users"."uo_2_livello" WHERE id1 = $1 AND valido;';
+            $result2 = pg_query_params($conn, $query2, [$r['id1']]);
+              
             while($r2 = pg_fetch_assoc($result2)) { 
                 //$valore=  $r2['id']. ";".$r2['descrizione'];            
             ?>
