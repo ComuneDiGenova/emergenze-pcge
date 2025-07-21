@@ -2,7 +2,7 @@
 
 from .. import settings
 
-from ..common import db, Field, logger
+from ..common import db, Field, logger, now
 
 from pydal.validators import *
 from pydal.validators import Validator, ValidationError
@@ -16,7 +16,7 @@ from ..chiamate.tools import iscrizione_options, LANGUAGES
 
 SCHEMA = "chiamate"
 
-now = lambda: datetime.datetime.utcnow()
+# now = lambda: datetime.datetime.utcnow()
 today = lambda: datetime.date.today()
 
 # def now():

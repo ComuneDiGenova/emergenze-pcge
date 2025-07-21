@@ -25,6 +25,7 @@ from py4web.utils.cors import CORS
 from alertsystem import config
 
 from datetime import datetime
+from pytz import timezone
 
 # #######################################################
 # implement custom loggers form settings.LOGGERS
@@ -246,4 +247,3 @@ def now(tz=False):
         return datetime.now(timezone('Europe/Rome'))
     else:
         return datetime.now(timezone('Europe/Rome')).replace(tzinfo=None)
-    
