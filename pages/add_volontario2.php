@@ -58,11 +58,15 @@ if (!empty($indirizzo)) {
 }
 if (!empty($_POST['UO_I'])) {
     $query_fields[] = "id1";
-    $query_values[] = pg_escape_string($_POST['UO_I']);
+    $query_values[] = (int) $_POST['UO_I'];
 }
-if (!empty($_POST['CAP'])) {
+if (!empty($_POST['UO_II'])) {
+    $query_fields[] = "id2";
+    $query_values[] = (int) $_POST['UO_II'];
+}
+if (!empty($_POST['cap'])) {
     $query_fields[] = "cap";
-    $query_values[] = "'" . pg_escape_string($_POST['CAP']) . "'";
+    $query_values[] = "'" . pg_escape_string($_POST['cap']) . "'";
 }
 if (!empty($_POST['telefono2'])) {
     $query_fields[] = "telefono2";

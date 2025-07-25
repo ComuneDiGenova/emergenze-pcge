@@ -79,11 +79,13 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
             $telefono = nullable($row['telefono']);
             $mail = nullable($row['mail']);
             $id1 = nullable($row['unita_operativa_I_liv']);
+            $id2 = nullable($row['unita_operativa_II_liv']);
             $numero_gg = nullable($row['Numero_tessera']);
 
             // Costruisce la query INSERT per la tabella utenti_esterni, in caso di conflitto esegue UPDATE
-            $query_ue = "INSERT INTO users.utenti_esterni (cf, nome, cognome, data_nascita, comune_residenza, cap, indirizzo, telefono1, mail, id1, numero_gg)
-                    VALUES ('$cf', '$nome', '$cognome', '$data_nascita', '$comune', $cap, $indirizzo, $telefono, $mail, $id1, $numero_gg)
+            $query_ue = "INSERT INTO users.utenti_esterni (cf, nome, cognome, data_nascita, comune_residenza, cap, 
+                                                            indirizzo, telefono1, mail, id1, id2, numero_gg)
+                    VALUES ('$cf', '$nome', '$cognome', '$data_nascita', '$comune', $cap, $indirizzo, $telefono, $mail, $id1, $id2, $numero_gg)
                     ON CONFLICT (cf) DO NOTHING
                     RETURNING cf;";
 
@@ -103,6 +105,7 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
                         telefono1 = $telefono,
                         mail = $mail,
                         id1 = $id1,
+                        id2 = $id2,
                         numero_gg = $numero_gg
                     WHERE cf = '$cf';
                 ";
