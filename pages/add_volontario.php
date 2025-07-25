@@ -234,7 +234,7 @@ $subtitle = "Form aggiunta utente esterno";
                 <!-- Unita Operative -->
                 <div class="form-group">
                     <label for="UO_I">Unità operativa I livello:</label> <font color="red">*</font>
-                    <select name="UO_I" class="selectpicker show-tick form-control" data-live-search="true" required>
+                    <select id="UO_I" name="UO_I" class="selectpicker show-tick form-control" data-live-search="true" required>
                         <option value="">Seleziona...</option>
                         <?php 
                         $query2 = "SELECT * FROM \"users\".\"uo_1_livello\";";
@@ -246,6 +246,14 @@ $subtitle = "Form aggiunta utente esterno";
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label for="UO_II">Unità operativa II livello:</label>
+                    <select id="UO_II" name="UO_II" class="selectpicker show-tick form-control" data-live-search="true" disabled>
+                        <option value="">Seleziona...</option>
+                    </select>
+                </div>
+
+                
                 <div class="form-group">
                     <label for="num_GG">Numero tessera Gruppo Genova:</label>
                     <input type="text" name="num_GG" class="form-control">
