@@ -488,11 +488,11 @@ async function retr_message_list(root_url) {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
@@ -727,11 +727,11 @@ function vis_campaign(
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
       $bstr_campaign.show();
@@ -982,11 +982,11 @@ function retr_user_list(root_url) {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
@@ -1113,11 +1113,11 @@ function get_campaign_from_to(root_url = "http://localhost:8000/") {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
