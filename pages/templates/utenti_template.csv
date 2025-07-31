@@ -1,3 +1,3 @@
-﻿CF,nome,cognome,data_nascita,comune,cap,indirizzo,telefono,mail,unita_operativa_I_liv,Numero_tessera
-RSSMRA80A01H501Z,Mario,Rossi,01.1.1980,Milano,20100,"Via Roma, 10",3481234567,mario.rossi@example.com,1,12345
-VRDLGI85B02C351N,Luigi,Verdi,02.2.1985,Roma,100,"Piazza Venezia, 20",3331234567,luigi.verdi@example.com,2,
+﻿CF;nome;cognome;data_nascita;comune;cap;indirizzo;telefono;mail;unita_operativa_I_liv;unita_operativa_II_liv;Numero_tessera
+RSSMRA80A01H501Z;Mario;Rossi;01.1.1980;Milano;20100;"Via Roma, 10";3481234567;mario.rossi@example.com;8;14;12345
+VRDLGI85B02C351N;Luigi;Verdi;02.2.1985;Roma;100;"Piazza Venezia, 20";3331234567;luigi.verdi@example.com;8;14;12345
