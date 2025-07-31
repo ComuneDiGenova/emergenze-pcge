@@ -59,7 +59,7 @@ $subtitle = "Form aggiunta utente esterno";
             </div>
 
             <div class="form-group">
-                <a href="templates/utenti_template.xlsx" class="btn btn-success" style="margin-left: 10px;">
+                <a href="templates/utenti_template_20250731.xlsx" class="btn btn-success" style="margin-left: 10px;">
                     <i class="fa fa-download"></i> Scarica Template
                 </a>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadModal">
