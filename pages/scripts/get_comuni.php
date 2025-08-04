@@ -8,7 +8,17 @@ $provincia = $_GET['provincia'] ?? '';
 
 if ($provincia) {
     // Query per ottenere i comuni della provincia selezionata
-    $query = "SELECT \"Denominazione in italiano\" as nome FROM varie.comuni_italia WHERE \"Codice Provincia\" = $1;";
+    $query = 'SELECT "Denominazione in italiano" AS nome
+                FROM varie.comuni_italia
+                WHERE (
+                    CASE 
+                        WHEN "Codice Città Metropolitana" = \'-\' OR "Codice Città Metropolitana" IS NULL
+                            THEN "Codice Provincia"
+                        ELSE "Codice Città Metropolitana"
+                    END
+                ) = $1
+                ORDER BY "Denominazione in italiano"
+                ';
     $result = pg_query_params($conn, $query, [$provincia]);
 
     // Controlla se la query ha avuto successo
