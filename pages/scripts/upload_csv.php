@@ -150,7 +150,6 @@ if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) 
             }
         }
 
-
             // Costruisce la query INSERT per la tabella utenti_sistema, settando id profilo = 8 (solo visualizzazione)
             // in caso di conflitto esegue UPDATE
             $id_profilo = 8;
