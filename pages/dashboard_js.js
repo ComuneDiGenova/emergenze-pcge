@@ -478,7 +478,7 @@ async function retr_message_list(root_url) {
         sortName: "message_date",
         pageNumber: 1,
         pageSize: 10,
-        pageList: [10, 25, 50, 100],
+        pageList: [10, 50, 100, 'all'],
         searchHighlight: true,
         pagination: true,
         search: true,
@@ -488,11 +488,11 @@ async function retr_message_list(root_url) {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
@@ -727,11 +727,11 @@ function vis_campaign(
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
       $bstr_campaign.show();
@@ -971,8 +971,8 @@ function retr_user_list(root_url) {
         striped: true,
         sortable: true,
         pageNumber: 1,
-        pageSize: 10,
-        pageList: [10, 25, 50, 100],
+        pageSize: 500,
+        pageList: [100, 200, 500, 'all'],
         searchHighlight: true,
         pagination: true,
         search: true,
@@ -982,11 +982,11 @@ function retr_user_list(root_url) {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
@@ -1113,11 +1113,11 @@ function get_campaign_from_to(root_url = "http://localhost:8000/") {
         exportTypes: [
           "csv",
           "txt",
-          "sql",
+          // "sql",
           "doc",
           "excel",
-          "xlsx",
-          "pdf",
+          // "xlsx",
+          // "pdf",
         ],
       });
     })
