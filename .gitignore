@@ -35,7 +35,7 @@ pages/eventi/bot_photos/*
 pages/campagin_api/index.php
 node_modules
 pages/config.js
-pages/scripts/logs/
+pages/scripts/logs
 
 # BOT TELEGRAM
 *.pid
