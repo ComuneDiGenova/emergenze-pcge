@@ -13,11 +13,11 @@ $subtitle = "Form aggiunta utente esterno";
     }
 ?>
 <script>
-    // Nasconde il messaggio dopo 5 secondi
+    // Nasconde il messaggio dopo 10 secondi
     setTimeout(() => {
         const msgDiv = document.getElementById('import-message');
         if (msgDiv) msgDiv.style.display = 'none';
-    }, 5000);
+    }, 10000);
 </script>
 
 <!DOCTYPE html>
