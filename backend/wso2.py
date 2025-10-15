@@ -2,7 +2,7 @@
 import requests
 from getpass import getpass
 from datetime import datetime
-from datetime import timedelta
+from datetime import timedelta, timezone
 from urllib.parse import urljoin
 from . import settings
 from .common import logger
@@ -30,17 +30,31 @@ class AccessTokenManager(object):
         self._token = None
         self.expire = None
 
+    def get_token(self) -> dict:
+        """ DEPRECATED since 10/2025 """
+        response = requests.get(
+            urljoin(settings.WSO2_URL_OLD, settings.WSO2_TOKEN_ROOT_OLD),
+            params = {'key': self.key, 'secret': self.secret}
+        )
+        return response.json()
+
+    def get_token_py_post(self) -> dict:
+        response = requests.post(
+            urljoin(self.url, WSO2_TOKEN_ROOT),
+            data = json.dumps({'Key': self.key, 'Secret': self.secret}),
+            headers = {'content-type': 'application/json'}
+        )
+        return response.json()
+
     @property
     def access_token(self) -> str:
-        if self._token is None or self.expire <= datetime.utcnow():
-            response = requests.get(
-                urljoin(self.url, WSO2_TOKEN_ROOT),
-                params = {'key': self.key, 'secret': self.secret})
-            info = response.json()
-            self.expire = datetime.utcnow() + timedelta(seconds=info['expires_in'])
+        now = datetime.now(timezone.utc)
+        if self._token is None or self.expire <= now:
+            info = self.get_token()
+            self.expire = now + timedelta(seconds=info['expires_in'])
             self._token = info['access_token']
         else:
-            logger.debug(f"Token will expire in {int((self.expire-datetime.utcnow()).total_seconds()):d} seconds.")
+            logger.debug(f"Token will expire in {int((self.expire-now).total_seconds()):d} seconds.")
 
         return self._token
 
