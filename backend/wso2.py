@@ -50,7 +50,7 @@ class AccessTokenManager(object):
     def access_token(self) -> str:
         now = datetime.now(timezone.utc)
         if self._token is None or self.expire <= now:
-            info = self.get_token()
+            info = self.get_token_py_post()
             self.expire = now + timedelta(seconds=info['expires_in'])
             self._token = info['access_token']
         else:
@@ -99,6 +99,12 @@ def test(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
     response_from_wso2 = wso2.get(wso2_url, data=info_evento)
 
     print(response_from_wso2.text)
+
+def test0(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
+    wso2 = AccessTokenManager(key, secret)
+    print(wso2.url)
+    print(wso2.get_token_py_post())
+    print(wso2.get_token())
 
 def test1(key=settings.WSO2_KEY, secret=settings.WSO2_SECRET):
     """ """
