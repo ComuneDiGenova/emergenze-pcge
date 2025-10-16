@@ -197,12 +197,32 @@ function roundToQuarterHour($now){
 					</div>
 				</div>
 				<div id="tabella">
-					<table  id="t_mire" class="table-hover" data-toggle="table" data-url="./tables/griglia_mire.php" 
-						data-show-search-clear-button="true"   data-show-export="true" data-export-type=['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'doc', 'pdf'] 
-						data-search="true" data-click-to-select="true" data-show-print="true"  
-						data-pagination="true" data-page-size=75 data-page-list=[10,25,50,75,100,200,500]
-						data-sidePagination="true" data-show-refresh="true" data-show-toggle="false" data-show-columns="true" 
-						data-filter-control="true" data-toolbar="#toolbar">
+					<table id="t_mire"
+                            class="table-hover"
+                            data-toggle="table"
+                            data-url="./tables/griglia_mire.php"
+                            data-search="true"
+                            data-click-to-select="true"
+                            data-pagination="true"
+                            data-page-size="75"
+                            data-page-list="[10,25,50,75,100,200,500]"
+                            data-side-pagination="server"
+
+                            data-show-refresh="true"
+                            data-show-toggle="false"
+                            data-show-columns="true"
+                            data-filter-control="true"
+
+                            data-show-export="true"
+                            data-export-types='["xlsx"]'
+                            data-export-data-type="all"
+                            data-export-footer="false"
+                            data-export-options='{
+                                "fileName": "mire_export",
+                                "ignoreColumn": ["state","id"]
+                            }'
+                            data-export-formatter="true"
+                            data-toolbar="#toolbar">
 			
 						<thead>
 							<tr>
@@ -230,13 +250,13 @@ function roundToQuarterHour($now){
 
 								<th data-field="last_update" data-sortable="false"  data-visible="true">Last update</th>
 
-								<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora6;?></th>
-								<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora5;?></th>            
-								<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora4;?></th>
-								<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora3?></th>  
-								<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora2;?></th>
-								<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora1;?></th>
-								<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-visible="true"><?php echo $ora0;?></th>
+								<th data-field="6" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora6;?></th>
+								<th data-field="5" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora5;?></th>            
+								<th data-field="4" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora4;?></th>
+								<th data-field="3" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora3?></th>  
+								<th data-field="2" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora2;?></th>
+								<th data-field="1" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora1;?></th>
+								<th data-field="0" data-sortable="false" data-formatter="nameFormatterLettura" data-export-formatter="true"><?php echo $ora0;?></th>
 								
 								<th class="noprint" data-field="id" data-sortable="false" data-formatter="nameFormatterInsert" data-visible="true">Edit</th>
 							</tr>
@@ -395,7 +415,7 @@ while($r = pg_fetch_assoc($result)) {
 	<?php 
 	require('./footer.php');
 	require('./req_bottom.php');
-	?>    
+	?>
 
 </body>
 

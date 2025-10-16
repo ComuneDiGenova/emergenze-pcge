@@ -125,7 +125,7 @@ function nameFormatterLettura(value, row) {
     //         return '?';  // Ritorna '-' se mancano valori cruciali
     //     }
 
-    console.log("Nome:", row.nome, "Row tipo:", row.tipo, "Value:", value, "Arancio:", row.arancio, "Rosso:", row.rosso);
+    // console.log("Nome:", row.nome, "Row tipo:", row.tipo, "Value:", value, "Arancio:", row.arancio, "Rosso:", row.rosso);
     
     // Applico la logica di visualizazione
     if ( row.tipo == 'IDROMETRO ARPA' || row.tipo == 'IDROMETRO COMUNE' ) {
