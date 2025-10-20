@@ -140,13 +140,37 @@ function nameFormatterLettura(value, row) {
         }
     } else if ( row.tipo == 'MIRA' || row.tipo == 'RIVO' ) {
         if (value == 1) {
-            return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;"></i>';
+            return '<i class="fas fa-circle" title="Livello basso" style="color:#00bb2d;" data-export-value="verde"></i>';
         } else if (value == 2) {
-            return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;"></i>';
+            return '<i class="fas fa-circle" title="Livello medio" style="color:#ffff00;" data-export-value="giallo"></i>';
         } else if (value == 3) {
-            return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;"></i>';
+            return '<i class="fas fa-circle" title="Livello alto" style="color:#cb3234;" data-export-value="rosso"></i>';
         } else {
             return '-';
         }
     }
 }
+
+// Export Excel
+$(function() {
+  $('#t_mire').bootstrapTable('refreshOptions', {
+    exportOptions: {
+      onCellHtmlData: function (cell, rowIndex, colIndex, htmlData) {
+        // 1) prova a leggere da DOM
+        if (cell && cell.querySelector) {
+          const el = cell.querySelector('[data-export-value]');
+          if (el && el.dataset) return el.dataset.exportValue;
+        }
+        // 2) se hai solo la stringa HTML, estrai data-export-value="..."
+        if (typeof htmlData === 'string') {
+          const m = htmlData.match(/data-export-value="([^"]*)"/i);
+          if (m && m[1] !== undefined) return m[1];
+          // fallback: rimuovi HTML e torna testo puro
+          return htmlData.replace(/<[^>]*>/g, '').trim();
+        }
+        // 3) ultimo fallback
+        return '';
+      }
+    }
+  });
+});
