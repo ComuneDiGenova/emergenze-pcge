@@ -129,7 +129,8 @@ require('navbar_up.php');
             <div class="form-group col-md-12">
             <label for="nome"> Evento</label> <font color="red">*</font>  
  				<?php 
-           $len=count($eventi_attivi);	               
+            
+                $len=count($eventi_attivi);	               
 				                
 				if($len==1) {   
 			   ?>
@@ -137,28 +138,37 @@ require('navbar_up.php');
 
                 <select readonly="" class="form-control"  name="evento" required>
                  
-                    <?php 
-                     for ($i=0;$i<$len;$i++){
-                      
-                        echo '<option name="evento" value="'.$tipo_eventi_attivi[0][0].'">'. $tipo_eventi_attivi[0][1].' (id='.$tipo_eventi_attivi[0][0].')</option>';
-                      }
+                    <?php
+                        $nota0 = trim((string)($nota_eventi_attivi[0][1] ?? ''));
+                        $id0   = $tipo_eventi_attivi[0][0];
+                        $tipo0 = $tipo_eventi_attivi[0][1];
+                        
+                        $label0 = $nota0.' (id=' . $id0 . ', tipo=' . $tipo0 . ')';
+
+                        echo '<option name="evento" value="'.$eventi_attivi[0].'">' . $label0 . '</option>';
                     ?>
-                  </select>
-                                  <small id="eventohelp" class="form-text text-muted">Un solo evento attivo (per trasparenza lo mostriamo ma possiamo anche decidere di non farlo).</small>
+                </select>
+                    <small id="eventohelp" class="form-text text-muted">Un solo evento attivo.</small>
              
             <?php } else {
             	?>
 
-                  <select class="form-control"  name="evento" required>
-                     <option value=''>Seleziona un evento tra quelli attivi </option>
+                  <select class="form-control" name="evento" required>
+                    <option value=''>Seleziona un evento tra quelli attivi</option>
                     <?php 
-                     for ($i=0;$i<$len;$i++){
-						if($sospeso[$i]==0){
-							echo '<option name="evento" value="'.$tipo_eventi_attivi[$i][0].'">'. $tipo_eventi_attivi[$i][1].' (id='.$tipo_eventi_attivi[$i][0].')</option>';
-						}
-					  }
+                    for ($i = 0; $i < $len; $i++) {
+                    if ($sospeso[$i] == 0) {
+                        $nota = trim((string)($nota_eventi_attivi[$i][1] ?? ''));
+                        $id   = $tipo_eventi_attivi[$i][0];
+                        $tipo = $tipo_eventi_attivi[$i][1];
+
+                        $label = $nota.' (id=' . $id . ', tipo=' . $tipo . ')';
+
+                        echo '<option name="evento" value="' . $eventi_attivi[$i] . '">' . $label . '</option>';
+                    }
+                    }
                     ?>
-                  </select>
+                </select>
 
             	<?php
             	}
