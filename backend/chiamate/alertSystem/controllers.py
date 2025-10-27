@@ -5,7 +5,7 @@ import geojson, json
 
 from mptools.frameworks.py4web import shampooform as sf
 
-from py4web import action, request, abort, redirect, URL, Field
+from py4web import action, request, abort, redirect, URL, Field, response
 from py4web.utils.form import Form
 from pydal.validators import *
 
@@ -119,6 +119,10 @@ def user_campaign_get_campaign_from_to():
         tuple_of_campaigns = dict(
             (x.id_campagna, x) for x in tuple_of_campaigns
         )
+        # to avoid misalignment issues in responses across different requests
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
         return {
             "result": tuple_of_campaigns,
             "alertsystem_response_status": alertsystem_response_status,
@@ -254,6 +258,11 @@ def user_campaign_get_campaign(campaign_id: str):
         id_campagna=campaign_id,
         cfg=alertsystem_config,
     )
+    # to avoid misalignment issues in responses across different requests
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
     if vis_campaign is None or vis_campaign == []:
         # raise HTTP(
         # status=204,
