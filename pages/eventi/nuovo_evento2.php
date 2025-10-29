@@ -184,7 +184,7 @@ if ($notifiche =='t') {
     <br>
     Ti preghiamo di non rispondere a questa mail, ma di avvisare chi di dovere perch&egrave il sistema venga mantenuto sotto controllo.  <br>
     Per accedere al nuovo <a href="'.$link.'"/pages/index.php" > Sistema di Gestione delle Emergenze </a> del Comune di Genova &egrave necessaria
-    la matricola personale (personale comunale) o le credenziale SPID. Occorre inoltre essere abilitati all\'accesso da parte della Protezione Civile.
+    la matricola personale (personale comunale) o le credenziali SPID. Occorre inoltre essere abilitati all\'accesso da parte della Protezione Civile.
     <br> <br> Protezione Civile del Comune di Genova. <br><br>--<br> Ricevi questa mail  in quanto il tuo indirizzo mail &egrave registrato a sistema. 
     Per modificare queste impostazioni o richiedere l\'accesso al sistema &egrave possibile contattare gli amministratori 
     inviando una mail a adminemergenzepc@comune.genova.it inoltrando il presente messaggio. Ti ringraziamo per la preziosa collaborazione.';
