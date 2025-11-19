@@ -220,6 +220,38 @@ $orari = getMonitoraggioOrari();
                 </div>             
             </div>
 
+            <hr>
+
+            <!-- RIEPILOGO SEGNALAZIONI (REPORT FINE TURNO) -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h4>Riepilogo segnalazioni (fine turno)</h4>
+                    <table id="riepilogo_segnalazioni" 
+                        class="table table-condensed"
+                        style="word-break:break-all; word-wrap:break-word;"
+                        data-toggle="table"
+                        data-url="./tables/griglia_riepilogo_segnalazioni.php?id=<?php echo $id; ?>"
+                        data-show-export="false"
+                        data-search="false"
+                        data-click-to-select="false"
+                        data-pagination="false"
+                        data-sidePagination="false"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false">
+                        <thead>
+                            <tr>
+                                <th data-field="num" data-sortable="true" data-visible="true">NUM.</th>
+                                <th data-field="tipologia" data-sortable="true" data-visible="true">TIPOLOGIA</th>
+                                <th data-field="localizzazione" data-sortable="true" data-visible="true">LOCALIZZAZIONE</th>
+                                <th data-field="stato" data-sortable="true" data-visible="true">STATO</th>
+                                <th data-field="note" data-sortable="false" data-visible="true">NOTE</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
             <hr>	
 
             <div class="row">
@@ -266,8 +298,9 @@ $orari = getMonitoraggioOrari();
                 </div>
             </div>
             
-            <!-- REPORT MIRE -->
-            <?php 
+            <!-- REPORT MIRE-->
+            <!-- feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
+            <!-- <?php 
             if ($evento["id_evento"] == 3 || $evento["id_evento"] == 1): ?>
                 <div class="row">              
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -472,7 +505,8 @@ $orari = getMonitoraggioOrari();
                         </script>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?> -->
+            <!-- FINE feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

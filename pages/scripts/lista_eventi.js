@@ -11,10 +11,10 @@ function nameFormatter0(value) {
 
 function nameFormatter1(value) {
     return `
-        <a href="./reportistica2.php?id=${value}" class="btn btn-info" title="Report 8 h (riepilogo segnalazioni in corso di evento)" role="button">
+        <a href="./reportistica2.php?id=${value}" class="btn btn-info" title="Report 8 h (riepilogo segnalazioni in corso di evento)" role="button" target="_blank">
             <i class="fa fa-file-invoice" aria-hidden="true"></i> 8h
         </a>
-        <a href="./reportistica2.php?id=${value}&esteso=TRUE" class="btn btn-info" title="Report esteso (dettagli squadre e personale impiegato)" role="button">
+        <a href="./reportistica2.php?id=${value}&esteso=TRUE" class="btn btn-info" target="_blank" title="Report esteso (dettagli squadre e personale impiegato)" role="button" target="_blank">
             <i class="fa fa-file-invoice" aria-hidden="true"></i> Esteso
         </a>
     `;
