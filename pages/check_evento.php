@@ -12,6 +12,7 @@ $check_pausa=0;
 $descrizione_allerta='Nessuna allerta';
 $color_allerta='#5cb85c';
 $profilo_sistema=0;
+$allerte_attive = false;
 //require(explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php');
 
 $query1 = "SELECT e.id as id, e.data_ora_inizio_evento as data_ora_inizio_evento,
@@ -115,22 +116,28 @@ if($contatore_eventi>0) {
 }
 
 if($contatore_allerte==0) {
+    $allerte_attive=false;
 	$contatore_allerte="-";
 	$preview_allerte="Nessun allerta in corso";
 } else if ($contatore_allerte==1){
+    $allerte_attive=true;
 	$preview_allerte="Allerta in corso";
 } else{
+    $allerte_attive=true;
 	$preview_allerte="Allerte in corso";
 }
 
 
+$contatore_foc=0;
+$descrizione_foc='-';
+$color_foc='#5cb85c';
+$foc_attiva = false;
 
 if($contatore_eventi>0) {
 	$query="SELECT * FROM eventi.v_foc WHERE data_ora_inizio_foc < now() AND data_ora_fine_foc > now();";
-	$contatore_foc=0;
-	$descrizione_foc='-';
-	$color_foc='#5cb85c';
+
 	$result = pg_query($conn, $query);
+
 	while($r = pg_fetch_assoc($result)) {
 		$contatore_foc=$contatore_foc+1;
 		if ($descrizione_foc=='-' OR $descrizione_foc=='Attenzione'){
@@ -145,7 +152,9 @@ if($contatore_eventi>0) {
 			$color_foc=$r["rgb_hex"];
 			$descrizione_foc=$r["descrizione"];
 		}
-	}	
+	}
+    
+    $foc_attiva = ($contatore_foc > 0);	
 }
 
 

@@ -300,8 +300,11 @@ $orari = getMonitoraggioOrari();
             
             <!-- REPORT MIRE-->
             <!-- feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
-            <!-- <?php 
-            if ($evento["id_evento"] == 3 || $evento["id_evento"] == 1): ?>
+            <?php 
+            if (
+                ($evento["id_evento"] == 3 || $evento["id_evento"] == 1) 
+                && $foc_attiva
+            ): ?>
                 <div class="row">              
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                         <h3>Monitoraggio (Letture Mire e Idrometri nelle 8 ore precedenti)</h3>
@@ -505,7 +508,7 @@ $orari = getMonitoraggioOrari();
                         </script>
                     </div>
                 </div>
-            <?php endif; ?> -->
+            <?php endif; ?>
             <!-- FINE feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
 
             <div class="row">
