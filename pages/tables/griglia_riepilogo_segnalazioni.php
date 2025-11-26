@@ -18,7 +18,7 @@ $query = "
     SELECT
         row_number() OVER (ORDER BY id) AS num,
         criticita AS tipologia,
-        localizzazione,
+        regexp_replace(localizzazione, '^\s*~\s*', '', 'g') AS localizzazione,
         CASE
             WHEN in_lavorazione IS TRUE THEN 'In lavorazione'
             WHEN in_lavorazione IS FALSE THEN 'Chiusa'
