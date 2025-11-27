@@ -7,6 +7,9 @@ require_once './req.php';
 require_once explode('emergenze-pcge', getcwd())[0] . 'emergenze-pcge/conn.php';
 require_once './check_evento.php';
 
+// flag per stampa automatica
+$autoprint = isset($_GET['autoprint']) && $_GET['autoprint'] === '1';
+
 
 // Funzione per arrotondare l'ora al quarto d'ora
 function roundToQuarterHour($now){
@@ -420,6 +423,59 @@ while($r = pg_fetch_assoc($result)) {
 	?>    
 
 </body>
+
+<script>
+$(function () {
+    // Valore passato dal PHP: true se la pagina è stata aperta con ?autoprint=1
+    var autoPrint = <?php echo $autoprint ? 'true' : 'false'; ?>;
+    if (!autoPrint) {
+        // Apertura "normale": si usa solo il bottone "Stampa tabella"
+        return;
+    }
+
+    var $table = $('#t_mire');
+    if ($table.length === 0) {
+        // Nessuna tabella Bootstrap Table trovata: fallback, usa comunque la stessa funzione del bottone
+        setTimeout(function () {
+            if (typeof printClass === 'function') {
+                printClass('fixed-table-container');
+            } else {
+                window.print();
+            }
+        }, 500);
+        return;
+    }
+
+    var printed = false;
+
+    // Quando la tabella ha finito di caricare i dati (evento di Bootstrap Table)
+    $table.on('load-success.bs.table', function () {
+        if (printed) return;
+        printed = true;
+
+        // piccolo margine per permettere il rendering completo
+        setTimeout(function () {
+            if (typeof printClass === 'function') {
+                printClass('fixed-table-container');
+            } else {
+                window.print();
+            }
+        }, 500);
+    });
+
+    // Fallback di sicurezza: se l'evento non arriva, prova comunque a stampare dopo X secondi
+    setTimeout(function () {
+        if (printed) return;
+        printed = true;
+
+        if (typeof printClass === 'function') {
+            printClass('fixed-table-container');
+        } else {
+            window.print();
+        }
+    }, 15000); // 15 secondi
+});
+</script>
 
 </html>
 

@@ -102,6 +102,10 @@ $orari = getMonitoraggioOrari();
                             <button class="btn btn-info noprint" onclick="printDiv('page-wrapper')">
                                 <i class="fa fa-print" aria-hidden="true"></i> Stampa report 
                             </button>
+
+                            <button class="btn btn-warning noprint" onclick="stampaMire()">
+                                <i class="fa fa-tint" aria-hidden="true"></i> Stampa mire
+                            </button>
                         <?php endif; ?>
                     </h3>
                 </div>
@@ -300,7 +304,7 @@ $orari = getMonitoraggioOrari();
             
             <!-- REPORT MIRE-->
             <!-- feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
-            <?php 
+            <!-- <?php 
             if (
                 ($evento["id_evento"] == 3 || $evento["id_evento"] == 1) 
                 && $foc_attiva
@@ -508,7 +512,7 @@ $orari = getMonitoraggioOrari();
                         </script>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?> -->
             <!-- FINE feature/A-3-T100_Evolutive2025: Rimossa parte di report relativa alle mire-->
 
             <div class="row">
