@@ -250,6 +250,7 @@ $orari = getMonitoraggioOrari();
                                 <th data-field="localizzazione" data-sortable="true" data-visible="true">LOCALIZZAZIONE</th>
                                 <th data-field="stato" data-sortable="true" data-visible="true">STATO</th>
                                 <th data-field="note" data-sortable="false" data-visible="true">NOTE</th>
+                                <th data-field="note_chiusura" data-sortable="false" data-visible="true">NOTE CHUSURA</th>
                             </tr>
                         </thead>
                     </table>

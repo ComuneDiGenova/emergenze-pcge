@@ -25,7 +25,8 @@ $query = "
             WHEN in_lavorazione IS NULL THEN 'Chiusa'
             ELSE ''
         END AS stato,
-        note
+        note,
+        note_chiusura
     FROM segnalazioni.v_segnalazioni_lista
     WHERE id_evento = $1
     ORDER BY id;
