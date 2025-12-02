@@ -16,7 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Adatta il nome vista/tabella se necessario.
 $query = "
     SELECT
-        row_number() OVER (ORDER BY id) AS num,
+        id AS num,
         criticita AS tipologia,
         regexp_replace(localizzazione, '^\s*~\s*', '', 'g') AS localizzazione,
         CASE
@@ -25,7 +25,6 @@ $query = "
             WHEN in_lavorazione IS NULL THEN 'Chiusa'
             ELSE ''
         END AS stato,
-        note,
         note_chiusura
     FROM segnalazioni.v_segnalazioni_lista
     WHERE id_evento = $1
