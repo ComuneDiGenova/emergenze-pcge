@@ -110,8 +110,9 @@ ALERTSYSTEM_ENDPOINT = None
 ALERTSYSTEM_USERNAME = None
 ALERTSYSTEM_PASSWORD = None
 
+WSO2_TOKEN_URL = 'https://wso2tokent.comune.genova.it:8443'
+WSO2_TOKEN_ROOT = 'get-token'
 WSO2_URL = 'https://apitest.comune.genova.it:28243'
-WSO2_TOKEN_ROOT = 'manageToken/getToken'
 WSO2_VBT_ROOT = 'GestioneEmergenze/api'
 
 WSO2_KEY = None

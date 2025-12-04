@@ -18,11 +18,13 @@ VBT_HOST = "192.168.153.84"
 VBT_PATH = "GestioneEmergenzeTest/api"
 
 WSO2_URL = settings.WSO2_URL
+WSO2_TOKEN_URL = settings.WSO2_TOKEN_URL
 WSO2_TOKEN_ROOT = settings.WSO2_TOKEN_ROOT
 WSO2_VBT_ROOT = settings.WSO2_VBT_ROOT
 
 class AccessTokenManager(object):
     url = WSO2_URL
+    token_url = WSO2_TOKEN_URL
 
     def __init__(self, key=settings.WSO2_KEY, secret=settings.WSO2_SECRET) -> None:
         self.key = key
@@ -40,7 +42,7 @@ class AccessTokenManager(object):
 
     def get_token_py_post(self) -> dict:
         response = requests.post(
-            urljoin(self.url, WSO2_TOKEN_ROOT),
+            urljoin(self.token_url, WSO2_TOKEN_ROOT),
             data = json.dumps({'Key': self.key, 'Secret': self.secret}),
             headers = {'content-type': 'application/json'}
         )
