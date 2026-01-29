@@ -279,9 +279,12 @@ def update_(
             profilo_id=settings.PC_PROFILO_ID
         )
 
-    db(db.segnalazione.id == segnalazione_id).update(
-        segnalante_id=segnalante_id, **db.segnalazione._filter_fields(kwargs)
-    )
+    parametri = {**db.segnalazione._filter_fields(kwargs)}
+    
+    if segnalante_id:
+        parametri['segnalante_id'] = segnalante_id
+    
+    db(db.segnalazione.id == segnalazione_id).update(**parametri)
 
 
 def update(
@@ -290,7 +293,7 @@ def update(
     telefono,
     operatore,
     note=None,
-    tipo_segnalante=DEFAULT_TIPO_SEGNALANTE,
+    # tipo_segnalante=DEFAULT_TIPO_SEGNALANTE,
     **kwargs,
 ):
     """
@@ -298,20 +301,24 @@ def update(
     Funzione dedicata alla procedura di aggiornamento dei dati di Segnalazione
 
     """
-
+    
+    # logger.debug(f"segnalazione_id: {segnalazione_id}, nome: {nome}, telefono: {telefono}, operatore: {operatore}, note: {note}, {kwargs}")
+    
     if kwargs:
 
         # Insert SEGNALANTE
-
-        segnalante_id = db.segnalante.insert(
-            # id = new_id(db.segnalante),
-            tipo_segnalante_id=tipo_segnalante,
-            nome=nome,
-            telefono=telefono,
-            note=note,
-        )
-        logger.debug(f"Nuovo segnalante: {db.segnalante[segnalante_id]}")
-
+        if "tipo_segnalante" in kwargs:
+            segnalante_id = db.segnalante.insert(
+                # id = new_id(db.segnalante),
+                tipo_segnalante_id=kwargs["tipo_segnalante"],
+                nome=nome,
+                telefono=telefono,
+                note=note,
+            )
+            logger.debug(f"Nuovo segnalante: {db.segnalante[segnalante_id]}")
+        else:
+            segnalante_id = None
+        
         update_(segnalazione_id, segnalante_id, **kwargs)
         return "Ok"
 
@@ -319,6 +326,7 @@ def update(
 def verbatel_update(intervento_id, lon_lat=None, **kwargs):
     """ """
 
+   
     segnalazione = (
         db(
             (db.intervento.intervento_id == intervento_id)
@@ -345,6 +353,7 @@ def verbatel_update(intervento_id, lon_lat=None, **kwargs):
             .codice
         )
         kwargs["uo_id"] = incarico.get_uo_id(kwargs["municipio_id"])
+        
 
     # Così supporto la chiamata anche con parametro segnalazione_id anche se non
     # servirebbe, a questo punto lo uso come check di robustezza
