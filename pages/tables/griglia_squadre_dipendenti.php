@@ -14,11 +14,19 @@ if(!$conn) {
 	//$idcivico=$_GET["id"];
 	//$query="SELECT matricola, concat(cognome, ' ', nome, ' (',settore,' - ', ufficio) as nome FROM varie.v_dipendenti v ORDER BY cognome;";
     
-   $query="SELECT v.matricola as matricola_cf, concat(v.cognome, ' ', v.nome, ' (', v.settore,ufficio,')') 
-   	as nome FROM varie.v_dipendenti v 
-   	WHERE NOT EXISTS
-		(SELECT matricola_cf FROM users.v_componenti_squadre s WHERE s.matricola_cf = v.matricola and data_end is null) 
-		ORDER BY cognome";
+   $query="SELECT
+			v.matricola as matricola_cf,
+			concat(v.cognome, ' ', v.nome, ' (', v.settore, ' - ', v.ufficio, ')') as nome
+		FROM varie.v_dipendenti v
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM users.v_componenti_squadre s
+			JOIN users.t_squadre sq ON sq.id = s.id
+			WHERE s.matricola_cf = v.matricola
+			  AND s.data_end IS NULL
+			  AND COALESCE(sq.id_stato, 1) <> 2
+		)
+		ORDER BY v.cognome";
    //echo $query;
 	$result = pg_query($conn, $query);
 	#echo $query;
@@ -30,12 +38,8 @@ if(!$conn) {
 	}
 	pg_close($conn);
 	#echo $rows ;
-	if (empty($rows)==FALSE){
-		//print $rows;
-		print json_encode(array_values(pg_fetch_all($result)));
-	} else {
-		echo "[{\"NOTE\":'No data'}]";
-	}
+	header('Content-Type: application/json; charset=utf-8');
+	print json_encode(array_values($rows));
 }
 
 ?>

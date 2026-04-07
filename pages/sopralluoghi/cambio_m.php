@@ -104,6 +104,12 @@ if($_POST["permanente"]=='on') {
 	//exit;
 	$result=pg_query($conn, $query);
 
+	$query="UPDATE users.t_componenti_squadre SET data_end=now()
+	WHERE id_squadra=".$id_squadra_old." AND data_end IS NULL;";
+	echo $query."<br>";
+	//exit;
+	$result=pg_query($conn, $query);
+
 
 
 	$query="UPDATE users.t_squadre SET id_stato=2 WHERE id=".$id_squadra_old.";";
