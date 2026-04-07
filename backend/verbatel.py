@@ -19,6 +19,7 @@ from .wso2 import AccessTokenManager
 
 WSO2_VBT_ROOT = settings.WSO2_VBT_ROOT
 
+
 class VerbatelError(exceptions.HTTPError):
     """ """
 
@@ -43,22 +44,22 @@ class __Tools__(object):
             logger.error(response.text)
             # raise
         else:
-            if response.headers.get('Content-Length')=='0':
+            if response.headers.get('Content-Length') == '0':
                 return
             else:
                 content_type = response.headers.get('Content-Type')
                 if content_type and 'json' in content_type:
                     out = response.json()
                     try:
-                        out=json.loads(out)
+                        out = json.loads(out)
                     except TypeError:
                         logger.debug("Single decode")
                     else:
                         logger.debug("Double decode")
                 else:
                     out = response.text
-                
-                return out
+                    return out
+
 
 class VerbatelWSO2(AccessTokenManager, __Tools__):
     """ """
@@ -69,7 +70,6 @@ class VerbatelWSO2(AccessTokenManager, __Tools__):
 
     def create(self, *path, encode=True, json=False, **payload):
         """ POST """
-        
         if encode is True:
             data = self.payload(**payload)
         else:
@@ -83,7 +83,7 @@ class VerbatelWSO2(AccessTokenManager, __Tools__):
             response = self.post(uri, data=data) # <---
 
         return self.nout(response)
-    
+
     def update(self, *path, **payload):
         """ PUT """
 
@@ -95,12 +95,11 @@ class VerbatelWSO2(AccessTokenManager, __Tools__):
 
     def get(self, *path, **payload):
         """ GET """
-        
+
         data = self.payload(**payload)
         uri = uri = self.uri(*path)
-
         response = self._get(uri, data=data)
-        
+
         return self.nout(response)
 
 
@@ -109,7 +108,12 @@ class __Messanger__(object):
 
     def message(self, id, **payload):
         """ POST """
-        return self.create(id, 'comunicazione', encode=False, json=True, **payload)
+        return self.create(
+            id,
+            'comunicazione',
+            encode=False,
+            json=True, **payload
+        )
 
 
 class EventoWSO2(VerbatelWSO2):
@@ -129,7 +133,7 @@ class EventoWSO2(VerbatelWSO2):
                 return 'SENT UPDATE'
         else:
             return 'SENT NEW'
-    
+
     __call__ = sync
 
 
@@ -141,12 +145,11 @@ class InterventoWSO2(VerbatelWSO2, __Messanger__):
 class PresidioWSO2(VerbatelWSO2, __Messanger__):
     """ """
     root = VerbatelWSO2.uri(VerbatelWSO2, 'servizi')
-    
+
 
 class MessaggioWSO2(VerbatelWSO2):
     """ """
     root = 'messaggi'
-
 
 
 class Verbatel(object):
@@ -183,7 +186,7 @@ class Verbatel(object):
                 return
             else:
                 try:
-                    out=json.loads(response.json())
+                    out = json.loads(response.json())
                 except TypeError:
                     logger.debug("Single decode")
                     return response.json()
@@ -202,9 +205,9 @@ class Verbatel(object):
         logger.debug(f'"{_url}"')
         logger.debug(data)
         if json is True:
-            response = requests.post(_url, json=data) # <---
+            response = requests.post(_url, json=data)  # <---
         else:
-            response = requests.post(_url, data=data) # <---
+            response = requests.post(_url, data=data)  # <---
         return cls.__nout(response)
 
     @classmethod
@@ -214,7 +217,7 @@ class Verbatel(object):
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.put(_url, data=data) # <---
+        response = requests.put(_url, data=data)  # <---
         return cls.__nout(response)
 
     @classmethod
@@ -224,12 +227,14 @@ class Verbatel(object):
         data = cls._payload(**payload)
         logger.debug(f'"{_url}"')
         logger.debug(data)
-        response = requests.get(_url, params=data) # <---
+        response = requests.get(_url, params=data)  # <---
         return cls.__nout(response)
+
 
 class Evento(Verbatel):
     """docstring for Evento."""
     root = 'eventi'
+
 
 class Intervento(Verbatel):
     """docstring for Intervento."""
@@ -238,11 +243,18 @@ class Intervento(Verbatel):
     @classmethod
     def message(cls, id, **payload):
         """ POST """
-        return cls.create(id, 'comunicazione', encode=False, json=True, **payload)
+        return cls.create(
+            id,
+            'comunicazione',
+            encode=False,
+            json=True,
+            **payload
+        )
+
 
 class Presidio(Verbatel):
     """docstring for Intervento."""
-    root = 'servizi' # <- guess (manca ancora la doc da Verbatel)
+    root = 'servizi'  # <- guess (manca ancora la doc da Verbatel)
 
     @classmethod
     def message(cls, id, **payload):
