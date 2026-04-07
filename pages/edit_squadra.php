@@ -232,14 +232,28 @@ require('navbar_up.php');
 					// vedo solo il Gruppo Genova
 					$query2="SELECT * FROM users.v_utenti_esterni v 
 					WHERE NOT EXISTS
-						(SELECT matricola_cf FROM users.v_componenti_squadre s WHERE s.matricola_cf = v.cf and data_end is null) 
+						(
+							SELECT 1
+							FROM users.v_componenti_squadre s
+							JOIN users.t_squadre sq ON sq.id = s.id
+							WHERE s.matricola_cf = v.cf
+							  AND s.data_end IS NULL
+							  AND COALESCE(sq.id_stato, 1) <> 2
+						) 
 						AND id1 NOT IN (9, 10)
 						ORDER BY cognome";
 				} else if (substr($cod_profilo_squadra,0,2)=='uo' OR (int)substr($cod_profilo_squadra,-1,1)>1){
 					
 					$query2="SELECT * FROM users.v_utenti_esterni v 
 					WHERE NOT EXISTS
-						(SELECT matricola_cf FROM users.v_componenti_squadre s WHERE s.matricola_cf = v.cf and data_end is null)
+						(
+							SELECT 1
+							FROM users.v_componenti_squadre s
+							JOIN users.t_squadre sq ON sq.id = s.id
+							WHERE s.matricola_cf = v.cf
+							  AND s.data_end IS NULL
+							  AND COALESCE(sq.id_stato, 1) <> 2
+						)
 						and id1=".(int)substr($cod_profilo_squadra,-1)."
 						ORDER BY cognome";
 				}
@@ -279,7 +293,14 @@ require('navbar_up.php');
 			} else {
             	$query2="SELECT matricola, cognome, nome, settore,ufficio FROM varie.v_dipendenti v 
             	WHERE NOT EXISTS
-					(SELECT matricola_cf FROM users.v_componenti_squadre s WHERE s.matricola_cf = v.matricola and data_end is null) 
+					(
+						SELECT 1
+						FROM users.v_componenti_squadre s
+						JOIN users.t_squadre sq ON sq.id = s.id
+						WHERE s.matricola_cf = v.matricola
+						  AND s.data_end IS NULL
+						  AND COALESCE(sq.id_stato, 1) <> 2
+					) 
 					ORDER BY cognome";
 	         	$result2 = pg_query($conn, $query2);
             	//echo $query2;
