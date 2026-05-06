@@ -154,6 +154,13 @@ function nameFormatterLettura(value, row) {
 // Export Excel
 $(function() {
   $('#t_mire').bootstrapTable('refreshOptions', {
+    formatLoadingMessage: function () {
+      return 'Caricamento dati…';
+    },
+    formatNoMatches: function () {
+      // evita il flash "nessun record" durante la prima chiamata AJAX
+      return 'Caricamento dati…';
+    },
     exportOptions: {
       onCellHtmlData: function (cell, rowIndex, colIndex, htmlData) {
         // 1) prova a leggere da DOM
@@ -173,4 +180,80 @@ $(function() {
       }
     }
   });
+});
+
+// Blocca le larghezze delle colonne (evita resize con filtri/refresh)
+$(function () {
+  var $table = $('#t_mire');
+  if ($table.length === 0) return;
+
+  var lockedWidths = null;
+
+  function applyColWidths() {
+    if (!lockedWidths || lockedWidths.length === 0) return;
+
+    var $container = $table.closest('.bootstrap-table');
+    if ($container.length === 0) return;
+
+    var $headerCols = $container.find('.fixed-table-header table colgroup col');
+    var $bodyCols = $container.find('.fixed-table-body table colgroup col');
+
+    // Se non esiste colgroup (dipende da versione/plugin), fallback: imposta width sui TH
+    if ($headerCols.length === 0 || $bodyCols.length === 0) {
+      $container.find('.fixed-table-header table thead th').each(function (i) {
+        if (lockedWidths[i] != null) $(this).css('width', lockedWidths[i] + 'px');
+      });
+      $container.find('.fixed-table-body table tbody tr:first-child td').each(function (i) {
+        if (lockedWidths[i] != null) $(this).css('width', lockedWidths[i] + 'px');
+      });
+      return;
+    }
+
+    $headerCols.each(function (i) {
+      if (lockedWidths[i] != null) $(this).css('width', lockedWidths[i] + 'px');
+    });
+    $bodyCols.each(function (i) {
+      if (lockedWidths[i] != null) $(this).css('width', lockedWidths[i] + 'px');
+    });
+
+    // Stabilizza il layout: niente ricalcolo automatico col contenuto
+    $container.find('.fixed-table-header table, .fixed-table-body table').css('table-layout', 'fixed');
+    $container.find('.fixed-table-body td, .fixed-table-header th').css({
+      overflow: 'hidden',
+      'text-overflow': 'ellipsis',
+      'white-space': 'nowrap'
+    });
+  }
+
+  function lockInitialWidths() {
+    if (lockedWidths) return;
+
+    var $container = $table.closest('.bootstrap-table');
+    var $ths = $container.find('.fixed-table-header table thead th');
+    if ($ths.length === 0) return;
+
+    lockedWidths = [];
+    $ths.each(function () {
+      // outerWidth include bordi/padding: è quella che “vedi” a schermo
+      lockedWidths.push($(this).outerWidth());
+    });
+
+    applyColWidths();
+  }
+
+  // Al primo load “buono” congela, poi riapplica ad ogni aggiornamento
+  $table.on('load-success.bs.table', function () {
+    lockInitialWidths();
+    // dopo un tick: bootstrap-table può ricalcolare dopo l'evento
+    setTimeout(applyColWidths, 0);
+  });
+  $table.on('post-body.bs.table', function () {
+    setTimeout(applyColWidths, 0);
+  });
+
+  // Se la tabella era già inizializzata prima di questo script, prova comunque
+  setTimeout(function () {
+    lockInitialWidths();
+    applyColWidths();
+  }, 0);
 });
