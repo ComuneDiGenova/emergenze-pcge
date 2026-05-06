@@ -34,17 +34,17 @@ if(!$conn) {
 		join_lav.id_segnalazione_in_lavorazione AS id_lavorazione,
 		lav.in_lavorazione,
 		lav.id_profilo,
-		COALESCE(
-			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico<3)>0, 
-			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico<3)>0, 
-			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari<3)>0, 
-			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo<3)>0
+		(
+			(count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico < 3) > 0)
+			OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico < 3) > 0)
+			OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari < 3) > 0)
+			OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo < 3) > 0)
 		) AS incarichi,
-		COALESCE(
-			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico=3)>1, 
-			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico=3)>0, 
-			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari=3)>0, 
-			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo=3)>0
+		(
+			(count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico = 3) > 0)
+			OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico = 3) > 0)
+			OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari = 3) > 0)
+			OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo = 3) > 0)
 		) AS incarichi_chiusi,
 		seg.id_evento,
 		MAX(seg.geom::text) AS geom,
