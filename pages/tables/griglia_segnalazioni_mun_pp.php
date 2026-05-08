@@ -19,19 +19,28 @@ if(!$conn) {
 } else {
 	$query = "SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
 					main.lon, main.lat,
-					main.incarichi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
+					main.incarichi, main.incarichi_chiusi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
 				FROM (
 					select s.id, s.criticita, s.id_evento,sum(s.num) as num, s.in_lavorazione, s.localizzazione, s.nome_munic, 
 						st_x(s.geom) as lon, st_y(s.geom) as lat,
-						s.incarichi,
+						(
+							count(i.id_lavorazione) filter (where i.id_stato_incarico = 2) > 0
+							OR count(ii.id_lavorazione) filter (where ii.id_stato_incarico = 2) > 0
+						) AS incarichi,
+						(
+							(count(i.id_lavorazione) + count(ii.id_lavorazione)) > 0
+							AND
+							(
+								(count(i.id_lavorazione) filter (where i.id_stato_incarico <> 3))
+								+ (count(ii.id_lavorazione) filter (where ii.id_stato_incarico <> 3))
+							) = 0
+						) AS incarichi_chiusi,
 						unnest(
 							array_agg(distinct case 
-													when i.id_stato_incarico = 1 then i.descrizione_uo::varchar 
-													when i.id_stato_incarico = 2 then i.descrizione_uo::varchar
+													when i.id_stato_incarico in (1,2) then i.descrizione_uo::varchar 
 												end) || 
 							array_agg(distinct case 
-													when ii.id_stato_incarico = 1 then ii.descrizione_uo::varchar
-													when ii.id_stato_incarico = 2 then ii.descrizione_uo::varchar
+													when ii.id_stato_incarico in (1,2) then ii.descrizione_uo::varchar
 												end)
 						) as responsabile_incarico		
 					from segnalazioni.v_segnalazioni_lista_pp s
@@ -46,9 +55,9 @@ if(!$conn) {
 						and j.sospeso='t'
 					group by s.id, s.criticita, s.id_evento,
 							s.num, s.in_lavorazione, s.localizzazione, 
-							s.nome_munic, lon, lat, s.incarichi) AS main
+							s.nome_munic, lon, lat) AS main
 				GROUP BY main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, 
-						main.nome_munic, lon, lat, main.incarichi;";
+						main.nome_munic, lon, lat, main.incarichi, main.incarichi_chiusi;";
     
 	$result = pg_query($conn, $query);
 
