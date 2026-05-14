@@ -27,31 +27,30 @@ if(!$conn) {
 	//    	and (s.fine_sospensione is null OR s.fine_sospensione < now()) 
 	// 	and j.sospeso='f';";
 
-	$query = "SELECT main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, main.nome_munic, 
-					main.lon, main.lat,
-					main.incarichi, main.incarichi_chiusi, string_agg(main.responsabile_incarico, ' - ') AS responsabile_incarico
-				FROM (
-					SELECT 
+	$query = "SELECT 
 						s.id, s.criticita, s.id_evento, s.num, s.in_lavorazione, s.localizzazione, s.nome_munic, st_x(s.geom) AS lon, st_y(s.geom) AS lat,
 						(
 							count(i.id_lavorazione) filter (where i.id_stato_incarico = 2) > 0
 							OR count(ii.id_lavorazione) filter (where ii.id_stato_incarico = 2) > 0
+							OR count(sop.id) filter (where sop.id_stato_sopralluogo IN (1, 2)) > 0
 						) AS incarichi,
-												unnest(
-							array_agg(distinct case 
-													when i.id_stato_incarico in (1,2) then i.descrizione_uo::varchar
-												end) || 
-							array_agg(distinct case 
-													when ii.id_stato_incarico in (1,2) then ii.descrizione_uo::varchar
-												end)
-						) as responsabile_incarico,
+						string_agg(DISTINCT CASE
+							WHEN i.id_stato_incarico IN (1, 2) THEN i.descrizione_uo::varchar
+							WHEN ii.id_stato_incarico IN (1, 2) THEN ii.descrizione_uo::varchar
+							ELSE NULL
+						END, ' - ') AS responsabile_incarico,
+						string_agg(DISTINCT CASE
+							WHEN sop.id_stato_sopralluogo IN (1, 2) THEN sop.descrizione_uo::varchar
+							ELSE NULL
+						END, ' - ') AS responsabile_presidio,
 						coalesce(sdv.intervento_id, 0)::boolean AS from_verbatel,
 						(
-							(count(i.id_lavorazione) + count(ii.id_lavorazione)) > 0
+							(count(i.id_lavorazione) + count(ii.id_lavorazione) + count(sop.id)) > 0
 							AND
 							(
 								(count(i.id_lavorazione) filter (where i.id_stato_incarico <> 3))
 								+ (count(ii.id_lavorazione) filter (where ii.id_stato_incarico <> 3))
+								+ (count(sop.id) filter (where sop.id_stato_sopralluogo <> 3))
 							) = 0
 						) AS incarichi_chiusi
 					FROM 
@@ -65,6 +64,9 @@ if(!$conn) {
 					LEFT JOIN 
 						segnalazioni.v_incarichi_interni ii
 						ON s.id_lavorazione = ii.id_lavorazione
+					LEFT JOIN
+						segnalazioni.v_sopralluoghi_last_update sop
+						ON sop.id_lavorazione = s.id_lavorazione AND sop.id_stato_sopralluogo < 4
 					LEFT JOIN 
 						verbatel.segnalazioni_da_verbatel sdv
 						ON sdv.segnalazione_id = s.id
@@ -82,11 +84,7 @@ if(!$conn) {
 						s.in_lavorazione, 
 						s.localizzazione, 
 						s.nome_munic, 
-						lon, 
-						lat
-					) AS main
-				GROUP BY main.id, main.criticita, main.id_evento, main.num, main.in_lavorazione, main.localizzazione, 
-						main.nome_munic, lon, lat, main.incarichi, main.incarichi_chiusi;";
+						s.geom;";
 
 	$result = pg_query($conn, $query);
 

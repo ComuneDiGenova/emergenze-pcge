@@ -38,7 +38,7 @@ if(!$conn) {
 			(count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico = 2) > 0)
 			OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico = 2) > 0)
 			OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari = 2) > 0)
-			OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo = 2) > 0)
+			OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo IN (1, 2)) > 0)
 		) AS incarichi,
 		(
 			(
@@ -58,6 +58,13 @@ if(!$conn) {
 					+ (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo <> 3))
 				) = 0
 			)
+			AND (
+				lav.id_profilo = 6
+				OR (count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico = 2) > 0)
+				OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico = 2) > 0)
+				OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari = 2) > 0)
+				OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo IN (1, 2)) > 0)
+			)
 		) AS incarichi_chiusi,
 		seg.id_evento,
 		MAX(seg.geom::text) AS geom,
@@ -69,6 +76,12 @@ if(!$conn) {
 				ELSE null
 			END, ' - '
 		) AS responsabile_incarico,
+		string_agg(DISTINCT
+			CASE
+				WHEN sopralluoghi.id_stato_sopralluogo IN (1, 2) THEN sopralluoghi.descrizione_uo::varchar
+				ELSE NULL
+			END, ' - '
+		) AS responsabile_presidio,
 		bool_and(coalesce(verb.intervento_id, 0)::boolean and (lav.id_profilo=6)) as presa_visione_verbatel
 	FROM 
 		segnalazioni.t_segnalazioni seg
