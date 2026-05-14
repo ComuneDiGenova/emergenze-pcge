@@ -80,6 +80,18 @@ require('navbar_up.php');
             <div class="row">
             <div class="col-md-6">
 				<?php
+					$id_incarico = (int) $id;
+					if ($id_incarico > 0) {
+						$q_auto_start = "UPDATE segnalazioni.t_incarichi_interni t
+							SET time_start = NOW()
+							FROM segnalazioni.v_incarichi_interni_last_update v
+							WHERE t.id = v.id AND t.id = ".$id_incarico."
+							AND v.id_stato_incarico = 2
+							AND t.time_start IS NULL
+							AND t.time_preview IS NOT NULL
+							AND t.time_preview <= NOW()";
+						pg_query($conn, $q_auto_start);
+					}
 					$query= "SELECT *, st_x(st_transform(geom,4326)) as lon , st_y(st_transform(geom,4326)) as lat FROM segnalazioni.".$table." WHERE id=".$id." ORDER BY data_ora_stato DESC LIMIT 1;";
 					//echo $query
            		$check_segnalazione=0;
