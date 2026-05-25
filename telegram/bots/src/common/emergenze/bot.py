@@ -1154,8 +1154,6 @@ async def process_presa(message: types.Message, state: FSMContext):
             reply_markup=markup,
             parse_mode=ParseMode.MARKDOWN,
         )
-    inizio_incarico = datetime.now() + timedelta(minutes=int(data["orario"]))
-    inizio_preview = inizio_incarico.replace(second=0, microsecond=0)
     con = psycopg2.connect(
         host=conn.ip, dbname=conn.db, user=conn.user, password=conn.pwd, port=conn.port
     )
@@ -1169,8 +1167,8 @@ async def process_presa(message: types.Message, state: FSMContext):
     )
     incarico_assegnato2 = esegui_query(con, query_incarico2, "s")
     print(incarico_assegnato2)
-    query_time = "UPDATE segnalazioni.t_incarichi_interni SET time_preview='{}' WHERE id={};".format(
-        inizio_preview, incarico_assegnato2[0][3]
+    query_time = "UPDATE segnalazioni.t_incarichi_interni SET time_preview = date_trunc('minute', now() AT TIME ZONE 'Europe/Rome') + interval '{} minutes' WHERE id={};".format(
+        int(data["orario"]), incarico_assegnato2[0][3]
     )
     time_inizio = esegui_query(con, query_time, "u")
     if data["tipopresa"] == "Parziale":
@@ -1469,7 +1467,7 @@ async def process_chiudo_note(message: types.Message, state: FSMContext):
         )
         incarico_assegnato2 = esegui_query(con, query_incarico2, "s")
         print(message.chat.id, incarico_assegnato2)
-        query_note = "UPDATE segnalazioni.t_incarichi_interni SET note_ente='{}', time_stop=now() WHERE id={};".format(
+        query_note = "UPDATE segnalazioni.t_incarichi_interni SET note_ente='{}', time_stop=(now() AT TIME ZONE 'Europe/Rome') WHERE id={};".format(
             message.text, incarico_assegnato2[0][3]
         )
         update_motivo = esegui_query(con, query_note, "u")
