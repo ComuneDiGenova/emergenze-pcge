@@ -16,6 +16,8 @@ import subprocess
 import config
 #import traceback
 
+VERBATEL_PATH='emergenze-pcge/backend'
+
 # controlla se update viene eseguito correttamente o meno 
 # e compila una lista con viste non correttamente aggiornate
 check_web = 1  
@@ -132,13 +134,11 @@ def db_updater():
 if __name__ == "__main__":
     # Disattivo temporaneamente i container Docker che bloccano le tabelle
     print("SWITCHING OFF DOCKER CONTAINERS")
-    os.chdir('/home/local/COMGE/egter01/emergenze_verbatel/Emergenze-Verbatel')
     
-    # PROD: tiro giù i container
-    docker_down = os.popen('docker compose -f docker-compose-dev.yml down -v')
+    os.chdir(f'/home/local/COMGE/egter01/{VERBATEL_PATH}')
     
-    # TEST: tiro giù i container
-    # docker_down = os.popen('sudo docker-compose down -v')
+    # tiro giù i container
+    docker_down = os.popen('sudo docker-compose down -v')
     
     docker_down.read()
 
@@ -169,13 +169,10 @@ if __name__ == "__main__":
 
     # Riattivo i servizi Docker
     print("RESTARTING DOCKER CONTAINERS")
-    os.chdir('/home/local/COMGE/egter01/emergenze_verbatel/Emergenze-Verbatel')
+    os.chdir(f'/home/local/COMGE/egter01/{VERBATEL_PATH}')
     
-    # PROD: tiro su i container
-    docker_up = os.popen("docker compose -f docker-compose-dev.yml up -d")
-    
-    # TEST: tiro su i container
-    # docker_up = os.popen("sudo docker-compose up -d")
+    # tiro su i container
+    docker_up = os.popen("sudo docker-compose up -d")
     
     docker_up.read()
 
