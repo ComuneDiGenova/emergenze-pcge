@@ -138,7 +138,7 @@ if __name__ == "__main__":
     os.chdir(f'/home/local/COMGE/egter01/{VERBATEL_PATH}')
     
     # tiro giù i container
-    docker_down = os.popen('sudo docker-compose down -v')
+    docker_down = os.popen('sudo docker compose down -v')
     
     docker_down.read()
 
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     os.chdir(f'/home/local/COMGE/egter01/{VERBATEL_PATH}')
     
     # tiro su i container
-    docker_up = os.popen("sudo docker-compose up -d")
+    docker_up = os.popen("sudo docker compose up -d")
     
     docker_up.read()
 
