@@ -152,6 +152,7 @@ def create_by_segnalazione(segnalazione_id, *args, **kwargs):
 
     return create(lavorazione_id, *args, **kwargs)
 
+
 def render(row):
     """ """
 
@@ -159,22 +160,29 @@ def render(row):
         # 'idIntervento': row.idIntervento,
         'operatore': 'operatore di PC',
         'testo': row.testo,
-        # 'files': [allegato]
     }
 
-    if not row.allegato is None:
+    if row.allegato:
+        files_list = []
+        # Supporta sia un percorso singolo che più percorsi separati da ';'
+        percorsi = [p.strip() for p in row.allegato.split(';') if p.strip()]
 
-        with open(os.path.join(
-            settings.EMERGENZE_UPLOAD, *(row.allegato.split(os.path.sep)[1:])), 'rb'
-        ) as ff:
-            encoded_string = base64.b64encode(ff.read()).decode()
+        for path_allegato in percorsi:
+            full_path = os.path.join(
+                settings.EMERGENZE_UPLOAD, 
+                *(path_allegato.split(os.path.sep)[1:])
+            )
+            
+            with open(full_path, 'rb') as ff:
+                encoded_string = base64.b64encode(ff.read()).decode()
 
-        allegato = {
-            'fileName': os.path.basename(row.allegato),
-            'file': encoded_string
-        }
+            files_list.append({
+                'fileName': os.path.basename(path_allegato),
+                'file': encoded_string
+            })
 
-        out['files'] = [allegato]
+        if files_list:
+            out['files'] = files_list
 
     return out
 
