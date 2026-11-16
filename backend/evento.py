@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .common import db
+from .common import db, logger
 
 municipio_nomi = f'array_agg(distinct {db.municipio._rname}.{db.municipio.nome._rname} '\
     f'order by {db.municipio._rname}.{db.municipio.nome._rname})'
@@ -28,6 +28,17 @@ note = "json_agg(distinct jsonb_build_object("\
 def render(row):
     """ """
     rec = {k: v for k,v in row.items() if not k.startswith('_')}
+
+    # rec = {
+    #     'id': row['id'],
+    #     'inizio': row['inizio'],
+    #     'fine': row['fine'],
+    #     'fine_sospensione': row['fine_sospensione'],
+    #     'chiusura': row['chiusura'],
+    #     'valido': row['valido'],
+    #     'descrizione': row['descrizione']
+    # }
+
     rec['municipi'] = row[municipio_nomi]
     rec['foc'] = row[focs]
     rec['allerte'] = row[allerte]
@@ -47,6 +58,8 @@ def render(row):
 
     rec['valido'] = not (row.valido==False)
 
+    logger.debug(row)
+    logger.debug(rec)
     return rec
 
 def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
@@ -55,9 +68,9 @@ def fetch(id=None, page=0, paginate=None, _foc_only=True, _all=True):
     # Join
 
     dbset = db(
-	(db.municipio.codice!='0') & \
-        (db.evento.id==db.join_tipo_evento.evento_id) & \
-        (db.tipo_evento.id==db.join_tipo_evento.tipo_evento_id)
+        (db.municipio.codice != '0') & \
+        (db.evento.id == db.join_tipo_evento.evento_id) & \
+        (db.tipo_evento.id == db.join_tipo_evento.tipo_evento_id)
     )
 
     left = (

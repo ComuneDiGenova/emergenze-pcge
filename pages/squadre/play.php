@@ -9,6 +9,12 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
 $id=$_GET['id'];
 
+$query="UPDATE users.t_componenti_squadre SET data_end=now()
+WHERE id_squadra=".$id." AND data_end IS NULL;";
+echo $query;
+//exit;
+$result=pg_query($conn, $query);
+
 $query="UPDATE users.t_squadre SET id_stato=2 WHERE id=".$id.";";
 echo $query;
 //exit;

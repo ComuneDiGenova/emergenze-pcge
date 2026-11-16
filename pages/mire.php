@@ -211,6 +211,7 @@ function roundToQuarterHour($now){
                             data-page-size="75"
                             data-page-list="[10,25,50,75,100,200,500]"
                             data-side-pagination="server"
+                            data-show-loading="true"
 
                             data-show-refresh="true"
                             data-show-toggle="false"

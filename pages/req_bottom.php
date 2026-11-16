@@ -29,15 +29,15 @@ $subtitle2 = str_replace("'", "\'", str_replace(' ', '_', $subtitle));
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.30.0/tableExport.min.js" integrity="sha256-JyCQ2nRcfgpZ59ajhyVPIcC7FLX3UUaWDX8dXJwLHWg=" crossorigin="anonymous"></script>
 
 <!-- FileSaver (alcune build di tableExport non lo includono) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-pqbSOE0Z4xP6r5rT8n2m8m8xQ4Xn9sVQ2m5d7o3C0mQ2LkQ1eYw3hV8ZkS0n7Qz6bF6r1qQmW3y1wH5Y8G6uFQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" crossorigin="anonymous"></script>
 
 <!-- jsPDF + AutoTable per PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-YkF5sLqS3t9m3uY+5mJfXhKX3o9t8g3gUjvS6YxUjHkz3O3h0Fq8r8lV8w2NfXr1Kj5t1wR4yqzHf1+2k5lWl+w==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous"></script>
 <script>
   // Espone jsPDF in globale (necessario con la build UMD)
   window.jsPDF = window.jspdf.jsPDF;
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js" integrity="sha512-cJ4V3f2p7o9i3d1jB7xM2w9kQxZ0Jp8C0GQyR2bLMH7zFQ7Hk1lXG+7LrGfGQO5a2p0f2iVw2s3LJYdQqf2YbQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js" integrity="sha512-1/8DJLhOONj7obS4tw+A/2yb/cK9w5vWP+L4liQKYX/JeLZ/cqDuZfgDha4NK/kR/6b5IzHpS7/w80v4ED+8Mg==" crossorigin="anonymous"></script>
 
 <!-- Estensione Export di Bootstrap Table (DEVE venire dopo tutte le dipendenze) -->
 <script src="../vendor/bootstrap-table/dist/extensions/export/bootstrap-table-export.js"></script>

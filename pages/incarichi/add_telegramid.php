@@ -5,8 +5,8 @@ require('../validate_input.php');
 
 include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 
-$uo=$_GET["cod"];
-$mail=$_GET["mail"];
+$uo = isset($_GET['cod']) ? str_replace("'", '', trim($_GET['cod'])) : '';
+$mail = isset($_GET['mail']) ? trim(rawurldecode($_GET['mail'])) : '';
 $idt=$_POST["idt"];
 
 

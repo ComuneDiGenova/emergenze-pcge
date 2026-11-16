@@ -6,8 +6,60 @@ include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
 if(!$conn) {
     die('Connessione fallita !<br />');
 } else {
-	//$idcivico=$_GET["id"];
-	$query="SELECT 
+	// Bootstrap Table server-side params
+	$limit  = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 75;
+	$offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
+	$search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
+	$sort   = isset($_GET['sort']) ? (string)$_GET['sort'] : '';
+	$order  = isset($_GET['order']) ? strtolower((string)$_GET['order']) : 'asc';
+
+	$filterRaw = isset($_GET['filter']) ? (string)$_GET['filter'] : '';
+	$filter = [];
+	if ($filterRaw !== '') {
+		$decoded = json_decode($filterRaw, true);
+		if (is_array($decoded)) {
+			$filter = $decoded;
+		}
+	}
+
+	$allowedSort = [
+		'nome' => 'nome',
+		'tipo' => 'tipo',
+		'last_update' => 'last_update',
+		'perc_al_g' => 'perc_al_g',
+		'perc_al_a' => 'perc_al_a',
+		'perc_al_r' => 'perc_al_r',
+	];
+	$sortSql = $allowedSort[$sort] ?? 'nome';
+	$orderSql = ($order === 'desc') ? 'DESC' : 'ASC';
+
+	$where = [];
+
+	// filter-control per colonna
+	$filterableEquals = ['tipo', 'perc_al_g', 'perc_al_a', 'perc_al_r'];
+	foreach ($filterableEquals as $k) {
+		if (isset($filter[$k]) && trim((string)$filter[$k]) !== '') {
+			$v = trim((string)$filter[$k]);
+			$where[] = "$k = " . pg_escape_literal($conn, $v);
+		}
+	}
+	if (isset($filter['nome']) && trim((string)$filter['nome']) !== '') {
+		$v = trim((string)$filter['nome']);
+		$where[] = "nome ILIKE " . pg_escape_literal($conn, '%' . $v . '%');
+	}
+
+	// search globale
+	if ($search !== '') {
+		$s = pg_escape_literal($conn, '%' . $search . '%');
+		$where[] = "(nome ILIKE $s OR tipo ILIKE $s OR COALESCE(perc_al_g,'') ILIKE $s OR COALESCE(perc_al_a,'') ILIKE $s OR COALESCE(perc_al_r,'') ILIKE $s)";
+	}
+
+	$whereSql = '';
+	if (!empty($where)) {
+		$whereSql = "WHERE " . implode(" AND ", $where);
+	}
+
+	$baseQuery="SELECT 
 				CONCAT(p.nome, ' (', COALESCE(REPLACE(p.note, 'LOCALITA', ''), ''), ')') AS nome,
 				p.tipo,
 				p.id::VARCHAR, 
@@ -175,15 +227,29 @@ if(!$conn) {
 				LEFT JOIN geodb.soglie_idrometri_comune s ON p.id::text = s.id::text
 				WHERE p.usato = 't' and p.doppione_arpa = 'f'
 			GROUP BY p.nome, l.id_station, p.id, s.liv_arancione, s.liv_rosso
-			ORDER BY nome;";
+			";
 
-	$result = pg_query($conn, $query);
+	// total count
+	$queryTotal = "SELECT COUNT(*) AS total FROM ($baseQuery) q $whereSql;";
+	$resultTotal = pg_query($conn, $queryTotal);
+	$total = 0;
+	if ($resultTotal) {
+		$rTot = pg_fetch_assoc($resultTotal);
+		if ($rTot && isset($rTot['total'])) {
+			$total = (int)$rTot['total'];
+		}
+	}
 
-	$response = [];
+	// rows
+	$queryRows = "SELECT * FROM ($baseQuery) q $whereSql ORDER BY $sortSql $orderSql NULLS LAST LIMIT $limit OFFSET $offset;";
+
+	$result = pg_query($conn, $queryRows);
+
+	$rows = [];
 
 	if ($result) {
 		while ($row = pg_fetch_assoc($result)) {
-			$response[] = [
+			$rows[] = [
 				"nome" => $row["nome"],
 				"tipo" => $row["tipo"],
 				"id" => $row["id"],
@@ -201,18 +267,17 @@ if(!$conn) {
 				"1" => !empty($row["1"]) ? $row["1"] : null,
 				"0" => !empty($row["0"]) ? $row["0"] : null,
 				"NOW" => $row["NOW"],
-				"NOW2" => new DateTime('now'),
 			];
 		}
 	}
 
 	pg_close($conn);
 
-	if (!empty($response)){
-		echo json_encode($response, JSON_PRETTY_PRINT);
-	} else {
-		echo "[{\"NOTE\":\"No data\"}]";
-	}
+	header('Content-Type: application/json; charset=utf-8');
+	echo json_encode([
+		"total" => $total,
+		"rows" => $rows
+	], JSON_UNESCAPED_UNICODE);
 }
 
 ?>

@@ -5,7 +5,7 @@ services:
       user: 0:${RID:-1000}
       volumes:
         - ./storage/dumps:/share/dumps:rw
-        - ./postgis-data:/var/lib/postgresql/data:rw
+        - ${POSTGIS_PATH:-./postgis-data}:/var/lib/postgresql/data:rw
         - /etc/timezone:/etc/timezone:ro
         - /etc/localtime:/etc/localtime:ro
         - { type: bind, source: "./storage/etc/postgres.init.d", target: /docker-entrypoint-initdb.d }

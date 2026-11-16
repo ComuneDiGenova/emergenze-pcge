@@ -4,10 +4,36 @@ session_start();
 //require('../validate_input.php');;
 //require('../validate_input.php');;
 
-include explode('emergenze-pcge',getcwd())[0].'emergenze-pcge/conn.php';
+$EMERGENZE_ROOT = dirname(__DIR__);
+include $EMERGENZE_ROOT . '/conn.php';
 
-$uo=str_replace("'", "", $_GET["id"]);
+$uo = isset($_GET['id']) ? str_replace("'", '', trim($_GET['id'])) : '';
 
+// Eliminazione via POST sulla stessa pagina (evita problemi di path/URL in incarichi/elimina_mail.php)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['elimina_mail']) && isset($_POST['mail']) && $uo !== '') {
+	$mail_delete = $_POST['mail'];
+	$result_del = @pg_query_params(
+		$conn,
+		'DELETE FROM users.t_mail_incarichi WHERE cod = $1 AND mail = $2',
+		array($uo, $mail_delete)
+	);
+	if (!$result_del) {
+		$result_del = pg_query(
+			$conn,
+			"DELETE FROM users.t_mail_incarichi WHERE cod='" . pg_escape_string($conn, $uo) . "' AND mail='" . pg_escape_string($conn, $mail_delete) . "'"
+		);
+	}
+	$msg = ($result_del && pg_affected_rows($result_del) > 0) ? 'deleted' : 'failed';
+	if ($msg === 'deleted') {
+		$operatore = isset($_SESSION['operatore']) ? $_SESSION['operatore'] : (isset($_SESSION['user']) ? $_SESSION['user'] : '');
+		if ($operatore !== '') {
+			$testo = 'Eliminata mail ' . $mail_delete . ' da Unità Operativa ' . $uo;
+			pg_query_params($conn, "INSERT INTO varie.t_log (schema, operatore, operazione) VALUES ('users', $1, $2)", array($operatore, $testo));
+		}
+	}
+	header('Location: edit_mail_uo.php?id=' . rawurlencode($uo) . '&msg=' . $msg);
+	exit;
+}
 
 // recupero info su U.O. 
 $uo_array=explode("_",$uo);
@@ -80,21 +106,31 @@ require('navbar_up.php');
             <div class="row">
 				<h2>Contatti già a sistema</h2>
 				<?php
+				if (isset($_GET['msg']) && $_GET['msg'] === 'deleted') {
+					echo '<div class="alert alert-success">Contatto mail eliminato correttamente.</div>';
+				} elseif (isset($_GET['msg']) && $_GET['msg'] === 'failed') {
+					echo '<div class="alert alert-danger">Impossibile eliminare il contatto. Riprovare o contattare l\'amministratore di sistema.</div>';
+				}
 				$check_mail=0; // non ci sono mail diventa 1 se ce ne sono già
 				$query="SELECT cod, mail, matricola_cf, id_telegram FROM users.t_mail_incarichi WHERE cod='".$uo."';";
 				$result = pg_query($conn, $query);
 				while($r = pg_fetch_assoc($result)) {
 					$check_mail=1;
+					$mail_esc = htmlspecialchars($r['mail'], ENT_QUOTES, 'UTF-8');
+					$modal_id = 'add_tid_' . md5($r['mail']);
+					$delete_form = '<form method="post" action="edit_mail_uo.php?id='.rawurlencode($uo).'" style="display:inline;" onsubmit="return confirm(\'Eliminare questo contatto mail?\');">'
+						.'<input type="hidden" name="elimina_mail" value="1">'
+						.'<input type="hidden" name="mail" value="'.$mail_esc.'">'
+						.'<button type="submit" class="btn btn-danger">Elimina</button></form>';
 					echo '<b>Mail</b>: '.$r['mail'].' ';
-					//echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&mail='.$r['mail'].'"> Elimina </a><br><br>';
 					if($r['id_telegram']!=''){
 						echo '- <b>Telegram ID</b>: '.$r['id_telegram'].' ';
-						echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&idt='.$r['id_telegram'].'&mail='.$r['mail'].'"> Elimina </a><br><br>';
+						echo $delete_form.'<br><br>';
 					}else{
-						echo '<a class="btn btn-danger" href="./incarichi/elimina_mail.php?cod='.$r['cod'].'&mail='.$r['mail'].'"> Elimina </a>
-						<button type="button" class="btn btn-primary noprint"  data-toggle="modal" data-target="#add_tid"> Aggiungi Telegram ID </button><br><br>
+						echo $delete_form.'
+						<button type="button" class="btn btn-primary noprint"  data-toggle="modal" data-target="#'.$modal_id.'"> Aggiungi Telegram ID </button><br><br>
 						<!-- Modal sopralluogo-->
-						<div id="add_tid" class="modal fade" role="dialog">
+						<div id="'.$modal_id.'" class="modal fade" role="dialog">
 						  <div class="modal-dialog">
 
 							<!-- Modal content-->
@@ -106,7 +142,7 @@ require('navbar_up.php');
 							  <div class="modal-body">
 							  
 
-								<form autocomplete="off" action="./incarichi/add_telegramid.php?cod='.$r['cod'].'&mail='.$r['mail'].'"method="POST">
+								<form autocomplete="off" action="./incarichi/add_telegramid.php?cod='.rawurlencode($r['cod']).'&mail='.rawurlencode($r['mail']).'" method="POST">
     
 									 
 									<div class="form-group">

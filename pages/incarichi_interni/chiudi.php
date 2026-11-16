@@ -46,6 +46,12 @@ echo $query."<br>";
 $result=pg_query($conn, $query);
 
 
+// $query="UPDATE users.t_componenti_squadre SET data_end=now()
+// WHERE id_squadra=".$squadra." AND data_end IS NULL;";
+// echo $query."<br>";
+// //exit;
+// $result=pg_query($conn, $query);
+
 $query="UPDATE users.t_squadre SET id_stato=2 WHERE id=".$squadra.";";
 echo $query;
 //exit;

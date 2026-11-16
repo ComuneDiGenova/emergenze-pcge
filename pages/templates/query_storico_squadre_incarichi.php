@@ -38,7 +38,8 @@ while($r_s = pg_fetch_assoc($result_s)) {
         SELECT sqd.cognome, sqd.nome, 'f' AS capo_squadra
 		FROM users.v_personale_squadre2 sqd
 		JOIN users.t_componenti_squadre a 
-            ON a.matricola_cf = sqd.matricola_cf 
+            ON a.matricola_cf = sqd.matricola_cf
+            AND a.id_squadra = sqd.id_squadra::integer
 		WHERE sqd.id_squadra::numeric = $1 AND ((a.data_start < $2 AND (a.data_end > $2 or a.data_end IS NULL)) OR
 		    (a.data_start < $3 AND (a.data_end > $3 or a.data_end IS NULL)))
 		ORDER BY cognome;";

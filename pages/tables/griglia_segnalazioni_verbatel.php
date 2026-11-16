@@ -34,28 +34,54 @@ if(!$conn) {
 		join_lav.id_segnalazione_in_lavorazione AS id_lavorazione,
 		lav.in_lavorazione,
 		lav.id_profilo,
-		COALESCE(
-			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico<3)>0, 
-			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico<3)>0, 
-			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari<3)>0, 
-			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo<3)>0
+		(
+			(count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico = 2) > 0)
+			OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico = 2) > 0)
+			OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari = 2) > 0)
+			OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo IN (1, 2)) > 0)
 		) AS incarichi,
-		COALESCE(
-			count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico=3)>1, 
-			count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico=3)>0, 
-			count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari=3)>0, 
-			count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo=3)>0
+		(
+			(
+				(
+					count(inc_esterni.id_lavorazione)
+					+ count(inc_interni.id_lavorazione)
+					+ count(prov_caut.id_lavorazione)
+					+ count(sopralluoghi.id_lavorazione)
+				) > 0
+			)
+			AND
+			(
+				(
+					(count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico <> 3))
+					+ (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico <> 3))
+					+ (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari <> 3))
+					+ (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo <> 3))
+				) = 0
+			)
+			AND (
+				lav.id_profilo = 6
+				OR (count(inc_esterni.id_lavorazione) filter (where inc_esterni.id_stato_incarico = 2) > 0)
+				OR (count(inc_interni.id_lavorazione) filter (where inc_interni.id_stato_incarico = 2) > 0)
+				OR (count(prov_caut.id_lavorazione) filter (where prov_caut.id_stato_provvedimenti_cautelari = 2) > 0)
+				OR (count(sopralluoghi.id_lavorazione) filter (where sopralluoghi.id_stato_sopralluogo IN (1, 2)) > 0)
+			)
 		) AS incarichi_chiusi,
 		seg.id_evento,
 		MAX(seg.geom::text) AS geom,
 		evento.fine_sospensione,
-		string_agg(
+		string_agg(DISTINCT
 			CASE 
-				WHEN inc_esterni.id_stato_incarico::varchar = '2' THEN inc_esterni.descrizione_uo::varchar
-				WHEN inc_interni.id_stato_incarico::varchar = '2' THEN inc_interni.descrizione_uo::varchar
+				WHEN inc_esterni.id_stato_incarico::varchar IN ('1','2') THEN inc_esterni.descrizione_uo::varchar
+				WHEN inc_interni.id_stato_incarico::varchar IN ('1','2') THEN inc_interni.descrizione_uo::varchar
 				ELSE null
 			END, ' - '
 		) AS responsabile_incarico,
+		string_agg(DISTINCT
+			CASE
+				WHEN sopralluoghi.id_stato_sopralluogo IN (1, 2) THEN sopralluoghi.descrizione_uo::varchar
+				ELSE NULL
+			END, ' - '
+		) AS responsabile_presidio,
 		bool_and(coalesce(verb.intervento_id, 0)::boolean and (lav.id_profilo=6)) as presa_visione_verbatel
 	FROM 
 		segnalazioni.t_segnalazioni seg
@@ -73,9 +99,9 @@ if(!$conn) {
 		LIMIT 1
 	) civici_laterale ON civ.id IS NULL
 	LEFT JOIN segnalazioni.v_incarichi_last_update inc_esterni 
-		ON inc_esterni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_esterni.id_stato_incarico < 4
+		ON inc_esterni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_esterni.id_stato_incarico <= 4
 	LEFT JOIN segnalazioni.v_incarichi_interni_last_update inc_interni 
-		ON inc_interni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_interni.id_stato_incarico < 4
+		ON inc_interni.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND inc_interni.id_stato_incarico <= 4
 	LEFT JOIN segnalazioni.v_provvedimenti_cautelari_last_update prov_caut 
 		ON prov_caut.id_lavorazione = join_lav.id_segnalazione_in_lavorazione AND prov_caut.id_stato_provvedimenti_cautelari < 4
 	LEFT JOIN segnalazioni.v_sopralluoghi_last_update sopralluoghi 
