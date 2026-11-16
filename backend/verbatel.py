@@ -58,7 +58,7 @@ class __Tools__(object):
                         logger.debug("Double decode")
                 else:
                     out = response.text
-                    return out
+                return out
 
 
 class VerbatelWSO2(AccessTokenManager, __Tools__):
